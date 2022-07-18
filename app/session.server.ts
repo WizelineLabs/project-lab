@@ -3,6 +3,7 @@ import invariant from "tiny-invariant";
 
 import type { User } from "~/models/user.server";
 import { getUserById } from "~/models/user.server";
+import { getProfileByUserId } from "~/models/profile.server";
 
 invariant(process.env.SESSION_SECRET, "SESSION_SECRET must be set");
 
@@ -61,6 +62,15 @@ export async function requireUser(request: Request) {
 
   const user = await getUserById(userId);
   if (user) return user;
+
+  throw await logout(request);
+}
+
+export async function requireProfile(request: Request) {
+  const userId = await requireUserId(request);
+
+  const profile = await getProfileByUserId(userId);
+  if (profile) return profile;
 
   throw await logout(request);
 }
