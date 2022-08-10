@@ -59,7 +59,6 @@ function Document({ children, title } : IDocumentProps) {
     <head>
       <Meta/>
       <Links />
-      <title>{title? title : 'App'}</title>
     </head>
     <body className="h-full">
       {children}
