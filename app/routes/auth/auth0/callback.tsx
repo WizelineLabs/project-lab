@@ -11,6 +11,6 @@ export let loader: LoaderFunction = async ({ request }) => {
     request,
     userId: user.id,
     remember: false,
-    redirectTo: "/notes",
+    redirectTo: "/",
   });
 };

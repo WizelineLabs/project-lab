@@ -22,8 +22,9 @@ export const links: LinksFunction = () => {
 
 export const meta: MetaFunction = () => ({
   charset: "utf-8",
-  title: "Remix Notes",
+  title: "Wizelabs",
   viewport: "width=device-width,initial-scale=1",
+  description: "Wizeline's innovation hub",
 });
 
 type LoaderData = {
@@ -36,19 +37,30 @@ export const loader: LoaderFunction = async ({ request }) => {
   });
 };
 
+interface IDocumentProps {
+  children: any
+}
+
 export default function App() {
   return (
-    <html lang="en" className="h-full">
-      <head>
-        <Meta />
-        <Links />
-      </head>
-      <body className="h-full">
-        <Outlet />
-        <ScrollRestoration />
-        <Scripts />
-        <LiveReload />
-      </body>
-    </html>
+    <Document>
+      <Outlet />
+      <ScrollRestoration />
+      <Scripts />
+      <LiveReload />
+    </Document>
   );
+}
+
+function Document({ children } : IDocumentProps) {
+  return (
+  <html lang="en" className="h-full">
+    <head>
+      <Meta/>
+      <Links />
+    </head>
+    <body className="h-full">
+      {children}
+    </body>
+  </html>);
 }
