@@ -39,12 +39,11 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 interface IDocumentProps {
   children: any
-  title: string
 }
 
 export default function App() {
   return (
-    <Document title="Wizelabs">
+    <Document>
       <Outlet />
       <ScrollRestoration />
       <Scripts />
@@ -53,7 +52,7 @@ export default function App() {
   );
 }
 
-function Document({ children, title } : IDocumentProps) {
+function Document({ children } : IDocumentProps) {
   return (
   <html lang="en" className="h-full">
     <head>
