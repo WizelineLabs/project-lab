@@ -1,7 +1,9 @@
-import type { Profiles } from "@prisma/client";
+import type { Profiles, Projects } from "@prisma/client";
 import { Prisma } from "@prisma/client"
 
 import { prisma as db } from "~/db.server";
+
+export type { Projects } from "@prisma/client";
 
 interface SearchProjectsInput {
   profileId: Profiles["id"]
@@ -46,6 +48,39 @@ interface FacetOutput {
 export class SearchProjectsError extends Error {
   name = "SearchProjectsError"
   message = "There was an error while searching for projects."
+}
+
+export async function getProject({
+  id
+}: Pick<Projects, "id">) {
+  return db.projects.findFirst({
+    where: { id },
+    include: {
+      skills: true,
+      disciplines: true,
+      labels: true,
+      projectStatus: true,
+      owner: true,
+      projectMembers: {
+        include: {
+          profile: { select: { firstName: true, lastName: true, email: true } },
+          contributorPath: true,
+          practicedSkills: true,
+          //role: true,
+        },
+        orderBy: [{ active: "desc" }],
+      },
+      stages: {
+        include: {
+          projectTasks: true,
+        },
+        orderBy: [{ position: "asc" }],
+      },
+      votes: { where: { projectId: id } },
+      innovationTiers: true,
+      repoUrls: true,
+    },
+  })
 }
 
 export async function searchProjects({
