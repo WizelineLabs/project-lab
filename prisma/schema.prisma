@@ -86,7 +86,7 @@ model ProjectMembers {
   projectId       String
   profileId       String
   hoursPerWeek    Int?
-  role            String?
+  role            Disciplines[]
   active          Boolean           @default(true)
   profile         Profiles?         @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   project         Projects?         @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -215,11 +215,12 @@ model Skills {
 }
 
 model Disciplines {
-  id        String     @id @default(uuid())
-  name      String     @unique
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @default(now())
-  projects  Projects[]
+  id             String           @id @default(uuid())
+  name           String           @unique
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @default(now())
+  projects       Projects[]
+  projectMembers ProjectMembers[]
 
   @@index([name], name: "discipline_name_idx")
 }

@@ -74,7 +74,7 @@ export async function getProject({
           profile: { select: { firstName: true, lastName: true, email: true } },
           contributorPath: true,
           practicedSkills: true,
-          //role: true,
+          role: true,
         },
         orderBy: [{ active: "desc" }],
       },
