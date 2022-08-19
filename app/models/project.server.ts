@@ -50,10 +50,20 @@ export class SearchProjectsError extends Error {
   message = "There was an error while searching for projects."
 }
 
+export function isProjectTeamMember(profileId: string, project: ProjectComplete) {
+  const isProjectMember = project?.projectMembers.some((p) => p.profileId === profileId);
+  const isProjectOwner = profileId === project?.ownerId;
+  return isProjectMember || isProjectOwner;
+}
+
+export function getProjectTeamMember(profileId: string, project: ProjectComplete) {
+  return project?.projectMembers.find(p => p.profileId === profileId);
+}
+
 export async function getProject({
   id
 }: Pick<Projects, "id">) {
-  return db.projects.findFirst({
+  return await db.projects.findFirst({
     where: { id },
     include: {
       skills: true,
@@ -82,6 +92,8 @@ export async function getProject({
     },
   })
 }
+
+export type ProjectComplete = Prisma.PromiseReturnType<typeof getProject>
 
 export async function searchProjects({
   profileId,
