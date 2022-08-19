@@ -3,8 +3,6 @@ import { Prisma } from "@prisma/client"
 
 import { prisma as db } from "~/db.server";
 
-export type { Projects } from "@prisma/client";
-
 interface SearchProjectsInput {
   profileId: Profiles["id"]
   search: string | string[]
