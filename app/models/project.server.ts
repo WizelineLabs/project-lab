@@ -1,4 +1,4 @@
-import type { Profiles } from "@prisma/client";
+import type { Profiles, Projects } from "@prisma/client";
 import { Prisma } from "@prisma/client"
 
 import { prisma as db } from "~/db.server";
@@ -47,6 +47,51 @@ export class SearchProjectsError extends Error {
   name = "SearchProjectsError"
   message = "There was an error while searching for projects."
 }
+
+export function isProjectTeamMember(profileId: string, project: ProjectComplete) {
+  const isProjectMember = project?.projectMembers.some((p) => p.profileId === profileId);
+  const isProjectOwner = profileId === project?.ownerId;
+  return isProjectMember || isProjectOwner;
+}
+
+export function getProjectTeamMember(profileId: string, project: ProjectComplete) {
+  return project?.projectMembers.find(p => p.profileId === profileId);
+}
+
+export async function getProject({
+  id
+}: Pick<Projects, "id">) {
+  return await db.projects.findFirst({
+    where: { id },
+    include: {
+      skills: true,
+      disciplines: true,
+      labels: true,
+      projectStatus: true,
+      owner: true,
+      projectMembers: {
+        include: {
+          profile: { select: { firstName: true, lastName: true, email: true } },
+          contributorPath: true,
+          practicedSkills: true,
+          //role: true,
+        },
+        orderBy: [{ active: "desc" }],
+      },
+      stages: {
+        include: {
+          projectTasks: true,
+        },
+        orderBy: [{ position: "asc" }],
+      },
+      votes: { where: { projectId: id } },
+      innovationTiers: true,
+      repoUrls: true,
+    },
+  })
+}
+
+export type ProjectComplete = Prisma.PromiseReturnType<typeof getProject>
 
 export async function searchProjects({
   profileId,
