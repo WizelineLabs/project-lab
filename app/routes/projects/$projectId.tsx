@@ -9,7 +9,7 @@ import { requireProfile, requireUser } from "~/session.server";
 import { getProjectTeamMember, isProjectTeamMember, getProject } from "~/models/project.server";
 import type { ProjectComplete } from "~/models/project.server";
 
-import { Card, CardContent, Chip, Stack, Grid, Box, TextField, Button } from "@mui/material"
+import { Card, CardContent, Chip, Stack, Grid, Box, Button } from "@mui/material"
 import { EditSharp, ThumbUpSharp, ThumbDownSharp } from "@mui/icons-material"
 import { HeaderInfo, DetailMoreHead, Like, LikeBox, EditButton } from "./$projectId.styles"
 import { adminRoleName } from "app/constants"
