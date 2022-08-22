@@ -32,6 +32,74 @@ Click this button to create a [Gitpod](https://gitpod.io) workspace with the pro
 
 [![Gitpod Ready-to-Code](https://img.shields.io/badge/Gitpod-Ready--to--Code-blue?logo=gitpod)](https://gitpod.io/from-referrer/)
 
+## Requirements
+
+First you should install postgres on your computer. For MacOS an easy method is to use [Postgres.app](https://postgresapp.com/downloads.html). If you have an M1 chip, the lastest version has support for it without Rossetta. As documented in their [page](https://postgresapp.com/documentation/cli-tools.html), you can add postgresql tools to your path using:
+
+```
+sudo mkdir -p /etc/paths.d &&
+echo /Applications/Postgres.app/Contents/Versions/latest/bin | sudo tee /etc/paths.d/postgresapp
+```
+
+After that you can create a DB using this commands on the terminal:
+
+```
+createdb projectlabR
+```
+
+For Windows you can install postgres from [here](https://www.enterprisedb.com/downloads/postgres-postgresql-downloads) and you can follow [this](https://www.prisma.io/dataguide/postgresql/setting-up-a-local-postgresql-database#setting-up-postgresql-on-windows) easy setup (this also works for MacOS)
+
+Then open the SQL Shell and write this commands for creating a DB:
+
+```
+CREATE DATABASE projectlabR;
+```
+## Getting Started
+
+### Environment Variables
+
+1. In root, create `.env` file with the following:
+
+```
+DATABASE_URL=postgresql://[username]@localhost:5432/projectlabR
+SESSION_SECRET=
+# Auth0 credentials
+AUTH0_CLIENT_ID=
+AUTH0_DOMAIN=
+AUTH0_CLIENT_SECRET=
+BASE_URL: 
+```
+
+If you set a password in the installation of postgres, you should use this format for the DATABASE_URL:
+
+```
+DATABASE_URL=postgresql://[username]:[password]@localhost:5432/[database]?schema=public
+```
+
+2. Ask in `#team-projectlab` channel on _Slack_
+   for the environment values for `.env`.
+
+3. Edit `prisma/seeds.ts` file and add your user at the very bottom, make sure to replace with your data:
+
+```
+  await db.profiles.upsert({
+    where: { email: "[YOUR_WIZELINE_EMAIL]" },
+    update: {},
+    create: {
+      email: "[YOUR_WIZELINE_EMAIL]",
+      firstName: "[YOUR_FIRNAME]",
+      lastName: "[YOUR_LASTNAME]",
+      department: "[YOUR_DEPARTMENT]",
+    },
+  })
+```
+
+4. (Only dev environment) Set the project's node version with NVM. If you don't have NVM installed read the [documentation](https://github.com/nvm-sh/nvm):
+
+```
+nvm use
+```
+
 ## Development
 
 - Initial setup: _If you just generated this project, this step has been done for you._
