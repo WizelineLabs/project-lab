@@ -22,6 +22,7 @@ const Wrapper = styled.div`
   display: flex;
   height: 51px;
   margin-bottom: 35px;
+  
   .wrapper__back--icon {
     width: 23px;
     height: 23px;
