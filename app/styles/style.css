@@ -1,0 +1,168 @@
+* {
+  margin: 0px;
+  padding: 0px;
+}
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: #f2f4f4;
+}
+
+h1 {
+  color: #252a2f;
+  font-family: Poppins;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 30px;
+}
+h2 {
+  color: #252a2f;
+  font-family: Poppins;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 26px;
+}
+.wrapper {
+  margin: 35px auto;
+  max-width: 1250px;
+  border-radius: 7px;
+  background-color: #ffffff;
+  padding: 20px 23px;
+}
+.wrapper + .wrapper {
+  margin-top: -10px;
+}
+button.primary,
+button.primary:hover {
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.14);
+  border-radius: 4px;
+  background-color: #e94d44;
+  color: #ffffff;
+  font-family: Poppins;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 29px;
+  text-align: center;
+  border: none;
+  width: 130px;
+  height: 44px;
+  cursor: pointer;
+}
+
+button.primary.warning {
+  background-color: red;
+  color: #fff;
+}
+
+button.primary:disabled {
+  opacity: 0.5;
+}
+
+button[disabled].primary:hover {
+  cursor: not-allowed !important;
+}
+
+.like-bubble {
+  display: flex;
+  align-items: center;
+  padding-left: 15px;
+  padding-right: 15px;
+  background: #fff;
+  color: #000;
+  font-family: "Poppins";
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  margin-right: 5px;
+  text-align: center;
+  box-shadow: 0 2px 4px 0 rgb(0 0 0 / 14%);
+}
+
+button.primary.search {
+  height: 56px;
+  margin-left: 5px;
+}
+
+button.primary.default {
+  background-color: #f1f1f1;
+  color: #444;
+}
+
+button.primary.large {
+  width: 100%;
+}
+
+table.table-project-members {
+  background-color: #fff;
+  border: solid 1px #999;
+  border-collapse: collapse;
+}
+
+table.table-project-members th {
+  text-align: left;
+  background-color: #999;
+  color: #fff;
+}
+
+table.table-project-members th,
+table.table-project-members td {
+  padding: 8px;
+  border: solid 1px #ccc;
+  vertical-align: top;
+}
+
+table.table-project-members td:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+table.table-project-members td ul {
+  display: flex;
+}
+
+table.table-project-members td ul li {
+  list-style: none;
+  margin-right: 2px;
+}
+
+span.status {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background-color: #fff;
+  border: solid 2px #ccc;
+  margin-right: 5px;
+  border-radius: 100%;
+}
+
+span.status.active {
+  background-color: #27e527;
+  border: solid 2px #27e527;
+}
+
+.rows__separator {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  table.table-project-members {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .form__center-text {
+    text-align: center;
+  }
+
+  .rows__separator {
+    display: block;
+    margin: 0 auto;
+    height: 1px;
+    width: 95%;
+    background-color: #111823;
+    margin-bottom: 5px;
+  }
+}
