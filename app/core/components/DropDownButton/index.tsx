@@ -79,7 +79,7 @@ export const DropDownButton = ({ children, options }: {children: React.ReactNode
                           }}
                           component={btnProps => (
                             // eslint-disable-next-line jsx-a11y/anchor-has-content
-                            <Link
+                            <Link to='new'
                               {...btnProps as any}
                             />
                           )}
