@@ -65,7 +65,7 @@ const Header = ({ title }: IProps) => {
           <div className="content">
             <div className="logo" onClick={goHome}>
               <div className="logo--img">
-                <img src="/wizeline.png" alt="wizeline" height={70} width={103} />
+                <img src="/wizeline.png" alt="wizeline" height={36} width={36} />
               </div>
               <div className="logo--text">Project Lab</div>
             </div>
@@ -81,6 +81,7 @@ const Header = ({ title }: IProps) => {
                   <span className="actions__user--name">{currentUser?.email}</span>
                 </div>
               </DropDownButton>
+
             </div>
           </div>
         </header>
