@@ -3,10 +3,12 @@ import styled from "@emotion/styled";
 export const Panel = styled.div`
   display: flex;
   flex-direction: column;
+  align-items: center;
   width: 26.25rem;
   margin-top: 5.25rem;
   height: 100%;
 `;
+
 export const Greet = styled.span`
   font-size: 24px;
   font-weight: 500;
@@ -53,4 +55,14 @@ export const Body = styled.div`
   flex-direction: column;
   align-items: center;
   padding: 0rem 2.5rem 1.5rem;
+`;
+
+export const LoginPageContainer = styled.div`
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: rgb(50, 50, 93);
+  overflow-y: auto;
 `;

@@ -11,6 +11,7 @@ import {
   Button,
   Footer,
   Body,
+  LoginPageContainer,
 } from "./login.styles";
 
 import { getUserId } from "~/session.server";
@@ -32,6 +33,7 @@ export default function LoginPage() {
   const redirectTo = searchParams.get("redirectTo") || "/notes";
 
   return (
+  <LoginPageContainer>
     <Panel>
       <img src="/wizeline.png" alt="wizeline" height={40} width={40} />
       <StyledLoginForm>
@@ -45,5 +47,6 @@ export default function LoginPage() {
         <Footer />
       </StyledLoginForm>
     </Panel>
+  </LoginPageContainer>
   );
 }
