@@ -4,6 +4,14 @@ import type {
 } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useSearchParams } from "@remix-run/react";
+import {
+  Panel,
+  Greet,
+  StyledLoginForm,
+  Button,
+  Footer,
+  Body,
+} from "./login.styles";
 
 import { getUserId } from "~/session.server";
 
@@ -24,18 +32,18 @@ export default function LoginPage() {
   const redirectTo = searchParams.get("redirectTo") || "/notes";
 
   return (
-    <div className="flex min-h-full flex-col justify-center">
-      <div className="mx-auto w-full max-w-md px-8">
-        <Form action="/auth/auth0" method="post" className="space-y-6">
-          <input type="hidden" name="redirectTo" value={redirectTo} />
-          <button
-            type="submit"
-            className="w-full rounded bg-blue-500  py-2 px-4 text-white hover:bg-blue-600 focus:bg-blue-400"
-          >
-            Log in
-          </button>
-        </Form>
-      </div>
-    </div>
+    <Panel>
+      <img src="/wizeline.png" alt="wizeline" height={40} width={40} />
+      <StyledLoginForm>
+        <Body>
+          <Greet>Welcome back Wizeliner!</Greet>
+          <Form action="/auth/auth0" method="post" className="space-y-6">
+            <input type="hidden" name="redirectTo" value={redirectTo} />
+            <Button type="submit">Log in</Button>
+          </Form>
+        </Body>
+        <Footer />
+      </StyledLoginForm>
+    </Panel>
   );
 }
