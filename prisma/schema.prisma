@@ -86,7 +86,7 @@ model ProjectMembers {
   projectId       String
   profileId       String
   hoursPerWeek    Int?
-  role            String?
+  role            Disciplines[]
   active          Boolean           @default(true)
   profile         Profiles?         @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   project         Projects?         @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -155,6 +155,8 @@ model Projects {
   helpWanted             Boolean                  @default(true)
   tsColumn               Unsupported("TSVECTOR")?
   projectVersions        ProjectsVersions[]
+  relatedProjectsA       RelatedProjects[]        @relation(name: "RelatedProjectsA")
+  relatedProjectsB       RelatedProjects[]        @relation(name: "RelatedProjectsB")
 
   @@index([ownerId], name: "projects_owner_id_idx")
   @@index([status], name: "projects_status_idx")
@@ -215,11 +217,12 @@ model Skills {
 }
 
 model Disciplines {
-  id        String     @id @default(uuid())
-  name      String     @unique
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @default(now())
-  projects  Projects[]
+  id             String           @id @default(uuid())
+  name           String           @unique
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @default(now())
+  projects       Projects[]
+  projectMembers ProjectMembers[]
 
   @@index([name], name: "discipline_name_idx")
 }
@@ -302,4 +305,14 @@ model Repos {
   updatedAt DateTime @default(now())
   projects  Projects @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   projectId String
+}
+
+model RelatedProjects {
+  id         Int      @id @default(autoincrement())
+  projectA   Projects @relation(name: "RelatedProjectsA", fields: [projectAId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  projectB   Projects @relation(name: "RelatedProjectsB", fields: [projectBId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  projectAId String
+  projectBId String
+
+  @@unique([projectAId, projectBId])
 }
