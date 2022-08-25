@@ -10,7 +10,7 @@ const Wrapper = styled.div`
     border: none;
     color: #ffffff;
     font-family: Poppins;
-    font-size: 13.8px;
+    font-size: 12px;
     font-weight: 600;
     width: 120px;
     letter-spacing: 0;
