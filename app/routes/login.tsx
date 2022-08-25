@@ -34,7 +34,7 @@ export default function LoginPage() {
   return (
   <LoginPageContainer>
     <Panel>
-      <img src="/download.png" alt="Wizeline"  width={140} />
+      <img src="/wizeletters.png" alt="Wizeline"  width={140} />
       <StyledLoginForm>
           <Greet>Welcome back Wizeliner!</Greet>
           <Form action="/auth/auth0" method="post" className="space-y-6" >
