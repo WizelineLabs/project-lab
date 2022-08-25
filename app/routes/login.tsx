@@ -10,7 +10,6 @@ import {
   StyledLoginForm,
   Button,
   Footer,
-  Body,
   LoginPageContainer,
 } from "./login.styles";
 
@@ -35,15 +34,13 @@ export default function LoginPage() {
   return (
   <LoginPageContainer>
     <Panel>
-      <img src="/wizeline.png" alt="wizeline" height={40} width={40} />
+      <img src="/wizeletters.png" alt="Wizeline"  width={140} />
       <StyledLoginForm>
-        <Body>
           <Greet>Welcome back Wizeliner!</Greet>
-          <Form action="/auth/auth0" method="post" className="space-y-6">
+          <Form action="/auth/auth0" method="post" className="space-y-6" >
             <input type="hidden" name="redirectTo" value={redirectTo} />
-            <Button type="submit">Log in</Button>
+            <Button type="submit">Log in with your Wizeline email account</Button>
           </Form>
-        </Body>
         <Footer />
       </StyledLoginForm>
     </Panel>
