@@ -20,21 +20,21 @@ type LoaderData = {
 };
 
 const ITEMS_PER_PAGE = 50
-const FACETS = ["status", "skill", "label", "disciplines", "location", "tier"]
+const FACETS = ["status", "skill", "label", "disciplines", "location", "tier", "role", "missing"]
 
 export const loader: LoaderFunction = async ({ request }) => {
   const profile = await requireProfile(request);
   const url = new URL(request.url);
   const page = Number(url.searchParams.get("page") || 0);
   const search = url.searchParams.get("q") || ""
-  const status = url.searchParams.get("status");
-  const skill = url.searchParams.get("skill");
-  const label = url.searchParams.get("label");
-  const discipline = url.searchParams.get("discipline");
-  const location = url.searchParams.get("location");
-  const tier = url.searchParams.get("tier");
-  const role = url.searchParams.get("role");
-  const missing = url.searchParams.get("missing");
+  const status = url.searchParams.getAll("status");
+  const skill = url.searchParams.getAll("skill");
+  const label = url.searchParams.getAll("label");
+  const discipline = url.searchParams.getAll("discipline");
+  const location = url.searchParams.getAll("location");
+  const tier = url.searchParams.getAll("tier");
+  const role = url.searchParams.getAll("role");
+  const missing = url.searchParams.getAll("missing");
   const field = url.searchParams.get("field") || "";
   const order = url.searchParams.get("order") || "";
   const data = await searchProjects({
@@ -91,7 +91,11 @@ export default function Projects() {
   }
 
   const deleteFilter = (filter: string, value: string | null) => {
+    const newFilter = searchParams.getAll(filter).filter(item => item != value)
+    console.log(newFilter)
     searchParams.delete(filter)
+    newFilter.forEach(item => searchParams.append(filter, item))
+    console.log(searchParams)
     setSearchParams(searchParams)
   }
 
@@ -100,10 +104,10 @@ export default function Projects() {
     return searchParams.get("q") === "myProposals"
   }
   const isIdeasTab = () => {
-    return searchParams.get("status") === "Idea Submitted"
+    return searchParams.getAll("status").includes("Idea Submitted")
   }
   const isInProgressTab = () => {
-    return searchParams.get("status") === "Idea in Progress"
+    return searchParams.getAll("status").includes("Idea in Progress")
   }
   const getTitle = () => {
     if (isMyProposalTab()) {
@@ -184,7 +188,7 @@ export default function Projects() {
                   <div>
                     {FACETS
                       .filter(facet => searchParams.get(facet) ? true : null)
-                      .map(facet => { return {filter: facet, value: searchParams.get(facet)} })
+                      .flatMap(facet => { return searchParams.getAll(facet).map( item => { return { filter: facet, value: item } } ) })
                       .map((chip) => (
                       <Chip
                         key={`${chip.filter}-${chip.value}`}
