@@ -6,7 +6,8 @@ import CardBox from "app/core/components/CardBox"
 import ProposalCard from "app/core/components/ProposalCard"
 import Header from "app/core/layouts/Header"
 import { Accordion, AccordionDetails, AccordionSummary, Chip } from "@mui/material"
-import { ExpandMore } from "@mui/icons-material"
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import ExpandMore from "@mui/icons-material/ExpandMore"
 import FilterAltIcon from "@mui/icons-material/FilterAlt"
 import CloseIcon from "@mui/icons-material/Close"
 import { SortInput } from "app/core/components/SortInput"
@@ -90,11 +91,12 @@ export default function Projects() {
     return firstName.substring(0, 1) + lastName.substring(0, 1)
   }
 
-  const deleteFilter = (filter: string, value: string | null) => {
-    const newFilter = searchParams.getAll(filter).filter(item => item != value)
-    searchParams.delete(filter)
-    newFilter.forEach(item => searchParams.append(filter, item))
-    setSearchParams(searchParams)
+  const deleteFilterUrl = (filter: string, value: string | null) => {
+    const newParams = new URLSearchParams(searchParams.toString());
+    const newFilter = newParams.getAll(filter).filter(item => item != value)
+    newParams.delete(filter)
+    newFilter.forEach(item => newParams.append(filter, item))
+    return `?${newParams.toString()}`
   }
 
   //Tabs selection logic
@@ -191,10 +193,13 @@ export default function Projects() {
                       <Chip
                         key={`${chip.filter}-${chip.value}`}
                         label={chip.value}
+                        clickable={true}
                         size="small"
                         variant="outlined"
                         className="homeWrapper__myProposals--filters"
-                        onDelete={() => deleteFilter(chip.filter, chip.value)}
+                        icon={<HighlightOffIcon />}
+                        component={Link}
+                        to={deleteFilterUrl(chip.filter, chip.value)}
                       />
                     ))}
                   </div>
