@@ -92,10 +92,8 @@ export default function Projects() {
 
   const deleteFilter = (filter: string, value: string | null) => {
     const newFilter = searchParams.getAll(filter).filter(item => item != value)
-    console.log(newFilter)
     searchParams.delete(filter)
     newFilter.forEach(item => searchParams.append(filter, item))
-    console.log(searchParams)
     setSearchParams(searchParams)
   }
 
