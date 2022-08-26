@@ -6,7 +6,7 @@ export type { User } from "@prisma/client";
 
 export async function getProfileByUserId(id: User["id"]) {
   const result = await prisma.$queryRaw<Profiles[]>`
-    SELECT * FROM "Profiles" p
+    SELECT p.*, u.name, u.role, u.id as userId FROM "Profiles" p
     INNER JOIN "User" u ON u.email = p.email
     WHERE u.id = ${id}
   `;
