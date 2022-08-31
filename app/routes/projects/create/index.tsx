@@ -15,7 +15,7 @@ const NewProjectPage = () => {
       </div>
       <div className="wrapper">
         <GoBack title="Back to main page" onClick={() => navigate("/")} />
-        {/* <ProjectForm
+        {/*<ProjectForm
           projectformType="create"
           submitText="Create Project"
           initialValues={INIT_VAUES_PROJECTFORM}
@@ -23,7 +23,7 @@ const NewProjectPage = () => {
           onSubmit={projectFormOnSubmit}
           disabled={savingProject}
           buttonType="button"
-        /> */}
+  />*/}
         <ProjectForm />
       </div>
     </div>
