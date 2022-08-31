@@ -6,7 +6,8 @@ import CardBox from "app/core/components/CardBox"
 import ProposalCard from "app/core/components/ProposalCard"
 import Header from "app/core/layouts/Header"
 import { Accordion, AccordionDetails, AccordionSummary, Chip } from "@mui/material"
-import { ExpandMore } from "@mui/icons-material"
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import ExpandMore from "@mui/icons-material/ExpandMore"
 import FilterAltIcon from "@mui/icons-material/FilterAlt"
 import CloseIcon from "@mui/icons-material/Close"
 import { SortInput } from "app/core/components/SortInput"
@@ -20,21 +21,21 @@ type LoaderData = {
 };
 
 const ITEMS_PER_PAGE = 50
-const FACETS = ["status", "skill", "label", "disciplines", "location", "tier"]
+const FACETS = ["status", "skill", "label", "disciplines", "location", "tier", "role", "missing"]
 
 export const loader: LoaderFunction = async ({ request }) => {
   const profile = await requireProfile(request);
   const url = new URL(request.url);
   const page = Number(url.searchParams.get("page") || 0);
   const search = url.searchParams.get("q") || ""
-  const status = url.searchParams.get("status");
-  const skill = url.searchParams.get("skill");
-  const label = url.searchParams.get("label");
-  const discipline = url.searchParams.get("discipline");
-  const location = url.searchParams.get("location");
-  const tier = url.searchParams.get("tier");
-  const role = url.searchParams.get("role");
-  const missing = url.searchParams.get("missing");
+  const status = url.searchParams.getAll("status");
+  const skill = url.searchParams.getAll("skill");
+  const label = url.searchParams.getAll("label");
+  const discipline = url.searchParams.getAll("discipline");
+  const location = url.searchParams.getAll("location");
+  const tier = url.searchParams.getAll("tier");
+  const role = url.searchParams.getAll("role");
+  const missing = url.searchParams.getAll("missing");
   const field = url.searchParams.get("field") || "";
   const order = url.searchParams.get("order") || "";
   const data = await searchProjects({
@@ -90,9 +91,12 @@ export default function Projects() {
     return firstName.substring(0, 1) + lastName.substring(0, 1)
   }
 
-  const deleteFilter = (filter: string, value: string | null) => {
-    searchParams.delete(filter)
-    setSearchParams(searchParams)
+  const deleteFilterUrl = (filter: string, value: string | null) => {
+    const newParams = new URLSearchParams(searchParams.toString());
+    const newFilter = newParams.getAll(filter).filter(item => item != value)
+    newParams.delete(filter)
+    newFilter.forEach(item => newParams.append(filter, item))
+    return `?${newParams.toString()}`
   }
 
   //Tabs selection logic
@@ -100,10 +104,10 @@ export default function Projects() {
     return searchParams.get("q") === "myProposals"
   }
   const isIdeasTab = () => {
-    return searchParams.get("status") === "Idea Submitted"
+    return searchParams.getAll("status").includes("Idea Submitted")
   }
   const isInProgressTab = () => {
-    return searchParams.get("status") === "Idea in Progress"
+    return searchParams.getAll("status").includes("Idea in Progress")
   }
   const getTitle = () => {
     if (isMyProposalTab()) {
@@ -184,15 +188,18 @@ export default function Projects() {
                   <div>
                     {FACETS
                       .filter(facet => searchParams.get(facet) ? true : null)
-                      .map(facet => { return {filter: facet, value: searchParams.get(facet)} })
+                      .flatMap(facet => { return searchParams.getAll(facet).map( item => { return { filter: facet, value: item } } ) })
                       .map((chip) => (
                       <Chip
                         key={`${chip.filter}-${chip.value}`}
                         label={chip.value}
+                        clickable={true}
                         size="small"
                         variant="outlined"
                         className="homeWrapper__myProposals--filters"
-                        onDelete={() => deleteFilter(chip.filter, chip.value)}
+                        icon={<HighlightOffIcon />}
+                        component={Link}
+                        to={deleteFilterUrl(chip.filter, chip.value)}
                       />
                     ))}
                   </div>
