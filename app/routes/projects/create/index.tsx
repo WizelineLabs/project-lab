@@ -1,6 +1,7 @@
 import Header from "app/core/layouts/Header";
 import GoBack from "app/core/layouts/GoBack";
 import { useNavigate } from "@remix-run/react";
+import { ProjectForm } from "../components/ProjectForm";
 
 
 
@@ -23,6 +24,7 @@ const NewProjectPage = () => {
           disabled={savingProject}
           buttonType="button"
         /> */}
+        <ProjectForm />
       </div>
     </div>
   );
