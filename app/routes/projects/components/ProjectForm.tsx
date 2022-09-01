@@ -17,11 +17,11 @@ export function ProjectForm() {
         </div>
         <div>
           <label>
-            Your Proposal <input type="text" name="valueStatement" placeholder="Explain us your proposal..." />
+            Your Proposal <textarea name="valueStatement" placeholder="Explain us your proposal..." />
           </label>
         </div>
         <div>
-          <button type="submit" className="button">
+          <button type="submit">
             Create Project
           </button>
         </div>
