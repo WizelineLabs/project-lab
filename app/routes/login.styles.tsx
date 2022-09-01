@@ -3,10 +3,10 @@ import styled from "@emotion/styled";
 export const Panel = styled.div`
   display: flex;
   flex-direction: column;
-  width: 26.25rem;
-  margin-top: 5.25rem;
-  height: 100%;
+  align-items: center;
+  margin-top: 7rem;
 `;
+
 export const Greet = styled.span`
   font-size: 24px;
   font-weight: 500;
@@ -15,42 +15,43 @@ export const Greet = styled.span`
 export const StyledLoginForm = styled.div`
   display: flex;
   flex-direction: column;
-  border-radius: 0.1875rem;
+  border-radius: 0.5rem;
   background-color: rgb(255, 255, 255);
   align-items: center;
-  padding-top: 2.5rem;
   margin-top: 3.25rem;
-  font-size: 0.875rem;
   border: solid 1px #e6e7e8;
+  padding-top: 3rem;
 `;
 
 export const Button = styled.button`
   font-size: 0.9rem;
   background-color: #0a76db;
-  padding: 1rem 2rem;
+  padding: .7rem 1.5rem;
   color: #f4f4f4;
-  text-align: center;
-  padding: 0.5rem 1rem;
-  margin-top: 1rem;
+  margin-top: 1.5rem;
   border-radius: 3px;
+  border-width: 0px;
   &:hover {
     cursor: pointer;
     background-color: #0966be;
   }
+  width: 19rem;
 `;
 
 export const Footer = styled.div`
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
   height: 4rem;
   background-color: rgb(247, 249, 250);
+  margin-top: 3.25rem;
+  width: 25rem;
+  border-radius: 0.5rem;
 `;
 
-export const Body = styled.div`
+export const LoginPageContainer = styled.div`
+  height: 100vh;
+  width: 100vw;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0rem 2.5rem 1.5rem;
+  background-color: rgb(50, 50, 93);
+  overflow-y: auto;
 `;

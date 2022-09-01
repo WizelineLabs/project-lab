@@ -6,7 +6,8 @@ import CardBox from "app/core/components/CardBox"
 import ProposalCard from "app/core/components/ProposalCard"
 import Header from "app/core/layouts/Header"
 import { Accordion, AccordionDetails, AccordionSummary, Chip } from "@mui/material"
-import { ExpandMore } from "@mui/icons-material"
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import ExpandMore from "@mui/icons-material/ExpandMore"
 import FilterAltIcon from "@mui/icons-material/FilterAlt"
 import CloseIcon from "@mui/icons-material/Close"
 import { SortInput } from "app/core/components/SortInput"
@@ -20,19 +21,21 @@ type LoaderData = {
 };
 
 const ITEMS_PER_PAGE = 50
-const FACETS = ["status", "skill", "label", "disciplines", "location", "tier"]
+const FACETS = ["status", "skill", "label", "disciplines", "location", "tier", "role", "missing"]
 
 export const loader: LoaderFunction = async ({ request }) => {
   const profile = await requireProfile(request);
   const url = new URL(request.url);
   const page = Number(url.searchParams.get("page") || 0);
   const search = url.searchParams.get("q") || ""
-  const status = url.searchParams.get("status");
-  const skill = url.searchParams.get("skill");
-  const label = url.searchParams.get("label");
-  const discipline = url.searchParams.get("discipline");
-  const location = url.searchParams.get("location");
-  const tier = url.searchParams.get("tier");
+  const status = url.searchParams.getAll("status");
+  const skill = url.searchParams.getAll("skill");
+  const label = url.searchParams.getAll("label");
+  const discipline = url.searchParams.getAll("discipline");
+  const location = url.searchParams.getAll("location");
+  const tier = url.searchParams.getAll("tier");
+  const role = url.searchParams.getAll("role");
+  const missing = url.searchParams.getAll("missing");
   const field = url.searchParams.get("field") || "";
   const order = url.searchParams.get("order") || "";
   const data = await searchProjects({
@@ -43,6 +46,8 @@ export const loader: LoaderFunction = async ({ request }) => {
     discipline,
     location,
     tier,
+    role,
+    missing,
     profileId: profile.id,
     orderBy: { field, order },
     skip: ITEMS_PER_PAGE * page,
@@ -68,6 +73,8 @@ export default function Projects() {
     labelFacets,
     tierFacets,
     locationsFacets,
+    roleFacets,
+    missingFacets,
     count,
   }} = useLoaderData() as LoaderData
 
@@ -84,9 +91,12 @@ export default function Projects() {
     return firstName.substring(0, 1) + lastName.substring(0, 1)
   }
 
-  const deleteFilter = (filter: string, value: string | null) => {
-    searchParams.delete(filter)
-    setSearchParams(searchParams)
+  const deleteFilterUrl = (filter: string, value: string | null) => {
+    const newParams = new URLSearchParams(searchParams.toString());
+    const newFilter = newParams.getAll(filter).filter(item => item != value)
+    newParams.delete(filter)
+    newFilter.forEach(item => newParams.append(filter, item))
+    return `?${newParams.toString()}`
   }
 
   //Tabs selection logic
@@ -94,10 +104,10 @@ export default function Projects() {
     return searchParams.get("q") === "myProposals"
   }
   const isIdeasTab = () => {
-    return searchParams.get("status") === "Idea Submitted"
+    return searchParams.getAll("status").includes("Idea Submitted")
   }
   const isInProgressTab = () => {
-    return searchParams.get("status") === "Idea in Progress"
+    return searchParams.getAll("status").includes("Idea in Progress")
   }
   const getTitle = () => {
     if (isMyProposalTab()) {
@@ -178,15 +188,18 @@ export default function Projects() {
                   <div>
                     {FACETS
                       .filter(facet => searchParams.get(facet) ? true : null)
-                      .map(facet => { return {filter: facet, value: searchParams.get(facet)} })
+                      .flatMap(facet => { return searchParams.getAll(facet).map( item => { return { filter: facet, value: item } } ) })
                       .map((chip) => (
                       <Chip
                         key={`${chip.filter}-${chip.value}`}
                         label={chip.value}
+                        clickable={true}
                         size="small"
                         variant="outlined"
                         className="homeWrapper__myProposals--filters"
-                        onDelete={() => deleteFilter(chip.filter, chip.value)}
+                        icon={<HighlightOffIcon />}
+                        component={Link}
+                        to={deleteFilterUrl(chip.filter, chip.value)}
                       />
                     ))}
                   </div>
@@ -219,51 +232,24 @@ export default function Projects() {
                     </AccordionDetails>
                   </Accordion>
                 )}
-                {skillFacets.length > 0 && (
+                {tierFacets.length > 0 && (
                   <Accordion disableGutters className="homeWrapper__accordion">
                     <AccordionSummary
                       expandIcon={<ExpandMore />}
-                      aria-controls="panel2a-controls"
-                      id="panel2a-header"
+                      aria-controls="panel3a-controls"
+                      id="panel3a-header"
                       className="accordion__filter__title"
                     >
-                      <h4>Skills</h4>
+                      <h4>Innovation tiers</h4>
                     </AccordionSummary>
                     <AccordionDetails>
                       <ul className="homeWrapper__myProposals--list">
-                        {skillFacets.map((item) => (
+                        {tierFacets.map((item) => (
                           <li key={item.name}>
                             <Link
                               id={item.name}
                               color="#AF2E33"
-                              to={`?${searchParams.toString()}&skill=${item.name}`}
-                            >
-                              {item.name} ({item.count})
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </AccordionDetails>
-                  </Accordion>
-                )}
-                {disciplineFacets.length > 0 && (
-                  <Accordion disableGutters className="homeWrapper__accordion">
-                    <AccordionSummary
-                      expandIcon={<ExpandMore />}
-                      aria-controls="panel2a-controls"
-                      id="panel2a-header"
-                      className="accordion__filter__title"
-                    >
-                      <h4>Looking for</h4>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <ul className="homeWrapper__myProposals--list">
-                        {disciplineFacets.map((item) => (
-                          <li key={item.name}>
-                            <Link
-                              id={item.name}
-                              color="#AF2E33"
-                              to={`?${searchParams.toString()}&discipline=${item.name}`}
+                              to={`?${searchParams.toString()}&tier=${item.name}`}
                             >
                               {item.name} ({item.count})
                             </Link>
@@ -300,24 +286,105 @@ export default function Projects() {
                     </AccordionDetails>
                   </Accordion>
                 )}
-                {tierFacets.length > 0 && (
+                {disciplineFacets.length > 0 && (
                   <Accordion disableGutters className="homeWrapper__accordion">
                     <AccordionSummary
                       expandIcon={<ExpandMore />}
-                      aria-controls="panel3a-controls"
-                      id="panel3a-header"
+                      aria-controls="panel2a-controls"
+                      id="panel2a-header"
                       className="accordion__filter__title"
                     >
-                      <h4>Innovation tiers</h4>
+                      <h4>Looking for</h4>
                     </AccordionSummary>
                     <AccordionDetails>
                       <ul className="homeWrapper__myProposals--list">
-                        {tierFacets.map((item) => (
+                        {disciplineFacets.map((item) => (
                           <li key={item.name}>
                             <Link
                               id={item.name}
                               color="#AF2E33"
-                              to={`?${searchParams.toString()}&tier=${item.name}`}
+                              to={`?${searchParams.toString()}&discipline=${item.name}`}
+                            >
+                              {item.name} ({item.count})
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </AccordionDetails>
+                  </Accordion>
+                )}
+                {roleFacets.length > 0 && (
+                  <Accordion disableGutters className="homeWrapper__accordion">
+                    <AccordionSummary
+                      expandIcon={<ExpandMore />}
+                      aria-controls="panel2a-controls"
+                      id="panel2a-header"
+                      className="accordion__filter__title"
+                    >
+                      <h4>Roles</h4>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <ul className="homeWrapper__myProposals--list">
+                        {roleFacets.map((item) => (
+                          <li key={item.name}>
+                            <Link
+                              id={item.name}
+                              color="#AF2E33"
+                              to={`?${searchParams.toString()}&role=${item.name}`}
+                            >
+                              {item.name} ({item.count})
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </AccordionDetails>
+                  </Accordion>
+                )}
+                {missingFacets.length > 0 && (
+                  <Accordion disableGutters className="homeWrapper__accordion">
+                    <AccordionSummary
+                      expandIcon={<ExpandMore />}
+                      aria-controls="panel2a-controls"
+                      id="panel2a-header"
+                      className="accordion__filter__title"
+                    >
+                      <h4>Missing Roles</h4>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <ul className="homeWrapper__myProposals--list">
+                        {missingFacets.map((item) => (
+                          <li key={item.name}>
+                            <Link
+                              id={item.name}
+                              color="#AF2E33"
+                              to={`?${searchParams.toString()}&missing=${item.name}`}
+                            >
+                              {item.name} ({item.count})
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </AccordionDetails>
+                  </Accordion>
+                )}
+                {skillFacets.length > 0 && (
+                  <Accordion disableGutters className="homeWrapper__accordion">
+                    <AccordionSummary
+                      expandIcon={<ExpandMore />}
+                      aria-controls="panel2a-controls"
+                      id="panel2a-header"
+                      className="accordion__filter__title"
+                    >
+                      <h4>Skills</h4>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <ul className="homeWrapper__myProposals--list">
+                        {skillFacets.map((item) => (
+                          <li key={item.name}>
+                            <Link
+                              id={item.name}
+                              color="#AF2E33"
+                              to={`?${searchParams.toString()}&skill=${item.name}`}
                             >
                               {item.name} ({item.count})
                             </Link>

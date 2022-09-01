@@ -20,7 +20,13 @@ import StylesheetUrl from "./styles/style.css";
 import { getUser } from "./session.server";
 
 export const links: LinksFunction = () => {
-  return [{ rel: "stylesheet", href: StylesheetUrl }];
+  return [
+    { rel: "stylesheet", href: StylesheetUrl },
+    {
+      rel: "stylesheet",
+      href: "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap",
+    },
+  ];
 };
 
 export const meta: MetaFunction = () => ({
@@ -57,13 +63,12 @@ export default function App() {
 
 function Document({ children } : IDocumentProps) {
   return (
-  <html lang="en" className="h-full">
-    <head>
-      <Meta/>
-      <Links />
-    </head>
-    <body className="h-full">
-      {children}
-    </body>
-  </html>);
+    <html lang="en" className="h-full">
+      <head>
+        <Meta />
+        <Links />
+      </head>
+      <body className="h-full">{children}</body>
+    </html>
+  );
 }

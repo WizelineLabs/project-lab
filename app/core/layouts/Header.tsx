@@ -65,9 +65,9 @@ const Header = ({ title }: IProps) => {
           <div className="content">
             <div className="logo" onClick={goHome}>
               <div className="logo--img">
-                <img src="/wizeline.png" alt="wizeline" height={36} width={36} />
+                <img src="/wizeline.png" alt="wizeline" height={30} width={50} />
               </div>
-              <div className="logo--text">Project Lab</div>
+              <div className="logo--text">Wizelabs</div>
             </div>
             <div className="actions--container">
               <Search />
@@ -81,7 +81,6 @@ const Header = ({ title }: IProps) => {
                   <span className="actions__user--name">{currentUser?.email}</span>
                 </div>
               </DropDownButton>
-
             </div>
           </div>
         </header>
@@ -123,7 +122,7 @@ const Wrapper = styled.div`
     font-family: Poppins;
     font-size: 20px;
     font-weight: 600;
-    letter-spacing: 0;
+    letter-spacing: .5px;
     line-height: 30px;
   }
   .actions {
