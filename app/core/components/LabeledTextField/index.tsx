@@ -1,5 +1,4 @@
 import type { PropsWithoutRef } from "react";
-import { Field } from "react-final-form";
 import TextField from "@mui/material/TextField";
 
 interface LabeledTextFieldProps {
@@ -25,28 +24,18 @@ export const LabeledTextField = ({
   ...props
 }: LabeledTextFieldProps) => {
   return (
-    <Field name={name}>
-      {({ input, meta: { touched, error, submitError, submitting } }) => {
-        const normalizedError = Array.isArray(error)
-          ? error.join(", ")
-          : error || submitError;
-        const isError = touched && normalizedError;
-        return (
-          <div {...outerProps}>
-            <TextField
-              {...input}
-              label={label}
-              error={isError ? isError.length > 0 : false}
-              helperText={isError ? error : helperText}
-              type={type}
-              disabled={submitting}
-              {...props}
-            />
-          </div>
-        );
-      }}
-    </Field>
+    <div {...outerProps}>
+      <TextField
+        label={label}
+        // error={isError ? isError.length > 0 : false}
+        // helperText={isError ? error : helperText}
+        type={type}
+        // disabled={submitting}
+        {...props}
+      />
+    </div>
   );
-};
+}
+
 
 export default LabeledTextField;
