@@ -454,6 +454,8 @@ export default function Projects() {
                       skills={
                         item.searchSkills.split(",").map((skill) => ({ name: skill.trim() }))
                       }
+                      tierName={item.tierName}
+                      projectMembers={Number(item.projectMembers)}
                     />
                   )})}
                 </div>
