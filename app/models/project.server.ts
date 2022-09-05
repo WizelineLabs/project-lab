@@ -34,6 +34,7 @@ interface SearchProjectsOutput {
   votesCount: string
   projectMembers: string
   owner: string
+  tierName: string
 }
 
 interface SearchIdsOutput {
