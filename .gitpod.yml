@@ -45,4 +45,3 @@ vscode:
     - ms-azuretools.vscode-docker
     - esbenp.prettier-vscode
     - dbaeumer.vscode-eslint
-    - bradlc.vscode-tailwindcss
