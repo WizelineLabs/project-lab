@@ -1,4 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
+import type { Sql } from "@prisma/client/runtime";
 
 let prisma: PrismaClient;
 
@@ -20,4 +21,12 @@ if (process.env.NODE_ENV === "production") {
   prisma.$connect();
 }
 
-export { prisma };
+function joinCondition(where: Sql, condition: Sql): Sql {
+  if (where == Prisma.empty) {
+    return condition;
+  } else {
+    return Prisma.sql`${where} AND ${condition}`;
+  }
+}
+
+export { prisma, joinCondition };

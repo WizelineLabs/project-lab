@@ -1,19 +1,19 @@
 import type { Profiles, Projects } from "@prisma/client";
 import { Prisma } from "@prisma/client"
 
-import { prisma as db } from "~/db.server";
+import { joinCondition, prisma as db } from "~/db.server";
 
 interface SearchProjectsInput {
   profileId: Profiles["id"]
   search: string | string[]
-  status: any
-  skill: any
-  discipline: any
-  tier: any
-  location: any
-  label: any
-  role: any
-  missing: any
+  status: string[]
+  skill: string[]
+  discipline: string[]
+  tier: string[]
+  location: string[]
+  label: string[]
+  role: string[]
+  missing: string[]
   skip: number
   take: number
   orderBy: { field: string; order: string }
@@ -34,6 +34,7 @@ interface SearchProjectsOutput {
   votesCount: string
   projectMembers: string
   owner: string
+  tierName: string
 }
 
 interface SearchIdsOutput {
@@ -111,55 +112,56 @@ export async function searchProjects({
   take = 50,
 }: SearchProjectsInput) {
   let where = Prisma.sql`WHERE p.id IS NOT NULL`;
+  let having = Prisma.empty;
   if (search && search !== "") {
     search === "myProposals"
       ? (where = Prisma.sql`WHERE pm."profileId" = ${profileId}`)
       : (where = Prisma.sql`WHERE "tsColumn" @@ websearch_to_tsquery('english', ${search})`);
   }
 
-  const statuses = typeof status === "string" ? [status] : []
-  if (status) {
-    where = Prisma.sql`${where} AND p.status IN (${Prisma.join(statuses)}) `
+  if (status.length > 0) {
+    where = Prisma.sql`${where} AND p.status IN (${Prisma.join(status)})`
+    having = joinCondition(having, Prisma.sql`COUNT(DISTINCT p.status) = ${status.length}`)
   }
 
-  const skills = typeof skill === "string" ? [skill] : []
-  if (skill) {
-    where = Prisma.sql`${where} AND "Skills".name IN (${Prisma.join(skills)})`
+  if (skill.length > 0) {
+    where = Prisma.sql`${where} AND "Skills".name IN (${Prisma.join(skill)})`
+    having = joinCondition(having, Prisma.sql`COUNT(DISTINCT "Skills".name) = ${skill.length}`)
   }
 
-  const disciplines = typeof discipline === "string" ? [discipline] : []
-  if (discipline) {
-    where = Prisma.sql`${where} AND "Disciplines".name IN (${Prisma.join(disciplines)})`
+  if (discipline.length > 0) {
+    where = Prisma.sql`${where} AND "Disciplines".name IN (${Prisma.join(discipline)})`
+    having = joinCondition(having, Prisma.sql`COUNT(DISTINCT "Disciplines".name) = ${discipline.length}`)
   }
 
-  const tiers = typeof tier === "string" ? [tier] : []
-  if (tier) {
-    where = Prisma.sql`${where} AND "tierName" IN (${Prisma.join(tiers)})`
+  if (tier.length > 0) {
+    where = Prisma.sql`${where} AND "tierName" IN (${Prisma.join(tier)})`
+    having = joinCondition(having, Prisma.sql`COUNT(DISTINCT "tierName") = ${tier.length}`)
   }
 
-  const labels = typeof label === "string" ? [label] : []
-  if (label) {
-    where = Prisma.sql`${where} AND "Labels".name IN (${Prisma.join(labels)})`
+  if (label.length > 0) {
+    where = Prisma.sql`${where} AND "Labels".name IN (${Prisma.join(label)})`
+    having = joinCondition(having, Prisma.sql`COUNT(DISTINCT "Labels".name) = ${label.length}`)
   }
 
-  const locations = typeof location === "string" ? [location] : []
-  if (location) {
-    where = Prisma.sql`${where} AND loc.name IN (${Prisma.join(locations)})`
+  if (location.length > 0) {
+    where = Prisma.sql`${where} AND loc.name IN (${Prisma.join(location)})`
+    having = joinCondition(having, Prisma.sql`COUNT(DISTINCT loc.name) = ${location.length}`)
   }
 
-  const roles = typeof role === "string" ? [role] : []
-  if (role) {
-    where = Prisma.sql`${where} AND roles.name IN (${Prisma.join(roles)}) AND pm.active = true`
+  // TODO: instead imlement a function to join with AND or not depending on if empty
+  if (role.length > 0) {
+    where = Prisma.sql`${where} AND roles.name IN (${Prisma.join(role)}) AND pm.active = true`
+    having = joinCondition(having, Prisma.sql`COUNT(DISTINCT roles.name) = ${role.length}`)
   }
 
-  const missingRoles = typeof missing === "string" ? [missing] : []
-  if (missing) {
+  if (missing.length > 0) {
     where = Prisma.sql`${where} AND p.id NOT IN (
       SELECT pm."projectId"
       FROM "Disciplines" d
       INNER JOIN "_DisciplinesToProjectMembers" _dpm ON _dpm."A" = d.id
       INNER JOIN "ProjectMembers" pm ON pm.id = _dpm."B" AND pm.active = true
-      WHERE d.name IN (${Prisma.join(missingRoles)})
+      WHERE d.name IN (${Prisma.join(missing)})
     )`
   }
 
@@ -172,6 +174,10 @@ export async function searchProjects({
     orderQuery = Prisma.sql`ORDER BY "projectMembers" DESC`
   } else if (orderBy.field == "mostRecent") {
     orderQuery = Prisma.sql`ORDER BY p."createdAt" DESC`
+  }
+
+  if (having != Prisma.empty) {
+    having = Prisma.sql`HAVING ${having}`
   }
 
   const ids = await db.$queryRaw<SearchIdsOutput[]>`
@@ -190,7 +196,9 @@ export async function searchProjects({
     LEFT JOIN "Disciplines" ON _dp."A" = "Disciplines".id
     LEFT JOIN "_DisciplinesToProjectMembers" _dpm ON _dpm."B" = pm.id
     LEFT JOIN "Disciplines" as roles ON _dpm."A" = roles.id
-    ${where};
+    ${where}
+    GROUP BY p.id
+    ${having};
   `
 
   let projectIdsWhere = Prisma.sql`false`
@@ -220,7 +228,7 @@ export async function searchProjects({
     SELECT p.status as name, COUNT(DISTINCT p.id) as count
     FROM "Projects" p
     WHERE ${projectIdsWhere} AND p.status NOT IN (${
-    statuses.length > 0 ? Prisma.join(statuses) : ""
+    status.length > 0 ? Prisma.join(status) : ""
   })
     GROUP BY p.status
     ORDER BY count DESC;`
@@ -231,7 +239,7 @@ export async function searchProjects({
     LEFT JOIN "_ProjectsToSkills" _ps ON _ps."A" = p.id
     LEFT JOIN "Skills" ON _ps."B" = "Skills".id
     WHERE ${projectIdsWhere} AND "Skills".name NOT IN (${
-    skills.length > 0 ? Prisma.join(skills) : ""
+    skill.length > 0 ? Prisma.join(skill) : ""
   })
     AND "Skills".name IS NOT NULL
     AND "Skills".id IS NOT NULL
@@ -245,7 +253,7 @@ export async function searchProjects({
     LEFT JOIN "_DisciplinesToProjects" _dp ON _dp."B" = p.id
     LEFT JOIN "Disciplines" ON _dp."A" = "Disciplines".id
     WHERE ${projectIdsWhere} AND "Disciplines".name NOT IN (${
-    disciplines.length > 0 ? Prisma.join(disciplines) : ""
+    discipline.length > 0 ? Prisma.join(discipline) : ""
   })
     AND "Disciplines".name IS NOT NULL
     AND "Disciplines".id IS NOT NULL
@@ -259,7 +267,7 @@ export async function searchProjects({
     LEFT JOIN "_LabelsToProjects" _lp ON _lp."B" = p.id
     LEFT JOIN "Labels" ON _lp."A" = "Labels".id
     WHERE ${projectIdsWhere} AND "Labels".name NOT IN (${
-    labels.length > 0 ? Prisma.join(labels) : ""
+    label.length > 0 ? Prisma.join(label) : ""
   })
     AND "Labels".name IS NOT NULL
     AND "Labels".id IS NOT NULL
@@ -271,7 +279,7 @@ export async function searchProjects({
     SELECT p."tierName" as name, COUNT(DISTINCT p.id) as count
     FROM "Projects" p
     WHERE ${projectIdsWhere} AND p."tierName" NOT IN (${
-    tiers.length > 0 ? Prisma.join(tiers) : ""
+    tier.length > 0 ? Prisma.join(tier) : ""
   })
     GROUP BY p."tierName"
     ORDER BY count DESC, p."tierName"
@@ -284,7 +292,7 @@ export async function searchProjects({
     INNER JOIN "Profiles" pr on pr.id = p."ownerId"
     LEFT JOIN "Locations" loc ON loc.id = pr."locationId"
     WHERE ${projectIdsWhere} AND loc.name NOT IN (${
-    locations.length > 0 ? Prisma.join(locations) : ""
+    location.length > 0 ? Prisma.join(location) : ""
   })
     AND loc.name IS NOT NULL
     AND loc.id IS NOT NULL
@@ -316,9 +324,9 @@ export async function searchProjects({
     disciplineFacets,
     tierFacets,
     locationsFacets,
-    roleFacets: roleFacets.filter((val) => val.count != 0 && roles.indexOf(val.name) == -1),
+    roleFacets: roleFacets.filter((val) => val.count != 0 && role.indexOf(val.name) == -1),
     missingFacets: roleFacets.filter(
-      (val) => val.count != ids.length && missingRoles.indexOf(val.name) == -1
+      (val) => val.count != ids.length && missing.indexOf(val.name) == -1
     ),
   };
 }
