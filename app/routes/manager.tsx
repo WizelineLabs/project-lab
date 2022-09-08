@@ -12,7 +12,7 @@ import {
 } from "./manager/manager.styles";
 
 import Wrapper from "./projects/projects.styles";
-import { adminRoleName } from "app/core/utils/constants";
+import { adminRoleName } from "app/constants";
 import { requireUser } from "~/session.server";
 
 type LoaderData = {
@@ -24,7 +24,6 @@ type LoaderData = {
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await requireUser(request);
   const isAdmin = user.role == adminRoleName;
-  console.log(request);
   const initialTabIdx = request.url.includes("admins") ? 1 : 0;
   const initialTitle = request.url.includes("admins")
     ? "Admins"

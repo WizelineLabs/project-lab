@@ -108,13 +108,12 @@ export default function  AdminsDataGrid() {
   const { admins } = useLoaderData();
   const [error, setError] = useState<string>("");
   const createButtonText = "Add New Admin";
-  // const [removeAdminRoleMutation] = useMutation(removeAdminRole);
   const [rows, setRows] = useState<AdminRecord[]>(() =>
     admins ? admins.map((item: AdminRecord) => ({
-      id: item.id,
-      name: item.name,
-      email: item.email,
-    }))
+        id: item.id,
+        name: item.name,
+        email: item.email,
+      }))
     : []
   );
 
