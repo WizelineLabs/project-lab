@@ -1,4 +1,5 @@
 import styled from "@emotion/styled"
+import { Link } from '@remix-run/react'
 
 export const ProposalCardWrap = styled.div`
   display: flex;
@@ -146,3 +147,8 @@ export const ProposalCardWrap = styled.div`
     color: #000000;
   }
 `
+
+export const ProposalCardLink = styled(Link)`
+    text-decoration: none;
+`
+
