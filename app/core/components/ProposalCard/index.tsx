@@ -1,4 +1,3 @@
-import { Link } from "@remix-run/react"
 import { CardActionArea, CardContent, Card } from "@mui/material"
 import EllipsisText from "app/core/components/EllipsisText"
 import ThumbUpIcon from "@mui/icons-material/ThumbUp"
@@ -6,7 +5,7 @@ import PersonIcon from "@mui/icons-material/Person"
 import HelpIcon from "@mui/icons-material/Help"
 
 
-import { ProposalCardWrap } from "./ProposalCard.styles"
+import { ProposalCardWrap, ProposalCardLink } from "./ProposalCard.styles"
 
 interface IProps {
   id: string | number
@@ -38,8 +37,8 @@ export const ProposalCard = (props: IProps) => {
         }}
       >
         <CardActionArea style={{ height: "100%" }}>
-          <Link to={`/projects/${props.id}`}>
-            <CardContent style={{ backgroundColor: "#FFF", height: "100%" }}>
+          <ProposalCardLink to={`/projects/${props.id}`}>
+            <CardContent style={{ backgroundColor: "#FFF", height: "100%", textDecoration: "none" }}>
               <ProposalCardWrap>
                 <div className="ProposalCard__head">
                   <div className="ProposalCard__head__icon">
@@ -111,7 +110,7 @@ export const ProposalCard = (props: IProps) => {
                 </div>
               </ProposalCardWrap>
             </CardContent>
-          </Link>
+          </ProposalCardLink>
         </CardActionArea>
       </Card>
     </>

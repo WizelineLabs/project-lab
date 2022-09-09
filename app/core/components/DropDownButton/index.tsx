@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from "react"
 import { ClickAwayListener, Grow, Paper, Popper, MenuItem, MenuList } from "@mui/material"
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
-import { Link } from "@remix-run/react"
 
-import { DropdownPlaceholderContainer } from "./DropDownButton.styles"
+import { DropdownPlaceholderContainer, DropDownLink } from "./DropDownButton.styles"
 
 type DropDownOption = {
-  [x: string]: any;
-  onClick: any;
-  text: any
+  [x: string]: any
+  onClick?: () => void
+  text: string
+  to: string
 }
 
 export const DropDownButton = ({ children, options }: {children: React.ReactNode, options: DropDownOption[] }) => {
@@ -69,23 +69,19 @@ export const DropDownButton = ({ children, options }: {children: React.ReactNode
                 <ClickAwayListener onClickAway={handleClose}>
                   <MenuList id="menu-list-grow" onKeyDown={handleListKeyDown}>
                     {options.map((option, index) => {
-                      const { onClick, text, ...otherOption } = option
+                      const { onClick, text, to, ...otherOption } = option
                       return (
                         <MenuItem
                           {...otherOption}
                           onClick={(e: any) => {
                             handleClose(e)
-                            onClick()
+                            onClick && onClick()
                           }}
-                          component={btnProps => (
-                            // eslint-disable-next-line jsx-a11y/anchor-has-content
-                            <Link to='new'
-                              {...btnProps as any}
-                            />
-                          )}
                           key={index}
                         >
-                          {text}
+                          <DropDownLink to={to}>
+                            {text}
+                          </DropDownLink>
                         </MenuItem>
                       )
                     })}
