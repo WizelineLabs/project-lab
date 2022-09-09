@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useFetcher, useLoaderData, useCatch } from "@remix-run/react";
-import type { LoaderFunction, ActionFunction } from "@remix-run/node";
+import type { LoaderFunction, ActionFunction, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { DataGrid, GridToolbarContainer } from "@mui/x-data-grid";
 import { ThemeProvider } from "@mui/material/styles";
@@ -39,6 +39,14 @@ export const loader: LoaderFunction = async () => {
   return json<LoaderData>({
     admins,
   });
+};
+
+export const meta: MetaFunction = () => {
+  return {
+    title: "Wizelabs - Admins",
+    description:
+      "This is the Manager's Admin Tab",
+  };
 };
 
 export const action: ActionFunction = async ({ request }) => {
