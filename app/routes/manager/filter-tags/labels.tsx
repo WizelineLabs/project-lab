@@ -1,79 +1,95 @@
 import React, { useState, useEffect } from "react";
 import { useFetcher, useLoaderData, useCatch } from "@remix-run/react";
-import type { LoaderFunction, ActionFunction, MetaFunction } from "@remix-run/node";
+import type { LoaderFunction, ActionFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { GridRenderCellParams } from "@mui/x-data-grid";
 import { DataGrid, GridToolbarContainer } from "@mui/x-data-grid";
-import { ThemeProvider } from "@mui/material/styles";
 import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
+import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Close";
+import { ThemeProvider } from "@mui/material/styles";
 import invariant from "tiny-invariant";
 
 import themeWize from "app/core/utils/themeWize";
-import ConfirmationModal from "../../core/components/ConfirmationModal";
-import { getAdminUsers, addAdminUser, removeAdminUser } from "~/models/user.server";
+import ConfirmationModal from "../../../core/components/ConfirmationModal";
+import {
+  getLabels,
+  addLabel,
+  removeLabel,
+  updateLabel,
+} from "~/models/label.server";
 
-type LoaderData = {
-  admins: Awaited<ReturnType<typeof getAdminUsers>>;
-};
+declare module "@mui/material/Button" {
+  interface ButtonPropsColorOverrides {
+    secondaryB: true;
+    secondaryC: true;
+  }
+}
 
-type AdminRecord = {
+type LabelRecord = {
   id: number | string;
   name: string | null;
-  email: string;
 };
 
 type gridEditToolbarProps = {
-  setRows: React.Dispatch<React.SetStateAction<AdminRecord[]>>;
+  setRows: React.Dispatch<React.SetStateAction<LabelRecord[]>>;
   createButtonText: string;
 };
 
-type newAdmin = {
-  email: string;
+type LoaderData = {
+  labels: Awaited<ReturnType<typeof getLabels>>;
+};
+
+type newLabel = {
+  name: string;
 };
 
 export const loader: LoaderFunction = async () => {
-  const admins = await getAdminUsers();
+  const labels = await getLabels();
   return json<LoaderData>({
-    admins,
+    labels,
   });
 };
 
-export const meta: MetaFunction = () => {
-  return {
-    title: "Wizelabs - Admins",
-    description:
-      "This is the Manager's Admin Tab",
-  };
-};
-
 export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData()
+  const formData = await request.formData();
 
-  const action = formData.get('action')
-  let response
+  const action = formData.get("action");
+  let response;
+  let id;
+  let name;
 
   switch (action) {
-    case 'POST':
-      const email = formData.get("email") as string
-      invariant(email, 'Invalid email address')
-      response = await addAdminUser({email})
+    case "POST":
+      name = formData.get("name") as string;
+      invariant(name, "Invalid label name");
+      response = await addLabel({ name });
       if (response.error) {
-        return json({error: response.error}, {status: 404})
+        return json({ error: response.error }, { status: 404 });
       }
-      return json(response, {status: 201})
-    
-    case 'DELETE':
-      const id = formData.get("id") as string
-      invariant(id, "User Id is required")
-      response = await removeAdminUser({id})
+      return json(response, { status: 201 });
+
+    case "DELETE":
+      id = formData.get("id") as string;
+      invariant(id, "Label Id is required");
+      response = await removeLabel({ id });
       if (response.error) {
-        return json({error: response.error}, {status: 400})
+        return json({ error: response.error }, { status: 400 });
       }
-      return json(response, {status: 200})
+      return json(response, { status: 200 });
+
+    case "UPDATE":
+      id = formData.get("id") as string;
+      name = formData.get("name") as string;
+      invariant(id, "Label Id is required");
+      response = await updateLabel({ id, name });
+      if (response.error) {
+        return json({ error: response.error }, { status: 400 });
+      }
+      return json(response, { status: 200 });
 
     default: {
       throw new Error("Something went wrong");
@@ -83,19 +99,14 @@ export const action: ActionFunction = async ({ request }) => {
 
 const GridEditToolbar = (props: gridEditToolbarProps) => {
   const { setRows, createButtonText } = props;
-
   const handleAddClick = () => {
     const id = "new-value";
     const newName = "";
-    const newEmail = "";
     setRows((prevRows) => {
       if (prevRows.find((rowValue) => rowValue.id === "new-value")) {
         return [...prevRows];
       }
-      return [
-        ...prevRows,
-        { id, name: newName, email: newEmail, isNew: true },
-      ] as AdminRecord[];
+      return [...prevRows, { id, name: newName, isNew: true }];
     });
   };
   return (
@@ -112,45 +123,44 @@ const GridEditToolbar = (props: gridEditToolbarProps) => {
   );
 };
 
-export default function  AdminsDataGrid() {
+export default function LabelsDataGrid() {
   const fetcher = useFetcher();
-  const { admins } = useLoaderData() as LoaderData;
+  const { labels } = useLoaderData() as LoaderData;
+  const createButtonText = "Create New Label";
   const [error, setError] = useState<string>("");
-  const createButtonText = "Add New Admin";
-  const [rows, setRows] = useState<AdminRecord[]>(() =>
-    admins ? admins.map((item: AdminRecord) => ({
-        id: item.id,
-        name: item.name,
-        email: item.email,
-      }))
-    : []
-  );
-
-  // handle Delete Admin variables
-  const [selectedRowID, setSelectedRowID] = useState("");
-  const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
-
-  useEffect(() =>{
-    //It handles the fetcher error from the response
-    if (fetcher.state === "idle" && fetcher.data) {
-      if (fetcher.data.error){
-        setError(fetcher.data.error);
-      } else {
-        setError("")
-      }
-    }
-  }, [fetcher])
-
-  useEffect(()=> {
-    //It changes the rows shown based on admins
-    setRows(admins.map((item: AdminRecord) => ({
+  const [rows, setRows] = useState<LabelRecord[]>(() =>
+    labels.map((item: LabelRecord) => ({
       id: item.id,
       name: item.name,
-      email: item.email,
-    })))
-  }, [admins])
+    }))
+  );
+
+  const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
+  const [selectedRowID, setSelectedRowID] = useState("");
+
+  useEffect(() => {
+    //It handles the fetcher error from the response
+    if (fetcher.state === "idle" && fetcher.data) {
+      if (fetcher.data.error) {
+        setError(fetcher.data.error);
+      } else {
+        setError("");
+      }
+    }
+  }, [fetcher]);
+
+  useEffect(() => {
+    //It changes the rows shown based on admins
+    setRows(
+      labels.map((item: LabelRecord) => ({
+        id: item.id,
+        name: item.name,
+      }))
+    );
+  }, [labels]);
 
   // Set handles for interactions
+
   const handleRowEditStart = (event: any) => {
     event.defaultMuiPrevented = true;
   };
@@ -163,17 +173,20 @@ export default function  AdminsDataGrid() {
     event.defaultMuiPrevented = true;
   };
 
-  //Add new Admin
-  const addNewAdminUser = async (values: newAdmin) => {
+  const handleEditClick = (idRef: GridRenderCellParams) => {
+    idRef.api.setRowMode(idRef.row.id, "edit");
+  };
+
+  // Add new label
+  const createNewLabel = async (values: newLabel) => {
     try {
       const body = {
         ...values,
-        action: 'POST'
-      }
+        action: "POST",
+      };
       await fetcher.submit(body, { method: "post" });
     } catch (error: any) {
       console.error(error);
-      setError(error.toString());
     }
   };
 
@@ -192,7 +205,6 @@ export default function  AdminsDataGrid() {
         ];
       });
     }
-    setError("");
   };
 
   const handleSaveClick = async (idRef: GridRenderCellParams) => {
@@ -200,33 +212,38 @@ export default function  AdminsDataGrid() {
 
     const row = idRef.api.getRow(id);
     const isValid = await idRef.api.commitRowChange(idRef.row.id);
-    const newEmail = idRef.api.getCellValue(id, "email");
+    const newName = idRef.api.getCellValue(id, "name");
 
-    if (rows.find((rowValue) => rowValue.email === newEmail)) {
+    if (rows.find((rowValue) => rowValue.name === newName)) {
       console.error("Field Already exists");
-      setError("Error: User is already an admin");
       return;
     } else {
       console.error("All fields are valid");
     }
 
     if (row.isNew && isValid) {
-      const newValues = { email: newEmail };
+      const newValues = { name: newName };
       idRef.api.setRowMode(id, "view");
-      addNewAdminUser(newValues);
-      setRows(prevRows => prevRows.filter(row => row.id !== "new-value"))
+      await createNewLabel(newValues);
       return;
     }
+    if (isValid) {
+      const row = idRef.api.getRow(idRef.row.id);
+      let id = idRef.row.id;
+      await editLabelInfo(id, { name: newName });
+      idRef.api.updateRows([{ ...row, isNew: false }]);
+      idRef.api.setRowMode(id, "view");
+    }
   };
-  
-  //Delete Admin
+
+  // Delete label
   const deleteConfirmationHandler = async () => {
     setOpenDeleteModal(false);
     try {
       const body = {
         id: selectedRowID,
-        action: 'DELETE'
-      }
+        action: "DELETE",
+      };
       await fetcher.submit(body, { method: "delete" });
     } catch (error: any) {
       console.error(error);
@@ -239,17 +256,32 @@ export default function  AdminsDataGrid() {
     setOpenDeleteModal(() => true);
   };
 
+  // Edit label
+  const editLabelInfo = async (id: string, values: newLabel) => {
+    try {
+      const body = {
+        id,
+        ...values,
+        action: "UPDATE",
+      };
+      await fetcher.submit(body, { method: "put" });
+    } catch (error: any) {
+      console.error(error);
+    }
+  };
+
   const columns = [
-    { field: "email", headerName: "Email", width: 300, editable: true },
-    { field: "name", headerName: "Name", width: 300, editable: false },
+    { field: "name", headerName: "Name", width: 300, editable: true },
+
     {
       field: "actions",
       headerName: "Actions",
       width: 300,
+      cellClassName: "actions",
       renderCell: (idRef: GridRenderCellParams) => {
         if (idRef.row.id === "new-value") {
           idRef.api.setRowMode(idRef.row.id, "edit");
-          idRef.api.setCellFocus(idRef.row.id, "email");
+          idRef.api.setCellFocus(idRef.row.id, "name");
         }
         const isInEditMode = idRef.api.getRowMode(idRef.row.id) === "edit";
         if (isInEditMode) {
@@ -278,22 +310,34 @@ export default function  AdminsDataGrid() {
           );
         }
         return (
-          <Button
-            variant="contained"
-            color="primary"
-            size="small"
-            onClick={() => handleDeleteClick(idRef)}
-            style={{ marginLeft: 16 }}
-          >
-            <DeleteIcon color="inherit" />
-          </Button>
+          <>
+            <Button
+              variant="contained"
+              color="secondary"
+              size="small"
+              onClick={() => handleEditClick(idRef)}
+              style={{ marginLeft: 16 }}
+            >
+              <EditIcon color="inherit" />
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              onClick={() => handleDeleteClick(idRef)}
+              style={{ marginLeft: 16 }}
+            >
+              <DeleteIcon color="inherit" />
+            </Button>
+          </>
         );
       },
     },
   ];
 
   return (
-    <>
+    <div>
+      <h2>Labels</h2>
       <div style={{ display: "flex", width: "100%", height: "70vh" }}>
         <div style={{ flexGrow: 1 }}>
           <ThemeProvider theme={themeWize}>
@@ -322,22 +366,20 @@ export default function  AdminsDataGrid() {
         open={openDeleteModal}
         handleClose={() => setOpenDeleteModal(false)}
         close={() => setOpenDeleteModal(false)}
-        label="Remove"
+        label="Delete"
         className="warning"
         disabled={false}
         onClick={async () => {
           deleteConfirmationHandler();
         }}
       >
-        <h2>
-          Are you sure you want to remove the Admin role from{" "}
-          {rows[rows.findIndex((row) => row.id === +selectedRowID)]?.email}?
-        </h2>
+        <h2>Are you sure you want to delete this Label ?</h2>
+        <p>This action cannot be undone.</p>
         <br />
       </ConfirmationModal>
-    </>
+    </div>
   );
-};
+}
 
 export function ErrorBoundary({ error }: { error: Error }) {
   console.error(error);
@@ -349,7 +391,7 @@ export function CatchBoundary() {
   const caught = useCatch();
 
   if (caught.status === 404) {
-    return <div>Project not found</div>;
+    return <div>Label not found</div>;
   }
 
   throw new Error(`Unexpected caught response with status: ${caught.status}`);
