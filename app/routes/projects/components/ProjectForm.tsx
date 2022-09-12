@@ -2,6 +2,7 @@ import { FormControlLabel, Switch, Collapse } from "@mui/material";
 import { Form } from "@remix-run/react";
 import LabeledTextField from "~/core/components/LabeledTextField";
 import LabeledTextFieldArea from "~/core/components/LabeledTextFieldArea";
+import LabeledSwitchField from "~/core/components/LabeledSwitchField";
 export function ProjectForm() {
   return (
     <form method="post">
@@ -22,11 +23,11 @@ export function ProjectForm() {
           placeholder="Explain us your proposal..."
       /> */}
 
-      {/* <LabeledSwitchField
+      <LabeledSwitchField
         name="helpWanted"
         label="We need some help"
-        initialValues={initialValues ? initialValues.helpWanted : true}
-      /> */}
+        initialValues={false}
+      />
 
       {/* <DisciplinesSelect
         name="disciplines"
