@@ -1,4 +1,5 @@
 import { FormControlLabel, Switch, Collapse } from "@mui/material";
+import { useState } from "react";
 import { Form } from "@remix-run/react";
 import LabeledTextField from "~/core/components/LabeledTextField";
 import LabeledTextFieldArea from "~/core/components/LabeledTextFieldArea";
@@ -35,15 +36,14 @@ export function ProjectForm() {
         parentName="helpWanted"
       /> */}
 
-      {/*
-        {projectformType === "create" && (
-          <FormControlLabel
-            value="1"
-            control={<Switch color="primary" onChange={handleDisplaySwitch} />}
-            label="Add more details"
-            labelPlacement="end"
-          />
-        )}
+      {
+      <FormControlLabel
+        value="1"
+        control={<Switch color="primary"/>}
+        label="Add more details"
+        labelPlacement="end"
+      />
+        /*
         {projectformType !== "create" && (
           <ProjectOwnerField
             name="owner"
