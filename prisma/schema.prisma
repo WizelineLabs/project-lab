@@ -60,15 +60,15 @@ model Profiles {
   updatedAt              DateTime                 @default(now())
   terminatedAt           DateTime?
   deleted                Boolean                  @default(false)
-  jobTitles              JobTitles?               @relation(fields: [jobTitleId], references: [id])
-  locations              Locations?               @relation(fields: [locationId], references: [id])
+  jobTitles              JobTitles?               @relation(fields: [jobTitleId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  locations              Locations?               @relation(fields: [locationId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   comments               Comments[]
   projectMembers         ProjectMembers[]
   projectMembersVersions ProjectMembersVersions[]
   projects               Projects[]
   projectsVersions       ProjectsVersions[]
   votes                  Vote[]
-
+// here "name" was changed for "map"
   @@index([email], map: "profiles_email_idx")
   @@index([jobTitleId], map: "profiles_job_title_id_idx")
   @@index([locationId], map: "profiles_location_id_idx")
@@ -83,12 +83,12 @@ model ProjectMembers {
   profileId       String
   hoursPerWeek    Int?
   active          Boolean           @default(true)
-  profile         Profiles          @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  project         Projects          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  profile         Profiles          @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  project         Projects          @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   contributorPath ContributorPath[]
   role            Disciplines[]
   practicedSkills Skills[]
-
+//also here "name" was changed for "map" 
   @@unique([projectId, profileId], name: "project_members_project_id_profile_id_key")
   @@index([profileId], map: "project_members_profile_id_idx")
   @@index([projectId], map: "project_members_project_id_idx")
@@ -104,9 +104,9 @@ model ProjectMembersVersions {
   role            String?
   active          Boolean  @default(true)
   practicedSkills String?
-  profile         Profiles @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  project         Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
-
+  profile         Profiles @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  project         Projects @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+//also here the map for name change 
   @@index([projectId, profileId], map: "project_members_v_project_id_profile_id_key")
   @@index([profileId], map: "project_members_v_profile_id_idx")
   @@index([projectId], map: "project_members_v_project_id_idx")
@@ -138,9 +138,9 @@ model Projects {
   isArchived             Boolean                  @default(false)
   helpWanted             Boolean                  @default(true)
   tsColumn               Unsupported("tsvector")?
-  owner                  Profiles?                @relation(fields: [ownerId], references: [id])
-  projectStatus          ProjectStatus?           @relation(fields: [status], references: [name])
-  innovationTiers        InnovationTiers?         @relation(fields: [tierName], references: [name])
+  owner                  Profiles?                @relation(fields: [ownerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  projectStatus          ProjectStatus?           @relation(fields: [status], references: [name], onDelete: SetNull, onUpdate: Cascade)
+  innovationTiers        InnovationTiers?         @relation(fields: [tierName], references: [name], onDelete: SetNull, onUpdate: Cascade)
   comments               Comments[]
   projectMembers         ProjectMembers[]
   projectMembersVersions ProjectMembersVersions[]
@@ -153,7 +153,7 @@ model Projects {
   disciplines            Disciplines[]
   labels                 Labels[]
   skills                 Skills[]
-
+// here also the change of name for map
   @@index([ownerId], map: "projects_owner_id_idx")
   @@index([status], map: "projects_status_idx")
   @@index([isArchived], map: "projects_isArchived_idx")
@@ -180,10 +180,10 @@ model ProjectsVersions {
   isArchived     Boolean          @default(false)
   projectId      String
   tierName       String?          @default("Tier 3 (Experiment)")
-  owner          Profiles?        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  project        Projects         @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  projectStatus  ProjectStatus?   @relation(fields: [status], references: [name])
-  innovationTier InnovationTiers? @relation(fields: [tierName], references: [name])
+  owner          Profiles?        @relation(fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  project        Projects         @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  projectStatus  ProjectStatus?   @relation(fields: [status], references: [name], onDelete: SetNull, onUpdate: Cascade)
+  innovationTier InnovationTiers? @relation(fields: [tierName], references: [name], onDelete: SetNull, onUpdate: Cascade)
 
   @@index([ownerId], map: "projects_version_owner_id_idx")
   @@index([status], map: "projects_version_status_idx")
@@ -195,8 +195,8 @@ model Vote {
   projectId String
   profileId String
   createdAt DateTime @default(now())
-  profile   Profiles @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  project   Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  profile   Profiles @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  project   Projects @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@unique([projectId, profileId])
 }
@@ -208,7 +208,7 @@ model Skills {
   updatedAt      DateTime         @default(now())
   projectMembers ProjectMembers[]
   projects       Projects[]
-
+// also here the map for name change
   @@index([name], map: "skills_name_idx")
 }
 
@@ -219,7 +219,7 @@ model Disciplines {
   updatedAt      DateTime         @default(now())
   projectMembers ProjectMembers[]
   projects       Projects[]
-
+// also here the map for name change
   @@index([name], map: "discipline_name_idx")
 }
 
@@ -251,9 +251,9 @@ model Comments {
   createdAt DateTime   @default(now())
   updatedAt DateTime   @default(now())
   parentId  String?
-  author    Profiles   @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  parent    Comments?  @relation("ParentComment", fields: [parentId], references: [id], onDelete: Cascade)
-  project   Projects   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  author    Profiles   @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  parent    Comments?  @relation("ParentComment", fields: [parentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  project   Projects   @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   children  Comments[] @relation("ParentComment")
 }
 
@@ -266,7 +266,7 @@ model ProjectStages {
   position        Int
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @default(now())
-  project         Projects          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project         Projects          @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   contributorPath ContributorPath[]
   projectTasks    ProjectTasks[]
 }
@@ -278,7 +278,7 @@ model ProjectTasks {
   projectStageId  String
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @default(now())
-  projectStage    ProjectStages     @relation(fields: [projectStageId], references: [id], onDelete: Cascade)
+  projectStage    ProjectStages     @relation(fields: [projectStageId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   contributorPath ContributorPath[]
 }
 
@@ -289,9 +289,9 @@ model ContributorPath {
   projectStageId  String
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @default(now())
-  projectMember   ProjectMembers @relation(fields: [projectMemberId], references: [id], onDelete: Cascade)
-  projectStage    ProjectStages  @relation(fields: [projectStageId], references: [id], onDelete: Cascade)
-  projectTask     ProjectTasks   @relation(fields: [projectTaskId], references: [id], onDelete: Cascade)
+  projectMember   ProjectMembers @relation(fields: [projectMemberId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  projectStage    ProjectStages  @relation(fields: [projectStageId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  projectTask     ProjectTasks   @relation(fields: [projectTaskId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Repos {
@@ -300,15 +300,15 @@ model Repos {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
   projectId String
-  projects  Projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projects  Projects @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model RelatedProjects {
   id         Int      @id @default(autoincrement())
   projectAId String
   projectBId String
-  projectA   Projects @relation("RelatedProjectsA", fields: [projectAId], references: [id], onDelete: Cascade)
-  projectB   Projects @relation("RelatedProjectsB", fields: [projectBId], references: [id], onDelete: Cascade)
+  projectA   Projects @relation("RelatedProjectsA", fields: [projectAId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  projectB   Projects @relation("RelatedProjectsB", fields: [projectBId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@unique([projectAId, projectBId])
 }
