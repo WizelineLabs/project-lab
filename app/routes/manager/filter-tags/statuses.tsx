@@ -1,0 +1,490 @@
+import { useState, useEffect } from "react"
+import { useFetcher, useLoaderData, useCatch } from "@remix-run/react"
+import type { LoaderFunction, ActionFunction } from "@remix-run/node"
+import { json } from "@remix-run/node"
+import styled from "@emotion/styled"
+import { DataGrid, GridToolbarContainer } from "@mui/x-data-grid"
+import type { GridRenderCellParams } from "@mui/x-data-grid"
+import Button from "@mui/material/Button"
+import AddIcon from "@mui/icons-material/Add"
+import EditIcon from "@mui/icons-material/Edit"
+import SaveIcon from "@mui/icons-material/Save"
+import CancelIcon from "@mui/icons-material/Close"
+import EastIcon from "@mui/icons-material/East"
+import { ThemeProvider } from "@mui/material/styles"
+import invariant from "tiny-invariant"
+import themeWize from "app/core/utils/themeWize"
+import { InputSelect } from "app/core/components/InputSelect"
+import ModalBox from "../../../core/components/ModalBox"
+import {
+  getProjectStatuses,
+  addProjectStatus,
+  removeProjectStatus,
+  updateProjectStatus,
+} from "~/models/status.server"
+import type { ProjectStatus } from "~/models/status.server"
+import { getProjects, updateProjects } from "~/models/project.server"
+
+declare module "@mui/material/Button" {
+  interface ButtonPropsColorOverrides {
+    secondaryB: true
+    secondaryC: true
+  }
+}
+
+type StatusRecord = {
+  id: number | string
+  name: string | null
+}
+
+type gridEditToolbarProps = {
+  setRows: React.Dispatch<React.SetStateAction<StatusRecord[]>>
+  createButtonText: string
+}
+
+type LoaderData = {
+  statuses: Awaited<ReturnType<typeof getProjectStatuses>>
+  projects: Awaited<ReturnType<typeof getProjects>>
+}
+
+type newStatus = {
+  name: string
+}
+
+type ProjectRecord = {
+  id: number | string
+  name: string | null
+}
+
+const ModalButtonsContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+`
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const url = new URL(request.url)
+  const status = url.searchParams.get("projectStatus")
+  const statuses = await getProjectStatuses()
+  const projects = await getProjects({ status })
+  return json<LoaderData>({
+    statuses,
+    projects,
+  })
+}
+
+export const action: ActionFunction = async ({ request }) => {
+  const formData = await request.formData()
+
+  const action = formData.get("action")
+  let response
+  let name
+
+  switch (action) {
+    case "POST":
+      name = formData.get("name") as string
+      invariant(name, "Invalid project status name")
+      response = await addProjectStatus({ name })
+      if (response.error) {
+        return json({ error: response.error }, { status: 404 })
+      }
+      return json(response, { status: 201 })
+
+    case "DELETE":
+      name = formData.get("name") as string
+      invariant(name, "Project status name is required")
+      response = await removeProjectStatus({ name })
+      if (response.error) {
+        return json({ error: response.error }, { status: 400 })
+      }
+      return json(response, { status: 200 })
+
+    case "UPDATE":
+      const id = formData.get("id") as string
+      name = formData.get("name") as string
+      invariant(id, "Project status name is required")
+      response = await updateProjectStatus({ id, name })
+      if (response.error) {
+        return json({ error: response.error }, { status: 400 })
+      }
+      return json(response, { status: 200 })
+
+    case "UPDATE-PROJECTS":
+      const ids = JSON.parse(formData.get("ids") as string)
+      const projectStatus = formData.get("status") as string
+      invariant(projectStatus, "Project status is required")
+      response = await updateProjects({ ids, data: { status: projectStatus } })
+      if (response.error) {
+        return json({ error: response.error }, { status: 400 })
+      }
+      return json(response, { status: 200 })
+
+    default: {
+      throw new Error("Something went wrong")
+    }
+  }
+}
+
+const GridEditToolbar = (props: gridEditToolbarProps) => {
+  const { setRows, createButtonText } = props
+  const handleAddClick = () => {
+    const id = "new-value"
+    const newName = ""
+    setRows((prevRows) => {
+      if (prevRows.find((rowValue) => rowValue.id === "new-value")) {
+        return [...prevRows]
+      }
+      return [...prevRows, { id, name: newName, isNew: true }]
+    })
+  }
+  return (
+    <GridToolbarContainer>
+      <Button
+        variant="contained"
+        color="primary"
+        startIcon={<AddIcon />}
+        onClick={() => handleAddClick()}
+      >
+        {createButtonText}
+      </Button>
+    </GridToolbarContainer>
+  )
+}
+
+export default function ProjectStatusDataGrid() {
+  const fetcher = useFetcher()
+  const { statuses } = useLoaderData() as LoaderData
+  const createButtonText = "Create New Status"
+  const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false)
+  const [error, setError] = useState<string>("")
+  const [rows, setRows] = useState<StatusRecord[]>(() =>
+    statuses.map((item: ProjectStatus) => ({
+      id: item.name,
+      name: item.name,
+    }))
+  )
+  const [selectedRowID, setSelectedRowID] = useState("")
+  const [selectedStatus, setSelectedStatus] = useState({ name: "" })
+  const [projects, setProjects] = useState<ProjectRecord[]>([])
+
+  useEffect(() => {
+    //It handles the fetcher error from the response
+    if (fetcher.state === "idle" && fetcher.data) {
+      if (fetcher.data.error) {
+        setError(fetcher.data.error)
+      } else {
+        setError("")
+      }
+
+      if (fetcher.data.projects) {
+        setProjects(fetcher.data.projects)
+      } else {
+        setProjects([])
+      }
+    }
+  }, [fetcher])
+
+  useEffect(() => {
+    //It changes the rows shown based on admins
+    setRows(
+      statuses.map((item: ProjectStatus) => ({
+        id: item.name,
+        name: item.name,
+      }))
+    )
+  }, [statuses])
+
+  // Set handles for interactions
+
+  const handleRowEditStart = (event: any) => {
+    event.defaultMuiPrevented = true
+  }
+
+  const handleRowEditStop = (event: any) => {
+    event.defaultMuiPrevented = true
+  }
+
+  const handleCellFocusOut = (event: any) => {
+    event.defaultMuiPrevented = true
+  }
+
+  const handleEditClick = (idRef: GridRenderCellParams) => {
+    idRef.api.setRowMode(idRef.row.id, "edit")
+  }
+
+  // Add new project status
+  const createNewProjectStatus = async (values: newStatus) => {
+    try {
+      const body = {
+        ...values,
+        action: "POST",
+      }
+      await fetcher.submit(body, { method: "post" })
+    } catch (error: any) {
+      console.error(error)
+    }
+  }
+
+  const handleSaveClick = async (idRef: GridRenderCellParams) => {
+    const id = idRef.row.id
+
+    const row = idRef.api.getRow(id)
+    const isValid = await idRef.api.commitRowChange(idRef.row.id)
+    const newName = idRef.api.getCellValue(id, "name")
+
+    if (rows.find((rowValue) => rowValue.name === newName)) {
+      console.error("Field Already exists")
+      return
+    }
+
+    if (row.isNew && isValid) {
+      const newValues = { name: newName }
+      idRef.api.setRowMode(id, "view")
+      await createNewProjectStatus(newValues)
+      return
+    }
+    if (isValid) {
+      const row = idRef.api.getRow(idRef.row.id)
+      let id = idRef.row.id
+      await editProjectStatusInfo(id, { name: newName })
+      idRef.api.updateRows([{ ...row, isNew: false }])
+      idRef.api.setRowMode(id, "view")
+    }
+  }
+
+  const handleCancelClick = async (idRef: GridRenderCellParams) => {
+    const id = idRef.row.id
+    idRef.api.setRowMode(id, "view")
+
+    const row = idRef.api.getRow(id)
+    if (row && row.isNew) {
+      await idRef.api.updateRows([{ id, _action: "delete" }])
+      setRows((prevRows) => {
+        const rowToDeleteIndex = prevRows.length - 1
+        return [...rows.slice(0, rowToDeleteIndex), ...rows.slice(rowToDeleteIndex + 1)]
+      })
+    }
+  }
+
+  // Delete project status
+  const deleteConfirmationHandler = async () => {
+    setOpenDeleteModal(false)
+    try {
+      const body = {
+        name: selectedRowID,
+        action: "DELETE",
+      }
+      await fetcher.submit(body, { method: "delete" })
+    } catch (error: any) {
+      console.error(error)
+    }
+  }
+
+  const handleDeleteClick = async (idRef: GridRenderCellParams) => {
+    let id = idRef.row.id
+    const body = {
+      projectStatus: id,
+    }
+    await fetcher.submit(body, { method: "get" })
+    setSelectedRowID(() => id)
+    setOpenDeleteModal(() => true)
+  }
+
+  const handleSubmit = async ({ projectsIds }: { projectsIds: (string | number)[] }) => {
+    const body = {
+      ids: JSON.stringify(projectsIds),
+      status: selectedStatus.name,
+      action: "UPDATE-PROJECTS",
+    }
+    await fetcher.submit(body, { method: "put" })
+
+    await deleteConfirmationHandler()
+  }
+
+  // Edit project status
+  const editProjectStatusInfo = async (id: string, values: newStatus) => {
+    try {
+      const body = {
+        id,
+        ...values,
+        action: "UPDATE",
+      }
+      await fetcher.submit(body, { method: "put" })
+    } catch (error: any) {
+      console.error(error)
+    }
+  }
+
+  const columns = [
+    { field: "name", headerName: "Name", width: 300, editable: true },
+
+    {
+      field: "actions",
+      headerName: "Actions",
+      width: 300,
+      cellClassName: "actions",
+      renderCell: (idRef: any) => {
+        if (idRef.row.id === "new-value") {
+          idRef.api.setRowMode(idRef.row.id, "edit")
+          idRef.api.setCellFocus(idRef.row.id, "name")
+        }
+        const isInEditMode = idRef.api.getRowMode(idRef.row.id) === "edit"
+        if (isInEditMode) {
+          return (
+            <>
+              <Button
+                variant="contained"
+                color="primary"
+                size="small"
+                onClick={() => handleCancelClick(idRef)}
+                style={{ marginLeft: 16 }}
+              >
+                <CancelIcon color="inherit" />
+              </Button>
+
+              <Button
+                variant="contained"
+                color="secondary"
+                size="small"
+                onClick={() => handleSaveClick(idRef)}
+                style={{ marginLeft: 16 }}
+              >
+                <SaveIcon color="inherit" />
+              </Button>
+            </>
+          )
+        }
+        return (
+          <>
+            <Button
+              variant="contained"
+              color="secondary"
+              size="small"
+              onClick={() => handleEditClick(idRef)}
+              style={{ marginLeft: 16 }}
+            >
+              <EditIcon color="inherit" />
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              onClick={() => handleDeleteClick(idRef)}
+              style={{ marginLeft: 16 }}
+            >
+              <EastIcon color="inherit" />
+            </Button>
+          </>
+        )
+      },
+    },
+  ]
+
+  const isMergeAction = projects.length > 0
+
+  return (
+    <div>
+      <h2>Statuses</h2>
+      <div style={{ display: "flex", width: "100%", height: "70vh" }}>
+        <div style={{ flexGrow: 1 }}>
+          <ThemeProvider theme={themeWize}>
+            {error && <p style={{ color: "red" }}>{error}</p>}
+            <DataGrid
+              rows={rows}
+              columns={columns}
+              rowsPerPageOptions={[50]}
+              pageSize={50}
+              editMode="row"
+              onRowEditStart={handleRowEditStart}
+              onRowEditStop={handleRowEditStop}
+              onCellFocusOut={handleCellFocusOut}
+              components={{
+                Toolbar: GridEditToolbar,
+              }}
+              componentsProps={{
+                toolbar: { setRows, createButtonText },
+              }}
+            />
+          </ThemeProvider>
+        </div>
+      </div>
+      <ModalBox
+        open={openDeleteModal}
+        handleClose={() => setOpenDeleteModal(false)}
+        close={() => setOpenDeleteModal(false)}
+      >
+        <h2>Choose the status to merge {selectedRowID} with </h2>
+        <p>This action will delete {selectedRowID}</p>
+        <p>This action cannot be undone.</p>
+        <br />
+        <p>
+          {projects.length < 1
+            ? "There are no projects"
+            : projects.length === 1
+            ? "There is 1 project"
+            : `There are ${projects.length} projects`}{" "}
+          with this status
+        </p>
+        <br />
+        <div>
+          <form
+            onSubmit={async (values) => {
+              await handleSubmit({
+                projectsIds: projects.map((project) => project.id),
+              })
+            }}
+          >
+            {isMergeAction && (
+              <InputSelect
+                valuesList={statuses.filter((status) => status.name !== selectedRowID)}
+                defaultValue=""
+                name="status"
+                label="Status to merge with"
+                disabled={false}
+                value={selectedStatus.name}
+                handleChange={setSelectedStatus}
+              />
+            )}
+
+            <ModalButtonsContainer>
+              <Button className="primary default" onClick={() => setOpenDeleteModal(false)}>
+                Cancel
+              </Button>
+              &nbsp;
+              <Button
+                className="primary warning"
+                disabled={false}
+                {...(isMergeAction
+                  ? {
+                      type: "submit",
+                    }
+                  : {
+                      onClick: async () => {
+                        await deleteConfirmationHandler()
+                      },
+                    })}
+              >
+                {isMergeAction ? "Merge" : "Delete"}
+              </Button>
+            </ModalButtonsContainer>
+          </form>
+        </div>
+      </ModalBox>
+    </div>
+  )
+}
+
+export function ErrorBoundary({ error }: { error: Error }) {
+  console.error(error)
+
+  return <div>An unexpected error occurred: {error.message}</div>
+}
+
+export function CatchBoundary() {
+  const caught = useCatch()
+
+  if (caught.status === 404) {
+    return <div>ProjectStatus not found</div>
+  }
+
+  throw new Error(`Unexpected caught response with status: ${caught.status}`)
+}

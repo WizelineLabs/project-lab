@@ -37,6 +37,10 @@ interface SearchProjectsOutput {
   tierName: string
 }
 
+interface ProjectWhereInput {
+  status?: string | null
+}
+
 interface SearchIdsOutput {
   id: string
 }
@@ -95,6 +99,38 @@ export async function getProject({
 }
 
 export type ProjectComplete = Prisma.PromiseReturnType<typeof getProject>
+
+export async function getProjects(where: ProjectWhereInput) {
+  try {
+    const projects = await db.projects.findMany({
+      where,
+      include: {
+        projectStatus: true,
+        owner: true,
+        skills: true,
+        projectMembers: true,
+      },
+    })
+    return projects
+  } catch (e) {
+    throw new Error(JSON.stringify(e));
+  }
+}
+
+export async function updateProjectsStatus({
+  ids,
+  status,
+}: {
+  ids: string[];
+  status: string;
+}) {
+  await db.projects.updateMany({
+    where: { id: { in: ids } },
+    data: { status },
+  })
+
+  return { error: "" }
+}
 
 export async function searchProjects({
   profileId,
