@@ -39,6 +39,7 @@ interface SearchProjectsOutput {
 
 interface ProjectWhereInput {
   status?: string | null
+  tierName?: string | null
 }
 
 interface SearchIdsOutput {
@@ -117,16 +118,16 @@ export async function getProjects(where: ProjectWhereInput) {
   }
 }
 
-export async function updateProjectsStatus({
+export async function updateProjects({
   ids,
-  status,
+  data,
 }: {
   ids: string[];
-  status: string;
+  data: ProjectWhereInput;
 }) {
   await db.projects.updateMany({
     where: { id: { in: ids } },
-    data: { status },
+    data,
   })
 
   return { error: "" }

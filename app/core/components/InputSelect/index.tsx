@@ -1,21 +1,15 @@
-import {
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  FormHelperText,
-} from "@mui/material";
+import { Select, MenuItem, FormControl, InputLabel, FormHelperText } from "@mui/material"
 
 interface InputSelectProps {
-  valuesList: Array<{ name: string }>;
-  defaultValue?: String;
-  name: string;
-  label: string;
-  helperText?: string;
-  margin?: "normal" | "none" | "dense" | undefined;
-  disabled?: boolean;
-  value: string;
-  handleChange: React.Dispatch<React.SetStateAction<{name: string}>>;
+  valuesList: Array<{ name: string }>
+  defaultValue?: String
+  name: string
+  label: string
+  helperText?: string
+  margin?: "normal" | "none" | "dense" | undefined
+  disabled?: boolean
+  value: string
+  handleChange: React.Dispatch<React.SetStateAction<{ name: string }>>
 }
 
 export const InputSelect = ({
@@ -39,11 +33,8 @@ export const InputSelect = ({
         label={label}
         value={value || defaultValue}
         onChange={(event) => {
-          const newValue = valuesList.find(
-            (item) => item.name === event.target.value
-          );
-          console.log(newValue)
-          if (newValue) handleChange(newValue);
+          const newValue = valuesList.find((item) => item.name === event.target.value)
+          if (newValue) handleChange(newValue)
         }}
         disabled={disabled}
       >
@@ -55,7 +46,7 @@ export const InputSelect = ({
       </Select>
       <FormHelperText>{helperText}</FormHelperText>
     </FormControl>
-  );
-};
+  )
+}
 
-export default InputSelect;
+export default InputSelect

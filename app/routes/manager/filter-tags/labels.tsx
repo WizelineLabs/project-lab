@@ -1,114 +1,109 @@
-import React, { useState, useEffect } from "react";
-import { useFetcher, useLoaderData, useCatch } from "@remix-run/react";
-import type { LoaderFunction, ActionFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import type { GridRenderCellParams } from "@mui/x-data-grid";
-import { DataGrid, GridToolbarContainer } from "@mui/x-data-grid";
-import Button from "@mui/material/Button";
-import AddIcon from "@mui/icons-material/Add";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/DeleteOutlined";
-import SaveIcon from "@mui/icons-material/Save";
-import CancelIcon from "@mui/icons-material/Close";
-import { ThemeProvider } from "@mui/material/styles";
-import invariant from "tiny-invariant";
+import React, { useState, useEffect } from "react"
+import { useFetcher, useLoaderData, useCatch } from "@remix-run/react"
+import type { LoaderFunction, ActionFunction } from "@remix-run/node"
+import { json } from "@remix-run/node"
+import type { GridRenderCellParams } from "@mui/x-data-grid"
+import { DataGrid, GridToolbarContainer } from "@mui/x-data-grid"
+import Button from "@mui/material/Button"
+import AddIcon from "@mui/icons-material/Add"
+import EditIcon from "@mui/icons-material/Edit"
+import DeleteIcon from "@mui/icons-material/DeleteOutlined"
+import SaveIcon from "@mui/icons-material/Save"
+import CancelIcon from "@mui/icons-material/Close"
+import { ThemeProvider } from "@mui/material/styles"
+import invariant from "tiny-invariant"
 
-import themeWize from "app/core/utils/themeWize";
-import ConfirmationModal from "../../../core/components/ConfirmationModal";
-import {
-  getLabels,
-  addLabel,
-  removeLabel,
-  updateLabel,
-} from "~/models/label.server";
+import themeWize from "app/core/utils/themeWize"
+import ConfirmationModal from "../../../core/components/ConfirmationModal"
+import { getLabels, addLabel, removeLabel, updateLabel } from "~/models/label.server"
 
 declare module "@mui/material/Button" {
   interface ButtonPropsColorOverrides {
-    secondaryB: true;
-    secondaryC: true;
+    secondaryB: true
+    secondaryC: true
   }
 }
 
 type LabelRecord = {
-  id: number | string;
-  name: string | null;
-};
+  id: number | string
+  name: string | null
+}
 
 type gridEditToolbarProps = {
-  setRows: React.Dispatch<React.SetStateAction<LabelRecord[]>>;
-  createButtonText: string;
-};
+  setRows: React.Dispatch<React.SetStateAction<LabelRecord[]>>
+  createButtonText: string
+}
 
 type LoaderData = {
-  labels: Awaited<ReturnType<typeof getLabels>>;
-};
+  labels: Awaited<ReturnType<typeof getLabels>>
+}
 
 type newLabel = {
-  name: string;
-};
+  name: string
+}
 
 export const loader: LoaderFunction = async () => {
-  const labels = await getLabels();
+  const labels = await getLabels()
   return json<LoaderData>({
     labels,
-  });
-};
+  })
+}
 
 export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData();
+  const formData = await request.formData()
 
-  const action = formData.get("action");
-  let response;
-  let id;
-  let name;
+  const action = formData.get("action")
+  let response
+  let id
+  let name
 
   switch (action) {
     case "POST":
-      name = formData.get("name") as string;
-      invariant(name, "Invalid label name");
-      response = await addLabel({ name });
+      name = formData.get("name") as string
+      invariant(name, "Invalid label name")
+      response = await addLabel({ name })
       if (response.error) {
-        return json({ error: response.error }, { status: 404 });
+        return json({ error: response.error }, { status: 404 })
       }
-      return json(response, { status: 201 });
+      return json(response, { status: 201 })
 
     case "DELETE":
-      id = formData.get("id") as string;
-      invariant(id, "Label Id is required");
-      response = await removeLabel({ id });
+      id = formData.get("id") as string
+      invariant(id, "Label Id is required")
+      response = await removeLabel({ id })
       if (response.error) {
-        return json({ error: response.error }, { status: 400 });
+        return json({ error: response.error }, { status: 400 })
       }
-      return json(response, { status: 200 });
+      return json(response, { status: 200 })
 
     case "UPDATE":
-      id = formData.get("id") as string;
-      name = formData.get("name") as string;
-      invariant(id, "Label Id is required");
-      response = await updateLabel({ id, name });
+      id = formData.get("id") as string
+      name = formData.get("name") as string
+      invariant(id, "Label Id is required")
+      response = await updateLabel({ id, name })
       if (response.error) {
-        return json({ error: response.error }, { status: 400 });
+        return json({ error: response.error }, { status: 400 })
       }
-      return json(response, { status: 200 });
+      return json(response, { status: 200 })
 
     default: {
-      throw new Error("Something went wrong");
+      throw new Error("Something went wrong")
     }
   }
-};
+}
 
 const GridEditToolbar = (props: gridEditToolbarProps) => {
-  const { setRows, createButtonText } = props;
+  const { setRows, createButtonText } = props
   const handleAddClick = () => {
-    const id = "new-value";
-    const newName = "";
+    const id = "new-value"
+    const newName = ""
     setRows((prevRows) => {
       if (prevRows.find((rowValue) => rowValue.id === "new-value")) {
-        return [...prevRows];
+        return [...prevRows]
       }
-      return [...prevRows, { id, name: newName, isNew: true }];
-    });
-  };
+      return [...prevRows, { id, name: newName, isNew: true }]
+    })
+  }
   return (
     <GridToolbarContainer>
       <Button
@@ -120,34 +115,34 @@ const GridEditToolbar = (props: gridEditToolbarProps) => {
         {createButtonText}
       </Button>
     </GridToolbarContainer>
-  );
-};
+  )
+}
 
 export default function LabelsDataGrid() {
-  const fetcher = useFetcher();
-  const { labels } = useLoaderData() as LoaderData;
-  const createButtonText = "Create New Label";
-  const [error, setError] = useState<string>("");
+  const fetcher = useFetcher()
+  const { labels } = useLoaderData() as LoaderData
+  const createButtonText = "Create New Label"
+  const [error, setError] = useState<string>("")
   const [rows, setRows] = useState<LabelRecord[]>(() =>
     labels.map((item: LabelRecord) => ({
       id: item.id,
       name: item.name,
     }))
-  );
+  )
 
-  const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
-  const [selectedRowID, setSelectedRowID] = useState("");
+  const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false)
+  const [selectedRowID, setSelectedRowID] = useState("")
 
   useEffect(() => {
     //It handles the fetcher error from the response
     if (fetcher.state === "idle" && fetcher.data) {
       if (fetcher.data.error) {
-        setError(fetcher.data.error);
+        setError(fetcher.data.error)
       } else {
-        setError("");
+        setError("")
       }
     }
-  }, [fetcher]);
+  }, [fetcher])
 
   useEffect(() => {
     //It changes the rows shown based on admins
@@ -156,26 +151,26 @@ export default function LabelsDataGrid() {
         id: item.id,
         name: item.name,
       }))
-    );
-  }, [labels]);
+    )
+  }, [labels])
 
   // Set handles for interactions
 
   const handleRowEditStart = (event: any) => {
-    event.defaultMuiPrevented = true;
-  };
+    event.defaultMuiPrevented = true
+  }
 
   const handleRowEditStop = (event: any) => {
-    event.defaultMuiPrevented = true;
-  };
+    event.defaultMuiPrevented = true
+  }
 
   const handleCellFocusOut = (event: any) => {
-    event.defaultMuiPrevented = true;
-  };
+    event.defaultMuiPrevented = true
+  }
 
   const handleEditClick = (idRef: GridRenderCellParams) => {
-    idRef.api.setRowMode(idRef.row.id, "edit");
-  };
+    idRef.api.setRowMode(idRef.row.id, "edit")
+  }
 
   // Add new label
   const createNewLabel = async (values: newLabel) => {
@@ -183,78 +178,75 @@ export default function LabelsDataGrid() {
       const body = {
         ...values,
         action: "POST",
-      };
-      await fetcher.submit(body, { method: "post" });
+      }
+      await fetcher.submit(body, { method: "post" })
     } catch (error: any) {
-      console.error(error);
+      console.error(error)
     }
-  };
+  }
 
   const handleCancelClick = async (idRef: GridRenderCellParams) => {
-    const id = idRef.row.id;
-    idRef.api.setRowMode(id, "view");
+    const id = idRef.row.id
+    idRef.api.setRowMode(id, "view")
 
-    const row = idRef.api.getRow(id);
+    const row = idRef.api.getRow(id)
     if (row && row.isNew) {
-      await idRef.api.updateRows([{ id, _action: "delete" }]);
+      await idRef.api.updateRows([{ id, _action: "delete" }])
       setRows((prevRows) => {
-        const rowToDeleteIndex = prevRows.length - 1;
-        return [
-          ...rows.slice(0, rowToDeleteIndex),
-          ...rows.slice(rowToDeleteIndex + 1),
-        ];
-      });
+        const rowToDeleteIndex = prevRows.length - 1
+        return [...rows.slice(0, rowToDeleteIndex), ...rows.slice(rowToDeleteIndex + 1)]
+      })
     }
-  };
+  }
 
   const handleSaveClick = async (idRef: GridRenderCellParams) => {
-    const id = idRef.row.id;
+    const id = idRef.row.id
 
-    const row = idRef.api.getRow(id);
-    const isValid = await idRef.api.commitRowChange(idRef.row.id);
-    const newName = idRef.api.getCellValue(id, "name");
+    const row = idRef.api.getRow(id)
+    const isValid = await idRef.api.commitRowChange(idRef.row.id)
+    const newName = idRef.api.getCellValue(id, "name")
 
     if (rows.find((rowValue) => rowValue.name === newName)) {
-      console.error("Field Already exists");
-      return;
+      console.error("Field Already exists")
+      return
     } else {
-      console.error("All fields are valid");
+      console.error("All fields are valid")
     }
 
     if (row.isNew && isValid) {
-      const newValues = { name: newName };
-      idRef.api.setRowMode(id, "view");
-      await createNewLabel(newValues);
-      return;
+      const newValues = { name: newName }
+      idRef.api.setRowMode(id, "view")
+      await createNewLabel(newValues)
+      return
     }
     if (isValid) {
-      const row = idRef.api.getRow(idRef.row.id);
-      let id = idRef.row.id;
-      await editLabelInfo(id, { name: newName });
-      idRef.api.updateRows([{ ...row, isNew: false }]);
-      idRef.api.setRowMode(id, "view");
+      const row = idRef.api.getRow(idRef.row.id)
+      let id = idRef.row.id
+      await editLabelInfo(id, { name: newName })
+      idRef.api.updateRows([{ ...row, isNew: false }])
+      idRef.api.setRowMode(id, "view")
     }
-  };
+  }
 
   // Delete label
   const deleteConfirmationHandler = async () => {
-    setOpenDeleteModal(false);
+    setOpenDeleteModal(false)
     try {
       const body = {
         id: selectedRowID,
         action: "DELETE",
-      };
-      await fetcher.submit(body, { method: "delete" });
+      }
+      await fetcher.submit(body, { method: "delete" })
     } catch (error: any) {
-      console.error(error);
+      console.error(error)
     }
-  };
+  }
 
   const handleDeleteClick = (idRef: GridRenderCellParams) => {
-    let id = idRef.row.id;
-    setSelectedRowID(() => id);
-    setOpenDeleteModal(() => true);
-  };
+    let id = idRef.row.id
+    setSelectedRowID(() => id)
+    setOpenDeleteModal(() => true)
+  }
 
   // Edit label
   const editLabelInfo = async (id: string, values: newLabel) => {
@@ -263,12 +255,12 @@ export default function LabelsDataGrid() {
         id,
         ...values,
         action: "UPDATE",
-      };
-      await fetcher.submit(body, { method: "put" });
+      }
+      await fetcher.submit(body, { method: "put" })
     } catch (error: any) {
-      console.error(error);
+      console.error(error)
     }
-  };
+  }
 
   const columns = [
     { field: "name", headerName: "Name", width: 300, editable: true },
@@ -280,10 +272,10 @@ export default function LabelsDataGrid() {
       cellClassName: "actions",
       renderCell: (idRef: GridRenderCellParams) => {
         if (idRef.row.id === "new-value") {
-          idRef.api.setRowMode(idRef.row.id, "edit");
-          idRef.api.setCellFocus(idRef.row.id, "name");
+          idRef.api.setRowMode(idRef.row.id, "edit")
+          idRef.api.setCellFocus(idRef.row.id, "name")
         }
-        const isInEditMode = idRef.api.getRowMode(idRef.row.id) === "edit";
+        const isInEditMode = idRef.api.getRowMode(idRef.row.id) === "edit"
         if (isInEditMode) {
           return (
             <>
@@ -307,7 +299,7 @@ export default function LabelsDataGrid() {
                 <SaveIcon color="inherit" />
               </Button>
             </>
-          );
+          )
         }
         return (
           <>
@@ -330,10 +322,10 @@ export default function LabelsDataGrid() {
               <DeleteIcon color="inherit" />
             </Button>
           </>
-        );
+        )
       },
     },
-  ];
+  ]
 
   return (
     <div>
@@ -370,7 +362,7 @@ export default function LabelsDataGrid() {
         className="warning"
         disabled={false}
         onClick={async () => {
-          deleteConfirmationHandler();
+          deleteConfirmationHandler()
         }}
       >
         <h2>Are you sure you want to delete this Label ?</h2>
@@ -378,21 +370,21 @@ export default function LabelsDataGrid() {
         <br />
       </ConfirmationModal>
     </div>
-  );
+  )
 }
 
 export function ErrorBoundary({ error }: { error: Error }) {
-  console.error(error);
+  console.error(error)
 
-  return <div>An unexpected error occurred: {error.message}</div>;
+  return <div>An unexpected error occurred: {error.message}</div>
 }
 
 export function CatchBoundary() {
-  const caught = useCatch();
+  const caught = useCatch()
 
   if (caught.status === 404) {
-    return <div>Label not found</div>;
+    return <div>Label not found</div>
   }
 
-  throw new Error(`Unexpected caught response with status: ${caught.status}`);
+  throw new Error(`Unexpected caught response with status: ${caught.status}`)
 }
