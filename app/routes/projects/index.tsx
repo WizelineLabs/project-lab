@@ -125,7 +125,7 @@ export default function Projects() {
 
   //Tabs selection logic
   const isMyProposalTab = () => {
-    return searchParams.getAll("status").includes(myProposalsTab.searchParams.getAll('status')[0]);
+    return searchParams.get("q") === myProposalsTab.searchParams.get('q')
   }
 
   const isIdeasTab = () => {
@@ -148,6 +148,7 @@ export default function Projects() {
   }
 
   const getTabClass = (tab: string) => {
+    console.log(tab)
     if (
         (tab == myProposalsTab.name && isMyProposalTab()) ||
         (tab == ideasTab.name && isIdeasTab()) ||
@@ -179,20 +180,20 @@ export default function Projects() {
         <div className="homeWrapper__navbar">
           <div className="homeWrapper__navbar__tabs">
             <div
-              className={`homeWrapper__navbar__tabs--title ${getTabClass("ideas")}`}
-              onClick={() => handleTabChange("ideas")}
+              className={`homeWrapper__navbar__tabs--title ${getTabClass(ideasTab.name)}`}
+              onClick={() => handleTabChange(ideasTab.name)}
             >
               Ideas
             </div>
             <div
-              className={`homeWrapper__navbar__tabs--title ${getTabClass("activeProjects")}`}
-              onClick={() => handleTabChange("activeProjects")}
+              className={`homeWrapper__navbar__tabs--title ${getTabClass(activeProjectsTab.name)}`}
+              onClick={() => handleTabChange(activeProjectsTab.name)}
             >
               Active Projects
             </div>
             <div
-              className={`homeWrapper__navbar__tabs--title ${getTabClass("myProposals")}`}
-              onClick={() => handleTabChange("myProposals")}
+              className={`homeWrapper__navbar__tabs--title ${getTabClass(myProposalsTab.name)}`}
+              onClick={() => handleTabChange(myProposalsTab.name)}
             >
               My Projects
             </div>
