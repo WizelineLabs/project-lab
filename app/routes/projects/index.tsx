@@ -23,6 +23,12 @@ type LoaderData = {
 const ITEMS_PER_PAGE = 50
 const FACETS = ["status", "skill", "label", "disciplines", "location", "tier", "role", "missing"]
 
+interface Tab { 
+  name: string
+  title: string
+  searchParams: URLSearchParams
+}
+
 export const loader: LoaderFunction = async ({ request }) => {
   const profile = await requireProfile(request);
   const url = new URL(request.url);
@@ -77,11 +83,29 @@ export default function Projects() {
     missingFacets,
     count,
   }} = useLoaderData() as LoaderData
+  const myPropQuery =  "myProposals"
+  const activeProjectsTab: Tab = {
+    name: "activeProjects",
+    title: "Active Projects",
+    searchParams: new URLSearchParams([["status", "Idea in Progress"], ["status", "Need SME Review"], ["status", "Need Tier Review"]])
+  };
+  const myProposalsTab = {
+    name: "myProposals",
+    title: "My Proposals",
+    searchParams: new URLSearchParams({ q: myPropQuery })
+  }
+  const ideasTab = {
+    name: "ideas",
+    title: "Ideas",
+    searchParams: new URLSearchParams([["status", "Idea Submitted"]])
+  }
+  const tabs: Array<Tab> = [myProposalsTab, activeProjectsTab, ideasTab];
 
   const goToPreviousPage = () => {
     searchParams.set("page", String(page - 1))
     setSearchParams(searchParams)
   }
+
   const goToNextPage = () => {
     searchParams.set("page", String(page + 1))
     setSearchParams(searchParams)
@@ -101,30 +125,33 @@ export default function Projects() {
 
   //Tabs selection logic
   const isMyProposalTab = () => {
-    return searchParams.get("q") === "myProposals"
+    return searchParams.getAll("status").includes(myProposalsTab.searchParams.getAll('status')[0]);
   }
+
   const isIdeasTab = () => {
-    return searchParams.getAll("status").includes("Idea Submitted")
+    return searchParams.getAll("status").includes(ideasTab.searchParams.getAll('status')[0]);
   }
-  const isInProgressTab = () => {
-    return searchParams.getAll("status").includes("Idea in Progress")
+
+  const isInProgressTab = () => { 
+    return searchParams.getAll("status").includes(activeProjectsTab.searchParams.getAll('status')[0]);
   }
+
   const getTitle = () => {
     if (isMyProposalTab()) {
-      return "MyProposals"
+      return myProposalsTab.title;
     } else if (isIdeasTab()) {
-      return "Ideas"
+      return ideasTab.title;
     } else if (isInProgressTab()) {
-      return "Active Projects"
-    } else {
-      return "All Projects"
+      return activeProjectsTab.title;
     }
+    return "All Projects";
   }
+
   const getTabClass = (tab: string) => {
     if (
-        (tab == "myProposals" && isMyProposalTab()) ||
-        (tab == "ideas" && isIdeasTab()) ||
-        (tab == "activeProjects" && isInProgressTab())
+        (tab == myProposalsTab.name && isMyProposalTab()) ||
+        (tab == ideasTab.name && isIdeasTab()) ||
+        (tab == activeProjectsTab.name && isInProgressTab())
     ) {
       return "homeWrapper__navbar__tabs--title--selected"
     } else {
@@ -133,12 +160,9 @@ export default function Projects() {
   }
 
   const handleTabChange = (selectedTab: string) => {
-    if (selectedTab === "activeProjects") {
-      setSearchParams(new URLSearchParams({status: "Idea in Progress" }))
-    } else if (selectedTab === "myProposals") {
-      setSearchParams(new URLSearchParams({q: "myProposals" }))
-    } else {
-      setSearchParams(new URLSearchParams({status: "Idea Submitted" }))
+    let params = tabs.find(tab => tab.name === selectedTab)?.searchParams;
+    if(params){
+      setSearchParams(params)
     }
   }
 
