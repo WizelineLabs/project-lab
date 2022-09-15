@@ -8,7 +8,7 @@ interface LabeledSwitchFieldProps {
 
 
 export const LabeledSwitchField = ({ label, name, initialValues }: LabeledSwitchFieldProps) => {
-  return <FormControlLabel label={label} control={<Switch defaultChecked = {initialValues} />} />;
+  return <FormControlLabel name={name} label={label} control={<Switch defaultChecked = {initialValues} />} />;
 }
 
 export default LabeledSwitchField
