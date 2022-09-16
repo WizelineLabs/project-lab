@@ -24,6 +24,7 @@ import {
 } from "~/models/status.server"
 import type { ProjectStatus } from "~/models/status.server"
 import { getProjects, updateProjects } from "~/models/project.server"
+import { stageOptions } from "~/constants"
 
 declare module "@mui/material/Button" {
   interface ButtonPropsColorOverrides {
@@ -35,6 +36,7 @@ declare module "@mui/material/Button" {
 type StatusRecord = {
   id: number | string
   name: string | null
+  stage: string | null
 }
 
 type gridEditToolbarProps = {
@@ -49,6 +51,7 @@ type LoaderData = {
 
 type newStatus = {
   name: string
+  stage?: string
 }
 
 type ProjectRecord = {
@@ -78,12 +81,19 @@ export const action: ActionFunction = async ({ request }) => {
   const action = formData.get("action")
   let response
   let name
+  let stage
+  let data
 
   switch (action) {
     case "POST":
       name = formData.get("name") as string
+      stage = formData.get("stage") as string
       invariant(name, "Invalid project status name")
-      response = await addProjectStatus({ name })
+      data = {
+        name,
+        ...(stage ? { stage } : null),
+      }
+      response = await addProjectStatus(data)
       if (response.error) {
         return json({ error: response.error }, { status: 404 })
       }
@@ -101,8 +111,14 @@ export const action: ActionFunction = async ({ request }) => {
     case "UPDATE":
       const id = formData.get("id") as string
       name = formData.get("name") as string
-      invariant(id, "Project status name is required")
-      response = await updateProjectStatus({ id, name })
+      stage = formData.get("stage") as ("idea" | "ongoing project" | "none" | null )
+      invariant(name, "Invalid project status name")
+      data = {
+        id,
+        name,
+        ...(stage ? { stage } : null),
+      }
+      response = await updateProjectStatus(data)
       if (response.error) {
         return json({ error: response.error }, { status: 400 })
       }
@@ -129,11 +145,12 @@ const GridEditToolbar = (props: gridEditToolbarProps) => {
   const handleAddClick = () => {
     const id = "new-value"
     const newName = ""
+    const newStage = ""
     setRows((prevRows) => {
       if (prevRows.find((rowValue) => rowValue.id === "new-value")) {
         return [...prevRows]
       }
-      return [...prevRows, { id, name: newName, isNew: true }]
+      return [...prevRows, { id, name: newName, stage: newStage, isNew: true }]
     })
   }
   return (
@@ -160,6 +177,7 @@ export default function ProjectStatusDataGrid() {
     statuses.map((item: ProjectStatus) => ({
       id: item.name,
       name: item.name,
+      stage: item.stage,
     }))
   )
   const [selectedRowID, setSelectedRowID] = useState("")
@@ -189,6 +207,7 @@ export default function ProjectStatusDataGrid() {
       statuses.map((item: ProjectStatus) => ({
         id: item.name,
         name: item.name,
+        stage: item.stage,
       }))
     )
   }, [statuses])
@@ -230,14 +249,16 @@ export default function ProjectStatusDataGrid() {
     const row = idRef.api.getRow(id)
     const isValid = await idRef.api.commitRowChange(idRef.row.id)
     const newName = idRef.api.getCellValue(id, "name")
+    const newStage = idRef.api.getCellValue(id, "stage")
+    const currStatuses = statuses.filter((status) => status.name !== id)
 
-    if (rows.find((rowValue) => rowValue.name === newName)) {
+    if (currStatuses.find((rowValue) => rowValue.name === newName)) {
       console.error("Field Already exists")
       return
     }
 
     if (row.isNew && isValid) {
-      const newValues = { name: newName }
+      const newValues = { name: newName, stage: newStage }
       idRef.api.setRowMode(id, "view")
       await createNewProjectStatus(newValues)
       return
@@ -245,7 +266,7 @@ export default function ProjectStatusDataGrid() {
     if (isValid) {
       const row = idRef.api.getRow(idRef.row.id)
       let id = idRef.row.id
-      await editProjectStatusInfo(id, { name: newName })
+      await editProjectStatusInfo(id, { name: newName, stage: newStage })
       idRef.api.updateRows([{ ...row, isNew: false }])
       idRef.api.setRowMode(id, "view")
     }
@@ -263,6 +284,13 @@ export default function ProjectStatusDataGrid() {
         return [...rows.slice(0, rowToDeleteIndex), ...rows.slice(rowToDeleteIndex + 1)]
       })
     }
+    setRows(
+      statuses.map((item: ProjectStatus) => ({
+        id: item.name,
+        name: item.name,
+        stage: item.stage,
+      }))
+    )
   }
 
   // Delete project status
@@ -316,7 +344,40 @@ export default function ProjectStatusDataGrid() {
 
   const columns = [
     { field: "name", headerName: "Name", width: 300, editable: true },
+    {
+      field: "stage",
+      headerName: "Stage",
+      width: 300,
+      cellClassName: "actions",
+      renderCell: (idRef: any) => {
+        const handleChangeStage = (newValue: { name: string }) => {
+          const currValue = statuses.find((status) => status.name === idRef.row.id)?.stage
+          if (currValue !== newValue.name) idRef.api.setRowMode(idRef.row.id, "edit")
 
+          setRows((prevValues) =>
+            prevValues.map((v) =>
+              v.id === idRef.row.id
+                ? {
+                    ...v,
+                    stage: newValue.name,
+                  }
+                : v
+            )
+          )
+        }
+        return (
+          <InputSelect
+            valuesList={stageOptions}
+            defaultValue=""
+            name="stage"
+            label="Stage"
+            disabled={false}
+            value={idRef.row.stage || "none"}
+            handleChange={handleChangeStage}
+          />
+        )
+      },
+    },
     {
       field: "actions",
       headerName: "Actions",
@@ -427,7 +488,7 @@ export default function ProjectStatusDataGrid() {
         <br />
         <div>
           <form
-            onSubmit={async (values) => {
+            onSubmit={async () => {
               await handleSubmit({
                 projectsIds: projects.map((project) => project.id),
               })

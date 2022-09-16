@@ -24,7 +24,7 @@ export const InputSelect = ({
   handleChange,
 }: InputSelectProps) => {
   return (
-    <FormControl fullWidth id={name} margin={margin || "normal"}>
+    <FormControl fullWidth id={name} margin={margin || "normal"} size="small" >
       <InputLabel id={name}>{label}</InputLabel>
       <Select
         style={{ width: "100%" }}
