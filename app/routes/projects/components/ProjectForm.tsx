@@ -5,6 +5,7 @@ import { MultivalueInput } from "~/core/components/MultivalueInput";
 import LabeledTextField from "~/core/components/LabeledTextField";
 import LabeledTextFieldArea from "~/core/components/LabeledTextFieldArea";
 import LabeledSwitchField from "~/core/components/LabeledSwitchField";
+import TextEditor from "~/core/components/TextEditor";
 export function ProjectForm() {
   const [displayFields, setDisplayFields] = useState(false);
 
@@ -15,8 +16,7 @@ export function ProjectForm() {
 
   return (
     <form method="post">
-      <LabeledTextField fullWidth name="name" label="Name" placeholder="Name" />
-
+      <LabeledTextField fullWidth name="name" label="Name" placeholder="Name"/>
       <LabeledTextFieldArea
         style={{ minHeight: "4em" }}
         fullWidth
@@ -24,13 +24,13 @@ export function ProjectForm() {
         label="Problem Statement"
         placeholder="Problem statement"
       />
-
-      {/* <TextEditor
-          initialValues={initialValues}
+      {<TextEditor
+          style={{ minHeight: "4em" }}
+          fullWidth
           name="valueStatement"
           label="Your proposal"
           placeholder="Explain us your proposal..."
-      /> */}
+      />}
 
       <LabeledSwitchField
         name="helpWanted"
