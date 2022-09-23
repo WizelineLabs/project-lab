@@ -79,63 +79,57 @@ export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
 
   const action = formData.get("action")
-  let response
-  let name
-  let stage
-  let data
+  let response, name, stage, data
 
-  switch (action) {
-    case "POST":
-      name = formData.get("name") as string
-      stage = formData.get("stage") as string
-      invariant(name, "Invalid project status name")
-      data = {
-        name,
-        ...(stage ? { stage } : null),
-      }
-      response = await addProjectStatus(data)
-      if (response.error) {
-        return json({ error: response.error }, { status: 404 })
-      }
-      return json(response, { status: 201 })
+  try {
+    switch (action) {
+      case "POST":
+        name = formData.get("name") as string
+        stage = formData.get("stage") as string
+        invariant(name, "Invalid project status name")
+        data = {
+          name,
+          ...(stage ? { stage } : null),
+        }
+        response = await addProjectStatus(data)
+        return json(response, { status: 201 })
 
-    case "DELETE":
-      name = formData.get("name") as string
-      invariant(name, "Project status name is required")
-      response = await removeProjectStatus({ name })
-      if (response.error) {
-        return json({ error: response.error }, { status: 400 })
-      }
-      return json(response, { status: 200 })
+      case "DELETE":
+        name = formData.get("name") as string
+        invariant(name, "Project status name is required")
+        response = await removeProjectStatus({ name })
+        return json({ error: "" }, { status: 200 })
 
-    case "UPDATE":
-      const id = formData.get("id") as string
-      name = formData.get("name") as string
-      stage = formData.get("stage") as ("idea" | "ongoing project" | "none" | null )
-      invariant(name, "Invalid project status name")
-      data = {
-        id,
-        name,
-        ...(stage ? { stage } : null),
-      }
-      response = await updateProjectStatus(data)
-      if (response.error) {
-        return json({ error: response.error }, { status: 400 })
-      }
-      return json(response, { status: 200 })
+      case "UPDATE":
+        const id = formData.get("id") as string
+        name = formData.get("name") as string
+        stage = formData.get("stage") as "idea" | "ongoing project" | "none" | null
+        invariant(name, "Invalid project status name")
+        data = {
+          id,
+          name,
+          ...(stage ? { stage } : null),
+        }
+        await updateProjectStatus(data)
+        return json({ error: "" }, { status: 200 })
 
-    case "UPDATE-PROJECTS":
-      const ids = JSON.parse(formData.get("ids") as string)
-      const projectStatus = formData.get("status") as string
-      invariant(projectStatus, "Project status is required")
-      response = await updateProjects({ ids, data: { status: projectStatus } })
-      if (response.error) {
-        return json({ error: response.error }, { status: 400 })
-      }
-      return json(response, { status: 200 })
+      case "UPDATE-PROJECTS":
+        const ids = JSON.parse(formData.get("ids") as string)
+        const projectStatus = formData.get("status") as string
+        invariant(projectStatus, "Project status is required")
+        await updateProjects({ ids, data: { status: projectStatus } })
+        return json({error: ""}, { status: 200 })
 
-    default: {
-      throw new Error("Something went wrong")
+      default: {
+        throw new Error("Something went wrong")
+      }
+    }
+  } catch (e: any) {
+    switch (e.code) {
+      case "NOT_FOUND":
+        return json({ error: e.message }, { status: 404 })
+      default:
+        throw e
     }
   }
 }
@@ -250,10 +244,14 @@ export default function ProjectStatusDataGrid() {
     const isValid = await idRef.api.commitRowChange(idRef.row.id)
     const newName = idRef.api.getCellValue(id, "name")
     const newStage = idRef.api.getCellValue(id, "stage")
-    const currStatuses = statuses.filter((status) => status.name !== id)
 
-    if (currStatuses.find((rowValue) => rowValue.name === newName)) {
-      console.error("Field Already exists")
+    if (statuses.find((rowValue) => rowValue.name === newName)) {
+      setError("Field Already exists")
+      return
+    }
+
+    if (!newName) {
+      setError("Field Name is required")
       return
     }
 

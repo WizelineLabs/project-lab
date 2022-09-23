@@ -8,6 +8,22 @@ type updateProjectStatusType = {
   stage?: "idea" | "ongoing project" | "none" | null
 }
 
+interface ResponseError extends Error {
+  code?: string
+}
+
+async function validateProjectStatus(name: string) {
+  const projectStatus = await prisma.projectStatus.findFirst({
+    where: { name },
+  })
+  if (!projectStatus) {
+    const error: ResponseError = new Error("Project Status not found in DB")
+    error.code = "NOT_FOUND"
+    throw error
+  }
+  return
+}
+
 export async function getProjectStatuses() {
   const projectStatuses = await prisma.projectStatus.findMany({
     orderBy: {
@@ -18,53 +34,29 @@ export async function getProjectStatuses() {
 }
 
 export async function addProjectStatus({ name, stage }: { name: string; stage?: string }) {
-  try {
-    const data = {
-      name,
-      ...(stage ? { stage } : null),
-    }
-    const projectStatus = await prisma.projectStatus.create({ data })
-    return { projectStatus, error: "" }
-  } catch (e) {
-    throw new Error(JSON.stringify(e))
+  const data = {
+    name,
+    ...(stage ? { stage } : null),
   }
+  const projectStatus = await prisma.projectStatus.create({ data })
+  return { projectStatus }
 }
 
 export async function removeProjectStatus({ name }: { name: string }) {
-  try {
-    const projectStatuses = await prisma.projectStatus.findFirst({
-      where: { name },
-    })
-    if (!projectStatuses) {
-      return { error: "Project Status not found in DB" }
-    }
-    await prisma.projectStatus.deleteMany({ where: { name } })
-    return { error: "" }
-  } catch (e) {
-    throw new Error(JSON.stringify(e))
-  }
+  await validateProjectStatus(name)
+  await prisma.projectStatus.deleteMany({ where: { name } })
 }
 
 export async function updateProjectStatus({ id, name, stage }: updateProjectStatusType) {
-  try {
-    const projectStatuses = await prisma.projectStatus.findFirst({
-      where: { name: id },
-    })
-    if (!projectStatuses) {
-      return { error: "Project Status not found in DB" }
-    }
-    const data = {
-      name,
-      stage,
-    }
-
-    if (stage === "none") {
-      data.stage = null
-    }
-
-    await prisma.projectStatus.update({ where: { name: id }, data })
-    return { error: "" }
-  } catch (e) {
-    throw new Error(JSON.stringify(e))
+  await validateProjectStatus(id)
+  const data = {
+    name,
+    stage,
   }
+
+  if (stage === "none") {
+    data.stage = null
+  }
+
+  await prisma.projectStatus.update({ where: { name: id }, data })
 }

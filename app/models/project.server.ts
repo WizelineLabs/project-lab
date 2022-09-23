@@ -129,8 +129,6 @@ export async function updateProjects({
     where: { id: { in: ids } },
     data,
   })
-
-  return { error: "" }
 }
 
 export async function searchProjects({

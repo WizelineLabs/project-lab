@@ -83,60 +83,59 @@ export const action: ActionFunction = async ({ request }) => {
 
   const action = formData.get("action")
   let response
-  let name, benefits, requisites, goals
+  let name, benefits, requisites, goals, data
 
-  switch (action) {
-    case "POST":
-      name = formData.get("name") as string
-      benefits = formData.get("benefits") as string
-      requisites = formData.get("requisites") as string
-      goals = formData.get("goals") as string
-      invariant(name, "Invalid innovation tier name")
-      invariant(name, "Invalid innovation tier benefits")
-      invariant(name, "Invalid innovation tier requisites")
-      invariant(name, "Invalid innovation tier goals")
-      response = await addInnovationTier({ name, benefits, requisites, goals })
-      if (response.error) {
-        return json({ error: response.error }, { status: 404 })
+  try {
+    switch (action) {
+      case "POST":
+        data = JSON.parse(formData.get("data") as string)
+        name = data.name
+        benefits = data.benefits
+        requisites = data.requisites
+        goals = data.goals
+        invariant(name, "Invalid innovation tier name")
+        invariant(benefits, "Invalid innovation tier benefits")
+        invariant(requisites, "Invalid innovation tier requisites")
+        invariant(goals, "Invalid innovation tier goals")
+        response = await addInnovationTier({ name, benefits, requisites, goals })
+        return json(response, { status: 201 })
+
+      case "DELETE":
+        name = formData.get("name") as string
+        invariant(name, "Innovation Tier name is required")
+        await removeInnovationTier({ name })
+        return json({ error: "" }, { status: 200 })
+
+      case "UPDATE":
+        data = JSON.parse(formData.get("data") as string)
+        name = data.name
+        benefits = data.benefits
+        requisites = data.requisites
+        goals = data.goals
+        invariant(name, "Invalid innovation tier name")
+        invariant(benefits, "Invalid innovation tier benefits")
+        invariant(requisites, "Invalid innovation tier requisites")
+        invariant(goals, "Invalid innovation tier goals")
+        await updateInnovationTier({ name, benefits, requisites, goals })
+        return json({ error: "" }, { status: 200 })
+
+      case "UPDATE-PROJECTS":
+        const ids = JSON.parse(formData.get("ids") as string)
+        const tierName = formData.get("tierName") as string
+        invariant(tierName, "Innovation tier name is required")
+        await updateProjects({ ids, data: { tierName } })
+        return json({error: ""}, { status: 200 })
+
+      default: {
+        throw new Error("Something went wrong")
       }
-      return json(response, { status: 201 })
-
-    case "DELETE":
-      name = formData.get("name") as string
-      invariant(name, "Project status name is required")
-      response = await removeInnovationTier({ name })
-      if (response.error) {
-        return json({ error: response.error }, { status: 400 })
-      }
-      return json(response, { status: 200 })
-
-    case "UPDATE":
-      name = formData.get("name") as string
-      benefits = formData.get("benefits") as string
-      requisites = formData.get("requisites") as string
-      goals = formData.get("goals") as string
-      invariant(name, "Invalid innovation tier name")
-      invariant(name, "Invalid innovation tier benefits")
-      invariant(name, "Invalid innovation tier requisites")
-      invariant(name, "Invalid innovation tier goals")
-      response = await updateInnovationTier({ name, benefits, requisites, goals })
-      if (response.error) {
-        return json({ error: response.error }, { status: 400 })
-      }
-      return json(response, { status: 200 })
-
-    case "UPDATE-PROJECTS":
-      const ids = JSON.parse(formData.get("ids") as string)
-      const tierName = formData.get("tierName") as string
-      invariant(tierName, "Innovation tier name is required")
-      response = await updateProjects({ ids, data: { tierName } })
-      if (response.error) {
-        return json({ error: response.error }, { status: 400 })
-      }
-      return json(response, { status: 200 })
-
-    default: {
-      throw new Error("Something went wrong")
+    }
+  } catch (e: any) {
+    switch (e.code) {
+      case "NOT_FOUND":
+        return json({ error: e.message }, { status: 404 })
+      default:
+        throw e
     }
   }
 }
@@ -238,7 +237,9 @@ const InnovationTiersGrid = () => {
   const createNewTier = async (values: newInnovationTier) => {
     try {
       const body = {
-        ...values,
+        data: JSON.stringify({
+          ...values,
+        }),
         action: "POST",
       }
       await fetcher.submit(body, { method: "post" })
@@ -257,11 +258,14 @@ const InnovationTiersGrid = () => {
     const newRequisites = idRef.api.getCellValue(id, "requisites")
     const newGoals = idRef.api.getCellValue(id, "goals")
 
-    if (rows.find((rowValue) => rowValue.name === newName)) {
-      console.error("Field Already exists")
+    if (innovationTiers.find((rowValue) => rowValue.name === newName)) {
+      setError("Field Already exists")
       return
-    } else {
-      console.error("All fields are valid")
+    }
+
+    if (!newName || !newBenefits || !newRequisites || !newGoals) {
+      setError("All fields are required")
+      return
     }
 
     if (row.isNew && isValid) {
@@ -343,7 +347,9 @@ const InnovationTiersGrid = () => {
     try {
       const body = {
         id,
-        ...values,
+        data: JSON.stringify({
+          ...values,
+        }),
         action: "UPDATE",
       }
       await fetcher.submit(body, { method: "put" })

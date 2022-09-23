@@ -53,41 +53,39 @@ export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
 
   const action = formData.get("action")
-  let response
-  let id
-  let name
+  let response, id, name
 
-  switch (action) {
-    case "POST":
-      name = formData.get("name") as string
-      invariant(name, "Invalid label name")
-      response = await addLabel({ name })
-      if (response.error) {
-        return json({ error: response.error }, { status: 404 })
+  try {
+    switch (action) {
+      case "POST":
+        name = formData.get("name") as string
+        invariant(name, "Invalid label name")
+        response = await addLabel({ name })
+        return json(response, { status: 201 })
+
+      case "DELETE":
+        id = formData.get("id") as string
+        invariant(id, "Label Id is required")
+        response = await removeLabel({ id })
+        return json({ error: "" }, { status: 200 })
+
+      case "UPDATE":
+        id = formData.get("id") as string
+        name = formData.get("name") as string
+        invariant(id, "Label Id is required")
+        response = await updateLabel({ id, name })
+        return json({ error: "" }, { status: 200 })
+
+      default: {
+        throw new Error("Something went wrong")
       }
-      return json(response, { status: 201 })
-
-    case "DELETE":
-      id = formData.get("id") as string
-      invariant(id, "Label Id is required")
-      response = await removeLabel({ id })
-      if (response.error) {
-        return json({ error: response.error }, { status: 400 })
-      }
-      return json(response, { status: 200 })
-
-    case "UPDATE":
-      id = formData.get("id") as string
-      name = formData.get("name") as string
-      invariant(id, "Label Id is required")
-      response = await updateLabel({ id, name })
-      if (response.error) {
-        return json({ error: response.error }, { status: 400 })
-      }
-      return json(response, { status: 200 })
-
-    default: {
-      throw new Error("Something went wrong")
+    }
+  } catch (e: any) {
+    switch (e.code) {
+      case "NOT_FOUND":
+        return json({ error: e.message }, { status: 404 })
+      default:
+        throw e
     }
   }
 }
@@ -206,11 +204,14 @@ export default function LabelsDataGrid() {
     const isValid = await idRef.api.commitRowChange(idRef.row.id)
     const newName = idRef.api.getCellValue(id, "name")
 
-    if (rows.find((rowValue) => rowValue.name === newName)) {
-      console.error("Field Already exists")
+    if (labels.find((rowValue) => rowValue.name === newName)) {
+      setError("Field Already exists")
       return
-    } else {
-      console.error("All fields are valid")
+    }
+
+    if (!newName) {
+      setError("Field Name is required")
+      return
     }
 
     if (row.isNew && isValid) {
