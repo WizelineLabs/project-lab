@@ -13,6 +13,13 @@ import {
   HtmlTooltip,
 } from "./ContributorPathReport.styles";
 
+import type {
+  ContributorPath,
+  ProjectMember,
+  ProjectTask,
+  Stage,
+} from "~/core/interfaces/ContributorPathReport";
+
 interface IProps {
   project: any;
 }
@@ -20,7 +27,15 @@ interface IProps {
 export const ContributorPathReport = ({ project }: IProps) => {
   return (
     <>
-      <big>Contributors</big>
+      <big>
+        Contributors (
+        {
+          project.projectMembers.filter((member: ProjectMember) => {
+            return member.active;
+          }).length
+        }{" "}
+        active)
+      </big>
       <table width="100%" className="table-project-members">
         <thead>
           <tr>
@@ -35,84 +50,90 @@ export const ContributorPathReport = ({ project }: IProps) => {
                 <TipBubble>?</TipBubble>
               </HtmlTooltip>
             </th>
-            {project.stages?.map((stage, i) => (
+            {project.stages?.map((stage: Stage, i: number) => (
               <th key={i}>
                 {stage.name}
                 <br />
-                {stage.projectTasks.map((task, taskIndex) => (
-                  <HtmlTooltip key={taskIndex} title={task.description}>
-                    <TipBubble>{taskIndex + 1}</TipBubble>
-                  </HtmlTooltip>
-                ))}
+                {stage.projectTasks.map(
+                  (task: ProjectTask, taskIndex: number) => (
+                    <HtmlTooltip key={taskIndex} title={task.description}>
+                      <TipBubble>{taskIndex + 1}</TipBubble>
+                    </HtmlTooltip>
+                  )
+                )}
               </th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {project.projectMembers.map((member, memberIndex) => {
-            const projectTaskIds: any = member.contributorPath.map(
-              (cp) => cp.projectTaskId
-            );
+          {project.projectMembers.map(
+            (member: ProjectMember, memberIndex: number) => {
+              const projectTaskIds: any = member.contributorPath.map(
+                (cp: ContributorPath) => cp.projectTaskId
+              );
 
-            return (
-              <tr key={memberIndex}>
-                <td align="center">
-                  {member.active ? (
-                    <CompleteIcon>
-                      <CheckSharpIcon />
-                    </CompleteIcon>
-                  ) : (
-                    <IncompleteIcon>
-                      <ClearSharpIcon />
-                    </IncompleteIcon>
-                  )}
-                </td>
-
-                <td>
-                  {member.profile?.firstName} {member.profile?.lastName}
-                </td>
-
-                <td align="center">
-                  <HtmlTooltip
-                    key={memberIndex}
-                    title={
-                      <React.Fragment>{member.profile?.email}</React.Fragment>
-                    }
-                  >
-                    <EmailAt>
-                      <AlternateEmailSharpIcon />
-                    </EmailAt>
-                  </HtmlTooltip>
-                </td>
-
-                <td>{member.role?.map((role) => role.name)}</td>
-
-                <td align="center">{member.hoursPerWeek}</td>
-                {project.stages?.map((stage, stageIndex) => (
-                  <td key={stageIndex}>
-                    <ul>
-                      {stage.projectTasks?.map((task, taskIndex) => (
-                        <li key={taskIndex}>
-                          {projectTaskIds.includes(task.id) ? (
-                            <CompleteIcon>
-                              <CheckBoxSharpIcon />
-                            </CompleteIcon>
-                          ) : (
-                            <>
-                              <IncompleteIcon>
-                                <CheckBoxOutlineBlankSharpIcon />
-                              </IncompleteIcon>
-                              {""}
-                            </>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
+              return (
+                <tr key={memberIndex}>
+                  <td align="center">
+                    {member.active ? (
+                      <CompleteIcon>
+                        <CheckSharpIcon />
+                      </CompleteIcon>
+                    ) : (
+                      <IncompleteIcon>
+                        <ClearSharpIcon />
+                      </IncompleteIcon>
+                    )}
                   </td>
-                ))}
-              </tr>
-            );
-          })}
+
+                  <td>
+                    {member.profile?.firstName} {member.profile?.lastName}
+                  </td>
+
+                  <td align="center">
+                    <HtmlTooltip
+                      key={memberIndex}
+                      title={
+                        <React.Fragment>{member.profile?.email}</React.Fragment>
+                      }
+                    >
+                      <EmailAt>
+                        <AlternateEmailSharpIcon />
+                      </EmailAt>
+                    </HtmlTooltip>
+                  </td>
+
+                  <td>{member.role?.map((role) => role.name)}</td>
+
+                  <td align="center">{member.hoursPerWeek}</td>
+                  {project.stages?.map((stage: Stage, stageIndex: number) => (
+                    <td key={stageIndex}>
+                      <ul>
+                        {stage.projectTasks?.map(
+                          (task: ProjectTask, taskIndex: number) => (
+                            <li key={taskIndex}>
+                              {projectTaskIds.includes(task.id) ? (
+                                <CompleteIcon>
+                                  <CheckBoxSharpIcon />
+                                </CompleteIcon>
+                              ) : (
+                                <>
+                                  <IncompleteIcon>
+                                    <CheckBoxOutlineBlankSharpIcon />
+                                  </IncompleteIcon>
+                                  {""}
+                                </>
+                              )}
+                            </li>
+                          )
+                        )}
+                      </ul>
+                    </td>
+                  ))}
+                </tr>
+              );
+            }
+          )}
         </tbody>
       </table>
     </>
