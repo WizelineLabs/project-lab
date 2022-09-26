@@ -5,15 +5,22 @@ import { MultivalueInput } from "~/core/components/MultivalueInput";
 import DisciplinesSelect from "~/core/components/DisciplineSelect";
 import LabeledTextField from "~/core/components/LabeledTextField";
 import LabeledTextFieldArea from "~/core/components/LabeledTextFieldArea";
-import LabeledSwitchField from "~/core/components/LabeledSwitchField";
+//import LabeledSwitchField from "~/core/components/LabeledSwitchField";
 import TextEditor from "~/core/components/TextEditor";
 export function ProjectForm() {
   const [displayFields, setDisplayFields] = useState(false);
+  const [helpWanted, setHelpWanted] = useState(false);
 
   const handleDisplaySwitch = (e: any) => {
     console.log(`Change value of ${e.target.checked.toString()}`);
     setDisplayFields(!displayFields);
   };
+
+  const handleHelpWanted = (e: any) => {
+    console.log(`Change value of ${e.target.checked.toString()}`);
+    setHelpWanted(!helpWanted);
+  };
+
 
   return (
     <form method="post">
@@ -31,27 +38,30 @@ export function ProjectForm() {
         label="Problem Statement"
         placeholder="Problem statement"
       />
-      {
-        <TextEditor
-          style={{ minHeight: "4em" }}
-          fullWidth
-          name="valueStatement"
-          label="Your proposal"
-          placeholder="Explain us your proposal..."
-        />
-      }
-
-      <LabeledSwitchField
-        name="helpWanted"
+      
+      <TextEditor
+        style={{ minHeight: "4em" }}
+        fullWidth
+        name="valueStatement"
+        label="Your proposal"
+        placeholder="Explain us your proposal..."
+       />
+      
+      <FormControlLabel
+        value="2"
+        control={<Switch color="primary" onChange={handleHelpWanted} />}
+        name ="helpWanted"
         label="We need some help"
-        initialValues={false}
+        labelPlacement="end"
       />
 
-      <DisciplinesSelect
-        name="disciplines"
-        label="Looking for..."
-        parentName="helpWanted"
-      />
+      <Collapse in={helpWanted}>
+        <DisciplinesSelect
+          name="disciplines"
+          label="Looking for..."
+          parentName="helpWanted"
+        />
+      </Collapse>
 
       {true && (
         <FormControlLabel
