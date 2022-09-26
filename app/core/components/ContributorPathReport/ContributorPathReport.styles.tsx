@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
-import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
+import type { TooltipProps } from "@mui/material/Tooltip";
+import Tooltip, { tooltipClasses } from "@mui/material/Tooltip";
 
 export const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} placement="top" classes={{ popper: className }} />
