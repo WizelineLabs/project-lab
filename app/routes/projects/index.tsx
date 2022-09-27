@@ -15,9 +15,17 @@ import Wrapper from "./projects.styles"
 
 import { searchProjects } from "~/models/project.server";
 import { requireProfile } from "~/session.server";
+import type { ProjectStatus
+} from "~/models/status.server";
+import {
+  getProjectStatuses
+} from "~/models/status.server"
+import { ongoingStage, ideaStage} from "~/constants"
 
 type LoaderData = {
   data: Awaited<ReturnType<typeof searchProjects>>;
+  ongoingStatuses: ProjectStatus[];
+  ideaStatuses: ProjectStatus[];
 };
 
 const ITEMS_PER_PAGE = 50
@@ -44,6 +52,9 @@ export const loader: LoaderFunction = async ({ request }) => {
   const missing = url.searchParams.getAll("missing");
   const field = url.searchParams.get("field") || "";
   const order = url.searchParams.get("order") || "";
+  const ongoingStatuses = (await getProjectStatuses()).filter((status) => status.stage === ongoingStage);
+  const ideaStatuses = (await getProjectStatuses()).filter((status) => status.stage === ideaStage);
+
   const data = await searchProjects({
     search,
     status,
@@ -59,7 +70,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     skip: ITEMS_PER_PAGE * page,
     take: ITEMS_PER_PAGE,
   });
-  return json<LoaderData>({ data });
+  return json<LoaderData>({ data, ongoingStatuses, ideaStatuses});
 };
 
 export default function Projects() {
@@ -82,12 +93,20 @@ export default function Projects() {
     roleFacets,
     missingFacets,
     count,
-  }} = useLoaderData() as LoaderData
+  }, ongoingStatuses, ideaStatuses} = useLoaderData() as LoaderData
   const myPropQuery =  "myProposals"
+  const activeProjectsSearchParams =  new URLSearchParams();
+  const ideasSearchParams =  new URLSearchParams();
+  ongoingStatuses.forEach((status) =>{
+    activeProjectsSearchParams.append("status", status.name);
+  });
+  ideaStatuses.forEach((status) =>{
+    ideasSearchParams.append("status", status.name);
+  });
   const activeProjectsTab: Tab = {
     name: "activeProjects",
     title: "Active Projects",
-    searchParams: new URLSearchParams([["status", "Idea in Progress"], ["status", "Need SME Review"], ["status", "Need Tier Review"]])
+    searchParams: activeProjectsSearchParams
   };
   const myProposalsTab = {
     name: "myProposals",
@@ -97,7 +116,7 @@ export default function Projects() {
   const ideasTab = {
     name: "ideas",
     title: "Ideas",
-    searchParams: new URLSearchParams([["status", "Idea Submitted"]])
+    searchParams: ideasSearchParams
   }
   const tabs: Array<Tab> = [myProposalsTab, activeProjectsTab, ideasTab];
 
@@ -148,7 +167,6 @@ export default function Projects() {
   }
 
   const getTabClass = (tab: string) => {
-    console.log(tab)
     if (
         (tab == myProposalsTab.name && isMyProposalTab()) ||
         (tab == ideasTab.name && isIdeasTab()) ||
