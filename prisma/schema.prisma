@@ -119,6 +119,7 @@ model ProjectMembersVersions {
 model ProjectStatus {
   name             String             @id
   color            String             @default("#1d1d1d")
+  stage            String?            @default("ongoing project")
   projects         Projects[]
   projectsVersions ProjectsVersions[]
 }

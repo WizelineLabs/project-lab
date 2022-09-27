@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useFetcher, useLoaderData, useCatch } from "@remix-run/react";
 import type { LoaderFunction, ActionFunction, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
+import type { GridRenderCellParams } from "@mui/x-data-grid";
 import { DataGrid, GridToolbarContainer } from "@mui/x-data-grid";
 import { ThemeProvider } from "@mui/material/styles";
 import Button from "@mui/material/Button";
@@ -113,7 +114,7 @@ const GridEditToolbar = (props: gridEditToolbarProps) => {
 
 export default function  AdminsDataGrid() {
   const fetcher = useFetcher();
-  const { admins } = useLoaderData();
+  const { admins } = useLoaderData() as LoaderData;
   const [error, setError] = useState<string>("");
   const createButtonText = "Add New Admin";
   const [rows, setRows] = useState<AdminRecord[]>(() =>
@@ -176,7 +177,7 @@ export default function  AdminsDataGrid() {
     }
   };
 
-  const handleCancelClick = async (idRef: any) => {
+  const handleCancelClick = async (idRef: GridRenderCellParams) => {
     const id = idRef.row.id;
     idRef.api.setRowMode(id, "view");
 
@@ -194,7 +195,7 @@ export default function  AdminsDataGrid() {
     setError("");
   };
 
-  const handleSaveClick = async (idRef: any) => {
+  const handleSaveClick = async (idRef: GridRenderCellParams) => {
     const id = idRef.row.id;
 
     const row = idRef.api.getRow(id);
@@ -230,13 +231,9 @@ export default function  AdminsDataGrid() {
     } catch (error: any) {
       console.error(error);
     }
-
-    setRows((prevRows) =>
-      prevRows.filter((rowValue) => rowValue.id !== +selectedRowID)
-    );
   };
 
-  const handleDeleteClick = (idRef: any) => {
+  const handleDeleteClick = (idRef: GridRenderCellParams) => {
     let id = idRef.row.id;
     setSelectedRowID(() => id);
     setOpenDeleteModal(() => true);
@@ -249,7 +246,7 @@ export default function  AdminsDataGrid() {
       field: "actions",
       headerName: "Actions",
       width: 300,
-      renderCell: (idRef: any) => {
+      renderCell: (idRef: GridRenderCellParams) => {
         if (idRef.row.id === "new-value") {
           idRef.api.setRowMode(idRef.row.id, "edit");
           idRef.api.setCellFocus(idRef.row.id, "email");

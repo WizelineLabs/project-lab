@@ -1,9 +1,8 @@
 import styled from "@emotion/styled"
-import Tab from "@mui/material/Tab"
 import { Link } from "@remix-run/react"
+import { Box } from "@mui/material"
 
-export const TabStyles = styled(Tab)`
-  text-transform: initial;
+export const LinkTabStyles = styled(Link)`
   background-color: #ebebeb;
   color: #1f1f1f;
   font-family: Poppins, sans-serif;
@@ -12,16 +11,8 @@ export const TabStyles = styled(Tab)`
   border-radius: 4px;
   border-color: transparent;
   box-shadow: 0 0 0 rgba(0, 0, 0, 0);
-  transition: 0.3s box-shadow ease-out;
-  transition-delay: 1;
-
-  &[aria-selected="true"] {
-    background-color: #e94d44;
-    color: white;
-    border-color: transparent;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.14);
-    transition-delay: 0;
-  }
+  text-decoration: none;
+  padding: 12px 16px;
 `
 
 export const LinkStyles = styled(Link)`
@@ -54,9 +45,12 @@ export const EditPanelsStyles = styled.div`
   .MuiTabs-indicator {
     visibility: hidden;
   }
-
-  .tabSelected {
+  .linkSelected {
     color: #e94d44;
+  }
+  .tabSelected {
+    background-color: #e94d44;
+    color: white;
   }
 `
 
@@ -82,4 +76,8 @@ export const NavBarTabsStyles = styled.div`
       margin-left: 0;
     }
   }
+`
+
+export const BoxStyles = styled(Box)`
+  margin-top: 40px;
 `
