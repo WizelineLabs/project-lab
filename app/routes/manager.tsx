@@ -16,7 +16,6 @@ import { adminRoleName } from "app/constants";
 import { requireUser } from "~/session.server";
 
 type LoaderData = {
-  isAdmin: boolean;
   initialTabIdx: number;
   initialTitle: string;
 };
@@ -24,24 +23,24 @@ type LoaderData = {
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await requireUser(request);
   const isAdmin = user.role == adminRoleName;
+  const url = new URL(request.url);
+  if (!isAdmin) return redirect("/")
+  if (url.pathname === "/manager") return redirect("/manager/filter-tags/labels")
   const initialTabIdx = request.url.includes("admins") ? 1 : 0;
   const initialTitle = request.url.includes("admins")
     ? "Admins"
     : "Filter Tags";
   return json<LoaderData>({
-    isAdmin,
     initialTabIdx,
     initialTitle,
   });
 };
 
 export default function ManagerPage() {
-  const { isAdmin, initialTabIdx, initialTitle } =
+  const { initialTabIdx, initialTitle } =
     useLoaderData() as LoaderData;
   const [tabIndex, setTabIndex] = useState(initialTabIdx);
   const [tabTitle, setTabTitle] = useState(initialTitle);
-
-  if (!isAdmin) return redirect("/");
 
   const handleChangeTab = (num: number, title: string) => {
     setTabIndex(num);
@@ -55,16 +54,16 @@ export default function ManagerPage() {
         <NavBarTabsStyles>
           <EditPanelsStyles>
             <LinkStyles
-              to="/manager"
+              to="/manager/filter-tags/labels"
               onClick={() => handleChangeTab(0, "Filter Tags")}
-              className={tabIndex === 0 ? "tabSelected" : undefined}
+              className={tabIndex === 0 ? "linkSelected" : undefined}
             >
               Filter Tags
             </LinkStyles>
             <LinkStyles
               to="/manager/admins"
               onClick={() => handleChangeTab(1, "Admins")}
-              className={tabIndex === 1 ? "tabSelected" : undefined}
+              className={tabIndex === 1 ? "linkSelected" : undefined}
             >
               Admins
             </LinkStyles>
