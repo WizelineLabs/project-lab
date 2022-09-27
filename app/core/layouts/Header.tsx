@@ -31,7 +31,7 @@ const Header = ({ title }: IProps) => {
         "data-testid": "sign-out-button",
       },
       ...(currentUser?.role === "ADMIN" ? [{
-        to: '/manager',
+        to: '/manager/filter-tags/labels',
         text: "Manager",
         "data-testid": "go-to-admin",
       }] : []),

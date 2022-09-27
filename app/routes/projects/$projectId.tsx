@@ -6,20 +6,39 @@ import { Link, useCatch, useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
 
 import { requireProfile, requireUser } from "~/session.server";
-import { getProjectTeamMember, isProjectTeamMember, getProject } from "~/models/project.server";
+import {
+  getProjectTeamMember,
+  isProjectTeamMember,
+  getProject,
+} from "~/models/project.server";
 import type { ProjectComplete } from "~/models/project.server";
 
-import { Card, CardContent, Chip, Stack, Grid, Box, Button } from "@mui/material"
-import { EditSharp, ThumbUpSharp, ThumbDownSharp } from "@mui/icons-material"
-import { HeaderInfo, DetailMoreHead, Like, LikeBox, EditButton } from "./$projectId.styles"
-import { adminRoleName } from "app/constants"
+import {
+  Card,
+  CardContent,
+  Chip,
+  Stack,
+  Grid,
+  Box,
+  Button,
+} from "@mui/material";
+import { EditSharp, ThumbUpSharp, ThumbDownSharp } from "@mui/icons-material";
+import {
+  HeaderInfo,
+  DetailMoreHead,
+  Like,
+  LikeBox,
+  EditButton,
+} from "./$projectId.styles";
+import { adminRoleName } from "app/constants";
 import type { Profiles, ProjectMembers } from "@prisma/client";
+import ContributorPathReport from "../../core/components/ContributorPathReport/index";
 
 type LoaderData = {
   isAdmin: boolean;
   isTeamMember: boolean;
   membership: ProjectMembers | undefined;
-  profile: Profiles
+  profile: Profiles;
   project: ProjectComplete;
 };
 
@@ -61,7 +80,9 @@ export const meta: MetaFunction = ({ data, params }) => {
 };
 
 export default function ProjectDetailsPage() {
-  const { isAdmin, isTeamMember, profile, membership, project } = useLoaderData() as LoaderData;
+  const { isAdmin, isTeamMember, profile, membership, project } =
+    useLoaderData() as LoaderData;
+
   invariant(project, "project not found");
 
   return (
@@ -86,7 +107,10 @@ export default function ProjectDetailsPage() {
               </div>
               <div className="descriptionProposal">{project.description}</div>
               <div className="lastUpdateProposal">
-                Last update: {formatDistance(new Date(project.updatedAt), new Date(), { addSuffix: true })}
+                Last update:{" "}
+                {formatDistance(new Date(project.updatedAt), new Date(), {
+                  addSuffix: true,
+                })}
               </div>
             </Grid>
           </Grid>
@@ -187,7 +211,9 @@ export default function ProjectDetailsPage() {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  <div className="itemHeadValue innovationTier">{project.tierName}</div>
+                  <div className="itemHeadValue innovationTier">
+                    {project.tierName}
+                  </div>
                 </a>
               </Grid>
             </Grid>
@@ -215,7 +241,7 @@ export default function ProjectDetailsPage() {
                       // onClick={() => handleVote(project.id)}
                     >
                       {project.votes.filter((vote) => {
-                        return vote.profileId === profile.id
+                        return vote.profileId === profile.id;
                       }).length > 0 ? (
                         <>
                           {"Unlike"}&nbsp;
@@ -232,7 +258,9 @@ export default function ProjectDetailsPage() {
                 </LikeBox>
                 <h2>Description</h2>
                 <div>
-                  <Markdown>{project.valueStatement ? project.valueStatement : ""}</Markdown>
+                  <Markdown>
+                    {project.valueStatement ? project.valueStatement : ""}
+                  </Markdown>
                 </div>
               </CardContent>
             </Card>
@@ -302,22 +330,28 @@ export default function ProjectDetailsPage() {
                   // disabled={joinProjectButton}
                   // onClick={() => setShowModal(true)}
                 >
-                  {membership?.active ? "Suspend my Membership" : "Join Project Again"}
+                  {membership?.active
+                    ? "Suspend my Membership"
+                    : "Join Project Again"}
                 </Button>
               ) : (
                 project.helpWanted && (
-                  <Button className="primary large" /* onClick={handleJoinProject} */ >
+                  <Button
+                    className="primary large" /* onClick={handleJoinProject} */
+                  >
                     Want to Join?
                   </Button>
                 )
               )}
             </Stack>
           </Grid>
+          <Grid item xs={12}></Grid>
         </Grid>
       </div>
-      {/* <div className="wrapper">
+      <div className="wrapper">
         <ContributorPathReport project={project} />
       </div>
+      {/*
       <div className="wrapper">
         <Comments projectId={project.id} />
       </div>
@@ -338,7 +372,7 @@ export default function ProjectDetailsPage() {
         />
       )} */}
     </>
-  )
+  );
 }
 
 export function ErrorBoundary({ error }: { error: Error }) {
