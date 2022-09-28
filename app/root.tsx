@@ -14,8 +14,7 @@ import {
 } from "@remix-run/react";
 
 import StylesheetUrl from "./styles/style.css";
-
-
+import quillCss from "quill/dist/quill.snow.css";
 
 import { getUser } from "./session.server";
 
@@ -26,6 +25,7 @@ export const links: LinksFunction = () => {
       rel: "stylesheet",
       href: "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap",
     },
+    { rel: "stylesheet", href: quillCss },
   ];
 };
 
@@ -47,7 +47,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 interface IDocumentProps {
-  children: any
+  children: any;
 }
 
 export default function App() {
@@ -61,7 +61,7 @@ export default function App() {
   );
 }
 
-function Document({ children } : IDocumentProps) {
+function Document({ children }: IDocumentProps) {
   return (
     <html lang="en" className="h-full">
       <head>

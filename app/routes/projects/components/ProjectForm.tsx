@@ -5,8 +5,8 @@ import { MultivalueInput } from "~/core/components/MultivalueInput";
 import DisciplinesSelect from "~/core/components/DisciplineSelect";
 import LabeledTextField from "~/core/components/LabeledTextField";
 import LabeledTextFieldArea from "~/core/components/LabeledTextFieldArea";
-//import LabeledSwitchField from "~/core/components/LabeledSwitchField";
 import TextEditor from "~/core/components/TextEditor";
+
 export function ProjectForm() {
   const [displayFields, setDisplayFields] = useState(false);
   const [helpWanted, setHelpWanted] = useState(false);
@@ -20,7 +20,6 @@ export function ProjectForm() {
     console.log(`Change value of ${e.target.checked.toString()}`);
     setHelpWanted(!helpWanted);
   };
-
 
   return (
     <form method="post">
@@ -38,23 +37,16 @@ export function ProjectForm() {
         label="Problem Statement"
         placeholder="Problem statement"
       />
-      
-      <TextEditor
-        style={{ minHeight: "4em" }}
-        fullWidth
-        name="valueStatement"
-        label="Your proposal"
-        placeholder="Explain us your proposal..."
-       />
-      
+
+      <TextEditor defaultValue={"Explain us your proposal..."} />
+
       <FormControlLabel
         value="2"
         control={<Switch color="primary" onChange={handleHelpWanted} />}
-        name ="helpWanted"
+        name="helpWanted"
         label="We need some help"
         labelPlacement="end"
       />
-
       <Collapse in={helpWanted}>
         <DisciplinesSelect
           name="disciplines"
@@ -62,7 +54,6 @@ export function ProjectForm() {
           parentName="helpWanted"
         />
       </Collapse>
-
       {true && (
         <FormControlLabel
           value="1"
@@ -71,7 +62,6 @@ export function ProjectForm() {
           labelPlacement="end"
         />
       )}
-
       {/* {projectformType !== "create" && (
         <ProjectOwnerField
           name="owner"
@@ -79,7 +69,6 @@ export function ProjectForm() {
           owner={getOwner(initialValues)}
         />
       )} */}
-
       <Collapse in={displayFields}>
         <LabeledTextField
           fullWidth

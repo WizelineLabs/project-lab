@@ -1,42 +1,22 @@
-import type { PropsWithoutRef } from "react";
-import TextField from "@mui/material/TextField";
+import { useEffect } from "react";
+import { useQuill } from "react-quilljs";
 
-interface TextEditorProps {
-  name: string;
-  label: string;
-  /** Field type. Doesn't include radio buttons and checkboxes */
-  type?: "text" | "password" | "email" | "number";
-  helperText?: string;
-  placeholder?: string;
-  fullWidth?: boolean;
-  style?: any;
-  outerProps?: PropsWithoutRef<JSX.IntrinsicElements["div"]>;
+type PropsType = {
+  defaultValue?: string;
+};
+
+export default function TextEditor({ defaultValue }: PropsType) {
+  const { quill, quillRef } = useQuill();
+
+  useEffect(() => {
+    if (quill && defaultValue) {
+      quill.clipboard.dangerouslyPasteHTML(defaultValue);
+    }
+  }, [quill]);
+
+  return (
+    <div style={{ width: "100%" }}>
+      <div ref={quillRef} />
+    </div>
+  );
 }
-
-export const TextEditor = ({
-  name,
-  label,
-  type,
-  helperText,
-  outerProps,
-  ...props
-}: TextEditorProps) => {
-    return (
-        <div {...outerProps}>
-            <TextField
-                id={name}
-                rows={6}
-                name={name}
-                label={label}
-                //   error={isError ? isError.length > 0 : false}
-                //   helperText={isError ? error : helperText}
-                type={type}
-                //   disabled={submitting}
-                {...props}
-            />
-        </div>
-    );
-}
-
-
-export default TextEditor;
