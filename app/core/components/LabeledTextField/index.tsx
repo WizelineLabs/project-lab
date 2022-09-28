@@ -35,7 +35,6 @@ export const LabeledTextField = ({
       />
     </div>
   );
-}
-
+};
 
 export default LabeledTextField;

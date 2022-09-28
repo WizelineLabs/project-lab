@@ -1,11 +1,11 @@
 import { useEffect } from "react";
 import { useQuill } from "react-quilljs";
 
-type PropsType = {
+type TextEditorProps = {
   defaultValue?: string;
 };
 
-export default function TextEditor({ defaultValue }: PropsType) {
+export default function TextEditor({ defaultValue }: TextEditorProps) {
   const { quill, quillRef } = useQuill();
 
   useEffect(() => {

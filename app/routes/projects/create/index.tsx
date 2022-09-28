@@ -3,10 +3,8 @@ import GoBack from "app/core/layouts/GoBack";
 import { useNavigate } from "@remix-run/react";
 import { ProjectForm } from "../components/ProjectForm";
 
-
-
 const NewProjectPage = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   return (
     <div>
       <Header title="Create your proposal" />
@@ -15,10 +13,10 @@ const NewProjectPage = () => {
       </div>
       <div className="wrapper">
         <GoBack title="Back to main page" onClick={() => navigate("/")} />
-        <ProjectForm/>
+        <ProjectForm />
       </div>
     </div>
   );
-}
+};
 
-export default NewProjectPage
+export default NewProjectPage;

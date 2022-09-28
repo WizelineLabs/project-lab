@@ -21,22 +21,21 @@ export const LabeledTextFieldArea = ({
   outerProps,
   ...props
 }: LabeledTextFieldAreaProps) => {
-    return (
-        <div {...outerProps}>
-            <TextField
-                id={name}
-                rows={6}
-                name={name}
-                label={label}
-                //   error={isError ? isError.length > 0 : false}
-                //   helperText={isError ? error : helperText}
-                type={type}
-                //   disabled={submitting}
-                {...props}
-            />
-        </div>
-    );
-}
-
+  return (
+    <div {...outerProps}>
+      <TextField
+        id={name}
+        rows={6}
+        name={name}
+        label={label}
+        //   error={isError ? isError.length > 0 : false}
+        //   helperText={isError ? error : helperText}
+        type={type}
+        //   disabled={submitting}
+        {...props}
+      />
+    </div>
+  );
+};
 
 export default LabeledTextFieldArea;
