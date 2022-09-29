@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useQuill } from "react-quilljs";
 
 type TextEditorProps = {
@@ -6,13 +5,33 @@ type TextEditorProps = {
 };
 
 export default function TextEditor({ defaultValue }: TextEditorProps) {
-  const { quill, quillRef } = useQuill();
+  const modules = {
+    toolbar: [
+      [{ header: [1, 2, 3, 4, 5, 6, false] }],
 
-  useEffect(() => {
-    if (quill && defaultValue) {
-      quill.clipboard.dangerouslyPasteHTML(defaultValue);
-    }
-  }, [quill]);
+      ["bold", "italic", "underline", "strike"],
+      [{ align: [] }],
+      [{ list: "ordered" }, { list: "bullet" }],
+      [{ indent: "-1" }, { indent: "+1" }],
+      ["link"],
+    ],
+  };
+
+  const formats = [
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "align",
+    "list",
+    "indent",
+    "header",
+    "link",
+  ];
+
+  const placeholder = defaultValue;
+
+  const { quillRef } = useQuill({ modules, formats, placeholder });
 
   return (
     <div style={{ width: "100%" }}>
