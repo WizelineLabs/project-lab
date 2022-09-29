@@ -36,7 +36,7 @@ export default function TextEditor({ defaultValue }: TextEditorProps) {
 
   useEffect(() => {
     if (quill) {
-      quill.on("text-change", (delta, oldDelta, source) => {
+      quill.on("text-change", (_delta: any, _oldDelta: any, _source: any) => {
         console.log("Text change!");
         console.log(quill.getText()); // Get text only
         console.log(quill.getContents()); // Get delta contents
