@@ -13,10 +13,13 @@ import {
   ScrollRestoration,
 } from "@remix-run/react";
 
+import { redirect } from "@remix-run/node"
+import type { ActionFunction } from "@remix-run/node";
 import StylesheetUrl from "./styles/style.css";
 import quillCss from "quill/dist/quill.snow.css";
 
 import { getUser } from "./session.server";
+//import { createPost } from "./models/project.server";
 
 export const links: LinksFunction = () => {
   return [
@@ -41,10 +44,31 @@ type LoaderData = {
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
-  return json<LoaderData>({
-    user: await getUser(request),
-  });
+  return {user: await getUser(request)}
 };
+
+
+export const action: ActionFunction = async ({ request }) => {
+  const formData = await request.formData();
+  
+  const name = formData.get('name')
+  const description = formData.get('description')
+  const helpWanted = formData.get('helpWanted')
+  const disciplines = formData.get('disciplines')
+  const target = formData.get('target')
+  const repoUrls = formData.get('repoUrls')
+  const slackChannel = formData.get('slackChannel')
+/*
+  await createPost({name,
+                    description,
+                    helpWanted,
+                    disciplines,
+                    target,
+                    repoUrls,
+                    slackChannel}) */
+  return redirect("/projects");
+}
+
 
 interface IDocumentProps {
   children: any;

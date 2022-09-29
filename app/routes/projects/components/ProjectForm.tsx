@@ -1,4 +1,4 @@
-import { FormControlLabel, Switch, Collapse } from "@mui/material";
+import { FormControlLabel, Switch, Collapse, Box} from "@mui/material";
 import { useState } from "react";
 import { Form } from "@remix-run/react";
 import { MultivalueInput } from "~/core/components/MultivalueInput";
@@ -22,7 +22,7 @@ export function ProjectForm() {
   };
 
   return (
-    <form method="post">
+    <Form method="post" action="/projects/create">
       <LabeledTextField
         style={{ minHeight: "4em" }}
         fullWidth
@@ -41,7 +41,6 @@ export function ProjectForm() {
       <TextEditor defaultValue={"Explain us your proposal..."} />
 
       <FormControlLabel
-        value="2"
         control={<Switch color="primary" onChange={handleHelpWanted} />}
         name="helpWanted"
         label="We need some help"
@@ -120,6 +119,14 @@ export function ProjectForm() {
             label="Add a contributor"
           /> */}
       </Collapse>
-    </form>
+      <Box textAlign='center'>
+        <button
+          type="submit"
+          className="primary"
+        >
+          Create Project
+        </button>
+      </Box>
+    </Form>
   );
 }
