@@ -13,7 +13,7 @@ const NewProjectPage = () => {
       </div>
       <div className="wrapper">
         <GoBack title="Back to main page" onClick={() => navigate("/")} />
-        <ProjectForm />
+        <ProjectForm projectformType="create" />
       </div>
     </div>
   );

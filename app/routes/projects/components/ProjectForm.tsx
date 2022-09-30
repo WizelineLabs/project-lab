@@ -1,4 +1,4 @@
-import { FormControlLabel, Switch, Collapse, Box} from "@mui/material";
+import { FormControlLabel, Switch, Collapse, Box } from "@mui/material";
 import { useState } from "react";
 import { Form } from "@remix-run/react";
 import { MultivalueInput } from "~/core/components/MultivalueInput";
@@ -6,10 +6,17 @@ import DisciplinesSelect from "~/core/components/DisciplineSelect";
 import LabeledTextField from "~/core/components/LabeledTextField";
 import LabeledTextFieldArea from "~/core/components/LabeledTextFieldArea";
 import TextEditor from "~/core/components/TextEditor";
+import InputSelect from "~/core/components/InputSelect";
+import SkillsSelect from "~/core/components/SkillsSelect";
+import LabelsSelect from "~/core/components/LabelsSelect";
 
-export function ProjectForm() {
-  const [displayFields, setDisplayFields] = useState(false);
+export function ProjectForm({ projectformType }) {
+  const [displayFields, setDisplayFields] = useState(
+    projectformType == "create" ? false : true
+  );
   const [helpWanted, setHelpWanted] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState({ name: "" });
+  const [selectedTiers, setSelectedTiers] = useState({ name: "" });
 
   const handleDisplaySwitch = (e: any) => {
     console.log(`Change value of ${e.target.checked.toString()}`);
@@ -21,6 +28,13 @@ export function ProjectForm() {
     setHelpWanted(!helpWanted);
   };
 
+  const statuses = [
+    { name: "Active" },
+    { name: "Inactive" },
+    { name: "Completed" },
+  ];
+
+  const tiers = [{ name: "0" }, { name: "1" }, { name: "2" }, { name: "3" }];
   return (
     <Form method="post" action="/projects/create">
       <LabeledTextField
@@ -53,7 +67,8 @@ export function ProjectForm() {
           parentName="helpWanted"
         />
       </Collapse>
-      {true && (
+
+      {projectformType === "create" && (
         <FormControlLabel
           value="1"
           control={<Switch color="primary" onChange={handleDisplaySwitch} />}
@@ -90,40 +105,42 @@ export function ProjectForm() {
           placeholder="#project-name"
         />
 
-        {/* {true && (
+        {projectformType !== "create" && (
           <InputSelect
             valuesList={statuses}
-            defaultValue={defaultStatus}
+            defaultValue=""
             name="projectStatus"
             label="Status"
+            disabled={false}
+            value={selectedStatus.name}
+            handleChange={setSelectedStatus}
           />
-        )} */}
+        )}
 
-        {/* <SkillsSelect name="skills" label="Skills" /> */}
-        {/* <LabelsSelect name="labels" label="Labels" /> */}
+        <SkillsSelect name="skills" label="Skills" />
+        <LabelsSelect name="labels" label="Labels" />
         {/* <RelatedProjectsSelect
             thisProject={initialValues?.id ? initialValues?.id : ""}
             name="relatedProjects"
             label="Related Projects"
           /> */}
-        {/* {projectformType !== "create" && (
-            <InputSelect
-              valuesList={tiers}
-              name="innovationTiers"
-              label="Innovation Tier"
-              disabled={user?.role !== adminRoleName}
-            />
-          )} */}
+        {projectformType !== "create" && (
+          <InputSelect
+            valuesList={tiers}
+            name="innovationTiers"
+            label="Innovation Tier"
+            disabled={false}
+            value={selectedTiers.name}
+            handleChange={setSelectedTiers}
+          />
+        )}
         {/* <ProjectMembersField
             name="projectMembers"
             label="Add a contributor"
           /> */}
       </Collapse>
-      <Box textAlign='center'>
-        <button
-          type="submit"
-          className="primary"
-        >
+      <Box textAlign="center">
+        <button type="submit" className="primary">
           Create Project
         </button>
       </Box>
