@@ -52,8 +52,9 @@ export const loader: LoaderFunction = async ({ request }) => {
   const missing = url.searchParams.getAll("missing");
   const field = url.searchParams.get("field") || "";
   const order = url.searchParams.get("order") || "";
-  const ongoingStatuses = (await getProjectStatuses()).filter((status) => status.stage === ongoingStage);
-  const ideaStatuses = (await getProjectStatuses()).filter((status) => status.stage === ideaStage);
+  const statuses = await getProjectStatuses()
+  const ongoingStatuses = statuses.filter((status) => status.stage === ongoingStage);
+  const ideaStatuses = statuses.filter((status) => status.stage === ideaStage);
 
   const data = await searchProjects({
     search,
@@ -197,24 +198,17 @@ export default function Projects() {
       <Wrapper className="homeWrapper" filtersOpen={openMobileFilters}>
         <div className="homeWrapper__navbar">
           <div className="homeWrapper__navbar__tabs">
-            <div
-              className={`homeWrapper__navbar__tabs--title ${getTabClass(ideasTab.name)}`}
-              onClick={() => handleTabChange(ideasTab.name)}
-            >
-              Ideas
-            </div>
-            <div
-              className={`homeWrapper__navbar__tabs--title ${getTabClass(activeProjectsTab.name)}`}
-              onClick={() => handleTabChange(activeProjectsTab.name)}
-            >
-              Active Projects
-            </div>
-            <div
-              className={`homeWrapper__navbar__tabs--title ${getTabClass(myProposalsTab.name)}`}
-              onClick={() => handleTabChange(myProposalsTab.name)}
-            >
-              My Projects
-            </div>
+            {
+              tabs.map(tab => (
+                <div
+                  className={`homeWrapper__navbar__tabs--title ${getTabClass(tab.name)}`}
+                  onClick={() => handleTabChange(tab.name)}
+                  key={tab.name}
+                >
+                  {tab.title}
+                </div>
+              ))
+            }
           </div>
         </div>
         <div className="homeWrapper--content">
