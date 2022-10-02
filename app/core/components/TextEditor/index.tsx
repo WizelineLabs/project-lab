@@ -2,10 +2,11 @@ import { useEffect } from "react";
 import { useQuill } from "react-quilljs";
 
 type TextEditorProps = {
+  name: string;
   defaultValue?: string;
 };
 
-export default function TextEditor({ defaultValue }: TextEditorProps) {
+export default function TextEditor({ defaultValue, name }: TextEditorProps) {
   const modules = {
     toolbar: [
       [{ header: [1, 2, 3, 4, 5, 6, false] }],
@@ -32,7 +33,7 @@ export default function TextEditor({ defaultValue }: TextEditorProps) {
 
   const placeholder = defaultValue;
 
-  const { quill, quillRef } = useQuill({ modules, formats, placeholder });
+  const { quill, quillRef } = useQuill({ modules, formats, placeholder, name });
 
   useEffect(() => {
     if (quill) {

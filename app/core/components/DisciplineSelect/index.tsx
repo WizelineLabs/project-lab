@@ -56,6 +56,7 @@ export const DisciplinesSelect = ({
         renderInput={(params) => (
           <TextField
             {...params}
+            name={name}
             label={label}
             // error={isError}
             // helperText={isError ? error : helperText}

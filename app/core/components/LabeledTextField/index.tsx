@@ -26,6 +26,7 @@ export const LabeledTextField = ({
   return (
     <div {...outerProps}>
       <TextField
+        name={name}
         label={label}
         // error={isError ? isError.length > 0 : false}
         // helperText={isError ? error : helperText}

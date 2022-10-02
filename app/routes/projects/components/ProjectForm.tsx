@@ -9,6 +9,8 @@ import TextEditor from "~/core/components/TextEditor";
 import InputSelect from "~/core/components/InputSelect";
 import SkillsSelect from "~/core/components/SkillsSelect";
 import LabelsSelect from "~/core/components/LabelsSelect";
+import ProjectOwnerField from "~/core/components/ProjectOwnerField";
+import RelatedProjectsSelect from "~/core/components/RelatedProjectsSelect";
 
 export function ProjectForm({ projectformType }) {
   const [displayFields, setDisplayFields] = useState(
@@ -52,7 +54,10 @@ export function ProjectForm({ projectformType }) {
         placeholder="Problem statement"
       />
 
-      <TextEditor defaultValue={"Explain us your proposal..."} />
+      <TextEditor
+        name="textEditor"
+        defaultValue={"Explain us your proposal..."}
+      />
 
       <FormControlLabel
         control={<Switch color="primary" onChange={handleHelpWanted} />}
@@ -76,13 +81,13 @@ export function ProjectForm({ projectformType }) {
           labelPlacement="end"
         />
       )}
-      {/* {projectformType !== "create" && (
+      {projectformType !== "create" && (
         <ProjectOwnerField
           name="owner"
           label="Owner"
-          owner={getOwner(initialValues)}
+          owner={{ name: "John Doe" }}
         />
-      )} */}
+      )}
       <Collapse in={displayFields}>
         <LabeledTextField
           fullWidth
@@ -119,11 +124,11 @@ export function ProjectForm({ projectformType }) {
 
         <SkillsSelect name="skills" label="Skills" />
         <LabelsSelect name="labels" label="Labels" />
-        {/* <RelatedProjectsSelect
-            thisProject={initialValues?.id ? initialValues?.id : ""}
-            name="relatedProjects"
-            label="Related Projects"
-          /> */}
+        <RelatedProjectsSelect
+          thisProject=""
+          name="relatedProjects"
+          label="Related Projects"
+        />
         {projectformType !== "create" && (
           <InputSelect
             valuesList={tiers}
