@@ -25,7 +25,7 @@ export const LabeledTextField = ({
 }: LabeledTextFieldProps) => {
   return (
     <div {...outerProps}>
-      <TextField name={name} label={label} type={type} {...props} />
+      <TextField id={name} label={label} type={type} {...props} />
     </div>
   );
 };

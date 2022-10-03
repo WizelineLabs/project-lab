@@ -33,17 +33,13 @@ export const SkillsSelect = ({
         multiple={true}
         fullWidth={fullWidth ? fullWidth : false}
         style={style ? style : { margin: "1em 0" }}
-        disabled={false}
-        loading={false}
         options={skills}
         filterSelectedOptions
         renderInput={(params) => (
           <TextField
             {...params}
+            id={name}
             label={label}
-            // error={isError}
-            // helperText={isError ? error : helperText}
-            disabled={false}
             InputProps={{
               ...params.InputProps,
               endAdornment: (

@@ -28,6 +28,7 @@ export const LabelsSelect = ({
         renderInput={(params) => (
           <TextField
             {...params}
+            id={name}
             label={label}
             InputProps={{
               ...params.InputProps,

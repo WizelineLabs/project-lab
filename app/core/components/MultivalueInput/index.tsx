@@ -24,6 +24,7 @@ export const MultivalueInput = ({
     <>
       <MultivalueFieldSpan>* {footer}</MultivalueFieldSpan>
       <TextField
+        id={name}
         label={label}
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
@@ -35,9 +36,7 @@ export const MultivalueInput = ({
         spacing={1}
         rowSpacing={{ xs: 2, sm: 1 }}
         style={{ paddingTop: 20 }}
-      >
-      
-      </Grid>
+      ></Grid>
     </>
   );
 };

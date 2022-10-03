@@ -33,7 +33,7 @@ export default function TextEditor({ defaultValue, name }: TextEditorProps) {
 
   const placeholder = defaultValue;
 
-  const { quill, quillRef } = useQuill({ modules, formats, placeholder, name });
+  const { quill, quillRef } = useQuill({ modules, formats, placeholder });
 
   useEffect(() => {
     if (quill) {
@@ -48,7 +48,7 @@ export default function TextEditor({ defaultValue, name }: TextEditorProps) {
   }, [quill]);
   return (
     <div style={{ width: "100%" }}>
-      <div ref={quillRef} />
+      <div id={name} ref={quillRef} />
     </div>
   );
 }
