@@ -14,7 +14,7 @@ import RelatedProjectsSelect from "~/core/components/RelatedProjectsSelect";
 
 export function ProjectForm({ projectformType }) {
   const [displayFields, setDisplayFields] = useState(
-    projectformType == "create" ? false : true
+    projectformType === "create" ? false : true
   );
   const [helpWanted, setHelpWanted] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState({ name: "" });
@@ -46,6 +46,7 @@ export function ProjectForm({ projectformType }) {
         label="Name"
         placeholder="Name"
       />
+
       <LabeledTextFieldArea
         style={{ minHeight: "4em" }}
         fullWidth
@@ -65,6 +66,7 @@ export function ProjectForm({ projectformType }) {
         label="We need some help"
         labelPlacement="end"
       />
+
       <Collapse in={helpWanted}>
         <DisciplinesSelect
           name="disciplines"
@@ -88,6 +90,7 @@ export function ProjectForm({ projectformType }) {
           owner={{ name: "John Doe" }}
         />
       )}
+
       <Collapse in={displayFields}>
         <LabeledTextField
           fullWidth
@@ -96,6 +99,7 @@ export function ProjectForm({ projectformType }) {
           label="Who is your target user/client"
           placeholder="Millenials"
         />
+
         <MultivalueInput
           name="repoUrls"
           label="Repo URLs"

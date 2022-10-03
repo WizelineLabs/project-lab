@@ -41,26 +41,13 @@ export const DisciplinesSelect = ({
         multiple={true}
         fullWidth={fullWidth ? fullWidth : false}
         style={style ? style : { margin: "1em 0" }}
-        // disabled={submitting}
-        // loading={isLoading || !data}
         options={disciplines}
         filterSelectedOptions
-        // isOptionEqualToValue={(option, value) => option.name === value.name}
-        // getOptionLabel={(option) => option.name}
-        // onInputChange={(_, value) => setSearchTermDebounced(value)}
-        // value={input.value ? input.value : defaultValue}
-        // onChange={(_, value) => {
-        //   input.onChange(value);
-        //   if (customOnChange) customOnChange(value);
-        // }}
         renderInput={(params) => (
           <TextField
             {...params}
             name={name}
             label={label}
-            // error={isError}
-            // helperText={isError ? error : helperText}
-            // disabled={submitting}
             InputProps={{
               ...params.InputProps,
               endAdornment: (

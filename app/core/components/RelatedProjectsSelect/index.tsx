@@ -28,12 +28,7 @@ export const RelatedProjectsSelect = ({
   style,
   thisProject,
 }: RelatedProjectsSelectProps) => {
-  const projects = [
-    { name: "Project 1" },
-    { name: "Project 2" },
-    { name: "Project 3" },
-    { name: "Project 4" },
-  ];
+  const projects = ["Project 1", "Project 2", "Project 3", "Project 4"];
   return (
     <>
       <div {...outerProps}>
@@ -41,22 +36,13 @@ export const RelatedProjectsSelect = ({
           multiple={true}
           fullWidth={fullWidth ? fullWidth : false}
           style={style ? style : { margin: "1em 0" }}
-          //   disabled={submitting}
-          //   loading={isLoading || !data}
           options={projects}
-          filterOptions={(x) => x}
           filterSelectedOptions
-          isOptionEqualToValue={(option, value) => option.name === value.name}
-          getOptionLabel={(option) => option.name}
-          value={defaultValue}
           renderInput={(params) => (
             <TextField
               {...params}
               name={name}
               label={label}
-              //   error={isError}
-              //   helperText={isError ? error : helperText}
-              //   disabled={submitting}
               InputProps={{
                 ...params.InputProps,
                 endAdornment: (

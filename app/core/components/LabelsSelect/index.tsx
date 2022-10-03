@@ -23,17 +23,12 @@ export const LabelsSelect = ({
         multiple={true}
         fullWidth
         style={{ margin: "1em 0" }}
-        // disabled={submitting}
-        // loading={isLoading || !data}
         options={labels}
         filterSelectedOptions
         renderInput={(params) => (
           <TextField
             {...params}
             label={label}
-            // error={isError}
-            // helperText={isError ? error : helperText}
-            // disabled={submitting}
             InputProps={{
               ...params.InputProps,
               endAdornment: (

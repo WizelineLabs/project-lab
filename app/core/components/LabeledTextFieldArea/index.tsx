@@ -28,10 +28,7 @@ export const LabeledTextFieldArea = ({
         rows={6}
         name={name}
         label={label}
-        //   error={isError ? isError.length > 0 : false}
-        //   helperText={isError ? error : helperText}
         type={type}
-        //   disabled={submitting}
         {...props}
       />
     </div>
