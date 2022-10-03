@@ -25,6 +25,7 @@ export const MultivalueInput = ({
       <MultivalueFieldSpan>* {footer}</MultivalueFieldSpan>
       <TextField
         id={name}
+        name={name}
         label={label}
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}

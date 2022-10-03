@@ -47,6 +47,7 @@ export const DisciplinesSelect = ({
           <TextField
             {...params}
             id={name}
+            name={name}
             label={label}
             InputProps={{
               ...params.InputProps,

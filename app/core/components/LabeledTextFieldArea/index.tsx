@@ -23,7 +23,14 @@ export const LabeledTextFieldArea = ({
 }: LabeledTextFieldAreaProps) => {
   return (
     <div {...outerProps}>
-      <TextField id={name} rows={6} label={label} type={type} {...props} />
+      <TextField
+        id={name}
+        name={name}
+        rows={6}
+        label={label}
+        type={type}
+        {...props}
+      />
     </div>
   );
 };
