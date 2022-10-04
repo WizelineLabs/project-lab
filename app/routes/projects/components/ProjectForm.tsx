@@ -2,6 +2,8 @@ import { FormControlLabel, Switch, Collapse, Box } from "@mui/material";
 import { useState } from "react";
 import { Form, useTransition } from "@remix-run/react";
 import { MultivalueInput } from "~/core/components/MultivalueInput";
+import { redirect } from "@remix-run/node"
+import type { ActionFunction } from "@remix-run/node";
 import DisciplinesSelect from "~/core/components/DisciplineSelect";
 import LabeledTextField from "~/core/components/LabeledTextField";
 import LabeledTextFieldArea from "~/core/components/LabeledTextFieldArea";
@@ -51,7 +53,6 @@ export function ProjectForm({ projectformType }: any) {
         label="Name"
         placeholder="Name"
       />
-
       <LabeledTextFieldArea
         style={{ minHeight: "4em" }}
         fullWidth

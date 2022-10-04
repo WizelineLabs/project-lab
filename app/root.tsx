@@ -49,21 +49,21 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 
 export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData();
-  
+  console.log(Object.fromEntries(await request.formData()))
+  /*
   const name = formData.get('name')
   const description = formData.get('description')
   const helpWanted = formData.get('helpWanted')
-  const disciplines = formData.get('disciplines')
-  const target = formData.get('target')
+  const disciplines = formData.get('disciplines') lo agarra sin valor
+  const target = formData.get('target') 
   const repoUrls = formData.get('repoUrls')
   const slackChannel = formData.get('slackChannel')
-  const skills = formData.get('skills')
-  const labels = formData.get('labels')
-  const relatedProjects = formData.get('relatedProjects')
-  const innovationTiers = formData.get('innovationTiers')
-  const projectMembers = formData.get('projectMembers')
-/*
+  const skills = formData.get('skills') no agarra
+  const labels = formData.get('labels') no agarra
+  const relatedProjects = formData.get('relatedProjects') lo agarra pero sin valor
+  const innovationTiers = formData.get('innovationTiers') no agarra
+  const projectMembers = formData.get('projectMembers') incompleto
+
   await createPost({name,
                     description,
                     helpWanted,
@@ -75,7 +75,7 @@ export const action: ActionFunction = async ({ request }) => {
                     labels,
                     relatedProjects,
                     innovationTiers,
-                    projectMembers}) */
+                    projectMembers})*/ 
   return redirect("/projects");
 }
 
