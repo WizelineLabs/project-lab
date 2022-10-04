@@ -49,20 +49,23 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 
 export const action: ActionFunction = async ({ request }) => {
+
   console.log(Object.fromEntries(await request.formData()))
-  /*
-  const name = formData.get('name')
-  const description = formData.get('description')
-  const helpWanted = formData.get('helpWanted')
-  const disciplines = formData.get('disciplines') lo agarra sin valor
-  const target = formData.get('target') 
-  const repoUrls = formData.get('repoUrls')
-  const slackChannel = formData.get('slackChannel')
-  const skills = formData.get('skills') no agarra
-  const labels = formData.get('labels') no agarra
-  const relatedProjects = formData.get('relatedProjects') lo agarra pero sin valor
-  const innovationTiers = formData.get('innovationTiers') no agarra
-  const projectMembers = formData.get('projectMembers') incompleto
+/*
+  const formData = (Object.fromEntries(await request.formData()))
+  
+  const name = formData.name
+  const description = formData.description
+  const helpWanted = formData.helpWanted
+  const disciplines = formData.disciplines -
+  const target = formData.target
+  const repoUrls = formData.repoUrls
+  const slackChannel = formData.SlackeChannel
+  const skills = formData.skills -
+  const labels = formData.labels -
+  const relatedProjects = formData.relatedProjects -
+  const innovationTiers = formData.innovationTiers -
+  const projectMembers = formData.projectMembers -
 
   await createPost({name,
                     description,
@@ -75,7 +78,7 @@ export const action: ActionFunction = async ({ request }) => {
                     labels,
                     relatedProjects,
                     innovationTiers,
-                    projectMembers})*/ 
+                    projectMembers})*/
   return redirect("/projects");
 }
 

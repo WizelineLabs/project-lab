@@ -1,5 +1,6 @@
-import { prisma, Profiles, Projects } from "@prisma/client";
+import type { Profiles, Projects } from "@prisma/client";
 import { Prisma } from "@prisma/client"
+
 
 import { joinCondition, prisma as db } from "~/db.server";
 
@@ -366,6 +367,6 @@ export async function searchProjects({
 }
 /*
 export async function createPost(post) {
-  return prisma.post.create({data:post})
+  return db.post.create({data:post})
 }
 */
