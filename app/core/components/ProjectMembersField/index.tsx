@@ -89,60 +89,60 @@ return (
             size="small"
             style={{ margin: 0 }}
           />
-                  </Grid>
-                  <Grid item xs={12} sm={4}>
-                    <SkillsSelect
-                      customOnChange={(value) => {
-                       // row.practicedSkills = value
-                       // input.onChange(input.value)
-                      }}
-                      //defaultValue={row.practicedSkills}
-                      fullWidth={true}
-                      label="Skills"
-                      name={`practicedSkills-`}
-                      size="small"
-                      style={{ margin: 0 }}
-                    />
-                  </Grid>
-                  <Grid item xs={6} sm={1}>
-                    <TextField
-                      label="Hours"
-                      helperText="H. per week"
-                      size="small"
-                      type="number"
-                      //defaultValue={row.hoursPerWeek}
-                      onChange={(event) => {
-                        //row.hoursPerWeek = event.target.value
-                        //input.onChange(input.value)
-                      }}
-                      sx={{
-                        "& .MuiFormHelperText-root": {
-                          marginLeft: 0,
-                          marginRight: 0,
-                          textAlign: "center",
-                        },
-                      }}
-                    />
-                  </Grid>
-                  <Grid item xs={6} sm={1} style={{ textAlign: "center" }}>
-                    <FormControlLabel
-                      label="Active"
-                      control={
-                        <Checkbox
-                          size="small"
-                          //defaultChecked={row.active === false ? false : true}
-                          onChange={(event) => {
-                           //row.active = event.target.checked
-                           // input.onChange(input.value)
-                          }}
-                        />
-                      }
-                    />
-                  </Grid>
-                  <hr className="rows__separator" />
-                </React.Fragment>
-            </Grid>
-          </React.Fragment>
-        )
+        </Grid>
+        <Grid item xs={12} sm={4}>
+          <SkillsSelect
+            customOnChange={(value) => {
+         // row.practicedSkills = value
+         // input.onChange(input.value)
+            }}
+            //defaultValue={row.practicedSkills}
+            fullWidth={true}
+            label="Skills"
+            name={`practicedSkills-`}
+            size="small"
+            style={{ margin: 0 }}
+          />
+        </Grid>
+          <Grid item xs={6} sm={1}>
+            <TextField
+              label="Hours"
+              helperText="H. per week"
+              size="small"
+              type="number"
+              //defaultValue={row.hoursPerWeek}
+              onChange={(event) => {
+                //row.hoursPerWeek = event.target.value
+                //input.onChange(input.value)
+              }}
+              sx={{
+                "& .MuiFormHelperText-root": {
+                marginLeft: 0,
+                marginRight: 0,
+                textAlign: "center",
+                },
+              }}
+            />
+          </Grid>
+          <Grid item xs={6} sm={1} style={{ textAlign: "center" }}>
+            <FormControlLabel
+              label="Active"
+              control={
+                <Checkbox
+                  size="small"
+                  //defaultChecked={row.active === false ? false : true}
+                  onChange={(event) => {
+                  //row.active = event.target.checked
+                  // input.onChange(input.value)
+                  }}
+                />
+              }
+            />
+          </Grid>
+          <hr className="rows__separator" />
+      </React.Fragment>
+    </Grid>
+  </React.Fragment>
+)
 };
 export default ProjectMembersField

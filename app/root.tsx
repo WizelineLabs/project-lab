@@ -60,6 +60,9 @@ export const action: ActionFunction = async ({ request }) => {
   const slackChannel = formData.get('slackChannel')
   const skills = formData.get('skills')
   const labels = formData.get('labels')
+  const relatedProjects = formData.get('relatedProjects')
+  const innovationTiers = formData.get('innovationTiers')
+  const projectMembers = formData.get('projectMembers')
 /*
   await createPost({name,
                     description,
@@ -69,7 +72,10 @@ export const action: ActionFunction = async ({ request }) => {
                     repoUrls,
                     slackChannel,
                     skills,
-                    labels}) */
+                    labels,
+                    relatedProjects,
+                    innovationTiers,
+                    projectMembers}) */
   return redirect("/projects");
 }
 
