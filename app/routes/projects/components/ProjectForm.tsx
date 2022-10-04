@@ -11,6 +11,7 @@ import SkillsSelect from "~/core/components/SkillsSelect";
 import LabelsSelect from "~/core/components/LabelsSelect";
 import ProjectOwnerField from "~/core/components/ProjectOwnerField";
 import RelatedProjectsSelect from "~/core/components/RelatedProjectsSelect";
+import ProjectMembersField from "~/core/components/ProjectMembersField";
 
 export function ProjectForm({ projectformType }) {
   const [displayFields, setDisplayFields] = useState(
@@ -143,10 +144,10 @@ export function ProjectForm({ projectformType }) {
             handleChange={setSelectedTiers}
           />
         )}
-        {/* <ProjectMembersField
+        { <ProjectMembersField
             name="projectMembers"
             label="Add a contributor"
-          /> */}
+          /> }
       </Collapse>
       <Box textAlign="center">
         <button type="submit" className="primary">
