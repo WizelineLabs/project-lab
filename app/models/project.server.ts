@@ -156,7 +156,6 @@ export async function searchProjects({
 
   if (status.length > 0) {
     where = Prisma.sql`${where} AND p.status IN (${Prisma.join(status)})`
-    having = joinCondition(having, Prisma.sql`COUNT(DISTINCT p.status) = ${status.length}`)
   }
 
   if (skill.length > 0) {

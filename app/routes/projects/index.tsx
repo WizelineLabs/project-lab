@@ -15,13 +15,27 @@ import Wrapper from "./projects.styles"
 
 import { searchProjects } from "~/models/project.server";
 import { requireProfile } from "~/session.server";
+import type { ProjectStatus
+} from "~/models/status.server";
+import {
+  getProjectStatuses
+} from "~/models/status.server"
+import { ongoingStage, ideaStage} from "~/constants"
 
 type LoaderData = {
   data: Awaited<ReturnType<typeof searchProjects>>;
+  ongoingStatuses: ProjectStatus[];
+  ideaStatuses: ProjectStatus[];
 };
 
 const ITEMS_PER_PAGE = 50
 const FACETS = ["status", "skill", "label", "disciplines", "location", "tier", "role", "missing"]
+
+interface Tab { 
+  name: string
+  title: string
+  searchParams: URLSearchParams
+}
 
 export const loader: LoaderFunction = async ({ request }) => {
   const profile = await requireProfile(request);
@@ -38,6 +52,10 @@ export const loader: LoaderFunction = async ({ request }) => {
   const missing = url.searchParams.getAll("missing");
   const field = url.searchParams.get("field") || "";
   const order = url.searchParams.get("order") || "";
+  const statuses = await getProjectStatuses()
+  const ongoingStatuses = statuses.filter((status) => status.stage === ongoingStage);
+  const ideaStatuses = statuses.filter((status) => status.stage === ideaStage);
+
   const data = await searchProjects({
     search,
     status,
@@ -53,7 +71,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     skip: ITEMS_PER_PAGE * page,
     take: ITEMS_PER_PAGE,
   });
-  return json<LoaderData>({ data });
+  return json<LoaderData>({ data, ongoingStatuses, ideaStatuses});
 };
 
 export default function Projects() {
@@ -76,12 +94,38 @@ export default function Projects() {
     roleFacets,
     missingFacets,
     count,
-  }} = useLoaderData() as LoaderData
+  }, ongoingStatuses, ideaStatuses} = useLoaderData() as LoaderData
+  const myPropQuery =  "myProposals"
+  const activeProjectsSearchParams =  new URLSearchParams();
+  const ideasSearchParams =  new URLSearchParams();
+  ongoingStatuses.forEach((status) =>{
+    activeProjectsSearchParams.append("status", status.name);
+  });
+  ideaStatuses.forEach((status) =>{
+    ideasSearchParams.append("status", status.name);
+  });
+  const activeProjectsTab: Tab = {
+    name: "activeProjects",
+    title: "Active Projects",
+    searchParams: activeProjectsSearchParams
+  };
+  const myProposalsTab = {
+    name: "myProposals",
+    title: "My Proposals",
+    searchParams: new URLSearchParams({ q: myPropQuery })
+  }
+  const ideasTab = {
+    name: "ideas",
+    title: "Ideas",
+    searchParams: ideasSearchParams
+  }
+  const tabs: Array<Tab> = [myProposalsTab, activeProjectsTab, ideasTab];
 
   const goToPreviousPage = () => {
     searchParams.set("page", String(page - 1))
     setSearchParams(searchParams)
   }
+
   const goToNextPage = () => {
     searchParams.set("page", String(page + 1))
     setSearchParams(searchParams)
@@ -101,30 +145,33 @@ export default function Projects() {
 
   //Tabs selection logic
   const isMyProposalTab = () => {
-    return searchParams.get("q") === "myProposals"
+    return searchParams.get("q") === myProposalsTab.searchParams.get('q')
   }
+
   const isIdeasTab = () => {
-    return searchParams.getAll("status").includes("Idea Submitted")
+    return searchParams.getAll("status").includes(ideasTab.searchParams.getAll('status')[0]);
   }
-  const isInProgressTab = () => {
-    return searchParams.getAll("status").includes("Idea in Progress")
+
+  const isInProgressTab = () => { 
+    return searchParams.getAll("status").includes(activeProjectsTab.searchParams.getAll('status')[0]);
   }
+
   const getTitle = () => {
     if (isMyProposalTab()) {
-      return "MyProposals"
+      return myProposalsTab.title;
     } else if (isIdeasTab()) {
-      return "Ideas"
+      return ideasTab.title;
     } else if (isInProgressTab()) {
-      return "Active Projects"
-    } else {
-      return "All Projects"
+      return activeProjectsTab.title;
     }
+    return "All Projects";
   }
+
   const getTabClass = (tab: string) => {
     if (
-        (tab == "myProposals" && isMyProposalTab()) ||
-        (tab == "ideas" && isIdeasTab()) ||
-        (tab == "activeProjects" && isInProgressTab())
+        (tab == myProposalsTab.name && isMyProposalTab()) ||
+        (tab == ideasTab.name && isIdeasTab()) ||
+        (tab == activeProjectsTab.name && isInProgressTab())
     ) {
       return "homeWrapper__navbar__tabs--title--selected"
     } else {
@@ -133,12 +180,9 @@ export default function Projects() {
   }
 
   const handleTabChange = (selectedTab: string) => {
-    if (selectedTab === "activeProjects") {
-      setSearchParams(new URLSearchParams({status: "Idea in Progress" }))
-    } else if (selectedTab === "myProposals") {
-      setSearchParams(new URLSearchParams({q: "myProposals" }))
-    } else {
-      setSearchParams(new URLSearchParams({status: "Idea Submitted" }))
+    let params = tabs.find(tab => tab.name === selectedTab)?.searchParams;
+    if(params){
+      setSearchParams(params)
     }
   }
 
@@ -154,24 +198,17 @@ export default function Projects() {
       <Wrapper className="homeWrapper" filtersOpen={openMobileFilters}>
         <div className="homeWrapper__navbar">
           <div className="homeWrapper__navbar__tabs">
-            <div
-              className={`homeWrapper__navbar__tabs--title ${getTabClass("ideas")}`}
-              onClick={() => handleTabChange("ideas")}
-            >
-              Ideas
-            </div>
-            <div
-              className={`homeWrapper__navbar__tabs--title ${getTabClass("activeProjects")}`}
-              onClick={() => handleTabChange("activeProjects")}
-            >
-              Active Projects
-            </div>
-            <div
-              className={`homeWrapper__navbar__tabs--title ${getTabClass("myProposals")}`}
-              onClick={() => handleTabChange("myProposals")}
-            >
-              My Projects
-            </div>
+            {
+              tabs.map(tab => (
+                <div
+                  className={`homeWrapper__navbar__tabs--title ${getTabClass(tab.name)}`}
+                  onClick={() => handleTabChange(tab.name)}
+                  key={tab.name}
+                >
+                  {tab.title}
+                </div>
+              ))
+            }
           </div>
         </div>
         <div className="homeWrapper--content">
