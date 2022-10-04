@@ -1,6 +1,6 @@
 import { FormControlLabel, Switch, Collapse, Box } from "@mui/material";
 import { useState } from "react";
-import { Form } from "@remix-run/react";
+import { Form, useTransition } from "@remix-run/react";
 import { MultivalueInput } from "~/core/components/MultivalueInput";
 import DisciplinesSelect from "~/core/components/DisciplineSelect";
 import LabeledTextField from "~/core/components/LabeledTextField";
@@ -13,7 +13,7 @@ import ProjectOwnerField from "~/core/components/ProjectOwnerField";
 import RelatedProjectsSelect from "~/core/components/RelatedProjectsSelect";
 import ProjectMembersField from "~/core/components/ProjectMembersField";
 
-export function ProjectForm({ projectformType }) {
+export function ProjectForm({ projectformType }: any) {
   const [displayFields, setDisplayFields] = useState(
     projectformType === "create" ? false : true
   );
@@ -38,6 +38,10 @@ export function ProjectForm({ projectformType }) {
   ];
 
   const tiers = [{ name: "0" }, { name: "1" }, { name: "2" }, { name: "3" }];
+  
+  const transition = useTransition()
+  const isCreating = Boolean(transition.submission)
+
   return (
     <Form method="post" action="/projects/create">
       <LabeledTextField
@@ -150,8 +154,12 @@ export function ProjectForm({ projectformType }) {
           /> }
       </Collapse>
       <Box textAlign="center">
-        <button type="submit" className="primary">
-          Create Project
+        <button 
+          type="submit" 
+          className="primary"
+          disabled ={isCreating}
+        >
+          {isCreating ? 'Creating...' : 'Create Post'}
         </button>
       </Box>
     </Form>
