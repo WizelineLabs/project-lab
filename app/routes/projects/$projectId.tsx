@@ -1,10 +1,13 @@
 import { formatDistance } from "date-fns";
 import Markdown from "marked-react";
-import type { LoaderFunction, MetaFunction } from "@remix-run/node";
+import type {
+  ActionFunction,
+  LoaderFunction,
+  MetaFunction,
+} from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useCatch, useLoaderData } from "@remix-run/react";
+import { Link, useCatch, useLoaderData, useFetcher } from "@remix-run/react";
 import invariant from "tiny-invariant";
-
 import { requireProfile, requireUser } from "~/session.server";
 import {
   getProjectTeamMember,
@@ -33,6 +36,7 @@ import {
 import { adminRoleName } from "app/constants";
 import type { Profiles, ProjectMembers } from "@prisma/client";
 import ContributorPathReport from "../../core/components/ContributorPathReport/index";
+import { upvoteProject, unvoteProject } from "~/models/votes.server";
 
 type LoaderData = {
   isAdmin: boolean;
@@ -40,6 +44,12 @@ type LoaderData = {
   membership: ProjectMembers | undefined;
   profile: Profiles;
   project: ProjectComplete;
+  userId: string;
+};
+
+type voteProject = {
+  projectId: string;
+  userId: string;
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -55,13 +65,47 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const isTeamMember = isProjectTeamMember(profile.id, project);
   const membership = getProjectTeamMember(profile.id, project);
   const isAdmin = user.role == adminRoleName;
+  const userId = user.id;
   return json<LoaderData>({
     isAdmin,
     isTeamMember,
     membership,
     profile,
     project,
+    userId,
   });
+};
+
+export const action: ActionFunction = async ({ request }) => {
+  const form = await request.formData();
+  const action = form.get("action");
+  console.log("Validate the form");
+  try {
+    switch (action) {
+      case "POST_VOTE":
+        console.log(...form);
+
+        const haveIVoted = false;
+        // const projectId = form.get("projectId");
+        // const userId = form.get("userId");
+        const projectId = `1af2eda2-fc1b-4977-8f8e-3e44c1bdf00e`
+        const userId = `cl8vy8y2200009sweenp2x644`
+        console.log(userId);
+        console.log(projectId);
+        console.log(haveIVoted);
+      if(!haveIVoted){
+        await upvoteProject(projectId, userId);
+      }else{
+        await unvoteProject(projectId, userId);        
+      }
+      return json({ error: "" }, { status: 200 });
+      default: {
+        throw new Error("Something went wrong");
+      }
+    }
+  } catch (error: any) {
+    throw error;
+  }
 };
 
 export const meta: MetaFunction = ({ data, params }) => {
@@ -80,10 +124,30 @@ export const meta: MetaFunction = ({ data, params }) => {
 };
 
 export default function ProjectDetailsPage() {
-  const { isAdmin, isTeamMember, profile, membership, project } =
+  const { isAdmin, isTeamMember, profile, membership, project, userId } =
     useLoaderData() as LoaderData;
 
   invariant(project, "project not found");
+  // const [savingVoteStatus, setSavingVoteStatus] = useState<boolean>(false)
+
+  const handleVote = async (id: string) => {
+    const payload = { projectId: id, userId: userId };
+    await voteForProject(payload);
+    return;
+  };
+
+  const fetcher = useFetcher();
+  const voteForProject = async (values: voteProject) => {
+    try {
+      const body = {
+        ...values,
+        action: "POST_VOTE",
+      };
+      await fetcher.submit(body, { method: "post" });
+    } catch (error: any) {
+      console.error(error);
+    }
+  };
 
   return (
     <>
@@ -234,11 +298,12 @@ export default function ProjectDetailsPage() {
                   <Like>
                     <div className="like-bubble">
                       <span>{project.votes.length}</span>
+                      <span>{JSON.stringify(userId)}</span>
                     </div>
                     <Button
                       className="primary"
                       // disabled={savingVoteStatus}
-                      // onClick={() => handleVote(project.id)}
+                      onClick={() => handleVote(project.id)}
                     >
                       {project.votes.filter((vote) => {
                         return vote.profileId === profile.id;
