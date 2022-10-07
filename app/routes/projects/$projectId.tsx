@@ -36,7 +36,11 @@ import {
 import { adminRoleName } from "app/constants";
 import type { Profiles, ProjectMembers } from "@prisma/client";
 import ContributorPathReport from "../../core/components/ContributorPathReport/index";
-import { upvoteProject, unvoteProject } from "~/models/votes.server";
+import {
+  upvoteProject,
+  unvoteProject,
+  checkUserVote,
+} from "~/models/votes.server";
 
 type LoaderData = {
   isAdmin: boolean;
@@ -44,12 +48,12 @@ type LoaderData = {
   membership: ProjectMembers | undefined;
   profile: Profiles;
   project: ProjectComplete;
-  userId: string;
+  profileId: string;
 };
 
 type voteProject = {
   projectId: string;
-  userId: string;
+  profileId: string;
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -65,40 +69,34 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const isTeamMember = isProjectTeamMember(profile.id, project);
   const membership = getProjectTeamMember(profile.id, project);
   const isAdmin = user.role == adminRoleName;
-  const userId = user.id;
+  const profileId = profile.id;
   return json<LoaderData>({
     isAdmin,
     isTeamMember,
     membership,
     profile,
     project,
-    userId,
+    profileId,
   });
 };
 
 export const action: ActionFunction = async ({ request }) => {
   const form = await request.formData();
   const action = form.get("action");
-  console.log("Validate the form");
   try {
     switch (action) {
       case "POST_VOTE":
-        console.log(...form);
-
-        const haveIVoted = false;
-        // const projectId = form.get("projectId");
-        // const userId = form.get("userId");
-        const projectId = `1af2eda2-fc1b-4977-8f8e-3e44c1bdf00e`
-        const userId = `cl8vy8y2200009sweenp2x644`
-        console.log(userId);
-        console.log(projectId);
-        console.log(haveIVoted);
-      if(!haveIVoted){
-        await upvoteProject(projectId, userId);
-      }else{
-        await unvoteProject(projectId, userId);        
-      }
-      return json({ error: "" }, { status: 200 });
+        const projectId = form.get("projectId") as string;
+        const profileId = form.get("profileId") as string;
+        const isVote = await checkUserVote(projectId, profileId);
+        
+        const haveIVoted = isVote > 0 ? true : false;
+        if (!haveIVoted) {
+          await upvoteProject(projectId, profileId);
+        } else {
+          await unvoteProject(projectId, profileId);
+        }
+        return json({ error: "" }, { status: 200 });
       default: {
         throw new Error("Something went wrong");
       }
@@ -124,14 +122,13 @@ export const meta: MetaFunction = ({ data, params }) => {
 };
 
 export default function ProjectDetailsPage() {
-  const { isAdmin, isTeamMember, profile, membership, project, userId } =
+  const { isAdmin, isTeamMember, profile, membership, project, profileId } =
     useLoaderData() as LoaderData;
 
   invariant(project, "project not found");
-  // const [savingVoteStatus, setSavingVoteStatus] = useState<boolean>(false)
 
   const handleVote = async (id: string) => {
-    const payload = { projectId: id, userId: userId };
+    const payload = { projectId: id, profileId: profileId };
     await voteForProject(payload);
     return;
   };
@@ -298,7 +295,6 @@ export default function ProjectDetailsPage() {
                   <Like>
                     <div className="like-bubble">
                       <span>{project.votes.length}</span>
-                      <span>{JSON.stringify(userId)}</span>
                     </div>
                     <Button
                       className="primary"
