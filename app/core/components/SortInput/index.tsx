@@ -1,51 +1,41 @@
-import React, { useEffect, useState } from "react"
 import { MenuItem, TextField } from "@mui/material"
 
 interface iProps {
   setSortQuery: (query: { field: string; order: string }) => void
+  sortBy: string
 }
 
-export const SortInput = ({ setSortQuery }: iProps) => {
-  const [sortBy, setSortBy] = useState("")
-
+export const SortInput = ({ setSortQuery, sortBy }: iProps) => {
   //sorting options
   const sortOptions = [
     {
       label: "Most recent",
       value: "mostRecent",
+      order: "desc",
     },
     {
       label: "Most voted",
-      value: "mostVoted",
+      value: "votesCount",
+      order: "desc",
     },
     {
       label: "Project Members",
       value: "projectMembers",
+      order: "desc",
     },
     {
       label: "Last Updated",
-      value: "lastUpdated",
+      value: "updatedAt",
+      order: "desc",
     },
   ]
 
   const handleSortByChange = (e: any) => {
-    setSortBy(e.target.value)
+    setSortQuery({
+      field: e.target.value,
+      order: sortOptions.find((option) => option.value === e.target.value)?.order || "",
+    })
   }
-
-  useEffect(() => {
-    if (sortBy === "mostRecent") {
-      setSortQuery({ field: "createdAt", order: "desc" })
-    }
-    if (sortBy === "mostVoted") {
-      setSortQuery({ field: "votesCount", order: "desc" })
-    }
-    if (sortBy === "projectMembers") {
-      setSortQuery({ field: sortBy, order: "desc" })
-    }
-    if (sortBy === "lastUpdated") {
-      setSortQuery({ field: "updatedAt", order: "desc" })
-    }
-  }, [sortBy, setSortQuery])
 
   return (
     <TextField

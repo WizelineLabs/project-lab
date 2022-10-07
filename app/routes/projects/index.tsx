@@ -1,7 +1,7 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
+import { Link, useLoaderData, useSearchParams, useFetcher } from "@remix-run/react";
 import CardBox from "app/core/components/CardBox"
 import ProposalCard from "app/core/components/ProposalCard"
 import Header from "app/core/layouts/Header"
@@ -35,6 +35,11 @@ interface Tab {
   name: string
   title: string
   searchParams: URLSearchParams
+}
+
+type SortByProps = {
+  field: string,
+  order: string,
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -75,12 +80,10 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export default function Projects() {
+  const fetcher = useFetcher()
   //functions to load and paginate projects in `Popular` CardBox
   const [searchParams, setSearchParams] = useSearchParams()
   const page = Number(searchParams.get("page") || 0)
-
-  //sorting variables
-  const [sortQuery, setSortQuery] = useState({ field: "name", order: "desc" })
 
   let {data: {
     projects,
@@ -95,6 +98,26 @@ export default function Projects() {
     missingFacets,
     count,
   }, ongoingStatuses, ideaStatuses} = useLoaderData() as LoaderData
+
+  const [currProjects, setCurrProjects] = useState(projects)
+  const [fetcherSource, setFetcherSource] = useState(false)
+  const [sortField, setSortField] = useState("")
+  
+  useEffect(() => {
+    //It handles the fetcher response for the sorted projects
+    if (fetcher.state === "idle" && fetcher.data) {
+      if (fetcher.data.data && fetcherSource) {
+        setCurrProjects(fetcher.data.data.projects)
+        setFetcherSource(false)
+      }
+    }
+  }, [fetcher, fetcherSource])
+
+  useEffect(() => {
+    //This store the changes for the Projects when changing filters
+    setCurrProjects(projects)
+  }, [projects])
+
   const myPropQuery =  "myProposals"
   const activeProjectsSearchParams =  new URLSearchParams();
   const ideasSearchParams =  new URLSearchParams();
@@ -184,6 +207,16 @@ export default function Projects() {
     if(params){
       setSearchParams(params)
     }
+    setSortField("")
+  }
+
+  const handleSort = async (sortQ: SortByProps) => {
+    searchParams.set("field", sortQ.field)
+    searchParams.set("order", sortQ.order)
+    setFetcherSource(true)
+    setSearchParams(searchParams)
+    await fetcher.load(`${window.location.pathname}?index&${searchParams.toString()}`)
+    setSortField(sortQ.field)
   }
 
   //Mobile Filters logic
@@ -465,13 +498,13 @@ export default function Projects() {
             <div className="homeWrapper__information--row">
               <CardBox title={getTitle() + ` (${count || 0})`}>
                 <div className="homeWrapper__navbar__sort">
-                  <SortInput setSortQuery={setSortQuery} />
+                  <SortInput setSortQuery={handleSort} sortBy={sortField} />
                   <button className="filter__mobile-button" onClick={handleMobileFilters}>
                     Filters
                     <FilterAltIcon sx={{ fontSize: "17px", position: "absolute", top: "20%" }} />
                   </button>
                 </div>
-                <div className="homeWrapper__popular">{projects.map((item, i) => {
+                <div className="homeWrapper__popular">{currProjects.map((item, i) => {
                   return (
                     <ProposalCard
                       key={i}
