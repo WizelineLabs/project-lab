@@ -1,7 +1,6 @@
 import { prisma } from "~/db.server";
 
 export async function upvoteProject(id: string, profileId: string) {
-  console.log(`CREATE RESULT:`);
   const votes = await prisma.vote.create({
     data: {
       projectId: id,

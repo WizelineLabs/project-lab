@@ -89,7 +89,7 @@ export const action: ActionFunction = async ({ request }) => {
         const projectId = form.get("projectId") as string;
         const profileId = form.get("profileId") as string;
         const isVote = await checkUserVote(projectId, profileId);
-        
+
         const haveIVoted = isVote > 0 ? true : false;
         if (!haveIVoted) {
           await upvoteProject(projectId, profileId);
