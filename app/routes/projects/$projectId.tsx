@@ -298,7 +298,6 @@ export default function ProjectDetailsPage() {
                     </div>
                     <Button
                       className="primary"
-                      // disabled={savingVoteStatus}
                       onClick={() => handleVote(project.id)}
                     >
                       {project.votes.filter((vote) => {
