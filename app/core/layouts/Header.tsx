@@ -1,6 +1,6 @@
 import styled from "@emotion/styled"
 
-import { useSubmit, useNavigate } from "@remix-run/react";
+import { Link, useSubmit } from "@remix-run/react";
 import { useUser } from "~/utils";
 import DropDownButton from "../components/DropDownButton"
 import Search from "../components/Search"
@@ -10,65 +10,44 @@ interface IProps {
   title: String
 }
 export interface MenuItemArgs {
-  permissions: boolean | undefined
   text: string
-  testId?: string
-  onClick: (props: unknown) => void
+  "data-testid"?: string
+  onClick?: () => void
+  to: string
 }
 
 const Header = ({ title }: IProps) => {
-  const navigate = useNavigate()
   const currentUser = useUser()
   const submit = useSubmit()
 
-  const goHome = () => {
-    navigate("/")
-  }
-  const goManager = () => {
-    navigate("/manager")
-  }
   const options: MenuItemArgs[] =
-    currentUser?.role === "ADMIN"
-      ? [
-          {
-            permissions: true,
-            onClick: async () => {
-              submit(null, { method: "post", action: "/logout" })
-            },
-            text: "Sign out",
-            testId: "sign-out-button",
-          },
-          {
-            permissions: true,
-            onClick: async () => {
-              goManager()
-            },
-            text: "Manager",
-            testId: "go-to-admin",
-          },
-        ]
-      : [
-          {
-            permissions: true,
-            onClick: async () => {
-              submit(null, { method: "post", action: "/logout" })
-            },
-            text: "Sign out",
-            testId: "sign-out-button",
-          },
-        ]
+    [
+      {
+        onClick: async () => {
+          submit(null, { method: "post", action: "/logout" })
+        },
+        to: '/',
+        text: "Sign out",
+        "data-testid": "sign-out-button",
+      },
+      ...(currentUser?.role === "ADMIN" ? [{
+        to: '/manager/filter-tags/labels',
+        text: "Manager",
+        "data-testid": "go-to-admin",
+      }] : []),
+    ]
 
   return (
     <>
       <Wrapper>
         <header>
           <div className="content">
-            <div className="logo" onClick={goHome}>
+            <Link className="logo" to="/">
               <div className="logo--img">
                 <img src="/wizeline.png" alt="wizeline" height={30} width={50} />
               </div>
               <div className="logo--text">Wizelabs</div>
-            </div>
+            </Link>
             <div className="actions--container">
               <Search />
               <div className="actions--container__button">
@@ -111,6 +90,7 @@ const Wrapper = styled.div`
     width: 200px;
     cursor: pointer;
     margin-left: 20px;
+    text-decoration: none;
   }
   .logo--img {
     margin-right: 7px;

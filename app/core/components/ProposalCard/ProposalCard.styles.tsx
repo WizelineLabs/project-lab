@@ -1,4 +1,5 @@
 import styled from "@emotion/styled"
+import { Link } from '@remix-run/react'
 
 export const ProposalCardWrap = styled.div`
   display: flex;
@@ -117,4 +118,37 @@ export const ProposalCardWrap = styled.div`
       margin-left: 3px;
     }
   }
+  .ProposalCard__status--members {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    color: #000000;
+    font-size: 14px;
+    margin-right: 10px;
+
+    & span {
+      margin-left: 3px;
+    }
+  }
+  .ProposalCard__head__description--tier {
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .ProposalCard__tier {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .ProposalCard__head__description--tier--extra {
+    font-weight: 700;
+    font-size: 12px;
+    margin-left: 15px;
+    color: #000000;
+  }
 `
+
+export const ProposalCardLink = styled(Link)`
+    text-decoration: none;
+`
+

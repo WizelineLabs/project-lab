@@ -66,3 +66,7 @@ export const contributorPath = [
     ],
   },
 ]
+
+export const ongoingStage =  "ongoing project"
+export const ideaStage =  "idea"
+export const stageOptions = [{ name: ideaStage }, { name: ongoingStage }, { name: "none" }]

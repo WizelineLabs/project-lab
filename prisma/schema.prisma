@@ -10,7 +10,7 @@ generator client {
 model User {
   id    String @id @default(cuid())
   email String @unique
-  name  String
+  name  String?
   role  String @default("USER")
 
   createdAt DateTime @default(now())
@@ -119,6 +119,7 @@ model ProjectMembersVersions {
 model ProjectStatus {
   name             String             @id
   color            String             @default("#1d1d1d")
+  stage            String?            @default("ongoing project")
   projects         Projects[]
   projectsVersions ProjectsVersions[]
 }
