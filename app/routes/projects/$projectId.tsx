@@ -33,6 +33,8 @@ import {
 import { adminRoleName } from "app/constants";
 import type { Profiles, ProjectMembers } from "@prisma/client";
 import ContributorPathReport from "../../core/components/ContributorPathReport/index";
+import { useState } from "react";
+import JoinProjectModal from "~/core/components/JoinProjectModal";
 
 type LoaderData = {
   isAdmin: boolean;
@@ -53,6 +55,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const user = await requireUser(request);
   const profile = await requireProfile(request);
   const isTeamMember = isProjectTeamMember(profile.id, project);
+
   const membership = getProjectTeamMember(profile.id, project);
   const isAdmin = user.role == adminRoleName;
   return json<LoaderData>({
@@ -80,8 +83,17 @@ export const meta: MetaFunction = ({ data, params }) => {
 };
 
 export default function ProjectDetailsPage() {
+  const handleJoinProject = () => {
+    setShowJoinModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowJoinModal(false);
+  };
+
   const { isAdmin, isTeamMember, profile, membership, project } =
     useLoaderData() as LoaderData;
+  const [showJoinModal, setShowJoinModal] = useState<boolean>(false);
 
   invariant(project, "project not found");
 
@@ -336,9 +348,7 @@ export default function ProjectDetailsPage() {
                 </Button>
               ) : (
                 project.helpWanted && (
-                  <Button
-                    className="primary large" /* onClick={handleJoinProject} */
-                  >
+                  <Button className="primary large" onClick={handleJoinProject}>
                     Want to Join?
                   </Button>
                 )
@@ -351,15 +361,16 @@ export default function ProjectDetailsPage() {
       <div className="wrapper">
         <ContributorPathReport project={project} />
       </div>
-      {/*
-      <div className="wrapper">
-        <Comments projectId={project.id} />
-      </div>
       <JoinProjectModal
         projectId={project.id}
         open={showJoinModal}
         handleCloseModal={handleCloseModal}
       />
+      {/*
+      <div className="wrapper">
+        <Comments projectId={project.id} />
+      </div>
+     
       {membership && (
         <ProjectConfirmationModal
           close={() => setShowModal(false)}
