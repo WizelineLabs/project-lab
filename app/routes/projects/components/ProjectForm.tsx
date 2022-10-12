@@ -74,7 +74,7 @@ export function ProjectForm({ projectformType }: any) {
       />
 
       <Collapse in={helpWanted}>
-        <DisciplinesSelect
+        <DisciplinesSelect //this still uses constant values instead of values taken from the db
           name="disciplines"
           label="Looking for..."
           parentName="helpWanted"
@@ -119,8 +119,8 @@ export function ProjectForm({ projectformType }: any) {
           label="Slack Channel"
           placeholder="#project-name"
         />
-
-        {projectformType !== "create" && (
+        
+        {projectformType !== "create" && ( //this still uses constant values instead of values taken from the db
           <InputSelect
             valuesList={statuses}
             defaultValue=""
@@ -131,14 +131,15 @@ export function ProjectForm({ projectformType }: any) {
             handleChange={setSelectedStatus}
           />
         )}
-
-        <SkillsSelect name="skills" label="Skills" />
-        <LabelsSelect name="labels" label="Labels" />
-        <RelatedProjectsSelect
+        <SkillsSelect //this still uses constant values instead of values taken from the db
+        name="skills" label="Skills" />
+        <LabelsSelect //this still uses constant values instead of values taken from the db
+         name="labels" label="Labels" />
+        <RelatedProjectsSelect //this still uses constant values instead of values taken from the db
           thisProject=""
           name="relatedProjects"
           label="Related Projects"
-        />
+        /> 
         {projectformType !== "create" && (
           <InputSelect
             valuesList={tiers}
@@ -149,10 +150,10 @@ export function ProjectForm({ projectformType }: any) {
             handleChange={setSelectedTiers}
           />
         )}
-        { <ProjectMembersField
+        {<ProjectMembersField // this isn't finished
             name="projectMembers"
             label="Add a contributor"
-          /> }
+        />}
       </Collapse>
       <Box textAlign="center">
         <button 

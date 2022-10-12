@@ -365,7 +365,7 @@ export async function searchProjects({
     ),
   };
 }
-/*
+/* this is for creating the post
 export async function createPost(post) {
   return db.post.create({data:post})
 }

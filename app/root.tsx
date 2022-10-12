@@ -19,6 +19,7 @@ import StylesheetUrl from "./styles/style.css";
 import quillCss from "quill/dist/quill.snow.css";
 
 import { getUser } from "./session.server";
+import { LensTwoTone } from "@mui/icons-material";
 //import { createPost } from "./models/project.server";
 
 export const links: LinksFunction = () => {
@@ -50,24 +51,24 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export const action: ActionFunction = async ({ request }) => {
 
-  console.log(Object.fromEntries(await request.formData()))
-/*
-  const formData = (Object.fromEntries(await request.formData()))
+  const formData = await request.formData()
   
-  const name = formData.name
-  const description = formData.description
-  const helpWanted = formData.helpWanted
-  const disciplines = formData.disciplines -
-  const target = formData.target
-  const repoUrls = formData.repoUrls
-  const slackChannel = formData.SlackeChannel
-  const skills = formData.skills -
-  const labels = formData.labels -
-  const relatedProjects = formData.relatedProjects -
-  const innovationTiers = formData.innovationTiers -
-  const projectMembers = formData.projectMembers -
-
-  await createPost({name,
+  const name = formData.get("name")
+  const description = formData.get("description")
+  const helpWanted = formData.get("helpWanted")
+  let disciplines = formData.getAll("disciplines");
+  const target = formData.get("target")
+  const repoUrls = formData.get("repoUrls")
+  const slackChannel = formData.get("SlackeChannel")
+  let skills = formData.getAll("skills") 
+  let labels = formData.getAll("labels") 
+  let relatedProjects = formData.getAll("relatedProjects") 
+  let innovationTiers = formData.getAll("innovationTiers") 
+  //let projectMembers = formData.getAll("projectMembers") 
+  
+  console.log(Object.fromEntries(formData))
+/* This is for creating the post
+  await createPost({name, 
                     description,
                     helpWanted,
                     disciplines,
@@ -78,7 +79,7 @@ export const action: ActionFunction = async ({ request }) => {
                     labels,
                     relatedProjects,
                     innovationTiers,
-                    projectMembers})*/
+                    projectMembers})*/ 
   return redirect("/projects");
 }
 
