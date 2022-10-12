@@ -332,7 +332,7 @@ async function seed() {
       department: "Engineering",
     },
   })
-  await db.profiles.upsert({
+  const jcorona = await db.profiles.upsert({
     where: { email: "jesus.corona@wizeline.com" },
     update: {},
     create: {
@@ -585,6 +585,13 @@ async function seed() {
                 { id: "b27f5e6c-4470-4f83-8fd6-dc097e127f44" },
                 { id: "4b3d0d73-c3a6-457a-bd81-6b7b2be13373" },
               ],
+            },
+          },
+          {
+            profile: { connect: { id: jcorona.id } },
+            hoursPerWeek: 3,
+            role: {
+              connect: [{ name: "Frontend" }],
             },
           },
         ],
