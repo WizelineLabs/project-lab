@@ -163,7 +163,7 @@ export function ProjectForm({ projectformType }: any) {
           className="primary"
           disabled ={isCreating}
         >
-          {isCreating ? 'Creating...' : 'Create Post'}
+          {isCreating ? 'Creating...' : 'Create Project'}
         </button>
       </Box>
     </Form>
