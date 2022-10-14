@@ -56,15 +56,15 @@ export const action: ActionFunction = async ({ request }) => {
   const name = formData.get("name")
   const description = formData.get("description")
   const helpWanted = formData.get("helpWanted")
-  let disciplines = formData.getAll("disciplines");
+  //let disciplines = formData.getAll("disciplines");
   const target = formData.get("target")
   const repoUrls = formData.get("repoUrls")
   const slackChannel = formData.get("SlackeChannel")
-  let skills = formData.getAll("skills") 
+  /*let skills = formData.getAll("skills") 
   let labels = formData.getAll("labels") 
   let relatedProjects = formData.getAll("relatedProjects") 
   let innovationTiers = formData.getAll("innovationTiers") 
-  //let projectMembers = formData.getAll("projectMembers") 
+  let projectMembers = formData.getAll("projectMembers") */
   
   console.log(Object.fromEntries(formData))
 /* This is for creating the post

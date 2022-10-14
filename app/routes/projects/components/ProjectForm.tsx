@@ -74,15 +74,16 @@ export function ProjectForm({ projectformType }: any) {
       />
 
       <Collapse in={helpWanted}>
+        {/*
         <DisciplinesSelect //this still uses constant values instead of values taken from the db
           name="disciplines"
           label="Looking for..."
           parentName="helpWanted"
-        />
+  /> */}
       </Collapse>
 
       {projectformType === "create" && (
-        <FormControlLabel
+        <FormControlLabel 
           value="1"
           control={<Switch color="primary" onChange={handleDisplaySwitch} />}
           label="Add more details"
@@ -131,6 +132,7 @@ export function ProjectForm({ projectformType }: any) {
             handleChange={setSelectedStatus}
           />
         )}
+        {/*
         <SkillsSelect //this still uses constant values instead of values taken from the db
         name="skills" label="Skills" />
         <LabelsSelect //this still uses constant values instead of values taken from the db
@@ -139,7 +141,7 @@ export function ProjectForm({ projectformType }: any) {
           thisProject=""
           name="relatedProjects"
           label="Related Projects"
-        /> 
+      /> 
         {projectformType !== "create" && (
           <InputSelect
             valuesList={tiers}
@@ -153,8 +155,8 @@ export function ProjectForm({ projectformType }: any) {
         {<ProjectMembersField // this isn't finished
             name="projectMembers"
             label="Add a contributor"
-        />}
-      </Collapse>
+        />} */}
+        </Collapse> 
       <Box textAlign="center">
         <button 
           type="submit" 
