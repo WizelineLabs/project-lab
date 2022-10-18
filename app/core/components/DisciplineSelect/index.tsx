@@ -11,7 +11,7 @@ interface DisciplinesSelectProps {
   label: string;
   helperText?: string;
   outerProps?: PropsWithoutRef<JSX.IntrinsicElements["div"]>;
-  size?: "small" | "medium" | undefined;
+  size?: "small" | "medium";
   style?: object;
   parentName?: string;
 }

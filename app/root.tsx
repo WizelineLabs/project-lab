@@ -55,6 +55,7 @@ export const action: ActionFunction = async ({ request }) => {
   
   const name = formData.get("name")
   const description = formData.get("description")
+  const textEditor = formData.get("textEditor")
   const helpWanted = formData.get("helpWanted")
   //let disciplines = formData.getAll("disciplines");
   const target = formData.get("target")
