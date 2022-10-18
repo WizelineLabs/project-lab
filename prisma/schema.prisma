@@ -1,10 +1,10 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-}
-
-generator client {
-  provider = "prisma-client-js"
 }
 
 model User {
@@ -12,23 +12,19 @@ model User {
   email String @unique
   name  String?
   role  String @default("USER")
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  notes    Note[]
+  notes     Note[]
 }
-
+    
 model Note {
-  id    String @id @default(cuid())
-  title String
-  body  String
-
+  id        String   @id @default(cuid())
+  title     String
+  body      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model JobTitles {
@@ -66,17 +62,17 @@ model Profiles {
   deleted                Boolean                  @default(false)
   jobTitles              JobTitles?               @relation(fields: [jobTitleId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   locations              Locations?               @relation(fields: [locationId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  comments               Comments[]
   projectMembers         ProjectMembers[]
   projectMembersVersions ProjectMembersVersions[]
   projects               Projects[]
   projectsVersions       ProjectsVersions[]
   votes                  Vote[]
-  comments               Comments[]
-
-  @@index([email], name: "profiles_email_idx")
-  @@index([jobTitleId], name: "profiles_job_title_id_idx")
-  @@index([locationId], name: "profiles_location_id_idx")
-  @@index([searchCol], name: "profiles_search_col_idx")
+// here "name" was changed for "map"
+  @@index([email], map: "profiles_email_idx")
+  @@index([jobTitleId], map: "profiles_job_title_id_idx")
+  @@index([locationId], map: "profiles_location_id_idx")
+  @@index([searchCol], map: "profiles_search_col_idx")
 }
 
 model ProjectMembers {
@@ -86,34 +82,34 @@ model ProjectMembers {
   projectId       String
   profileId       String
   hoursPerWeek    Int?
-  role            Disciplines[]
   active          Boolean           @default(true)
-  profile         Profiles?         @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  project         Projects?         @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  profile         Profiles          @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  project         Projects          @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   contributorPath ContributorPath[]
+  role            Disciplines[]
   practicedSkills Skills[]
-
+//also here "name" was changed for "map" 
   @@unique([projectId, profileId], name: "project_members_project_id_profile_id_key")
-  @@index([profileId], name: "project_members_profile_id_idx")
-  @@index([projectId], name: "project_members_project_id_idx")
+  @@index([profileId], map: "project_members_profile_id_idx")
+  @@index([projectId], map: "project_members_project_id_idx")
 }
 
 model ProjectMembersVersions {
-  id              Int       @id @default(autoincrement())
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @default(now())
+  id              Int      @id @default(autoincrement())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now())
   projectId       String
   profileId       String
   hoursPerWeek    Int?
   role            String?
-  active          Boolean   @default(true)
-  profile         Profiles? @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  project         Projects? @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  active          Boolean  @default(true)
   practicedSkills String?
-
-  @@index([projectId, profileId], name: "project_members_v_project_id_profile_id_key")
-  @@index([profileId], name: "project_members_v_profile_id_idx")
-  @@index([projectId], name: "project_members_v_project_id_idx")
+  profile         Profiles @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  project         Projects @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+//also here the map for name change 
+  @@index([projectId, profileId], map: "project_members_v_project_id_profile_id_key")
+  @@index([profileId], map: "project_members_v_profile_id_idx")
+  @@index([projectId], map: "project_members_v_project_id_idx")
 }
 
 model ProjectStatus {
@@ -133,7 +129,6 @@ model Projects {
   valueStatement         String?
   target                 String?
   demo                   String?
-  repoUrls               Repos[]
   slackChannel           String?
   isApproved             Boolean                  @default(false)
   status                 String?                  @default("Idea Submitted")
@@ -141,34 +136,34 @@ model Projects {
   searchSkills           String                   @default("")
   createdAt              DateTime                 @default(now())
   updatedAt              DateTime                 @default(now())
+  isArchived             Boolean                  @default(false)
+  helpWanted             Boolean                  @default(true)
+  tsColumn               Unsupported("tsvector")?
   owner                  Profiles?                @relation(fields: [ownerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   projectStatus          ProjectStatus?           @relation(fields: [status], references: [name], onDelete: SetNull, onUpdate: Cascade)
   innovationTiers        InnovationTiers?         @relation(fields: [tierName], references: [name], onDelete: SetNull, onUpdate: Cascade)
+  comments               Comments[]
   projectMembers         ProjectMembers[]
   projectMembersVersions ProjectMembersVersions[]
-  skills                 Skills[]
-  labels                 Labels[]
-  disciplines            Disciplines[]
-  votes                  Vote[]
-  comments               Comments[]
   stages                 ProjectStages[]
-  isArchived             Boolean                  @default(false)
-  helpWanted             Boolean                  @default(true)
-  tsColumn               Unsupported("TSVECTOR")?
   projectVersions        ProjectsVersions[]
-  relatedProjectsA       RelatedProjects[]        @relation(name: "RelatedProjectsA")
-  relatedProjectsB       RelatedProjects[]        @relation(name: "RelatedProjectsB")
-
-  @@index([ownerId], name: "projects_owner_id_idx")
-  @@index([status], name: "projects_status_idx")
-  @@index([isArchived], name: "projects_isArchived_idx")
-  @@index([tierName], name: "projects_innovation_tier_idx")
-  @@index([tsColumn], name: "projects_ts_column_idx")
+  relatedProjectsA       RelatedProjects[]        @relation("RelatedProjectsA")
+  relatedProjectsB       RelatedProjects[]        @relation("RelatedProjectsB")
+  repoUrls               Repos[]
+  votes                  Vote[]
+  disciplines            Disciplines[]
+  labels                 Labels[]
+  skills                 Skills[]
+// here also the change of name for map
+  @@index([ownerId], map: "projects_owner_id_idx")
+  @@index([status], map: "projects_status_idx")
+  @@index([isArchived], map: "projects_isArchived_idx")
+  @@index([tierName], map: "projects_innovation_tier_idx")
+  @@index([tsColumn], map: "projects_ts_column_idx")
 }
 
 model ProjectsVersions {
   id             Int              @id @default(autoincrement())
-  projectId      String
   ownerId        String?
   name           String
   logo           String?
@@ -179,29 +174,30 @@ model ProjectsVersions {
   slackChannel   String?
   isApproved     Boolean          @default(false)
   status         String?          @default("Idea Submitted")
-  tierName       String?          @default("Tier 3 (Experiment)")
   searchSkills   String           @default("")
   createdAt      DateTime         @default(now())
   membersCount   Int              @default(0)
   votesCount     Int              @default(0)
   isArchived     Boolean          @default(false)
-  project        Projects?        @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  projectId      String
+  tierName       String?          @default("Tier 3 (Experiment)")
   owner          Profiles?        @relation(fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  project        Projects         @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   projectStatus  ProjectStatus?   @relation(fields: [status], references: [name], onDelete: SetNull, onUpdate: Cascade)
   innovationTier InnovationTiers? @relation(fields: [tierName], references: [name], onDelete: SetNull, onUpdate: Cascade)
 
-  @@index([ownerId], name: "projects_version_owner_id_idx")
-  @@index([status], name: "projects_version_status_idx")
-  @@index([tierName], name: "projects_version_tier_idx")
-  @@index([isArchived], name: "projects_version_isArchived_idx")
+  @@index([ownerId], map: "projects_version_owner_id_idx")
+  @@index([status], map: "projects_version_status_idx")
+  @@index([tierName], map: "projects_version_tier_idx")
+  @@index([isArchived], map: "projects_version_isArchived_idx")
 }
 
 model Vote {
   projectId String
   profileId String
-  project   Projects @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  profile   Profiles @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   createdAt DateTime @default(now())
+  profile   Profiles @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  project   Projects @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@unique([projectId, profileId])
 }
@@ -211,10 +207,10 @@ model Skills {
   name           String
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @default(now())
-  projects       Projects[]
   projectMembers ProjectMembers[]
-
-  @@index([name], name: "skills_name_idx")
+  projects       Projects[]
+// also here the map for name change
+  @@index([name], map: "skills_name_idx")
 }
 
 model Disciplines {
@@ -222,10 +218,10 @@ model Disciplines {
   name           String           @unique
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @default(now())
-  projects       Projects[]
   projectMembers ProjectMembers[]
-
-  @@index([name], name: "discipline_name_idx")
+  projects       Projects[]
+// also here the map for name change
+  @@index([name], map: "discipline_name_idx")
 }
 
 model Labels {
@@ -256,9 +252,9 @@ model Comments {
   createdAt DateTime   @default(now())
   updatedAt DateTime   @default(now())
   parentId  String?
-  project   Projects   @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   author    Profiles   @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   parent    Comments?  @relation("ParentComment", fields: [parentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  project   Projects   @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   children  Comments[] @relation("ParentComment")
 }
 
@@ -271,9 +267,9 @@ model ProjectStages {
   position        Int
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @default(now())
-  project         Projects?         @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  projectTasks    ProjectTasks[]
+  project         Projects          @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   contributorPath ContributorPath[]
+  projectTasks    ProjectTasks[]
 }
 
 model ProjectTasks {
@@ -283,7 +279,7 @@ model ProjectTasks {
   projectStageId  String
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @default(now())
-  projectStage    ProjectStages?    @relation(fields: [projectStageId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  projectStage    ProjectStages     @relation(fields: [projectStageId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   contributorPath ContributorPath[]
 }
 
@@ -295,8 +291,8 @@ model ContributorPath {
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @default(now())
   projectMember   ProjectMembers @relation(fields: [projectMemberId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  projectTask     ProjectTasks   @relation(fields: [projectTaskId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   projectStage    ProjectStages  @relation(fields: [projectStageId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  projectTask     ProjectTasks   @relation(fields: [projectTaskId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Repos {
@@ -304,16 +300,16 @@ model Repos {
   url       String
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
-  projects  Projects @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   projectId String
+  projects  Projects @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model RelatedProjects {
   id         Int      @id @default(autoincrement())
-  projectA   Projects @relation(name: "RelatedProjectsA", fields: [projectAId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  projectB   Projects @relation(name: "RelatedProjectsB", fields: [projectBId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   projectAId String
   projectBId String
+  projectA   Projects @relation("RelatedProjectsA", fields: [projectAId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  projectB   Projects @relation("RelatedProjectsB", fields: [projectBId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@unique([projectAId, projectBId])
 }
