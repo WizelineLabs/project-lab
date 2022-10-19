@@ -1,4 +1,4 @@
-import { createTheme } from "@mui/material/styles"
+import { createTheme } from "@mui/material/styles";
 const themeWize = createTheme({
   palette: {
     primary: {
@@ -8,16 +8,16 @@ const themeWize = createTheme({
     secondaryB: { main: "#00A7E5" },
     secondaryC: { main: "#E5C8A6" },
   },
-})
+});
 declare module "@mui/material/styles" {
   interface Palette {
-    secondaryB: Palette["primary"]
-    secondaryC: Palette["primary"]
+    secondaryB: Palette["primary"];
+    secondaryC: Palette["primary"];
   }
 
   interface PaletteOptions {
-    secondaryB?: PaletteOptions["primary"]
-    secondaryC?: PaletteOptions["primary"]
+    secondaryB?: PaletteOptions["primary"];
+    secondaryC?: PaletteOptions["primary"];
   }
 }
-export default themeWize
+export default themeWize;
