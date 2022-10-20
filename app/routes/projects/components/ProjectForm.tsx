@@ -2,7 +2,7 @@ import { FormControlLabel, Switch, Collapse, Box } from "@mui/material";
 import { useState } from "react";
 import { Form, useTransition } from "@remix-run/react";
 import { MultivalueInput } from "~/core/components/MultivalueInput";
-import { redirect } from "@remix-run/node"
+import { redirect } from "@remix-run/node";
 import type { ActionFunction } from "@remix-run/node";
 import DisciplinesSelect from "~/core/components/DisciplineSelect";
 import LabeledTextField from "~/core/components/LabeledTextField";
@@ -40,9 +40,9 @@ export function ProjectForm({ projectformType }: any) {
   ];
 
   const tiers = [{ name: "0" }, { name: "1" }, { name: "2" }, { name: "3" }];
-  
-  const transition = useTransition()
-  const isCreating = Boolean(transition.submission)
+
+  const transition = useTransition();
+  const isCreating = Boolean(transition.submission);
 
   return (
     <Form method="post" action="/projects/create">
@@ -74,16 +74,14 @@ export function ProjectForm({ projectformType }: any) {
       />
 
       <Collapse in={helpWanted}>
-        {/*
         <DisciplinesSelect //this still uses constant values instead of values taken from the db
           name="disciplines"
           label="Looking for..."
-          parentName="helpWanted"
-  /> */}
+        />
       </Collapse>
 
       {projectformType === "create" && (
-        <FormControlLabel 
+        <FormControlLabel
           value="1"
           control={<Switch color="primary" onChange={handleDisplaySwitch} />}
           label="Add more details"
@@ -120,7 +118,7 @@ export function ProjectForm({ projectformType }: any) {
           label="Slack Channel"
           placeholder="#project-name"
         />
-        
+
         {projectformType !== "create" && ( //this still uses constant values instead of values taken from the db
           <InputSelect
             valuesList={statuses}
@@ -156,14 +154,10 @@ export function ProjectForm({ projectformType }: any) {
             name="projectMembers"
             label="Add a contributor"
         />} */}
-        </Collapse> 
+      </Collapse>
       <Box textAlign="center">
-        <button 
-          type="submit" 
-          className="primary"
-          disabled ={isCreating}
-        >
-          {isCreating ? 'Creating...' : 'Create Project'}
+        <button type="submit" className="primary" disabled={isCreating}>
+          {isCreating ? "Creating..." : "Create Project"}
         </button>
       </Box>
     </Form>

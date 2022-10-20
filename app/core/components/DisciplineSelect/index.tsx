@@ -35,6 +35,7 @@ export const DisciplinesSelect = ({
   style,
   parentName,
 }: DisciplinesSelectProps) => {
+  const [value, setValue] = useState(defaultValue);
   return (
     <div {...outerProps}>
       <Autocomplete
@@ -43,11 +44,13 @@ export const DisciplinesSelect = ({
         style={style ? style : { margin: "1em 0" }}
         options={disciplines}
         filterSelectedOptions
+        onChange={(_event, newValue) => {
+          setValue(newValue);
+        }}
         renderInput={(params) => (
           <TextField
             {...params}
             id={name}
-            name={name}
             label={label}
             InputProps={{
               ...params.InputProps,
@@ -65,6 +68,7 @@ export const DisciplinesSelect = ({
           />
         )}
       />
+      <input type="hidden" name={name} value={value} />
     </div>
   );
 };
