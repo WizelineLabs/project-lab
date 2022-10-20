@@ -154,6 +154,7 @@ const GridEditToolbar = (props: gridEditToolbarProps) => {
         color="primary"
         startIcon={<AddIcon />}
         onClick={() => handleAddClick()}
+        data-testid="testStatusCreate"
       >
         {createButtonText}
       </Button>
@@ -406,6 +407,7 @@ export default function ProjectStatusDataGrid() {
                 size="small"
                 onClick={() => handleSaveClick(idRef)}
                 style={{ marginLeft: 16 }}
+                data-testid="testStatusSave"
               >
                 <SaveIcon color="inherit" />
               </Button>
@@ -429,6 +431,7 @@ export default function ProjectStatusDataGrid() {
               size="small"
               onClick={() => handleDeleteClick(idRef)}
               style={{ marginLeft: 16 }}
+              data-testid="testStatusDelete"
             >
               <EastIcon color="inherit" />
             </Button>
@@ -512,6 +515,7 @@ export default function ProjectStatusDataGrid() {
               <Button
                 className="primary warning"
                 disabled={false}
+                data-testid="deleteStatusModal"
                 {...(isMergeAction
                   ? {
                       type: "submit",
