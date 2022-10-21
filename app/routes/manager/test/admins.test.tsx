@@ -2,12 +2,12 @@
 import { describe, test, vi } from "vitest"
 import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import Statuses from "../statuses"
-import { loader } from "../statuses"
+import Admins from "../admins"
+import { loader } from "../admins"
 import type { DataGridProps } from "@mui/x-data-grid"
 import "@testing-library/jest-dom"
 
-describe("Statuses test", () => {
+describe("Admins test", () => {
   // mocking remix module to handle Loaders
   vi.mock("@remix-run/react", async () => {
     let remix: any = await vi.importActual("@remix-run/react")
@@ -16,13 +16,13 @@ describe("Statuses test", () => {
       // get useFetcher to return an idle state initially and an empty submit
       useFetcher: vi.fn().mockReturnValue({ state: "idle", submit: () => {} }),
       useLoaderData: vi.fn().mockReturnValue({
-        statuses: [
+        admins: [
           {
             id: "12345",
-            name: "Test Status",
+            name: "Test Admin",
+            email: "testadmin@test.com"
           },
         ],
-        projects: [],
       }),
     }
   })
@@ -43,35 +43,35 @@ describe("Statuses test", () => {
   })
 
   test("Path loader", async () => {
-    let request = new Request("http://localhost:3000/manager/filter-tags/statuses")
+    let request = new Request("http://localhost:3000/manager/admins")
 
     const response = await loader({ request, params: {}, context: {} })
 
     expect(response).toBeInstanceOf(Response)
   })
 
-  test("Statuses from loader rendered", () => {
-    render(<Statuses />)
-    expect(screen.getByText(/Test Status/i)).toBeDefined()
+  test("Admins renders Admins from loader", () => {
+    render(<Admins />)
+    expect(screen.getByText(/Test Admin/i)).toBeDefined()
   })
 
   test("Delete button opens the delete modal", async () => {
     const deleteButton = userEvent.setup()
-    render(<Statuses />)
-    expect(await screen.findByTestId("testStatusDelete")).toBeInTheDocument()
-    await deleteButton.click(screen.getByTestId("testStatusDelete"))
+    render(<Admins />)
+    expect(await screen.findByTestId("testAdminDelete")).toBeInTheDocument()
+    await deleteButton.click(screen.getByTestId("testAdminDelete"))
     await waitFor(() => {
-      expect(screen.getByTestId("deleteStatusModal")).toBeInTheDocument()
+      expect(screen.getByTestId("deleteAdminModal")).toBeInTheDocument()
     })
   })
 
   test("Create button adds a new row in the table", async () => {
     const saveButton = userEvent.setup()
-    render(<Statuses />)
-    expect(await screen.findByTestId("testStatusCreate")).toBeInTheDocument()
-    await saveButton.click(screen.getByTestId("testStatusCreate"))
+    render(<Admins />)
+    expect(await screen.findByTestId("testAdminCreate")).toBeInTheDocument()
+    await saveButton.click(screen.getByTestId("testAdminCreate"))
     await waitFor(() => {
-      expect(screen.getByTestId("testStatusSave")).toBeInTheDocument()
+      expect(screen.getByTestId("testAdminSave")).toBeInTheDocument()
     })
   })
 })
