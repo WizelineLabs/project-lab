@@ -8,12 +8,16 @@ interface LabelsSelectProps {
   label: string;
   helperText?: string;
   outerProps?: PropsWithoutRef<JSX.IntrinsicElements["div"]>;
+  handleChange: React.Dispatch<React.SetStateAction<any>>;
+  values: string[];
 }
 
 export const LabelsSelect = ({
   name,
   label,
   helperText,
+  handleChange,
+  values,
   outerProps,
 }: LabelsSelectProps) => {
   const labels = ["React", "Node", "Python", "Java", "C++", "C#"];
@@ -24,24 +28,13 @@ export const LabelsSelect = ({
         fullWidth
         style={{ margin: "1em 0" }}
         options={labels}
+        value={values}
+        onChange={(_e, newValue) => {
+          handleChange((prev: any) => ({ ...prev, [name]: newValue }));
+        }}
         filterSelectedOptions
         renderInput={(params) => (
-          <TextField
-            {...params}
-            id={name}
-            label={label}
-            InputProps={{
-              ...params.InputProps,
-              endAdornment: (
-                <Fragment>
-                  {/* {isLoading ? (
-                    <CircularProgress color="inherit" size={20} />
-                  ) : null} */}
-                  {params.InputProps.endAdornment}
-                </Fragment>
-              ),
-            }}
-          />
+          <TextField {...params} id={name} label={label} />
         )}
       />
     </div>

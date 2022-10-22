@@ -12,6 +12,8 @@ interface DisciplinesSelectProps {
   helperText?: string;
   outerProps?: PropsWithoutRef<JSX.IntrinsicElements["div"]>;
   size?: "small" | "medium" | undefined;
+  handleChange: React.Dispatch<React.SetStateAction<any>>;
+  values: string[];
   style?: object;
   parentName?: string;
 }
@@ -33,33 +35,26 @@ export const DisciplinesSelect = ({
   outerProps,
   size,
   style,
-  parentName,
+  handleChange,
+  values,
 }: DisciplinesSelectProps) => {
   return (
     <div {...outerProps}>
       <Autocomplete
-        multiple={true}
+        multiple
         fullWidth={fullWidth ? fullWidth : false}
         style={style ? style : { margin: "1em 0" }}
+        value={values}
+        onChange={(_e, newValue) => {
+          handleChange((prev: any) => ({ ...prev, [name]: newValue }));
+        }}
         options={disciplines}
         filterSelectedOptions
         renderInput={(params) => (
           <TextField
             {...params}
             id={name}
-            name={name}
             label={label}
-            InputProps={{
-              ...params.InputProps,
-              endAdornment: (
-                <Fragment>
-                  {/* {isLoading ? (
-                    <CircularProgress color="inherit" size={20} />
-                  ) : null} */}
-                  {params.InputProps.endAdornment}
-                </Fragment>
-              ),
-            }}
             size={size}
             style={{ width: "100%", ...style }}
           />

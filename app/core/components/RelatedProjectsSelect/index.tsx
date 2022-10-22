@@ -14,6 +14,8 @@ interface RelatedProjectsSelectProps {
   size?: "small" | "medium" | undefined;
   style?: object;
   thisProject?: any;
+  handleChange: React.Dispatch<React.SetStateAction<any>>;
+  values: string[];
 }
 
 export const RelatedProjectsSelect = ({
@@ -26,6 +28,8 @@ export const RelatedProjectsSelect = ({
   outerProps,
   size,
   style,
+  handleChange,
+  values,
   thisProject,
 }: RelatedProjectsSelectProps) => {
   const projects = ["Project 1", "Project 2", "Project 3", "Project 4"];
@@ -33,27 +37,20 @@ export const RelatedProjectsSelect = ({
     <>
       <div {...outerProps}>
         <Autocomplete
-          multiple={true}
+          multiple
           fullWidth={fullWidth ? fullWidth : false}
           style={style ? style : { margin: "1em 0" }}
           options={projects}
+          value={values}
+          onChange={(_e, newValue) => {
+            handleChange((prev: any) => ({ ...prev, [name]: newValue }));
+          }}
           filterSelectedOptions
           renderInput={(params) => (
             <TextField
               {...params}
               name={name}
               label={label}
-              InputProps={{
-                ...params.InputProps,
-                endAdornment: (
-                  <Fragment>
-                    {/* {isLoading ? (
-                      <CircularProgress color="inherit" size={20} />
-                    ) : null} */}
-                    {params.InputProps.endAdornment}
-                  </Fragment>
-                ),
-              }}
               size={size}
               style={{ width: "100%", ...style }}
             />

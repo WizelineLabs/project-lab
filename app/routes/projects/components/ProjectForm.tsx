@@ -1,9 +1,10 @@
 import { FormControlLabel, Switch, Collapse, Box } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Form, useTransition } from "@remix-run/react";
 import { MultivalueInput } from "~/core/components/MultivalueInput";
-import { redirect } from "@remix-run/node"
+import { redirect } from "@remix-run/node";
 import type { ActionFunction } from "@remix-run/node";
+import { useFetcher, useLoaderData, useCatch } from "@remix-run/react";
 import DisciplinesSelect from "~/core/components/DisciplineSelect";
 import LabeledTextField from "~/core/components/LabeledTextField";
 import LabeledTextFieldArea from "~/core/components/LabeledTextFieldArea";
@@ -16,12 +17,50 @@ import RelatedProjectsSelect from "~/core/components/RelatedProjectsSelect";
 import ProjectMembersField from "~/core/components/ProjectMembersField";
 
 export function ProjectForm({ projectformType }: any) {
+  const fetcher = useFetcher();
+
   const [displayFields, setDisplayFields] = useState(
     projectformType === "create" ? false : true
   );
   const [helpWanted, setHelpWanted] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState({ name: "" });
   const [selectedTiers, setSelectedTiers] = useState({ name: "" });
+
+  type projectFormType = {
+    name: string;
+    description: string;
+    textEditor: string;
+    valueStatement: string;
+    disciplines: string[];
+    owner: string;
+    target: string;
+    repoUrls: string[];
+    slackChannel: string;
+    projectStatus: string;
+    skills: string[];
+    labels: string[];
+    relatedProjects: string[];
+    innovationTiers: string[];
+    projectMembers: string[];
+  };
+
+  const [projectFields, setProjectFields] = useState<projectFormType>({
+    name: "",
+    description: "",
+    textEditor: "",
+    valueStatement: "",
+    disciplines: [],
+    owner: "",
+    target: "",
+    repoUrls: [],
+    slackChannel: "",
+    projectStatus: "",
+    skills: [],
+    labels: [],
+    relatedProjects: [],
+    innovationTiers: [],
+    projectMembers: [],
+  });
 
   const handleDisplaySwitch = (e: any) => {
     console.log(`Change value of ${e.target.checked.toString()}`);
@@ -33,6 +72,27 @@ export function ProjectForm({ projectformType }: any) {
     setHelpWanted(!helpWanted);
   };
 
+  const handleSubmit = async () => {
+    const body = {
+      name: projectFields.name,
+      description: projectFields.description,
+      textEditor: projectFields.textEditor,
+      valueStatement: projectFields.valueStatement,
+      disciplines: projectFields.disciplines,
+      owner: projectFields.owner,
+      target: projectFields.target,
+      repoUrls: projectFields.repoUrls,
+      slackChannel: projectFields.slackChannel,
+      projectStatus: projectFields.projectStatus,
+      skills: projectFields.skills,
+      labels: projectFields.labels,
+      relatedProjects: projectFields.relatedProjects,
+      innovationTiers: projectFields.innovationTiers,
+      projectMembers: projectFields.projectMembers,
+    };
+    fetcher.submit(body, { method: "post", action: "/projects/create" });
+  };
+
   const statuses = [
     { name: "Active" },
     { name: "Inactive" },
@@ -40,18 +100,19 @@ export function ProjectForm({ projectformType }: any) {
   ];
 
   const tiers = [{ name: "0" }, { name: "1" }, { name: "2" }, { name: "3" }];
-  
-  const transition = useTransition()
-  const isCreating = Boolean(transition.submission)
+
+  const transition = useTransition();
+  const isCreating = Boolean(transition.submission);
 
   return (
-    <Form method="post" action="/projects/create">
+    <form onSubmit={async () => await handleSubmit()}>
       <LabeledTextField
         style={{ minHeight: "4em" }}
         fullWidth
         name="name"
         label="Name"
         placeholder="Name"
+        handleChange={setProjectFields}
       />
       <LabeledTextFieldArea
         style={{ minHeight: "4em" }}
@@ -59,11 +120,13 @@ export function ProjectForm({ projectformType }: any) {
         name="description"
         label="Problem Statement"
         placeholder="Problem statement"
+        handleChange={setProjectFields}
       />
 
       <TextEditor
         name="textEditor"
         defaultValue={"Explain us your proposal..."}
+        handleChange={setProjectFields}
       />
 
       <FormControlLabel
@@ -77,7 +140,8 @@ export function ProjectForm({ projectformType }: any) {
         <DisciplinesSelect //this still uses constant values instead of values taken from the db
           name="disciplines"
           label="Looking for..."
-          parentName="helpWanted"
+          handleChange={setProjectFields}
+          values={projectFields.disciplines}
         />
       </Collapse>
 
@@ -104,12 +168,15 @@ export function ProjectForm({ projectformType }: any) {
           name="target"
           label="Who is your target user/client"
           placeholder="Millenials"
+          handleChange={setProjectFields}
         />
 
         <MultivalueInput
           name="repoUrls"
           label="Repo URLs"
           footer="Type the Repo URL and press Enter to add it to your project. You can add as many URLs as you need."
+          handleChange={setProjectFields}
+          values={projectFields.repoUrls}
         />
 
         <LabeledTextField
@@ -118,8 +185,9 @@ export function ProjectForm({ projectformType }: any) {
           name="slackChannel"
           label="Slack Channel"
           placeholder="#project-name"
+          handleChange={setProjectFields}
         />
-        
+
         {projectformType !== "create" && ( //this still uses constant values instead of values taken from the db
           <InputSelect
             valuesList={statuses}
@@ -132,14 +200,26 @@ export function ProjectForm({ projectformType }: any) {
           />
         )}
         <SkillsSelect //this still uses constant values instead of values taken from the db
-        name="skills" label="Skills" />
+          name="skills"
+          label="Skills"
+          handleChange={setProjectFields}
+          values={projectFields.skills}
+        />
+
         <LabelsSelect //this still uses constant values instead of values taken from the db
-         name="labels" label="Labels" />
+          name="labels"
+          label="Labels"
+          handleChange={setProjectFields}
+          values={projectFields.labels}
+        />
+
         <RelatedProjectsSelect //this still uses constant values instead of values taken from the db
           thisProject=""
           name="relatedProjects"
           label="Related Projects"
-        /> 
+          handleChange={setProjectFields}
+          values={projectFields.relatedProjects}
+        />
         {projectformType !== "create" && (
           <InputSelect
             valuesList={tiers}
@@ -150,20 +230,18 @@ export function ProjectForm({ projectformType }: any) {
             handleChange={setSelectedTiers}
           />
         )}
-        {<ProjectMembersField // this isn't finished
+        {
+          <ProjectMembersField // this isn't finished
             name="projectMembers"
             label="Add a contributor"
-        />}
+          />
+        }
       </Collapse>
       <Box textAlign="center">
-        <button 
-          type="submit" 
-          className="primary"
-          disabled ={isCreating}
-        >
-          {isCreating ? 'Creating...' : 'Create Post'}
+        <button type="submit" className="primary" disabled={isCreating}>
+          {isCreating ? "Creating..." : "Create Post"}
         </button>
       </Box>
-    </Form>
+    </form>
   );
 }

@@ -12,14 +12,18 @@ interface ProfilesSelectProps {
   label: string;
   footer: string;
   helperText?: string;
+  handleChange: React.Dispatch<React.SetStateAction<any>>;
+  values: string[];
 }
 
 export const MultivalueInput = ({
   name,
   label,
   footer,
+  handleChange,
+  values,
 }: ProfilesSelectProps) => {
-  const [inputValue, setInputValue] = useState<string>("");
+  const [inputValue, setInputValue] = useState("");
   return (
     <>
       <MultivalueFieldSpan>* {footer}</MultivalueFieldSpan>
@@ -30,6 +34,17 @@ export const MultivalueInput = ({
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
         fullWidth
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            handleChange((prev: any) => ({
+              ...prev,
+              [name]: [...values, inputValue],
+            }));
+            setInputValue("");
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }}
       />
       <Grid
         container
@@ -37,7 +52,20 @@ export const MultivalueInput = ({
         spacing={1}
         rowSpacing={{ xs: 2, sm: 1 }}
         style={{ paddingTop: 20 }}
-      ></Grid>
+      >
+        {values.map((value, i) => (
+          <Chip
+            key={i}
+            label={value}
+            onDelete={() => {
+              handleChange((prev: any) => ({
+                ...prev,
+                [name]: values.filter((v) => v !== value),
+              }));
+            }}
+          />
+        ))}
+      </Grid>
     </>
   );
 };

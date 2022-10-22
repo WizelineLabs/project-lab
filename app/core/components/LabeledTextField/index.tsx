@@ -9,6 +9,7 @@ interface LabeledTextFieldProps {
   helperText?: string;
   placeholder?: string;
   fullWidth?: boolean;
+  handleChange: React.Dispatch<React.SetStateAction<any>>;
   style?: any;
   multiline?: boolean;
   rows?: number;
@@ -19,13 +20,24 @@ export const LabeledTextField = ({
   name,
   label,
   type,
+  handleChange,
   helperText,
   outerProps,
   ...props
 }: LabeledTextFieldProps) => {
   return (
     <div {...outerProps}>
-      <TextField id={name} name={name} label={label} type={type} {...props} />
+      <TextField
+        id={name}
+        name={name}
+        onChange={(e) =>
+          handleChange((prev: any) => ({ ...prev, [name]: e.target.value }))
+        }
+        label={label}
+        type={type}
+        helperText={helperText}
+        {...props}
+      />
     </div>
   );
 };

@@ -11,9 +11,13 @@ interface SkillsSelectProps {
   label: string;
   helperText?: string;
   outerProps?: PropsWithoutRef<JSX.IntrinsicElements["div"]>;
+  handleChange: React.Dispatch<React.SetStateAction<any>>;
+  values: string[];
   size?: "small" | "medium" | undefined;
   style?: object;
 }
+
+const skills = ["React", "Node", "Python", "Java", "C++", "C#"];
 
 export const SkillsSelect = ({
   customOnChange,
@@ -21,18 +25,23 @@ export const SkillsSelect = ({
   fullWidth,
   name,
   label,
+  handleChange,
+  values,
   helperText,
   outerProps,
   size,
   style,
 }: SkillsSelectProps) => {
-  const skills = ["React", "Node", "Python", "Java", "C++", "C#"];
   return (
     <div {...outerProps}>
       <Autocomplete
-        multiple={true}
+        multiple
         fullWidth={fullWidth ? fullWidth : false}
         style={style ? style : { margin: "1em 0" }}
+        value={values}
+        onChange={(_e, newValue) => {
+          handleChange((prev: any) => ({ ...prev, [name]: newValue }));
+        }}
         options={skills}
         filterSelectedOptions
         renderInput={(params) => (
@@ -40,17 +49,6 @@ export const SkillsSelect = ({
             {...params}
             id={name}
             label={label}
-            InputProps={{
-              ...params.InputProps,
-              endAdornment: (
-                <Fragment>
-                  {/* {isLoading ? (
-                    <CircularProgress color="inherit" size={20} />
-                  ) : null} */}
-                  {params.InputProps.endAdornment}
-                </Fragment>
-              ),
-            }}
             size={size}
             style={{ width: "100%", ...style }}
           />

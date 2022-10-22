@@ -9,6 +9,7 @@ interface LabeledTextFieldAreaProps {
   helperText?: string;
   placeholder?: string;
   fullWidth?: boolean;
+  handleChange: React.Dispatch<React.SetStateAction<any>>;
   style?: any;
   outerProps?: PropsWithoutRef<JSX.IntrinsicElements["div"]>;
 }
@@ -18,6 +19,7 @@ export const LabeledTextFieldArea = ({
   label,
   type,
   helperText,
+  handleChange,
   outerProps,
   ...props
 }: LabeledTextFieldAreaProps) => {
@@ -26,6 +28,9 @@ export const LabeledTextFieldArea = ({
       <TextField
         id={name}
         name={name}
+        onChange={(e) =>
+          handleChange((prev: any) => ({ ...prev, [name]: e.target.value }))
+        }
         rows={6}
         label={label}
         type={type}

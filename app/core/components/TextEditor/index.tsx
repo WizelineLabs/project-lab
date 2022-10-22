@@ -4,9 +4,14 @@ import { useQuill } from "react-quilljs";
 type TextEditorProps = {
   name: string;
   defaultValue?: string;
+  handleChange: React.Dispatch<React.SetStateAction<any>>;
 };
 
-export default function TextEditor({ defaultValue, name }: TextEditorProps) {
+export default function TextEditor({
+  defaultValue,
+  name,
+  handleChange,
+}: TextEditorProps) {
   const modules = {
     toolbar: [
       [{ header: [1, 2, 3, 4, 5, 6, false] }],
@@ -38,11 +43,10 @@ export default function TextEditor({ defaultValue, name }: TextEditorProps) {
   useEffect(() => {
     if (quill) {
       quill.on("text-change", (_delta: any, _oldDelta: any, _source: any) => {
-        console.log("Text change!");
-        console.log(quill.getText()); // Get text only
-        console.log(quill.getContents()); // Get delta contents
-        console.log(quill.root.innerHTML); // Get innerHTML using quill
-        console.log(quillRef.current.firstChild.innerHTML); // Get innerHTML using quillRef
+        handleChange((prev: any) => ({
+          ...prev,
+          [name]: quill.root.innerHTML,
+        }));
       });
     }
   }, [quill]);
