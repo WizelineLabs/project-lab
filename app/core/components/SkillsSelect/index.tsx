@@ -1,8 +1,7 @@
 import type { PropsWithoutRef } from "react";
 import { Fragment, useState } from "react";
-
 import { CircularProgress, TextField, Autocomplete } from "@mui/material";
-
+/*
 interface SkillsSelectProps {
   defaultValue?: any[];
   customOnChange?: (arg: any) => void;
@@ -44,10 +43,10 @@ export const SkillsSelect = ({
               ...params.InputProps,
               endAdornment: (
                 <Fragment>
-                  {/* {isLoading ? (
-                    <CircularProgress color="inherit" size={20} />
-                  ) : null} */}
-                  {params.InputProps.endAdornment}
+//                  { {isLoading ? (
+//                    <CircularProgress color="inherit" size={20} />
+//                  ) : null} }
+//                  {params.InputProps.endAdornment}
                 </Fragment>
               ),
             }}
@@ -60,4 +59,4 @@ export const SkillsSelect = ({
   );
 };
 
-export default SkillsSelect;
+export default SkillsSelect;*/

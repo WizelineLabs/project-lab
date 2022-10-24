@@ -17,6 +17,7 @@ interface DisciplinesSelectProps {
 }
 
 const disciplines = [
+  // this is harcoded for now, in another PR will be done Fetching from the db
   "Android Engineer",
   "Automatation QA",
   "Backend",

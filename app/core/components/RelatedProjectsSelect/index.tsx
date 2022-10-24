@@ -1,8 +1,7 @@
 import type { PropsWithoutRef } from "react";
 import { Fragment, useState } from "react";
-
 import { CircularProgress, TextField, Autocomplete } from "@mui/material";
-
+/*
 interface RelatedProjectsSelectProps {
   defaultValue?: any[];
   customOnChange?: (arg: any) => void;
@@ -47,10 +46,10 @@ export const RelatedProjectsSelect = ({
                 ...params.InputProps,
                 endAdornment: (
                   <Fragment>
-                    {/* {isLoading ? (
-                      <CircularProgress color="inherit" size={20} />
-                    ) : null} */}
-                    {params.InputProps.endAdornment}
+//                    { {isLoading ? (
+//                      <CircularProgress color="inherit" size={20} />
+//                    ) : null} }
+//                    {params.InputProps.endAdornment}
                   </Fragment>
                 ),
               }}
@@ -62,6 +61,6 @@ export const RelatedProjectsSelect = ({
       </div>
     </>
   );
-};
+}; 
 
-export default RelatedProjectsSelect;
+export default RelatedProjectsSelect; */

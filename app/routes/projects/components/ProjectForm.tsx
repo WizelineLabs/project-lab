@@ -9,11 +9,11 @@ import LabeledTextField from "~/core/components/LabeledTextField";
 import LabeledTextFieldArea from "~/core/components/LabeledTextFieldArea";
 import TextEditor from "~/core/components/TextEditor";
 import InputSelect from "~/core/components/InputSelect";
-import SkillsSelect from "~/core/components/SkillsSelect";
-import LabelsSelect from "~/core/components/LabelsSelect";
-import ProjectOwnerField from "~/core/components/ProjectOwnerField";
-import RelatedProjectsSelect from "~/core/components/RelatedProjectsSelect";
-import ProjectMembersField from "~/core/components/ProjectMembersField";
+//import SkillsSelect from "~/core/components/SkillsSelect";
+//import LabelsSelect from "~/core/components/LabelsSelect";
+//import ProjectOwnerField from "~/core/components/ProjectOwnerField";
+//import RelatedProjectsSelect from "~/core/components/RelatedProjectsSelect";
+//import ProjectMembersField from "~/core/components/ProjectMembersField";
 
 export function ProjectForm({ projectformType }: any) {
   const [displayFields, setDisplayFields] = useState(
@@ -34,6 +34,7 @@ export function ProjectForm({ projectformType }: any) {
   };
 
   const statuses = [
+    // this is harcoded for now, in another PR will be done Fetching from the db
     { name: "Active" },
     { name: "Inactive" },
     { name: "Completed" },
@@ -88,13 +89,13 @@ export function ProjectForm({ projectformType }: any) {
           labelPlacement="end"
         />
       )}
-      {projectformType !== "create" && (
+      {/*projectformType !== "create" && (
         <ProjectOwnerField
           name="owner"
           label="Owner"
           owner={{ name: "John Doe" }}
         />
-      )}
+      )*/}
 
       <Collapse in={displayFields}>
         <LabeledTextField
