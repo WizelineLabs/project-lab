@@ -69,7 +69,7 @@ export function getProjectTeamMember(profileId: string, project: ProjectComplete
 export async function getProject({
   id
 }: Pick<Projects, "id">) {
-  return await db.projects.findFirst({
+  const projectQueried = await db.projects.findFirst({
     where: { id },
     include: {
       skills: true,
@@ -95,8 +95,35 @@ export async function getProject({
       votes: { where: { projectId: id } },
       innovationTiers: true,
       repoUrls: true,
+      relatedProjectsA: {
+        include: {
+          projectA: { select: { id: true, name: true } },
+          projectB: { select: { id: true, name: true } },
+        },
+      },
+      relatedProjectsB: {
+        include: {
+          projectA: { select: { id: true, name: true } },
+          projectB: { select: { id: true, name: true } },
+        },
+      },
     },
   })
+
+    // Parse related Projects
+    const relatedProA = projectQueried?.relatedProjectsA.map((e) => {
+      return e.projectA.id === id ? { ...e.projectB } : { ...e.projectA }
+    })
+    const relatedProB = projectQueried?.relatedProjectsB.map((e) => {
+      return e.projectA.id === id ? { ...e.projectB } : { ...e.projectA }
+    })
+    const relatedProjects = { relatedProA, relatedProB }
+
+    const project = {
+      ...projectQueried,
+      relatedProjects: [...relatedProA, ...relatedProB],
+    }
+    return project
 }
 
 export type ProjectComplete = Prisma.PromiseReturnType<typeof getProject>

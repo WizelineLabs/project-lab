@@ -129,10 +129,10 @@ export default function Projects() {
   const myPropQuery =  "myProposals"
   const activeProjectsSearchParams =  new URLSearchParams();
   const ideasSearchParams =  new URLSearchParams();
-  ongoingStatuses.forEach((status) =>{
+  ongoingStatuses?.forEach((status) =>{
     activeProjectsSearchParams.append("status", status.name);
   });
-  ideaStatuses.forEach((status) =>{
+  ideaStatuses?.forEach((status) =>{
     ideasSearchParams.append("status", status.name);
   });
   const activeProjectsTab: Tab = {

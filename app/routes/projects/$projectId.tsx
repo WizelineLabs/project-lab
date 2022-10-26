@@ -165,7 +165,7 @@ export default function ProjectDetailsPage() {
           <div className="headerInfo--action">
             <div className="headerInfo--edit">
               {(isTeamMember || isAdmin) && (
-                <Link to={`/projects/${project.id}/edit`}>
+                <Link to={`/projects/edit/${project.id}`}>
                   <EditButton>
                     <EditSharp />
                   </EditButton>
