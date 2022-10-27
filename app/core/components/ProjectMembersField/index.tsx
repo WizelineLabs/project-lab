@@ -27,12 +27,18 @@ export const ProjectMembersField = ({
   values,
 }: ProfilesSelectProps) => {
   const profiles: readonly any[] = ["diego", "jorge", "jose"];
-  console.log(values.roles);
   return (
     <React.Fragment>
       <Autocomplete
         multiple
         options={profiles}
+        value={values.contributors}
+        onChange={(event, newValue) => {
+          handleChange((prev: any) => ({
+            ...prev,
+            [name]: { ...prev.projectMembers, contributors: [newValue] },
+          }));
+        }}
         renderInput={(params) => <TextField {...params} label={label} />}
       />
       <Grid
@@ -54,7 +60,7 @@ export const ProjectMembersField = ({
               onChange={(event, newValue) => {
                 handleChange((prev: any) => ({
                   ...prev,
-                  name: { roles: { newValue } },
+                  [name]: { ...prev.projectMembers, roles: [newValue] },
                 }));
               }}
               options={["hi", "dwedwe"]}
@@ -77,9 +83,12 @@ export const ProjectMembersField = ({
               style={{ margin: "1em 0" }}
               value={values.skills}
               onChange={(event, newValue) => {
-                handleChange((prev: any) => ({ ...prev, name: newValue }));
+                handleChange((prev: any) => ({
+                  ...prev,
+                  [name]: { ...prev.projectMembers, skills: [newValue] },
+                }));
               }}
-              options={[]}
+              options={["deded", "dwdw"]}
               filterSelectedOptions
               renderInput={(params) => (
                 <TextField
@@ -99,6 +108,12 @@ export const ProjectMembersField = ({
               name="hours"
               size="small"
               type="number"
+              onChange={(e) =>
+                handleChange((prev: any) => ({
+                  ...prev,
+                  [name]: { ...prev.projectMembers, hours: e.target.value },
+                }))
+              }
               sx={{
                 "& .MuiFormHelperText-root": {
                   marginLeft: 0,
@@ -111,7 +126,21 @@ export const ProjectMembersField = ({
           <Grid item xs={6} sm={1} style={{ textAlign: "center" }}>
             <FormControlLabel
               label="Active"
-              control={<Checkbox size="small" />}
+              control={
+                <Checkbox
+                  size="small"
+                  checked={values.active}
+                  onChange={(e) =>
+                    handleChange((prev: any) => ({
+                      ...prev,
+                      [name]: {
+                        ...prev.projectMembers,
+                        active: e.target.checked,
+                      },
+                    }))
+                  }
+                />
+              }
             />
           </Grid>
           <hr className="rows__separator" />

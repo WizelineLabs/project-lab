@@ -49,6 +49,7 @@ export const MultivalueInput = ({
       <Grid
         container
         xs={12}
+        item
         spacing={1}
         rowSpacing={{ xs: 2, sm: 1 }}
         style={{ paddingTop: 20 }}

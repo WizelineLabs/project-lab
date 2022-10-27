@@ -97,8 +97,8 @@ export function ProjectForm({ projectformType }: any) {
   console.log(projectFields);
   return (
     <form
-//      method="post"
-//      action="/projects/create"
+      //      method="post"
+      //      action="/projects/create"
       onSubmit={async () => await handleSubmit()}
     >
       <LabeledTextField
@@ -235,10 +235,7 @@ export function ProjectForm({ projectformType }: any) {
         />
       </Collapse>
       <Box textAlign="center">
-        <button
-          type="submit"
-          className="primary"
-          disabled={isCreating}>
+        <button type="submit" className="primary" disabled={isCreating}>
           {isCreating ? "Creating..." : "Create Post"}
         </button>
       </Box>
