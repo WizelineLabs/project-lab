@@ -12,7 +12,6 @@ import FilterAltIcon from "@mui/icons-material/FilterAlt"
 import CloseIcon from "@mui/icons-material/Close"
 import { SortInput } from "app/core/components/SortInput"
 import Wrapper from "./projects.styles"
-
 import { searchProjects } from "~/models/project.server";
 import { requireProfile } from "~/session.server";
 import type { ProjectStatus

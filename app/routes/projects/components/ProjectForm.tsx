@@ -2,8 +2,6 @@ import { FormControlLabel, Switch, Collapse, Box } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Form, useTransition } from "@remix-run/react";
 import { MultivalueInput } from "~/core/components/MultivalueInput";
-import { redirect } from "@remix-run/node";
-import type { ActionFunction } from "@remix-run/node";
 import { useFetcher, useLoaderData, useCatch } from "@remix-run/react";
 import DisciplinesSelect from "~/core/components/DisciplineSelect";
 import LabeledTextField from "~/core/components/LabeledTextField";
@@ -105,7 +103,11 @@ export function ProjectForm({ projectformType }: any) {
   const isCreating = Boolean(transition.submission);
 
   return (
-    <form onSubmit={async () => await handleSubmit()}>
+    <form
+//      method="post"
+//      action="/projects/create"
+      onSubmit={async () => await handleSubmit()}
+    >
       <LabeledTextField
         style={{ minHeight: "4em" }}
         fullWidth
@@ -238,7 +240,10 @@ export function ProjectForm({ projectformType }: any) {
         }
       </Collapse>
       <Box textAlign="center">
-        <button type="submit" className="primary" disabled={isCreating}>
+        <button
+          type="submit"
+          className="primary"
+          disabled={isCreating}>
           {isCreating ? "Creating..." : "Create Post"}
         </button>
       </Box>
