@@ -36,7 +36,7 @@ export const ProjectMembersField = ({
         onChange={(event, newValue) => {
           handleChange((prev: any) => ({
             ...prev,
-            [name]: { ...prev.projectMembers, contributors: [newValue] },
+            [name]: { ...prev.projectMembers, contributors: newValue },
           }));
         }}
         renderInput={(params) => <TextField {...params} label={label} />}
@@ -60,10 +60,10 @@ export const ProjectMembersField = ({
               onChange={(event, newValue) => {
                 handleChange((prev: any) => ({
                   ...prev,
-                  [name]: { ...prev.projectMembers, roles: [newValue] },
+                  [name]: { ...prev.projectMembers, roles: newValue },
                 }));
               }}
-              options={["hi", "dwedwe"]}
+              options={profiles}
               filterSelectedOptions
               renderInput={(params) => (
                 <TextField
@@ -85,7 +85,7 @@ export const ProjectMembersField = ({
               onChange={(event, newValue) => {
                 handleChange((prev: any) => ({
                   ...prev,
-                  [name]: { ...prev.projectMembers, skills: [newValue] },
+                  [name]: { ...prev.projectMembers, skills: newValue },
                 }));
               }}
               options={["deded", "dwdw"]}

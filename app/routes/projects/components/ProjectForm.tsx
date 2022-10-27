@@ -227,7 +227,7 @@ export function ProjectForm({ projectformType }: any) {
           />
         )}
 
-        <ProjectMembersField // this isn't finished
+        <ProjectMembersField
           name="projectMembers"
           label="Add a contributor"
           handleChange={setProjectFields}
