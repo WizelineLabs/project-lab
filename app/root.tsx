@@ -42,7 +42,7 @@ type LoaderData = {
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
-  return {user: await getUser(request)};
+  return { user: await getUser(request) };
 };
 
 interface IDocumentProps {

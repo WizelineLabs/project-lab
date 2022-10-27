@@ -6,6 +6,7 @@ interface ProfilesSelectProps {
   label: string;
   owner: object;
   helperText?: string;
+  handleChange: React.Dispatch<React.SetStateAction<any>>;
 }
 
 export const ProjectOwnerField = ({
@@ -13,6 +14,7 @@ export const ProjectOwnerField = ({
   label,
   owner,
   helperText,
+  handleChange,
 }: ProfilesSelectProps) => {
   const profiles: readonly any[] = ["diego", "jorge", "jose"];
 
@@ -20,7 +22,15 @@ export const ProjectOwnerField = ({
     <Autocomplete
       options={profiles}
       renderInput={(params) => (
-        <TextField {...params} id={name} name={name} label={label} />
+        <TextField
+          {...params}
+          id={name}
+          name={name}
+          label={label}
+          onChange={(e) =>
+            handleChange((prev: any) => ({ ...prev, [name]: e.target.value }))
+          }
+        />
       )}
     />
   );

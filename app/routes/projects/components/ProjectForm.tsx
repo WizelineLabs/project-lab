@@ -30,7 +30,7 @@ export function ProjectForm({ projectformType }: any) {
     textEditor: string;
     valueStatement: string;
     disciplines: string[];
-    owner: string;
+    owner?: string;
     target: string;
     repoUrls: string[];
     slackChannel: string;
@@ -39,7 +39,7 @@ export function ProjectForm({ projectformType }: any) {
     labels: string[];
     relatedProjects: string[];
     innovationTiers: string[];
-    projectMembers: string[];
+    projectMembers: object;
   };
 
   const [projectFields, setProjectFields] = useState<projectFormType>({
@@ -57,7 +57,14 @@ export function ProjectForm({ projectformType }: any) {
     labels: [],
     relatedProjects: [],
     innovationTiers: [],
-    projectMembers: [],
+    projectMembers: {
+      contributors: [],
+      owner: "Diego Mojarro",
+      roles: [],
+      skills: [],
+      hours: 0,
+      active: false,
+    },
   });
 
   const handleDisplaySwitch = (e: any) => {
@@ -71,24 +78,10 @@ export function ProjectForm({ projectformType }: any) {
   };
 
   const handleSubmit = async () => {
-    const body = {
-      name: projectFields.name,
-      description: projectFields.description,
-      textEditor: projectFields.textEditor,
-      valueStatement: projectFields.valueStatement,
-      disciplines: projectFields.disciplines,
-      owner: projectFields.owner,
-      target: projectFields.target,
-      repoUrls: projectFields.repoUrls,
-      slackChannel: projectFields.slackChannel,
-      projectStatus: projectFields.projectStatus,
-      skills: projectFields.skills,
-      labels: projectFields.labels,
-      relatedProjects: projectFields.relatedProjects,
-      innovationTiers: projectFields.innovationTiers,
-      projectMembers: projectFields.projectMembers,
-    };
-    fetcher.submit(body, { method: "post", action: "/projects/create" });
+    fetcher.submit(projectFields, {
+      method: "post",
+      action: "/projects/create",
+    });
   };
 
   const statuses = [
@@ -101,7 +94,7 @@ export function ProjectForm({ projectformType }: any) {
 
   const transition = useTransition();
   const isCreating = Boolean(transition.submission);
-
+  console.log(projectFields);
   return (
     <form
 //      method="post"
@@ -160,6 +153,7 @@ export function ProjectForm({ projectformType }: any) {
           name="owner"
           label="Owner"
           owner={{ name: "John Doe" }}
+          handleChange={setProjectFields}
         />
       )}
 
@@ -232,12 +226,13 @@ export function ProjectForm({ projectformType }: any) {
             handleChange={setSelectedTiers}
           />
         )}
-        {
-          <ProjectMembersField // this isn't finished
-            name="projectMembers"
-            label="Add a contributor"
-          />
-        }
+
+        <ProjectMembersField // this isn't finished
+          name="projectMembers"
+          label="Add a contributor"
+          handleChange={setProjectFields}
+          values={projectFields.projectMembers}
+        />
       </Collapse>
       <Box textAlign="center">
         <button
