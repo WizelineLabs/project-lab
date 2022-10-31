@@ -97,8 +97,8 @@ export function ProjectForm({ projectformType }: any) {
   console.log(projectFields);
   return (
     <Form
-      //      method="post"
-      //      action="/projects/create"
+      method="post"
+      action="/projects/create"
       onSubmit={async () => await handleSubmit()}
     >
       <LabeledTextField

@@ -19,6 +19,15 @@ import quillCss from "quill/dist/quill.snow.css";
 import { getUser } from "./session.server";
 import { LensTwoTone } from "@mui/icons-material";
 
+import { redirect } from "@remix-run/node";
+import type { ActionFunction } from "@remix-run/node";
+
+export const action: ActionFunction = async ({ request }) => {
+  const formData = await request.formData();
+//  console.log(Object.fromEntries(formData));
+  return redirect("/projects");
+};
+
 export const links: LinksFunction = () => {
   return [
     { rel: "stylesheet", href: StylesheetUrl },
