@@ -96,7 +96,7 @@ export function ProjectForm({ projectformType }: any) {
   const isCreating = Boolean(transition.submission);
   console.log(projectFields);
   return (
-    <form
+    <Form
       //      method="post"
       //      action="/projects/create"
       onSubmit={async () => await handleSubmit()}
@@ -236,9 +236,9 @@ export function ProjectForm({ projectformType }: any) {
       </Collapse>
       <Box textAlign="center">
         <button type="submit" className="primary" disabled={isCreating}>
-          {isCreating ? "Creating..." : "Create Post"}
+          {isCreating ? "Creating..." : "Create Project"}
         </button>
       </Box>
-    </form>
+    </Form>
   );
 }
