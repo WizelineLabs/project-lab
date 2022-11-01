@@ -1,18 +1,26 @@
 import { FormControlLabel, Switch, Collapse, Box } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Form, useTransition } from "@remix-run/react";
 import { MultivalueInput } from "~/core/components/MultivalueInput";
-import { useFetcher, useLoaderData, useCatch } from "@remix-run/react";
+import { useFetcher } from "@remix-run/react";
 import DisciplinesSelect from "~/core/components/DisciplineSelect";
 import LabeledTextField from "~/core/components/LabeledTextField";
 import LabeledTextFieldArea from "~/core/components/LabeledTextFieldArea";
 import TextEditor from "~/core/components/TextEditor";
-import InputSelect from "~/core/components/InputSelect";
+// import InputSelect from "~/core/components/InputSelect";
 import SkillsSelect from "~/core/components/SkillsSelect";
 import LabelsSelect from "~/core/components/LabelsSelect";
 import ProjectOwnerField from "~/core/components/ProjectOwnerField";
 import RelatedProjectsSelect from "~/core/components/RelatedProjectsSelect";
 import ProjectMembersField from "~/core/components/ProjectMembersField";
+import { redirect } from "@remix-run/node";
+import type { ActionFunction } from "@remix-run/node";
+import { stringify } from "querystring";
+
+export const action: ActionFunction = async ({ request }) => {
+  const formData = await request.formData();
+  console.log(Object.fromEntries(formData));
+};
 
 export function ProjectForm({ projectformType }: any) {
   const fetcher = useFetcher();
@@ -21,8 +29,6 @@ export function ProjectForm({ projectformType }: any) {
     projectformType === "create" ? false : true
   );
   const [helpWanted, setHelpWanted] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState({ name: "" });
-  const [selectedTiers, setSelectedTiers] = useState({ name: "" });
 
   const [projectFields, setProjectFields] = useState<projectFormType>({
     name: "",
@@ -41,7 +47,7 @@ export function ProjectForm({ projectformType }: any) {
     innovationTiers: [],
     projectMembers: {
       contributors: [],
-      owner: "Diego Mojarro",
+      owner: "",
       roles: [],
       skills: [],
       hours: 0,
@@ -68,10 +74,12 @@ export function ProjectForm({ projectformType }: any) {
   };
 
   const handleSubmit = async () => {
-    fetcher.submit(projectFields, {
-      method: "post",
-      action: "/projects/create",
-    });
+    const body = {
+      values: JSON.stringify(projectFields),
+      action: "POST",
+    };
+
+    await fetcher.submit(body, { method: "post" });
   };
 
   const transition = useTransition();
@@ -91,21 +99,9 @@ export function ProjectForm({ projectformType }: any) {
     }));
   };
 
-  // const statuses = [
-  //   { name: "Active" },
-  //   { name: "Inactive" },
-  //   { name: "Completed" },
-  // ];
-
-  // const tiers = [{ name: "0" }, { name: "1" }, { name: "2" }, { name: "3" }];
-
   console.log(projectFields);
   return (
-    <Form
-      method="post"
-      action="/projects/create"
-      onSubmit={async () => await handleSubmit()}
-    >
+    <form onSubmit={async () => await handleSubmit()}>
       <LabeledTextField
         style={{ minHeight: "4em" }}
         fullWidth
@@ -257,6 +253,6 @@ export function ProjectForm({ projectformType }: any) {
           {isCreating ? "Creating..." : "Create Project"}
         </button>
       </Box>
-    </Form>
+    </form>
   );
 }
