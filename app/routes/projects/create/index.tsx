@@ -2,15 +2,15 @@ import Header from "app/core/layouts/Header";
 import GoBack from "app/core/layouts/GoBack";
 import { useNavigate } from "@remix-run/react";
 import { ProjectForm } from "../components/ProjectForm";
-/*import { redirect } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import type { ActionFunction } from "@remix-run/node";
-
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
-  console.log(Object.fromEntries(formData));
-  return redirect("/projects");
-}; */
+  const body = Object.fromEntries(formData);
+  console.log(body);
+  return redirect("/projects/");
+};
 
 const NewProjectPage = () => {
   const navigate = useNavigate();

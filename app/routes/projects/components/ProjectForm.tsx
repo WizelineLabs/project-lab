@@ -15,7 +15,6 @@ import RelatedProjectsSelect from "~/core/components/RelatedProjectsSelect";
 import ProjectMembersField from "~/core/components/ProjectMembersField";
 import { redirect } from "@remix-run/node";
 import type { ActionFunction } from "@remix-run/node";
-import { stringify } from "querystring";
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
@@ -76,7 +75,6 @@ export function ProjectForm({ projectformType }: any) {
   const handleSubmit = async () => {
     const body = {
       values: JSON.stringify(projectFields),
-      action: "POST",
     };
 
     await fetcher.submit(body, { method: "post" });
@@ -99,9 +97,8 @@ export function ProjectForm({ projectformType }: any) {
     }));
   };
 
-  console.log(projectFields);
   return (
-    <form onSubmit={async () => await handleSubmit()}>
+    <form action="/projects/create" onSubmit={async () => await handleSubmit()}>
       <LabeledTextField
         style={{ minHeight: "4em" }}
         fullWidth
