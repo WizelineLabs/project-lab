@@ -28,7 +28,7 @@ export const ProjectOwnerField = ({
           name={name}
           label={label}
           onChange={(e) =>
-            handleChange((prev: any) => ({ ...prev, [name]: e.target.value }))
+            handleChange({ name: name, newValue: e.target.value })
           }
         />
       )}

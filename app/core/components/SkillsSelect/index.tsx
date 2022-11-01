@@ -39,9 +39,9 @@ export const SkillsSelect = ({
         fullWidth={fullWidth ? fullWidth : false}
         style={style ? style : { margin: "1em 0" }}
         value={values}
-        onChange={(_e, newValue) => {
-          handleChange((prev: any) => ({ ...prev, [name]: newValue }));
-        }}
+        onChange={(_e, newValue) =>
+          handleChange({ name: name, newValue: newValue })
+        }
         options={skills}
         filterSelectedOptions
         renderInput={(params) => (

@@ -30,9 +30,7 @@ export const LabeledTextField = ({
       <TextField
         id={name}
         name={name}
-        onChange={(e) =>
-          handleChange((prev: any) => ({ ...prev, [name]: e.target.value }))
-        }
+        onChange={(e) => handleChange({ name: name, newValue: e.target.value })}
         label={label}
         type={type}
         helperText={helperText}

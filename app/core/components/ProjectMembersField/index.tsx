@@ -33,7 +33,7 @@ export const ProjectMembersField = ({
         multiple
         options={profiles}
         value={values.contributors}
-        onChange={(event, newValue) => {
+        onChange={(_event, newValue) => {
           handleChange((prev: any) => ({
             ...prev,
             [name]: { ...prev.projectMembers, contributors: newValue },
@@ -44,6 +44,7 @@ export const ProjectMembersField = ({
       <Grid
         container
         spacing={1}
+        alignItems="baseline"
         rowSpacing={{ xs: 2, sm: 1 }}
         style={{ paddingTop: 20 }}
       >
@@ -57,12 +58,13 @@ export const ProjectMembersField = ({
               fullWidth
               style={{ margin: "1em 0" }}
               value={values.roles}
-              onChange={(event, newValue) => {
+              onChange={(_event, newValue) => {
                 handleChange((prev: any) => ({
                   ...prev,
                   [name]: { ...prev.projectMembers, roles: newValue },
                 }));
               }}
+              size="small"
               options={profiles}
               filterSelectedOptions
               renderInput={(params) => (
@@ -70,8 +72,8 @@ export const ProjectMembersField = ({
                   {...params}
                   id={name}
                   label={"role(s)"}
-                  size={"medium"}
-                  style={{ width: "100%" }}
+                  size="small"
+                  style={{ margin: 0 }}
                 />
               )}
             />
@@ -82,7 +84,7 @@ export const ProjectMembersField = ({
               fullWidth
               style={{ margin: "1em 0" }}
               value={values.skills}
-              onChange={(event, newValue) => {
+              onChange={(_event, newValue) => {
                 handleChange((prev: any) => ({
                   ...prev,
                   [name]: { ...prev.projectMembers, skills: newValue },
@@ -95,8 +97,8 @@ export const ProjectMembersField = ({
                   {...params}
                   id={name}
                   label={"skills"}
-                  size={"medium"}
-                  style={{ width: "100%" }}
+                  size={"small"}
+                  style={{ margin: 0 }}
                 />
               )}
             />
@@ -108,10 +110,10 @@ export const ProjectMembersField = ({
               name="hours"
               size="small"
               type="number"
-              onChange={(e) =>
+              onChange={(event) =>
                 handleChange((prev: any) => ({
                   ...prev,
-                  [name]: { ...prev.projectMembers, hours: e.target.value },
+                  [name]: { ...prev.projectMembers, hours: event.target.value },
                 }))
               }
               sx={{
@@ -123,19 +125,19 @@ export const ProjectMembersField = ({
               }}
             />
           </Grid>
-          <Grid item xs={6} sm={1} style={{ textAlign: "center" }}>
+          <Grid item xs={2} sm={1} style={{ textAlign: "center" }}>
             <FormControlLabel
               label="Active"
               control={
                 <Checkbox
                   size="small"
                   checked={values.active}
-                  onChange={(e) =>
+                  onChange={(event) =>
                     handleChange((prev: any) => ({
                       ...prev,
                       [name]: {
                         ...prev.projectMembers,
-                        active: e.target.checked,
+                        active: event.target.checked,
                       },
                     }))
                   }

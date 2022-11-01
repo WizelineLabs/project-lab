@@ -24,24 +24,6 @@ export function ProjectForm({ projectformType }: any) {
   const [selectedStatus, setSelectedStatus] = useState({ name: "" });
   const [selectedTiers, setSelectedTiers] = useState({ name: "" });
 
-  type projectFormType = {
-    name: string;
-    description: string;
-    textEditor: string;
-    valueStatement: string;
-    disciplines: string[];
-    owner?: string;
-    target: string;
-    repoUrls: string[];
-    slackChannel: string;
-    projectStatus: string;
-    skills: string[];
-    labels: string[];
-    relatedProjects: string[];
-    innovationTiers: string[];
-    projectMembers: object;
-  };
-
   const [projectFields, setProjectFields] = useState<projectFormType>({
     name: "",
     description: "",
@@ -67,14 +49,22 @@ export function ProjectForm({ projectformType }: any) {
     },
   });
 
-  const handleDisplaySwitch = (e: any) => {
-    console.log(`Change value of ${e.target.checked.toString()}`);
-    setDisplayFields(!displayFields);
-  };
-
-  const handleHelpWanted = (e: any) => {
-    console.log(`Change value of ${e.target.checked.toString()}`);
-    setHelpWanted(!helpWanted);
+  type projectFormType = {
+    name: string;
+    description: string;
+    textEditor: string;
+    valueStatement: string;
+    disciplines: string[];
+    owner?: string;
+    target: string;
+    repoUrls: string[];
+    slackChannel: string;
+    projectStatus: string;
+    skills: string[];
+    labels: string[];
+    relatedProjects: string[];
+    innovationTiers: string[];
+    projectMembers: object;
   };
 
   const handleSubmit = async () => {
@@ -82,6 +72,16 @@ export function ProjectForm({ projectformType }: any) {
       method: "post",
       action: "/projects/create",
     });
+  };
+
+  const transition = useTransition();
+  const isCreating = Boolean(transition.submission);
+
+  const handleChange = ({ name, newValue }) => {
+    setProjectFields((prev: any) => ({
+      ...prev,
+      [name]: newValue,
+    }));
   };
 
   const statuses = [
@@ -92,22 +92,16 @@ export function ProjectForm({ projectformType }: any) {
 
   const tiers = [{ name: "0" }, { name: "1" }, { name: "2" }, { name: "3" }];
 
-  const transition = useTransition();
-  const isCreating = Boolean(transition.submission);
   console.log(projectFields);
   return (
-    <form
-      //      method="post"
-      //      action="/projects/create"
-      onSubmit={async () => await handleSubmit()}
-    >
+    <form onSubmit={async () => await handleSubmit()}>
       <LabeledTextField
         style={{ minHeight: "4em" }}
         fullWidth
         name="name"
         label="Name"
         placeholder="Name"
-        handleChange={setProjectFields}
+        handleChange={handleChange}
       />
       <LabeledTextFieldArea
         style={{ minHeight: "4em" }}
@@ -115,17 +109,22 @@ export function ProjectForm({ projectformType }: any) {
         name="description"
         label="Problem Statement"
         placeholder="Problem statement"
-        handleChange={setProjectFields}
+        handleChange={handleChange}
       />
 
       <TextEditor
         name="textEditor"
         defaultValue={"Explain us your proposal..."}
-        handleChange={setProjectFields}
+        handleChange={handleChange}
       />
 
       <FormControlLabel
-        control={<Switch color="primary" onChange={handleHelpWanted} />}
+        control={
+          <Switch
+            color="primary"
+            onChange={(e) => setHelpWanted(e.target.checked)}
+          />
+        }
         name="helpWanted"
         label="We need some help"
         labelPlacement="end"
@@ -135,7 +134,7 @@ export function ProjectForm({ projectformType }: any) {
         <DisciplinesSelect //this still uses constant values instead of values taken from the db
           name="disciplines"
           label="Looking for..."
-          handleChange={setProjectFields}
+          handleChange={handleChange}
           values={projectFields.disciplines}
         />
       </Collapse>
@@ -143,17 +142,23 @@ export function ProjectForm({ projectformType }: any) {
       {projectformType === "create" && (
         <FormControlLabel
           value="1"
-          control={<Switch color="primary" onChange={handleDisplaySwitch} />}
+          control={
+            <Switch
+              color="primary"
+              onChange={(e) => setDisplayFields(e.target.checked)}
+            />
+          }
           label="Add more details"
           labelPlacement="end"
         />
       )}
+
       {projectformType !== "create" && (
         <ProjectOwnerField
           name="owner"
           label="Owner"
           owner={{ name: "John Doe" }}
-          handleChange={setProjectFields}
+          handleChange={handleChange}
         />
       )}
 
@@ -164,14 +169,14 @@ export function ProjectForm({ projectformType }: any) {
           name="target"
           label="Who is your target user/client"
           placeholder="Millenials"
-          handleChange={setProjectFields}
+          handleChange={handleChange}
         />
 
         <MultivalueInput
           name="repoUrls"
           label="Repo URLs"
           footer="Type the Repo URL and press Enter to add it to your project. You can add as many URLs as you need."
-          handleChange={setProjectFields}
+          handleChange={handleChange}
           values={projectFields.repoUrls}
         />
 
@@ -181,10 +186,10 @@ export function ProjectForm({ projectformType }: any) {
           name="slackChannel"
           label="Slack Channel"
           placeholder="#project-name"
-          handleChange={setProjectFields}
+          handleChange={handleChange}
         />
 
-        {projectformType !== "create" && ( //this still uses constant values instead of values taken from the db
+        {/* {projectformType !== "create" && ( //this still uses constant values instead of values taken from the db
           <InputSelect
             valuesList={statuses}
             defaultValue=""
@@ -194,18 +199,19 @@ export function ProjectForm({ projectformType }: any) {
             value={selectedStatus.name}
             handleChange={setSelectedStatus}
           />
-        )}
+        )} */}
+
         <SkillsSelect //this still uses constant values instead of values taken from the db
           name="skills"
           label="Skills"
-          handleChange={setProjectFields}
+          handleChange={handleChange}
           values={projectFields.skills}
         />
 
         <LabelsSelect //this still uses constant values instead of values taken from the db
           name="labels"
           label="Labels"
-          handleChange={setProjectFields}
+          handleChange={handleChange}
           values={projectFields.labels}
         />
 
@@ -213,10 +219,11 @@ export function ProjectForm({ projectformType }: any) {
           thisProject=""
           name="relatedProjects"
           label="Related Projects"
-          handleChange={setProjectFields}
+          handleChange={handleChange}
           values={projectFields.relatedProjects}
         />
-        {projectformType !== "create" && (
+
+        {/* {projectformType !== "create" && (
           <InputSelect
             valuesList={tiers}
             name="innovationTiers"
@@ -225,7 +232,7 @@ export function ProjectForm({ projectformType }: any) {
             value={selectedTiers.name}
             handleChange={setSelectedTiers}
           />
-        )}
+        )} */}
 
         <ProjectMembersField
           name="projectMembers"

@@ -43,10 +43,7 @@ export default function TextEditor({
   useEffect(() => {
     if (quill) {
       quill.on("text-change", (_delta: any, _oldDelta: any, _source: any) => {
-        handleChange((prev: any) => ({
-          ...prev,
-          [name]: quill.root.innerHTML,
-        }));
+        handleChange({ name: name, newValue: quill.root.innerHTML });
       });
     }
   }, [quill]);

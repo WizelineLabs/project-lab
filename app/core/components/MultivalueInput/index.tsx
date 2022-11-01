@@ -36,10 +36,7 @@ export const MultivalueInput = ({
         fullWidth
         onKeyDown={(e) => {
           if (e.key === "Enter") {
-            handleChange((prev: any) => ({
-              ...prev,
-              [name]: [...values, inputValue],
-            }));
+            handleChange({ name: name, newValue: [...values, inputValue] });
             setInputValue("");
             e.preventDefault();
             e.stopPropagation();

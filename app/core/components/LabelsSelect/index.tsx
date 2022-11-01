@@ -29,9 +29,9 @@ export const LabelsSelect = ({
         style={{ margin: "1em 0" }}
         options={labels}
         value={values}
-        onChange={(_e, newValue) => {
-          handleChange((prev: any) => ({ ...prev, [name]: newValue }));
-        }}
+        onChange={(_e, newValue) =>
+          handleChange({ name: name, newValue: newValue })
+        }
         filterSelectedOptions
         renderInput={(params) => (
           <TextField {...params} id={name} label={label} />
