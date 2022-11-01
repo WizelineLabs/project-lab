@@ -84,13 +84,20 @@ export function ProjectForm({ projectformType }: any) {
     }));
   };
 
-  const statuses = [
-    { name: "Active" },
-    { name: "Inactive" },
-    { name: "Completed" },
-  ];
+  const handleChangeProjectMembers = ({ name, newValue }) => {
+    setProjectFields((prev: any) => ({
+      ...prev,
+      projectMembers: { ...prev.projectMembers, [name]: newValue },
+    }));
+  };
 
-  const tiers = [{ name: "0" }, { name: "1" }, { name: "2" }, { name: "3" }];
+  // const statuses = [
+  //   { name: "Active" },
+  //   { name: "Inactive" },
+  //   { name: "Completed" },
+  // ];
+
+  // const tiers = [{ name: "0" }, { name: "1" }, { name: "2" }, { name: "3" }];
 
   console.log(projectFields);
   return (
@@ -241,7 +248,7 @@ export function ProjectForm({ projectformType }: any) {
         <ProjectMembersField
           name="projectMembers"
           label="Add a contributor"
-          handleChange={setProjectFields}
+          handleChange={handleChangeProjectMembers}
           values={projectFields.projectMembers}
         />
       </Collapse>

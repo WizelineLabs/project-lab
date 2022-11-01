@@ -33,12 +33,9 @@ export const ProjectMembersField = ({
         multiple
         options={profiles}
         value={values.contributors}
-        onChange={(_event, newValue) => {
-          handleChange((prev: any) => ({
-            ...prev,
-            [name]: { ...prev.projectMembers, contributors: newValue },
-          }));
-        }}
+        onChange={(_e, newValue) =>
+          handleChange({ name: "contributors", newValue: newValue })
+        }
         renderInput={(params) => <TextField {...params} label={label} />}
       />
       <Grid
@@ -58,12 +55,9 @@ export const ProjectMembersField = ({
               fullWidth
               style={{ margin: "1em 0" }}
               value={values.roles}
-              onChange={(_event, newValue) => {
-                handleChange((prev: any) => ({
-                  ...prev,
-                  [name]: { ...prev.projectMembers, roles: newValue },
-                }));
-              }}
+              onChange={(_e, newValue) =>
+                handleChange({ name: "roles", newValue: newValue })
+              }
               size="small"
               options={profiles}
               filterSelectedOptions
@@ -84,12 +78,9 @@ export const ProjectMembersField = ({
               fullWidth
               style={{ margin: "1em 0" }}
               value={values.skills}
-              onChange={(_event, newValue) => {
-                handleChange((prev: any) => ({
-                  ...prev,
-                  [name]: { ...prev.projectMembers, skills: newValue },
-                }));
-              }}
+              onChange={(_e, newValue) =>
+                handleChange({ name: "skills", newValue: newValue })
+              }
               options={["deded", "dwdw"]}
               filterSelectedOptions
               renderInput={(params) => (
@@ -111,10 +102,7 @@ export const ProjectMembersField = ({
               size="small"
               type="number"
               onChange={(event) =>
-                handleChange((prev: any) => ({
-                  ...prev,
-                  [name]: { ...prev.projectMembers, hours: event.target.value },
-                }))
+                handleChange({ name: "hours", newValue: event.target.value })
               }
               sx={{
                 "& .MuiFormHelperText-root": {
@@ -133,13 +121,10 @@ export const ProjectMembersField = ({
                   size="small"
                   checked={values.active}
                   onChange={(event) =>
-                    handleChange((prev: any) => ({
-                      ...prev,
-                      [name]: {
-                        ...prev.projectMembers,
-                        active: event.target.checked,
-                      },
-                    }))
+                    handleChange({
+                      name: "active",
+                      newValue: event.target.checked,
+                    })
                   }
                 />
               }
