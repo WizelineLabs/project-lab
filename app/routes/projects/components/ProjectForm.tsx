@@ -13,13 +13,6 @@ import LabelsSelect from "~/core/components/LabelsSelect";
 import ProjectOwnerField from "~/core/components/ProjectOwnerField";
 import RelatedProjectsSelect from "~/core/components/RelatedProjectsSelect";
 import ProjectMembersField from "~/core/components/ProjectMembersField";
-import { redirect } from "@remix-run/node";
-import type { ActionFunction } from "@remix-run/node";
-
-export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData();
-  console.log(Object.fromEntries(formData));
-};
 
 export function ProjectForm({ projectformType }: any) {
   const fetcher = useFetcher();
@@ -27,13 +20,13 @@ export function ProjectForm({ projectformType }: any) {
   const [displayFields, setDisplayFields] = useState(
     projectformType === "create" ? false : true
   );
-  const [helpWanted, setHelpWanted] = useState(false);
 
   const [projectFields, setProjectFields] = useState<projectFormType>({
     name: "",
     description: "",
     textEditor: "",
     valueStatement: "",
+    helpWanted: false,
     disciplines: [],
     owner: "",
     target: "",
@@ -56,14 +49,17 @@ export function ProjectForm({ projectformType }: any) {
 
   type projectFormType = {
     name: string;
-    description: string;
+    description?: string;
     textEditor: string;
-    valueStatement: string;
+    valueStatement?: string;
+    helpWanted?: boolean;
     disciplines: string[];
     owner?: string;
-    target: string;
+    target?: string;
     repoUrls: string[];
-    slackChannel: string;
+    slackChannel?: string;
+    status?: string;
+    tierName?: string;
     projectStatus: string;
     skills: string[];
     labels: string[];
@@ -74,7 +70,7 @@ export function ProjectForm({ projectformType }: any) {
 
   const handleSubmit = async () => {
     const body = {
-      values: JSON.stringify(projectFields),
+      data: JSON.stringify(projectFields),
     };
 
     await fetcher.submit(body, { method: "post" });
@@ -107,6 +103,7 @@ export function ProjectForm({ projectformType }: any) {
         placeholder="Name"
         handleChange={handleChange}
       />
+
       <LabeledTextFieldArea
         style={{ minHeight: "4em" }}
         fullWidth
@@ -126,7 +123,9 @@ export function ProjectForm({ projectformType }: any) {
         control={
           <Switch
             color="primary"
-            onChange={(e) => setHelpWanted(e.target.checked)}
+            onChange={(e) =>
+              handleChange({ name: "helpWanted", newValue: e.target.checked })
+            }
           />
         }
         name="helpWanted"
@@ -134,7 +133,7 @@ export function ProjectForm({ projectformType }: any) {
         labelPlacement="end"
       />
 
-      <Collapse in={helpWanted}>
+      <Collapse in={projectFields.helpWanted}>
         <DisciplinesSelect //this still uses constant values instead of values taken from the db
           name="disciplines"
           label="Looking for..."
