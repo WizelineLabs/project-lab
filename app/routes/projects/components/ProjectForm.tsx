@@ -94,7 +94,7 @@ export function ProjectForm({ projectformType }: any) {
   };
 
   return (
-    <form action="/projects/create" onSubmit={async () => await handleSubmit()}>
+    <Form action="/projects/create" onSubmit={async () => await handleSubmit()}>
       <LabeledTextField
         style={{ minHeight: "4em" }}
         fullWidth
@@ -249,6 +249,6 @@ export function ProjectForm({ projectformType }: any) {
           {isCreating ? "Creating..." : "Create Project"}
         </button>
       </Box>
-    </form>
+    </Form>
   );
 }
