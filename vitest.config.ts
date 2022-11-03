@@ -9,7 +9,8 @@ export default defineConfig({
   plugins: [react(), tsconfigPaths()],
   test: {
     globals: true,
-    environment: "happy-dom",
+    environment: "jsdom",
     setupFiles: ["./test/setup-test-env.ts"],
+    testTimeout: 10000,
   },
 });

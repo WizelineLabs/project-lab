@@ -124,7 +124,7 @@ export const action: ActionFunction = async ({ request }) => {
         const tierName = formData.get("tierName") as string
         invariant(tierName, "Innovation tier name is required")
         await updateProjects({ ids, data: { tierName } })
-        return json({error: ""}, { status: 200 })
+        return json({ error: "" }, { status: 200 })
 
       default: {
         throw new Error("Something went wrong")
@@ -159,6 +159,7 @@ const GridEditToolbar = (props: gridEditToolbarProps) => {
         color="primary"
         startIcon={<AddIcon />}
         onClick={() => handleAddClick()}
+        data-testid="testInnovationCreate"
       >
         {createButtonText}
       </Button>
@@ -392,6 +393,7 @@ const InnovationTiersGrid = () => {
                 size="small"
                 onClick={() => handleSaveClick(idRef)}
                 style={{ marginLeft: 16 }}
+                data-testid="testInnovationSave"
               >
                 <SaveIcon color="inherit" />
               </Button>
@@ -415,6 +417,7 @@ const InnovationTiersGrid = () => {
               size="small"
               onClick={() => handleDeleteClick(idRef)}
               style={{ marginLeft: 16 }}
+              data-testid="testInnovationDelete"
             >
               <EastIcon color="inherit" />
             </Button>
@@ -499,6 +502,7 @@ const InnovationTiersGrid = () => {
               <Button
                 className="primary warning"
                 disabled={false}
+                data-testid="deleteTierModal"
                 {...(isMergeAction
                   ? {
                       type: "submit",

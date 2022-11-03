@@ -105,6 +105,7 @@ const GridEditToolbar = (props: gridEditToolbarProps) => {
         color="primary"
         startIcon={<AddIcon />}
         onClick={() => handleAddClick()}
+        data-testid="testAdminCreate"
       >
         {createButtonText}
       </Button>
@@ -271,6 +272,7 @@ export default function  AdminsDataGrid() {
                 size="small"
                 onClick={() => handleSaveClick(idRef)}
                 style={{ marginLeft: 16 }}
+                data-testid="testAdminSave"
               >
                 <SaveIcon color="inherit" />
               </Button>
@@ -284,6 +286,7 @@ export default function  AdminsDataGrid() {
             size="small"
             onClick={() => handleDeleteClick(idRef)}
             style={{ marginLeft: 16 }}
+            data-testid="testAdminDelete"
           >
             <DeleteIcon color="inherit" />
           </Button>
@@ -329,7 +332,7 @@ export default function  AdminsDataGrid() {
           deleteConfirmationHandler();
         }}
       >
-        <h2>
+        <h2 data-testid="deleteAdminModal">
           Are you sure you want to remove the Admin role from{" "}
           {rows[rows.findIndex((row) => row.id === +selectedRowID)]?.email}?
         </h2>
