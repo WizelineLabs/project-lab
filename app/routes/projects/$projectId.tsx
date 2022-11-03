@@ -43,6 +43,7 @@ import {
   unvoteProject,
   checkUserVote,
 } from "~/models/votes.server";
+import RelatedProjectsSection from "~/core/components/RelatedProjectsSection";
 
 type LoaderData = {
   isAdmin: boolean;
@@ -426,6 +427,9 @@ export default function ProjectDetailsPage() {
         open={showJoinModal}
         handleCloseModal={handleCloseModal}
       />
+      <div className="wrapper">
+        <RelatedProjectsSection relatedProjects={project.relatedProjects}/>
+      </div>
       {/*
       <div className="wrapper">
         <Comments projectId={project.id} />

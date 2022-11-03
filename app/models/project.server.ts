@@ -1,5 +1,5 @@
 import type { Profiles, Projects } from "@prisma/client";
-import { Prisma } from "@prisma/client"
+import { Prisma } from "@prisma/client";
 
 import { joinCondition, prisma as db } from "~/db.server";
 
@@ -51,24 +51,34 @@ interface FacetOutput {
   count: number
 }
 
-export class SearchProjectsError extends Error {
-  name = "SearchProjectsError"
-  message = "There was an error while searching for projects."
+interface RelatedProjectInput {
+  relatedProjects: [{ id: string; name: string }]
 }
 
-export function isProjectTeamMember(profileId: string, project: ProjectComplete) {
-  const isProjectMember = project?.projectMembers.some((p) => p.profileId === profileId);
+export class SearchProjectsError extends Error {
+  name = "SearchProjectsError";
+  message = "There was an error while searching for projects.";
+}
+
+export function isProjectTeamMember(
+  profileId: string,
+  project: ProjectComplete
+) {
+  const isProjectMember = project?.projectMembers.some(
+    (p) => p.profileId === profileId
+  );
   const isProjectOwner = profileId === project?.ownerId;
   return isProjectMember || isProjectOwner;
 }
 
-export function getProjectTeamMember(profileId: string, project: ProjectComplete) {
-  return project?.projectMembers.find(p => p.profileId === profileId);
+export function getProjectTeamMember(
+  profileId: string,
+  project: ProjectComplete
+) {
+  return project?.projectMembers.find((p) => p.profileId === profileId);
 }
 
-export async function getProject({
-  id
-}: Pick<Projects, "id">) {
+export async function getProject({ id }: Pick<Projects, "id">) {
   const projectQueried = await db.projects.findFirst({
     where: { id },
     include: {
@@ -108,22 +118,22 @@ export async function getProject({
         },
       },
     },
-  })
+  });
 
-    // Parse related Projects
-    const relatedProA = projectQueried?.relatedProjectsA.map((e) => {
-      return e.projectA.id === id ? { ...e.projectB } : { ...e.projectA }
-    })
-    const relatedProB = projectQueried?.relatedProjectsB.map((e) => {
-      return e.projectA.id === id ? { ...e.projectB } : { ...e.projectA }
-    })
-    const relatedProjects = { relatedProA, relatedProB }
+  // Parse related Projects
+  const relatedProA = projectQueried?.relatedProjectsA.map((e) => {
+    return e.projectA.id === id ? { ...e.projectB } : { ...e.projectA }
+  });
+  const relatedProB = projectQueried?.relatedProjectsB.map((e) => {
+    return e.projectA.id === id ? { ...e.projectB } : { ...e.projectA }
+  });
+  const relatedProjects = { relatedProA, relatedProB }
 
-    const project = {
-      ...projectQueried,
-      relatedProjects: [...relatedProA, ...relatedProB],
-    }
-    return project
+  const project = {
+    ...projectQueried,
+    relatedProjects: [...relatedProA, ...relatedProB],
+  };
+  return project;
 }
 
 export type ProjectComplete = Prisma.PromiseReturnType<typeof getProject>
@@ -138,8 +148,8 @@ export async function getProjects(where: ProjectWhereInput) {
         skills: true,
         projectMembers: true,
       },
-    })
-    return projects
+    });
+    return projects;
   } catch (e) {
     throw new Error(JSON.stringify(e));
   }
@@ -155,7 +165,58 @@ export async function updateProjects({
   await db.projects.updateMany({
     where: { id: { in: ids } },
     data,
-  })
+  });
+}
+
+// edit only relatedProjects
+export async function updateRelatedProjects({
+  id,
+  data,
+}: {
+  id: string;
+  data: RelatedProjectInput;
+}) {
+  // Create related Projects
+  const createResponse = [];
+  let response;
+  for (let i = 0; i < data.relatedProjects.length; i++) {
+    let relationExist = await db.relatedProjects.count({
+      where: {
+        OR: [
+          {
+            projectAId: data.relatedProjects[i].id,
+            projectBId: id,
+          },
+          {
+            projectAId: id,
+            projectBId: data.relatedProjects[i].id,
+          },
+        ],
+      },
+    });
+
+    if (relationExist === 0) {
+      response = await db.relatedProjects.create({
+        data: {
+          projectAId: id,
+          projectBId: data.relatedProjects[i].id,
+        },
+      });
+      createResponse.push(response)
+    }
+  }
+
+  // Delete related projects
+  const relatedProjectsIds = await data.relatedProjects.map((e) => e.id);
+  const deleteResponse = await db.relatedProjects.deleteMany({
+    where: {
+      OR: [
+        { projectAId: id, projectBId: { notIn: relatedProjectsIds } },
+        { projectAId: { notIn: relatedProjectsIds }, projectBId: id },
+      ],
+    },
+  });
+  return {createResponse,deleteResponse}
 }
 
 export async function searchProjects({
@@ -187,33 +248,55 @@ export async function searchProjects({
 
   if (skill.length > 0) {
     where = Prisma.sql`${where} AND "Skills".name IN (${Prisma.join(skill)})`
-    having = joinCondition(having, Prisma.sql`COUNT(DISTINCT "Skills".name) = ${skill.length}`)
+    having = joinCondition(
+      having,
+      Prisma.sql`COUNT(DISTINCT "Skills".name) = ${skill.length}`
+    );
   }
 
   if (discipline.length > 0) {
-    where = Prisma.sql`${where} AND "Disciplines".name IN (${Prisma.join(discipline)})`
-    having = joinCondition(having, Prisma.sql`COUNT(DISTINCT "Disciplines".name) = ${discipline.length}`)
+    where = Prisma.sql`${where} AND "Disciplines".name IN (${Prisma.join(
+      discipline
+    )})`
+    having = joinCondition(
+      having,
+      Prisma.sql`COUNT(DISTINCT "Disciplines".name) = ${discipline.length}`
+    )
   }
 
   if (tier.length > 0) {
     where = Prisma.sql`${where} AND "tierName" IN (${Prisma.join(tier)})`
-    having = joinCondition(having, Prisma.sql`COUNT(DISTINCT "tierName") = ${tier.length}`)
+    having = joinCondition(
+      having,
+      Prisma.sql`COUNT(DISTINCT "tierName") = ${tier.length}`
+    )
   }
 
   if (label.length > 0) {
     where = Prisma.sql`${where} AND "Labels".name IN (${Prisma.join(label)})`
-    having = joinCondition(having, Prisma.sql`COUNT(DISTINCT "Labels".name) = ${label.length}`)
+    having = joinCondition(
+      having,
+      Prisma.sql`COUNT(DISTINCT "Labels".name) = ${label.length}`
+    )
   }
 
   if (location.length > 0) {
     where = Prisma.sql`${where} AND loc.name IN (${Prisma.join(location)})`
-    having = joinCondition(having, Prisma.sql`COUNT(DISTINCT loc.name) = ${location.length}`)
+    having = joinCondition(
+      having,
+      Prisma.sql`COUNT(DISTINCT loc.name) = ${location.length}`
+    )
   }
 
   // TODO: instead imlement a function to join with AND or not depending on if empty
   if (role.length > 0) {
-    where = Prisma.sql`${where} AND roles.name IN (${Prisma.join(role)}) AND pm.active = true`
-    having = joinCondition(having, Prisma.sql`COUNT(DISTINCT roles.name) = ${role.length}`)
+    where = Prisma.sql`${where} AND roles.name IN (${Prisma.join(
+      role
+    )}) AND pm.active = true`
+    having = joinCondition(
+      having,
+      Prisma.sql`COUNT(DISTINCT roles.name) = ${role.length}`
+    )
   }
 
   if (missing.length > 0) {
@@ -264,7 +347,9 @@ export async function searchProjects({
 
   let projectIdsWhere = Prisma.sql`false`
   if (ids.length > 0) {
-    projectIdsWhere = Prisma.sql`p.id IN (${Prisma.join(ids.map((val) => val.id))})`
+    projectIdsWhere = Prisma.sql`p.id IN (${Prisma.join(
+      ids.map((val) => val.id)
+    )})`
   }
 
   const projects = await db.$queryRaw<SearchProjectsOutput[]>`
@@ -385,7 +470,9 @@ export async function searchProjects({
     disciplineFacets,
     tierFacets,
     locationsFacets,
-    roleFacets: roleFacets.filter((val) => val.count != 0 && role.indexOf(val.name) == -1),
+    roleFacets: roleFacets.filter(
+      (val) => val.count != 0 && role.indexOf(val.name) == -1
+    ),
     missingFacets: roleFacets.filter(
       (val) => val.count != ids.length && missing.indexOf(val.name) == -1
     ),
