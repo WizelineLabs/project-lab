@@ -4,7 +4,7 @@ import type {
   MetaFunction,
 } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useLoaderData, useFetcher } from "@remix-run/react";
+import { useLoaderData, useFetcher } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import { requireProfile, requireUser } from "~/session.server";
 import {
@@ -19,8 +19,6 @@ import { adminRoleName } from "app/constants";
 import type { Profiles, ProjectMembers } from "@prisma/client";
 
 import {
-  Chip,
-  Box,
   Autocomplete,
   TextField,
 } from "@mui/material";
@@ -71,29 +69,21 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   });
 };
 
-// ACTION
 export const action: ActionFunction = async ({ request }) => {
   const form = await request.formData();
   const action = form.get("action") as string;
-  console.log("SUBMIT STARTS");
-  console.log(...form);
   try {
     switch (action) {
       case "EDIT":
-        console.log(...form);
         const projectId = form.get("projectId") as string;
         const relatedProjectsParse = JSON.parse(
           form.get("relatedProjects") as string
         );
         const relatedProjectsIds = relatedProjectsParse.map((e: any) => e.id);
-        console.log("the data ids", relatedProjectsIds);
         const response = await updateRelatedProjects({
           id: projectId,
           data: { relatedProjects: relatedProjectsParse },
         });
-        console.log(response);
-        // return redirect(`/projects/${projectId}`);
-        console.log("INFO WAS SAVED");
         return json({ error: "All good" }, { status: 200 });
       default: {
         throw new Error(`Something went wrong, ${action}`);
@@ -104,7 +94,6 @@ export const action: ActionFunction = async ({ request }) => {
   }
 };
 
-//META
 export const meta: MetaFunction = ({ data, params }) => {
   if (!data) {
     return {
@@ -140,7 +129,6 @@ export default function EditProjectPage() {
 
   const handleChange = (v: any) => {
     setSelectedRelatedProjects(() => v);
-    console.log("Handle the change");
   };
 
   const submitEdition = async () => {
@@ -148,10 +136,8 @@ export default function EditProjectPage() {
       const body = {
         ...fetcher.data,
         projectId,
-        // ...project,
         relatedProjects: JSON.stringify(selectedRelatedProjects),
         action: "EDIT",
-        // name: "Other name",
       };
       await fetcher.submit(body, { method: "put" });
     } catch (error: any) {
