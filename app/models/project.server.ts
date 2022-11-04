@@ -1,5 +1,6 @@
 import type { Profiles, Projects } from "@prisma/client";
 import { Prisma } from "@prisma/client"
+import { stringify } from "querystring";
 
 
 import { joinCondition, prisma as db } from "~/db.server";
@@ -99,7 +100,33 @@ export async function getProject({
     },
   })
 }
-
+/*
+export async function createProject({ name, description, helpWanted, disciplines,
+  target, repoUrls, slackChannel, skills, labels, innovationTiers, projectMembers }:
+{ name: string, description: string, helpWanted: boolean , disciplines: object,
+  target: string, repoUrls: object, slackChannel: string, skills: object,
+  labels: object, relatedProjects: object, innovationTiers: object, projectMembers: object
+}) {
+  try {
+    const project = await db.projects.upsert({
+      create: {
+        name, 
+        description,
+        helpWanted,
+        disciplines,
+        target,
+        repoUrls,
+        slackChannel,
+        skills, 
+        labels, 
+        relatedProjects,
+        innovationTiers,
+        projectMembers,
+      }
+    })
+  } 
+  }
+*/
 export type ProjectComplete = Prisma.PromiseReturnType<typeof getProject>
 
 export async function getProjects(where: ProjectWhereInput) {
@@ -365,8 +392,3 @@ export async function searchProjects({
     ),
   };
 }
-/* this is for creating the post
-export async function createPost(post) {
-  return db.post.create({data:post})
-}
-*/
