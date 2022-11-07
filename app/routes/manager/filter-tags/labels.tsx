@@ -109,6 +109,7 @@ const GridEditToolbar = (props: gridEditToolbarProps) => {
         color="primary"
         startIcon={<AddIcon />}
         onClick={() => handleAddClick()}
+        data-testid="testLabelCreate"
       >
         {createButtonText}
       </Button>
@@ -296,6 +297,7 @@ export default function LabelsDataGrid() {
                 size="small"
                 onClick={() => handleSaveClick(idRef)}
                 style={{ marginLeft: 16 }}
+                data-testid="testLabelSave"
               >
                 <SaveIcon color="inherit" />
               </Button>
@@ -319,6 +321,7 @@ export default function LabelsDataGrid() {
               size="small"
               onClick={() => handleDeleteClick(idRef)}
               style={{ marginLeft: 16 }}
+              data-testid="testLabelDelete"
             >
               <DeleteIcon color="inherit" />
             </Button>
@@ -366,7 +369,7 @@ export default function LabelsDataGrid() {
           deleteConfirmationHandler()
         }}
       >
-        <h2>Are you sure you want to delete this Label ?</h2>
+        <h2 data-testid="deleteLabelModal">Are you sure you want to delete this Label ?</h2>
         <p>This action cannot be undone.</p>
         <br />
       </ConfirmationModal>
