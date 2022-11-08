@@ -64,7 +64,7 @@ export function isProjectTeamMember(
   profileId: string,
   project: ProjectComplete
 ) {
-  const isProjectMember = project?.projectMembers.some(
+  const isProjectMember = project?.projectMembers?.some(
     (p) => p.profileId === profileId
   );
   const isProjectOwner = profileId === project?.ownerId;
@@ -75,7 +75,7 @@ export function getProjectTeamMember(
   profileId: string,
   project: ProjectComplete
 ) {
-  return project?.projectMembers.find((p) => p.profileId === profileId);
+  return project?.projectMembers?.find((p) => p.profileId === profileId);
 }
 
 export async function getProject({ id }: Pick<Projects, "id">) {
@@ -127,11 +127,11 @@ export async function getProject({ id }: Pick<Projects, "id">) {
   const relatedProB = projectQueried?.relatedProjectsB.map((e) => {
     return e.projectA.id === id ? { ...e.projectB } : { ...e.projectA }
   });
-  const relatedProjects = { relatedProA, relatedProB }
+  const relatedProjects = [ ...(relatedProA || []), ...(relatedProB || []) ]
 
   const project = {
     ...projectQueried,
-    relatedProjects: [...relatedProA, ...relatedProB],
+    relatedProjects: relatedProjects
   };
   return project;
 }
@@ -176,11 +176,12 @@ export async function updateRelatedProjects({
   id: string;
   data: RelatedProjectInput;
 }) {
+  return await db.$transaction(async (tx) => {
   // Create related Projects
   const createResponse = [];
   let response;
   for (let i = 0; i < data.relatedProjects.length; i++) {
-    let relationExist = await db.relatedProjects.count({
+    let relationExist = await tx.relatedProjects.count({
       where: {
         OR: [
           {
@@ -196,19 +197,22 @@ export async function updateRelatedProjects({
     });
 
     if (relationExist === 0) {
-      response = await db.relatedProjects.create({
+      response = await tx.relatedProjects.create({
         data: {
           projectAId: id,
           projectBId: data.relatedProjects[i].id,
         },
       });
+      if(!response){
+        throw new Error(`Error when acreating relation for: ${data.relatedProjects[i].id}`)
+      }
       createResponse.push(response)
     }
   }
 
-  // Delete related projects
   const relatedProjectsIds = await data.relatedProjects.map((e) => e.id);
-  const deleteResponse = await db.relatedProjects.deleteMany({
+  // Delete related projects
+  const deleteResponse = await tx.relatedProjects.deleteMany({
     where: {
       OR: [
         { projectAId: id, projectBId: { notIn: relatedProjectsIds } },
@@ -217,6 +221,7 @@ export async function updateRelatedProjects({
     },
   });
   return {createResponse,deleteResponse}
+})
 }
 
 export async function searchProjects({

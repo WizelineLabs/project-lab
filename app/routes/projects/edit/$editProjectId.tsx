@@ -21,6 +21,7 @@ import type { Profiles, ProjectMembers } from "@prisma/client";
 import {
   Autocomplete,
   TextField,
+  Alert
 } from "@mui/material";
 import GoBack from "~/core/components/GoBack";
 import RelatedProjectsSection from "~/core/components/RelatedProjectsSection";
@@ -79,12 +80,11 @@ export const action: ActionFunction = async ({ request }) => {
         const relatedProjectsParse = JSON.parse(
           form.get("relatedProjects") as string
         );
-        const relatedProjectsIds = relatedProjectsParse.map((e: any) => e.id);
-        const response = await updateRelatedProjects({
+        await updateRelatedProjects({
           id: projectId,
           data: { relatedProjects: relatedProjectsParse },
         });
-        return json({ error: "All good" }, { status: 200 });
+        return json({ error: "" }, { status: 200 });
       default: {
         throw new Error(`Something went wrong, ${action}`);
       }
@@ -170,8 +170,8 @@ export default function EditProjectPage() {
             options={projectsList}
             getOptionLabel={(option) => option.name}
             value={selectedRelatedProjects}
-            onChange={(event: any, newValue: string[] | null) =>
-              handleChange(newValue)
+            onChange={(event,value: { id: string; name: string; }[] | []) =>
+              handleChange(value)
             }
             defaultValue={project.relatedProjects}
             filterSelectedOptions
@@ -193,6 +193,9 @@ export default function EditProjectPage() {
             Submit
           </button>
             </div>
+            {error && 
+            <Alert severity="warning">Information could not be saved</Alert>
+            }
         </fetcher.Form>
       </div>
       <div className="wrapper">
