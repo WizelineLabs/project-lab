@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
+import { Link, useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
 import CardBox from "app/core/components/CardBox";
 import ProposalCard from "app/core/components/ProposalCard";
 import Header from "app/core/layouts/Header";
@@ -47,6 +47,11 @@ interface Tab {
   searchParams: URLSearchParams;
 }
 
+type SortByProps = {
+  field: string,
+  order: string,
+}
+
 export const loader: LoaderFunction = async ({ request }) => {
   const profile = await requireProfile(request);
   const url = new URL(request.url);
@@ -87,6 +92,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export default function Projects() {
+  const fetcher = useFetcher()
   //functions to load and paginate projects in `Popular` CardBox
   const [searchParams, setSearchParams] = useSearchParams();
   const page = Number(searchParams.get("page") || 0);
@@ -513,7 +519,7 @@ export default function Projects() {
             <div className="homeWrapper__information--row">
               <CardBox title={getTitle() + ` (${count || 0})`}>
                 <div className="homeWrapper__navbar__sort">
-                  <SortInput setSortQuery={setSortQuery} />
+                  <SortInput setSortQuery={setSortQuery} sortBy={""} />
                   <button
                     className="filter__mobile-button"
                     onClick={handleMobileFilters}
