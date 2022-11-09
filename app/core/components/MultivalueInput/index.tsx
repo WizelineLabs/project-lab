@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Chip, Grid, TextField } from "@mui/material";
 import styled from "@emotion/styled";
+import { useField, useControlField } from "remix-validated-form";
 
 export const MultivalueFieldSpan = styled.span`
   font-size: 12px;
@@ -12,18 +13,16 @@ interface ProfilesSelectProps {
   label: string;
   footer: string;
   helperText?: string;
-  handleChange: React.Dispatch<React.SetStateAction<any>>;
-  values: string[];
 }
 
 export const MultivalueInput = ({
   name,
   label,
   footer,
-  handleChange,
-  values,
 }: ProfilesSelectProps) => {
   const [inputValue, setInputValue] = useState("");
+  const { error, getInputProps } = useField(name);
+  const [values, setValue] = useControlField<string[]>(name);
   return (
     <>
       <MultivalueFieldSpan>* {footer}</MultivalueFieldSpan>
@@ -36,10 +35,10 @@ export const MultivalueInput = ({
         fullWidth
         onKeyDown={(e) => {
           if (e.key === "Enter") {
-            handleChange({ name: name, newValue: [...values, inputValue] });
-            setInputValue("");
             e.preventDefault();
             e.stopPropagation();
+            setValue(values ? [...values, inputValue] : [inputValue]);
+            setInputValue("");
           }
         }}
       />
@@ -51,18 +50,18 @@ export const MultivalueInput = ({
         rowSpacing={{ xs: 2, sm: 1 }}
         style={{ paddingTop: 20 }}
       >
-        {values.map((value, i) => (
-          <Chip
-            key={i}
-            label={value}
-            onDelete={() => {
-              handleChange((prev: any) => ({
-                ...prev,
-                [name]: values.filter((v) => v !== value),
-              }));
-            }}
-          />
-        ))}
+        {values
+          ? values.map((val, i) => (
+              <>
+                <Chip
+                  key={i}
+                  label={val}
+                  onDelete={() => setValue(values.filter((v) => v !== val))}
+                />
+                <input type="hidden" name={name} key={i} value={val} />
+              </>
+            ))
+          : null}
       </Grid>
     </>
   );

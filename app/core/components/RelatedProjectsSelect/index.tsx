@@ -2,6 +2,7 @@ import type { PropsWithoutRef } from "react";
 import { Fragment, useState } from "react";
 
 import { CircularProgress, TextField, Autocomplete } from "@mui/material";
+import { useField, useControlField } from "remix-validated-form";
 
 interface RelatedProjectsSelectProps {
   defaultValue?: any[];
@@ -14,8 +15,6 @@ interface RelatedProjectsSelectProps {
   size?: "small" | "medium" | undefined;
   style?: object;
   thisProject?: any;
-  handleChange: React.Dispatch<React.SetStateAction<any>>;
-  values: string[];
 }
 
 export const RelatedProjectsSelect = ({
@@ -28,23 +27,26 @@ export const RelatedProjectsSelect = ({
   outerProps,
   size,
   style,
-  handleChange,
-  values,
   thisProject,
 }: RelatedProjectsSelectProps) => {
+  const { error, getInputProps } = useField(name);
+  const [values, setValue] = useControlField<string[]>(name);
   const projects = ["Project 1", "Project 2", "Project 3", "Project 4"];
   return (
     <>
       <div {...outerProps}>
+        {values
+          ? values.map((val) => (
+              <input type="hidden" name={name} key={val} value={val} />
+            ))
+          : null}
         <Autocomplete
           multiple
           fullWidth={fullWidth ? fullWidth : false}
           style={style ? style : { margin: "1em 0" }}
           options={projects}
-          value={values}
-          onChange={(_e, newValue) =>
-            handleChange({ name: name, newValue: newValue })
-          }
+          value={values || []}
+          onChange={(_e, newValue) => setValue(newValue)}
           filterSelectedOptions
           renderInput={(params) => (
             <TextField
@@ -52,6 +54,9 @@ export const RelatedProjectsSelect = ({
               name={name}
               label={label}
               size={size}
+              error={!!error}
+              helperText={error || helperText}
+              {...getInputProps()}
               style={{ width: "100%", ...style }}
             />
           )}

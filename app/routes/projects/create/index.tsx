@@ -14,6 +14,14 @@ export const validator = withZod(
     description: z.string().nonempty("Description is required"),
     textEditor: z.optional(z.string()),
     helpWanted: z.optional(z.boolean()),
+    disciplines: z.optional(z.array(z.string())),
+    target: z.optional(z.string()),
+    repoUrls: z.optional(z.array(z.string())),
+    slackChannels: z.optional(z.array(z.string())),
+    skills: z.optional(z.array(z.string())),
+    labels: z.optional(z.array(z.string())),
+    relatedProjects: z.optional(z.array(z.string())),
+    projectMembers: z.optional(z.array(z.string())),
   })
 );
 
@@ -21,9 +29,35 @@ export const action: ActionFunction = async ({ request }) => {
   console.log("entering");
   const result = await validator.validate(await request.formData());
   if (result.error) return validationError(result.error);
-  const { name, description, textEditor, helpWanted } = result.data;
+  const {
+    name,
+    description,
+    textEditor,
+    helpWanted,
+    disciplines,
+    target,
+    repoUrls,
+    slackChannels,
+    skills,
+    labels,
+    relatedProjects,
+    projectMembers,
+  } = result.data;
   console.log(result.data);
-  return json({ name, description, textEditor, helpWanted });
+  return json({
+    name,
+    description,
+    textEditor,
+    helpWanted,
+    disciplines,
+    target,
+    repoUrls,
+    slackChannels,
+    skills,
+    labels,
+    relatedProjects,
+    projectMembers,
+  });
 };
 
 const NewProjectPage = () => {

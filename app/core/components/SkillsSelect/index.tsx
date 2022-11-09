@@ -2,6 +2,7 @@ import type { PropsWithoutRef } from "react";
 import { Fragment, useState } from "react";
 
 import { CircularProgress, TextField, Autocomplete } from "@mui/material";
+import { useField, useControlField } from "remix-validated-form";
 
 interface SkillsSelectProps {
   defaultValue?: any[];
@@ -11,8 +12,6 @@ interface SkillsSelectProps {
   label: string;
   helperText?: string;
   outerProps?: PropsWithoutRef<JSX.IntrinsicElements["div"]>;
-  handleChange: React.Dispatch<React.SetStateAction<any>>;
-  values: string[];
   size?: "small" | "medium" | undefined;
   style?: object;
 }
@@ -25,23 +24,26 @@ export const SkillsSelect = ({
   fullWidth,
   name,
   label,
-  handleChange,
-  values,
   helperText,
   outerProps,
   size,
   style,
 }: SkillsSelectProps) => {
+  const { error, getInputProps } = useField(name);
+  const [value, setValue] = useControlField<string[]>(name);
   return (
     <div {...outerProps}>
+      {value
+        ? value.map((val) => (
+            <input type="hidden" name={name} key={val} value={val} />
+          ))
+        : null}
       <Autocomplete
         multiple
         fullWidth={fullWidth ? fullWidth : false}
         style={style ? style : { margin: "1em 0" }}
-        value={values}
-        onChange={(_e, newValue) =>
-          handleChange({ name: name, newValue: newValue })
-        }
+        value={value || defaultValue}
+        onChange={(_e, newValue) => setValue(newValue)}
         options={skills}
         filterSelectedOptions
         renderInput={(params) => (
@@ -50,6 +52,9 @@ export const SkillsSelect = ({
             id={name}
             label={label}
             size={size}
+            error={!!error}
+            helperText={error || helperText}
+            {...getInputProps()}
             style={{ width: "100%", ...style }}
           />
         )}

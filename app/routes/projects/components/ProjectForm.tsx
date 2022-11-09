@@ -22,8 +22,37 @@ export const validator = withZod(
     description: z.string().nonempty("Description is required"),
     textEditor: z.optional(z.string()),
     helpWanted: z.optional(z.boolean()),
+    disciplines: z.optional(z.array(z.string())),
+    target: z.optional(z.string()),
+    repoUrls: z.optional(z.array(z.string())),
+    slackChannels: z.optional(z.array(z.string())),
+    skills: z.optional(z.array(z.string())),
+    labels: z.optional(z.array(z.string())),
+    relatedProjects: z.optional(z.array(z.string())),
+    projectMembers: z.optional(z.array(z.string())),
   })
 );
+
+type projectFormType = {
+  name: string;
+  description?: string;
+  textEditor: string;
+  valueStatement?: string;
+  helpWanted?: boolean;
+  disciplines: string[];
+  owner?: string;
+  target?: string;
+  repoUrls: string[];
+  slackChannel?: string;
+  status?: string;
+  tierName?: string;
+  projectStatus: string;
+  skills: string[];
+  labels: string[];
+  relatedProjects: string[];
+  innovationTiers: string[];
+  projectMembers: object;
+};
 
 export function ProjectForm({ projectformType }: any) {
   const [displayFields, setDisplayFields] = useState(
@@ -55,27 +84,6 @@ export function ProjectForm({ projectformType }: any) {
       active: false,
     },
   });
-
-  type projectFormType = {
-    name: string;
-    description?: string;
-    textEditor: string;
-    valueStatement?: string;
-    helpWanted?: boolean;
-    disciplines: string[];
-    owner?: string;
-    target?: string;
-    repoUrls: string[];
-    slackChannel?: string;
-    status?: string;
-    tierName?: string;
-    projectStatus: string;
-    skills: string[];
-    labels: string[];
-    relatedProjects: string[];
-    innovationTiers: string[];
-    projectMembers: object;
-  };
 
   const transition = useTransition();
   const isCreating = Boolean(transition.submission);
@@ -126,12 +134,10 @@ export function ProjectForm({ projectformType }: any) {
         labelPlacement="end"
       />
 
-      <Collapse in={projectFields.helpWanted}>
+      <Collapse in={true}>
         <DisciplinesSelect //this still uses constant values instead of values taken from the db
           name="disciplines"
           label="Looking for..."
-          handleChange={handleChange}
-          values={projectFields.disciplines}
         />
       </Collapse>
 
@@ -154,7 +160,6 @@ export function ProjectForm({ projectformType }: any) {
           name="owner"
           label="Owner"
           owner={{ name: "John Doe" }}
-          handleChange={handleChange}
         />
       )}
 
@@ -171,8 +176,6 @@ export function ProjectForm({ projectformType }: any) {
           name="repoUrls"
           label="Repo URLs"
           footer="Type the Repo URL and press Enter to add it to your project. You can add as many URLs as you need."
-          handleChange={handleChange}
-          values={projectFields.repoUrls}
         />
 
         <LabeledTextField
@@ -198,23 +201,17 @@ export function ProjectForm({ projectformType }: any) {
         <SkillsSelect //this still uses constant values instead of values taken from the db
           name="skills"
           label="Skills"
-          handleChange={handleChange}
-          values={projectFields.skills}
         />
 
         <LabelsSelect //this still uses constant values instead of values taken from the db
           name="labels"
           label="Labels"
-          handleChange={handleChange}
-          values={projectFields.labels}
         />
 
         <RelatedProjectsSelect //this still uses constant values instead of values taken from the db
           thisProject=""
           name="relatedProjects"
           label="Related Projects"
-          handleChange={handleChange}
-          values={projectFields.relatedProjects}
         />
 
         {/* {projectformType !== "create" && (

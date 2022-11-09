@@ -2,6 +2,7 @@ import type { PropsWithoutRef } from "react";
 import { Fragment, useState } from "react";
 
 import { CircularProgress, TextField, Autocomplete } from "@mui/material";
+import { useField, useControlField } from "remix-validated-form";
 
 interface DisciplinesSelectProps {
   defaultValue?: any[];
@@ -12,8 +13,7 @@ interface DisciplinesSelectProps {
   helperText?: string;
   outerProps?: PropsWithoutRef<JSX.IntrinsicElements["div"]>;
   size?: "small" | "medium" | undefined;
-  handleChange: React.Dispatch<React.SetStateAction<any>>;
-  values: string[];
+
   style?: object;
   parentName?: string;
 }
@@ -35,19 +35,22 @@ export const DisciplinesSelect = ({
   outerProps,
   size,
   style,
-  handleChange,
-  values,
 }: DisciplinesSelectProps) => {
+  const { error, getInputProps } = useField(name);
+  const [values, setValues] = useControlField<string[]>(name);
   return (
     <div {...outerProps}>
+      {values
+        ? values.map((val) => (
+            <input type="hidden" name={name} key={val} value={val} />
+          ))
+        : null}
       <Autocomplete
         multiple
         fullWidth={fullWidth ? fullWidth : false}
         style={style ? style : { margin: "1em 0" }}
-        value={values}
-        onChange={(_e, newValue) =>
-          handleChange({ name: name, newValue: newValue })
-        }
+        value={values || []}
+        onChange={(_e, newValues) => setValues(newValues)}
         options={disciplines}
         filterSelectedOptions
         renderInput={(params) => (
@@ -56,6 +59,9 @@ export const DisciplinesSelect = ({
             id={name}
             label={label}
             size={size}
+            error={!!error}
+            helperText={error || helperText}
+            {...getInputProps()}
             style={{ width: "100%", ...style }}
           />
         )}
