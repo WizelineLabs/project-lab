@@ -4,7 +4,7 @@ import { useNavigate } from "@remix-run/react";
 import { ProjectForm } from "../components/ProjectForm";
 import { withZod } from "@remix-validated-form/with-zod";
 import { z } from "zod";
-import { validationError } from "remix-validated-form";
+import { validationError, ValidatedForm } from "remix-validated-form";
 import { json } from "@remix-run/node";
 import type { ActionFunction } from "@remix-run/node";
 import { zfd } from "zod-form-data";
@@ -37,7 +37,6 @@ export const validator = withZod(
 );
 
 export const action: ActionFunction = async ({ request }) => {
-  console.log("entering");
   const result = await validator.validate(await request.formData());
   if (result.error) return validationError(result.error);
   const {
@@ -81,7 +80,9 @@ const NewProjectPage = () => {
       </div>
       <div className="wrapper">
         <GoBack title="Back to main page" onClick={() => navigate("/")} />
-        <ProjectForm projectformType="create" />
+        <ValidatedForm validator={validator} method="post">
+          <ProjectForm projectformType="create" />
+        </ValidatedForm>
       </div>
     </div>
   );

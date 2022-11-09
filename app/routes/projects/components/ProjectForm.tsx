@@ -1,6 +1,6 @@
 import { FormControlLabel, Switch, Collapse, Box } from "@mui/material";
 import { useState } from "react";
-import { useActionData, useTransition } from "@remix-run/react";
+import { useTransition } from "@remix-run/react";
 import { MultivalueInput } from "~/core/components/MultivalueInput";
 import DisciplinesSelect from "~/core/components/DisciplineSelect";
 import LabeledTextField from "~/core/components/LabeledTextField";
@@ -12,50 +12,18 @@ import LabelsSelect from "~/core/components/LabelsSelect";
 import ProjectOwnerField from "~/core/components/ProjectOwnerField";
 import RelatedProjectsSelect from "~/core/components/RelatedProjectsSelect";
 import ProjectMembersField from "~/core/components/ProjectMembersField";
-import { withZod } from "@remix-validated-form/with-zod";
-import { z } from "zod";
-import { ValidatedForm } from "remix-validated-form";
-import { zfd } from "zod-form-data";
-
-export const validator = withZod(
-  z
-    .object({
-      name: z.string().nonempty("Name is required"),
-      description: z.string().nonempty("Description is required"),
-      textEditor: z.optional(z.string()),
-      helpWanted: z.optional(z.boolean()),
-      disciplines: zfd.repeatable(z.array(z.string()).optional()),
-      target: z.optional(z.string()),
-      repoUrls: zfd.repeatable(z.array(z.string()).optional()),
-      slackChannels: z.optional(z.string()),
-      skills: zfd.repeatable(z.array(z.string()).optional()),
-      labels: zfd.repeatable(z.array(z.string()).optional()),
-      relatedProjects: zfd.repeatable(z.array(z.string()).optional()),
-      projectMembers: zfd.repeatable(z.array(z.string()).optional()),
-    })
-    .transform((val) => {
-      val.disciplines = val.disciplines?.filter((el) => el != "");
-      val.repoUrls = val.repoUrls?.filter((el) => el != "");
-      val.skills = val.skills?.filter((el) => el != "");
-      val.labels = val.labels?.filter((el) => el != "");
-      val.relatedProjects = val.relatedProjects?.filter((el) => el != "");
-      val.projectMembers = val.projectMembers?.filter((el) => el != "");
-      return val;
-    })
-);
 
 export function ProjectForm({ projectformType }: any) {
   const [displayFields, setDisplayFields] = useState(
     projectformType === "create" ? false : true
   );
+  const [displayDisciplines, setDisplayDisciplines] = useState(false);
 
   const transition = useTransition();
   const isCreating = Boolean(transition.submission);
 
-  const data = useActionData();
-
   return (
-    <ValidatedForm validator={validator} method="post">
+    <>
       <LabeledTextField
         style={{ minHeight: "4em" }}
         fullWidth
@@ -78,13 +46,19 @@ export function ProjectForm({ projectformType }: any) {
       />
 
       <FormControlLabel
-        control={<Switch color="primary" name="helpWanted" />}
+        control={
+          <Switch
+            color="primary"
+            name="helpWanted"
+            onChange={(e) => setDisplayDisciplines(e.target.checked)}
+          />
+        }
         name="helpWanted"
         label="We need some help"
         labelPlacement="end"
       />
 
-      <Collapse in={true}>
+      <Collapse in={displayDisciplines}>
         <DisciplinesSelect //this still uses constant values instead of values taken from the db
           name="disciplines"
           label="Looking for..."
@@ -187,6 +161,6 @@ export function ProjectForm({ projectformType }: any) {
           {isCreating ? "Creating..." : "Create Project"}
         </button>
       </Box>
-    </ValidatedForm>
+    </>
   );
 }
