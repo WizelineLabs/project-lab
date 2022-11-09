@@ -142,33 +142,7 @@ export async function createProject(input: any, profileId: string) {
 
   return project;
 }
-/*
-export async function createProject({ name, description, helpWanted, disciplines,
-  target, repoUrls, slackChannel, skills, labels, innovationTiers, projectMembers }:
-{ name: string, description: string, helpWanted: boolean , disciplines: object,
-  target: string, repoUrls: object, slackChannel: string, skills: object,
-  labels: object, relatedProjects: object, innovationTiers: object, projectMembers: object
-}) {
-  try {
-    const project = await db.projects.upsert({
-      create: {
-        name, 
-        description,
-        helpWanted,
-        disciplines,
-        target,
-        repoUrls,
-        slackChannel,
-        skills, 
-        labels, 
-        relatedProjects,
-        innovationTiers,
-        projectMembers,
-      }
-    })
-  } 
-  }
-*/
+
 export type ProjectComplete = Prisma.PromiseReturnType<typeof getProject>;
 
 export async function getProjects(where: ProjectWhereInput) {
