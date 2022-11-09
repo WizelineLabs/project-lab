@@ -2,7 +2,7 @@ import type { PropsWithoutRef } from "react";
 import TextField from "@mui/material/TextField";
 import { useField } from "remix-validated-form";
 
-interface LabeledTextFieldProps {
+interface LabeledTextFieldAreaProps {
   name: string;
   label: string;
   /** Field type. Doesn't include radio buttons and checkboxes */
@@ -11,29 +11,29 @@ interface LabeledTextFieldProps {
   placeholder?: string;
   fullWidth?: boolean;
   style?: any;
-  multiline?: boolean;
-  rows?: number;
   outerProps?: PropsWithoutRef<JSX.IntrinsicElements["div"]>;
 }
 
-export const LabeledTextField = ({
+export const LabeledTextFieldArea = ({
   name,
   label,
   type,
   helperText,
   outerProps,
   ...props
-}: LabeledTextFieldProps) => {
+}: LabeledTextFieldAreaProps) => {
   const { error, getInputProps } = useField(name);
+
   return (
     <div {...outerProps}>
       <TextField
         id={name}
         name={name}
-        label={label}
-        type={type}
+        rows={6}
         helperText={error || helperText}
         error={!!error}
+        label={label}
+        type={type}
         {...getInputProps()}
         {...props}
       />
@@ -41,4 +41,4 @@ export const LabeledTextField = ({
   );
 };
 
-export default LabeledTextField;
+export default LabeledTextFieldArea;
