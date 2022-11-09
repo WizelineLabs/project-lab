@@ -34,7 +34,7 @@ export const LabelsSelect = ({
         fullWidth
         style={{ margin: "1em 0" }}
         options={labels}
-        value={value}
+        value={value || defaultValue}
         onChange={(_e, newValue) => setValue(newValue)}
         filterSelectedOptions
         renderInput={(params) => (

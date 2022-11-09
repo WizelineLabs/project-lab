@@ -50,49 +50,13 @@ export const ProjectMembersField = ({
             <Chip label={values.owner} />
           </Grid>
           <Grid item xs={12} sm={4}>
-            <Autocomplete
-              multiple
-              fullWidth
-              style={{ margin: "1em 0" }}
-              value={values.roles}
-              onChange={(_e, newValue) =>
-                handleChange({ name: "roles", newValue: newValue })
-              }
-              size="small"
-              options={profiles}
-              filterSelectedOptions
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  id={name}
-                  label={"role(s)"}
-                  size="small"
-                  style={{ margin: 0 }}
-                />
-              )}
+            <DisciplinesSelect //this still uses constant values instead of values taken from the db
+              name="disciplines2"
+              label="Looking for..."
             />
           </Grid>
           <Grid item xs={12} sm={4}>
-            <Autocomplete
-              multiple
-              fullWidth
-              style={{ margin: "1em 0" }}
-              value={values.skills}
-              onChange={(_e, newValue) =>
-                handleChange({ name: "skills", newValue: newValue })
-              }
-              options={["deded", "dwdw"]}
-              filterSelectedOptions
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  id={name}
-                  label={"skills"}
-                  size={"small"}
-                  style={{ margin: 0 }}
-                />
-              )}
-            />
+            <SkillsSelect name="skills2" label="Skills" />
           </Grid>
           <Grid item xs={6} sm={1}>
             <TextField

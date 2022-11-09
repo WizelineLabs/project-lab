@@ -38,6 +38,7 @@ export const DisciplinesSelect = ({
 }: DisciplinesSelectProps) => {
   const { error, getInputProps } = useField(name);
   const [values, setValues] = useControlField<string[]>(name);
+  // console.log(values);
   return (
     <div {...outerProps}>
       {values
@@ -50,7 +51,10 @@ export const DisciplinesSelect = ({
         fullWidth={fullWidth ? fullWidth : false}
         style={style ? style : { margin: "1em 0" }}
         value={values || []}
-        onChange={(_e, newValues) => setValues(newValues)}
+        onChange={(_e, newValues) => {
+          console.log(newValues);
+          setValues(newValues);
+        }}
         options={disciplines}
         filterSelectedOptions
         renderInput={(params) => (

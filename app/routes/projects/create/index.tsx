@@ -7,22 +7,33 @@ import { z } from "zod";
 import { validationError } from "remix-validated-form";
 import { json } from "@remix-run/node";
 import type { ActionFunction } from "@remix-run/node";
+import { zfd } from "zod-form-data";
 
 export const validator = withZod(
-  z.object({
-    name: z.string().nonempty("Name is required"),
-    description: z.string().nonempty("Description is required"),
-    textEditor: z.optional(z.string()),
-    helpWanted: z.optional(z.boolean()),
-    disciplines: z.optional(z.array(z.string())),
-    target: z.optional(z.string()),
-    repoUrls: z.optional(z.array(z.string())),
-    slackChannels: z.optional(z.array(z.string())),
-    skills: z.optional(z.array(z.string())),
-    labels: z.optional(z.array(z.string())),
-    relatedProjects: z.optional(z.array(z.string())),
-    projectMembers: z.optional(z.array(z.string())),
-  })
+  z
+    .object({
+      name: z.string().nonempty("Name is required"),
+      description: z.string().nonempty("Description is required"),
+      textEditor: z.optional(z.string()),
+      helpWanted: z.optional(z.boolean()),
+      disciplines: zfd.repeatable(z.array(z.string()).optional()),
+      target: z.optional(z.string()),
+      repoUrls: zfd.repeatable(z.array(z.string()).optional()),
+      slackChannels: z.optional(z.string()),
+      skills: zfd.repeatable(z.array(z.string()).optional()),
+      labels: zfd.repeatable(z.array(z.string()).optional()),
+      relatedProjects: zfd.repeatable(z.array(z.string()).optional()),
+      projectMembers: zfd.repeatable(z.array(z.string()).optional()),
+    })
+    .transform((val) => {
+      val.disciplines = val.disciplines?.filter((el) => el != "");
+      val.repoUrls = val.repoUrls?.filter((el) => el != "");
+      val.skills = val.skills?.filter((el) => el != "");
+      val.labels = val.labels?.filter((el) => el != "");
+      val.relatedProjects = val.relatedProjects?.filter((el) => el != "");
+      val.projectMembers = val.projectMembers?.filter((el) => el != "");
+      return val;
+    })
 );
 
 export const action: ActionFunction = async ({ request }) => {

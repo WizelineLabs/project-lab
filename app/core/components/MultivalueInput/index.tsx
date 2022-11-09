@@ -32,6 +32,8 @@ export const MultivalueInput = ({
         label={label}
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
+        error={!!error}
+        helperText={error}
         fullWidth
         onKeyDown={(e) => {
           if (e.key === "Enter") {
@@ -52,14 +54,13 @@ export const MultivalueInput = ({
       >
         {values
           ? values.map((val, i) => (
-              <>
+              <span key={i}>
                 <Chip
-                  key={i}
                   label={val}
                   onDelete={() => setValue(values.filter((v) => v !== val))}
                 />
-                <input type="hidden" name={name} key={i} value={val} />
-              </>
+                <input type="hidden" name={name} value={val} />
+              </span>
             ))
           : null}
       </Grid>

@@ -48,7 +48,8 @@
     "remix-auth-auth0": "^1.3.7",
     "remix-validated-form": "^4.6.4",
     "tiny-invariant": "^1.2.0",
-    "zod": "^3.19.1"
+    "zod": "^3.19.1",
+    "zod-form-data": "^1.2.4"
   },
   "devDependencies": {
     "@faker-js/faker": "^6.3.1",

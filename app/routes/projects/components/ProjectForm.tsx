@@ -15,92 +15,42 @@ import ProjectMembersField from "~/core/components/ProjectMembersField";
 import { withZod } from "@remix-validated-form/with-zod";
 import { z } from "zod";
 import { ValidatedForm } from "remix-validated-form";
+import { zfd } from "zod-form-data";
 
 export const validator = withZod(
-  z.object({
-    name: z.string().nonempty("Name is required"),
-    description: z.string().nonempty("Description is required"),
-    textEditor: z.optional(z.string()),
-    helpWanted: z.optional(z.boolean()),
-    disciplines: z.optional(z.array(z.string())),
-    target: z.optional(z.string()),
-    repoUrls: z.optional(z.array(z.string())),
-    slackChannels: z.optional(z.array(z.string())),
-    skills: z.optional(z.array(z.string())),
-    labels: z.optional(z.array(z.string())),
-    relatedProjects: z.optional(z.array(z.string())),
-    projectMembers: z.optional(z.array(z.string())),
-  })
+  z
+    .object({
+      name: z.string().nonempty("Name is required"),
+      description: z.string().nonempty("Description is required"),
+      textEditor: z.optional(z.string()),
+      helpWanted: z.optional(z.boolean()),
+      disciplines: zfd.repeatable(z.array(z.string()).optional()),
+      target: z.optional(z.string()),
+      repoUrls: zfd.repeatable(z.array(z.string()).optional()),
+      slackChannels: z.optional(z.string()),
+      skills: zfd.repeatable(z.array(z.string()).optional()),
+      labels: zfd.repeatable(z.array(z.string()).optional()),
+      relatedProjects: zfd.repeatable(z.array(z.string()).optional()),
+      projectMembers: zfd.repeatable(z.array(z.string()).optional()),
+    })
+    .transform((val) => {
+      val.disciplines = val.disciplines?.filter((el) => el != "");
+      val.repoUrls = val.repoUrls?.filter((el) => el != "");
+      val.skills = val.skills?.filter((el) => el != "");
+      val.labels = val.labels?.filter((el) => el != "");
+      val.relatedProjects = val.relatedProjects?.filter((el) => el != "");
+      val.projectMembers = val.projectMembers?.filter((el) => el != "");
+      return val;
+    })
 );
-
-type projectFormType = {
-  name: string;
-  description?: string;
-  textEditor: string;
-  valueStatement?: string;
-  helpWanted?: boolean;
-  disciplines: string[];
-  owner?: string;
-  target?: string;
-  repoUrls: string[];
-  slackChannel?: string;
-  status?: string;
-  tierName?: string;
-  projectStatus: string;
-  skills: string[];
-  labels: string[];
-  relatedProjects: string[];
-  innovationTiers: string[];
-  projectMembers: object;
-};
 
 export function ProjectForm({ projectformType }: any) {
   const [displayFields, setDisplayFields] = useState(
     projectformType === "create" ? false : true
   );
 
-  const [projectFields, setProjectFields] = useState<projectFormType>({
-    name: "",
-    description: "",
-    textEditor: "",
-    valueStatement: "",
-    helpWanted: false,
-    disciplines: [],
-    owner: "",
-    target: "",
-    repoUrls: [],
-    slackChannel: "",
-    projectStatus: "",
-    skills: [],
-    labels: [],
-    relatedProjects: [],
-    innovationTiers: [],
-    projectMembers: {
-      contributors: [],
-      owner: "",
-      roles: [],
-      skills: [],
-      hours: 0,
-      active: false,
-    },
-  });
-
   const transition = useTransition();
   const isCreating = Boolean(transition.submission);
-
-  const handleChange = ({ name, newValue }) => {
-    setProjectFields((prev: any) => ({
-      ...prev,
-      [name]: newValue,
-    }));
-  };
-
-  const handleChangeProjectMembers = ({ name, newValue }) => {
-    setProjectFields((prev: any) => ({
-      ...prev,
-      projectMembers: { ...prev.projectMembers, [name]: newValue },
-    }));
-  };
 
   const data = useActionData();
 
@@ -181,7 +131,7 @@ export function ProjectForm({ projectformType }: any) {
         <LabeledTextField
           fullWidth
           style={{ margin: "1em 0" }}
-          name="slackChannel"
+          name="slackChannels"
           label="Slack Channel"
           placeholder="#project-name"
         />
@@ -225,12 +175,12 @@ export function ProjectForm({ projectformType }: any) {
           />
         )} */}
 
-        <ProjectMembersField
+        {/* <ProjectMembersField
           name="projectMembers"
           label="Add a contributor"
           handleChange={handleChangeProjectMembers}
           values={projectFields.projectMembers}
-        />
+        /> */}
       </Collapse>
       <Box textAlign="center">
         <button type="submit" className="primary" disabled={isCreating}>
