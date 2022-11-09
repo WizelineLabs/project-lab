@@ -1,8 +1,7 @@
 import { FormControlLabel, Switch, Collapse, Box } from "@mui/material";
 import { useState } from "react";
-import { Form, useTransition } from "@remix-run/react";
+import { useActionData, useTransition } from "@remix-run/react";
 import { MultivalueInput } from "~/core/components/MultivalueInput";
-import { useFetcher } from "@remix-run/react";
 import DisciplinesSelect from "~/core/components/DisciplineSelect";
 import LabeledTextField from "~/core/components/LabeledTextField";
 import LabeledTextFieldArea from "~/core/components/LabeledTextFieldArea";
@@ -13,10 +12,20 @@ import LabelsSelect from "~/core/components/LabelsSelect";
 import ProjectOwnerField from "~/core/components/ProjectOwnerField";
 import RelatedProjectsSelect from "~/core/components/RelatedProjectsSelect";
 import ProjectMembersField from "~/core/components/ProjectMembersField";
+import { withZod } from "@remix-validated-form/with-zod";
+import { z } from "zod";
+import { ValidatedForm } from "remix-validated-form";
+
+export const validator = withZod(
+  z.object({
+    name: z.string().nonempty("Name is required"),
+    description: z.string().nonempty("Description is required"),
+    textEditor: z.optional(z.string()),
+    helpWanted: z.optional(z.boolean()),
+  })
+);
 
 export function ProjectForm({ projectformType }: any) {
-  const fetcher = useFetcher();
-
   const [displayFields, setDisplayFields] = useState(
     projectformType === "create" ? false : true
   );
@@ -68,14 +77,6 @@ export function ProjectForm({ projectformType }: any) {
     projectMembers: object;
   };
 
-  const handleSubmit = async () => {
-    const body = {
-      data: JSON.stringify(projectFields),
-    };
-
-    await fetcher.submit(body, { method: "post" });
-  };
-
   const transition = useTransition();
   const isCreating = Boolean(transition.submission);
 
@@ -93,15 +94,16 @@ export function ProjectForm({ projectformType }: any) {
     }));
   };
 
+  const data = useActionData();
+
   return (
-    <Form action="/projects/create" onSubmit={async () => await handleSubmit()}>
+    <ValidatedForm validator={validator} method="post">
       <LabeledTextField
         style={{ minHeight: "4em" }}
         fullWidth
         name="name"
         label="Name"
         placeholder="Name"
-        handleChange={handleChange}
       />
 
       <LabeledTextFieldArea
@@ -110,24 +112,15 @@ export function ProjectForm({ projectformType }: any) {
         name="description"
         label="Problem Statement"
         placeholder="Problem statement"
-        handleChange={handleChange}
       />
 
       <TextEditor
         name="textEditor"
         defaultValue={"Explain us your proposal..."}
-        handleChange={handleChange}
       />
 
       <FormControlLabel
-        control={
-          <Switch
-            color="primary"
-            onChange={(e) =>
-              handleChange({ name: "helpWanted", newValue: e.target.checked })
-            }
-          />
-        }
+        control={<Switch color="primary" name="helpWanted" />}
         name="helpWanted"
         label="We need some help"
         labelPlacement="end"
@@ -172,7 +165,6 @@ export function ProjectForm({ projectformType }: any) {
           name="target"
           label="Who is your target user/client"
           placeholder="Millenials"
-          handleChange={handleChange}
         />
 
         <MultivalueInput
@@ -189,7 +181,6 @@ export function ProjectForm({ projectformType }: any) {
           name="slackChannel"
           label="Slack Channel"
           placeholder="#project-name"
-          handleChange={handleChange}
         />
 
         {/* {projectformType !== "create" && ( //this still uses constant values instead of values taken from the db
@@ -249,6 +240,6 @@ export function ProjectForm({ projectformType }: any) {
           {isCreating ? "Creating..." : "Create Project"}
         </button>
       </Box>
-    </Form>
+    </ValidatedForm>
   );
 }

@@ -1,17 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQuill } from "react-quilljs";
 
 type TextEditorProps = {
   name: string;
   defaultValue?: string;
-  handleChange: React.Dispatch<React.SetStateAction<any>>;
 };
 
-export default function TextEditor({
-  defaultValue,
-  name,
-  handleChange,
-}: TextEditorProps) {
+export default function TextEditor({ defaultValue, name }: TextEditorProps) {
   const modules = {
     toolbar: [
       [{ header: [1, 2, 3, 4, 5, 6, false] }],
@@ -40,16 +35,19 @@ export default function TextEditor({
 
   const { quill, quillRef } = useQuill({ modules, formats, placeholder });
 
+  const [text, setText] = useState("");
+
   useEffect(() => {
     if (quill) {
       quill.on("text-change", (_delta: any, _oldDelta: any, _source: any) => {
-        handleChange({ name: name, newValue: quill.root.innerHTML });
+        setText(quill.root.innerHTML);
       });
     }
   }, [quill]);
   return (
     <div style={{ width: "100%" }}>
       <div id={name} ref={quillRef} />
+      <input type="hidden" name={name} value={text} />
     </div>
   );
 }

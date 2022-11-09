@@ -1,5 +1,6 @@
 import type { PropsWithoutRef } from "react";
 import TextField from "@mui/material/TextField";
+import { useField } from "remix-validated-form";
 
 interface LabeledTextFieldProps {
   name: string;
@@ -9,7 +10,6 @@ interface LabeledTextFieldProps {
   helperText?: string;
   placeholder?: string;
   fullWidth?: boolean;
-  handleChange: React.Dispatch<React.SetStateAction<any>>;
   style?: any;
   multiline?: boolean;
   rows?: number;
@@ -20,20 +20,21 @@ export const LabeledTextField = ({
   name,
   label,
   type,
-  handleChange,
   helperText,
   outerProps,
   ...props
 }: LabeledTextFieldProps) => {
+  const { error, getInputProps } = useField(name);
   return (
     <div {...outerProps}>
       <TextField
         id={name}
         name={name}
-        onChange={(e) => handleChange({ name: name, newValue: e.target.value })}
         label={label}
         type={type}
-        helperText={helperText}
+        helperText={error || helperText}
+        error={!!error}
+        {...getInputProps()}
         {...props}
       />
     </div>
