@@ -41,7 +41,7 @@ export function ProjectForm({ projectformType }: any) {
       />
 
       <TextEditor
-        name="textEditor"
+        name="valueStatement"
         defaultValue={"Explain us your proposal..."}
       />
 
@@ -105,7 +105,7 @@ export function ProjectForm({ projectformType }: any) {
         <LabeledTextField
           fullWidth
           style={{ margin: "1em 0" }}
-          name="slackChannels"
+          name="slackChannel"
           label="Slack Channel"
           placeholder="#project-name"
         />
@@ -132,11 +132,11 @@ export function ProjectForm({ projectformType }: any) {
           label="Labels"
         />
 
-        <RelatedProjectsSelect //this still uses constant values instead of values taken from the db
+        {/* <RelatedProjectsSelect //this still uses constant values instead of values taken from the db
           thisProject=""
-          name="relatedProjects"
+          name="relatedProjectsA"
           label="Related Projects"
-        />
+        /> */}
 
         {/* {projectformType !== "create" && (
           <InputSelect

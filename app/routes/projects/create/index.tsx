@@ -5,16 +5,18 @@ import { ProjectForm } from "../components/ProjectForm";
 import { withZod } from "@remix-validated-form/with-zod";
 import { z } from "zod";
 import { validationError, ValidatedForm } from "remix-validated-form";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import type { ActionFunction } from "@remix-run/node";
 import { zfd } from "zod-form-data";
+import { requireProfile } from "~/session.server";
+import { createProject } from "~/models/project.server";
 
 export const validator = withZod(
   z
     .object({
       name: z.string().nonempty("Name is required"),
       description: z.string().nonempty("Description is required"),
-      textEditor: z.optional(z.string()),
+      valueStatement: z.optional(z.string()),
       helpWanted: z.optional(z.boolean()),
       disciplines: zfd.repeatable(z.array(z.string()).optional()),
       target: z.optional(z.string()),
@@ -22,7 +24,7 @@ export const validator = withZod(
       slackChannels: z.optional(z.string()),
       skills: zfd.repeatable(z.array(z.string()).optional()),
       labels: zfd.repeatable(z.array(z.string()).optional()),
-      relatedProjects: zfd.repeatable(z.array(z.string()).optional()),
+      // relatedProjectsA: zfd.repeatable(z.array(z.string()).optional()),
       projectMembers: zfd.repeatable(z.array(z.string()).optional()),
     })
     .transform((val) => {
@@ -30,44 +32,19 @@ export const validator = withZod(
       val.repoUrls = val.repoUrls?.filter((el) => el != "");
       val.skills = val.skills?.filter((el) => el != "");
       val.labels = val.labels?.filter((el) => el != "");
-      val.relatedProjects = val.relatedProjects?.filter((el) => el != "");
+      // val.relatedProjectsA = val.relatedProjectsA?.filter((el) => el != "");
       val.projectMembers = val.projectMembers?.filter((el) => el != "");
       return val;
     })
 );
 
 export const action: ActionFunction = async ({ request }) => {
+  const profile = await requireProfile(request);
   const result = await validator.validate(await request.formData());
   if (result.error) return validationError(result.error);
-  const {
-    name,
-    description,
-    textEditor,
-    helpWanted,
-    disciplines,
-    target,
-    repoUrls,
-    slackChannels,
-    skills,
-    labels,
-    relatedProjects,
-    projectMembers,
-  } = result.data;
   console.log(result.data);
-  return json({
-    name,
-    description,
-    textEditor,
-    helpWanted,
-    disciplines,
-    target,
-    repoUrls,
-    slackChannels,
-    skills,
-    labels,
-    relatedProjects,
-    projectMembers,
-  });
+  const project = await createProject(result.data, profile.id);
+  return redirect(`/projects/${project.id}`);
 };
 
 const NewProjectPage = () => {
