@@ -210,7 +210,7 @@ export async function updateRelatedProjects({
     }
   }
 
-  const relatedProjectsIds = await data.relatedProjects.map((e) => e.id);
+  const relatedProjectsIds = data.relatedProjects.map((e) => e.id);
   // Delete related projects
   const deleteResponse = await tx.relatedProjects.deleteMany({
     where: {
