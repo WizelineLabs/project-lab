@@ -30,19 +30,17 @@ export const SkillsSelect = ({
   style,
 }: SkillsSelectProps) => {
   const { error, getInputProps } = useField(name);
-  const [value, setValue] = useControlField<string[]>(name);
+  const [values, setValue] = useControlField<string[]>(name);
   return (
     <div {...outerProps}>
-      {value
-        ? value.map((val) => (
-            <input type="hidden" name={name} key={val} value={val} />
-          ))
-        : null}
+      {values?.map((val) => (
+        <input type="hidden" name={name} key={val} value={val} />
+      ))}
       <Autocomplete
         multiple
         fullWidth={fullWidth ? fullWidth : false}
         style={style ? style : { margin: "1em 0" }}
-        value={value || defaultValue}
+        value={values || defaultValue}
         onChange={(_e, newValue) => setValue(newValue)}
         options={skills}
         filterSelectedOptions

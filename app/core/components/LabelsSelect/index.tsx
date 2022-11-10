@@ -21,20 +21,18 @@ export const LabelsSelect = ({
 }: LabelsSelectProps) => {
   const labels = ["React", "Node", "Python", "Java", "C++", "C#"];
   const { error, getInputProps } = useField(name);
-  const [value, setValue] = useControlField<string[]>(name);
+  const [values, setValue] = useControlField<string[]>(name);
   return (
     <div {...outerProps}>
-      {value
-        ? value.map((val) => (
-            <input type="hidden" name={name} key={val} value={val} />
-          ))
-        : null}
+      {values?.map((val) => (
+        <input type="hidden" name={name} key={val} value={val} />
+      ))}
       <Autocomplete
         multiple={true}
         fullWidth
         style={{ margin: "1em 0" }}
         options={labels}
-        value={value || defaultValue}
+        value={values || defaultValue}
         onChange={(_e, newValue) => setValue(newValue)}
         filterSelectedOptions
         renderInput={(params) => (

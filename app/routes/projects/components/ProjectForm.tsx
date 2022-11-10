@@ -12,12 +12,14 @@ import LabelsSelect from "~/core/components/LabelsSelect";
 import ProjectOwnerField from "~/core/components/ProjectOwnerField";
 import RelatedProjectsSelect from "~/core/components/RelatedProjectsSelect";
 import ProjectMembersField from "~/core/components/ProjectMembersField";
+import { useControlField, useField } from "remix-validated-form";
 
 export function ProjectForm({ projectformType }: any) {
   const [displayFields, setDisplayFields] = useState(
     projectformType === "create" ? false : true
   );
-  const [displayDisciplines, setDisplayDisciplines] = useState(false);
+
+  const [helpWanted, setHelpWanted] = useControlField<boolean>("helpWanted");
 
   const transition = useTransition();
   const isCreating = Boolean(transition.submission);
@@ -50,7 +52,7 @@ export function ProjectForm({ projectformType }: any) {
           <Switch
             color="primary"
             name="helpWanted"
-            onChange={(e) => setDisplayDisciplines(e.target.checked)}
+            onChange={(e) => setHelpWanted(e.target.checked)}
           />
         }
         name="helpWanted"
@@ -58,7 +60,7 @@ export function ProjectForm({ projectformType }: any) {
         labelPlacement="end"
       />
 
-      <Collapse in={displayDisciplines}>
+      <Collapse in={helpWanted}>
         <DisciplinesSelect //this still uses constant values instead of values taken from the db
           name="disciplines"
           label="Looking for..."
