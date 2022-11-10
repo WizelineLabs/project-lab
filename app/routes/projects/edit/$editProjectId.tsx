@@ -21,11 +21,15 @@ import type { Profiles, ProjectMembers } from "@prisma/client";
 import {
   Autocomplete,
   TextField,
-  Alert
+  Alert,
+  Box
 } from "@mui/material";
 import GoBack from "~/core/components/GoBack";
 import RelatedProjectsSection from "~/core/components/RelatedProjectsSection";
 import { useEffect, useState } from "react";
+import { ProjectForm } from "../components/ProjectForm";
+import { ValidatedForm } from "remix-validated-form";
+import { validator } from "../create";
 
 type LoaderData = {
   isAdmin: boolean;
@@ -142,7 +146,7 @@ export default function EditProjectPage() {
       await fetcher.submit(body, { method: "put" });
     } catch (error: any) {
       console.error(error);
-    }
+    }  
   };
 
   useEffect(() => {
@@ -164,44 +168,23 @@ export default function EditProjectPage() {
       <div className="wrapper">
         <GoBack title="Back to project" href={`/projects/${projectId}`} />
         <fetcher.Form method="post">
-          <Autocomplete
-            multiple
-            id="relatedProjects"
-            options={projectsList}
-            getOptionLabel={(option) => option.name}
-            value={selectedRelatedProjects}
-            onChange={(event,value: { id: string; name: string; }[] | []) =>
-              handleChange(value)
-            }
-            defaultValue={project.relatedProjects}
-            filterSelectedOptions
-            isOptionEqualToValue={(option, value) => option.name === value.name}
-            renderInput={(params) => (
-              <TextField
-                label="Related Projects"
-                {...params}
-                placeholder="Add Related Projects..."
-              />
-            )}
-          />
-          <div className="margin-vertical-separator">
-          <button
-            disabled={fetcher.state === "submitting"}
-            className="primary"
-            onClick={() => submitEdition()}
-            >
-            Submit
-          </button>
-            </div>
-            {error && 
-            <Alert severity="warning">Information could not be saved</Alert>
-            }
+          <ValidatedForm validator={validator} method="post">
+            <ProjectForm
+              submitText="Update Project"
+              //            schema={FullCreate}
+              initialValues={project}
+              //            onSubmit={submitEdition}
+              //            buttonType="button"
+            />
+            <Box textAlign="center">
+              <button type="submit" className="primary">
+                {"Update Project"}
+              </button>
+            </Box>
+          </ValidatedForm>
+          {error && <Alert severity="warning">Information could not be saved</Alert>}
         </fetcher.Form>
       </div>
-      <div className="wrapper">
-        <RelatedProjectsSection relatedProjects={project.relatedProjects} />
-      </div>
-
     </>
-  );
+  )
 }

@@ -156,11 +156,6 @@ export function ProjectForm({ projectformType }: any) {
           values={projectFields.projectMembers}
         /> */}
       </Collapse>
-      <Box textAlign="center">
-        <button type="submit" className="primary" disabled={isCreating}>
-          {isCreating ? "Creating..." : "Create Project"}
-        </button>
-      </Box>
     </>
   );
 }
