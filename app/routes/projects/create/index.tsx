@@ -10,6 +10,7 @@ import type { ActionFunction } from "@remix-run/node";
 import { zfd } from "zod-form-data";
 import { requireProfile } from "~/session.server";
 import { createProject } from "~/models/project.server";
+import { Box } from "@mui/material";
 
 export const validator = withZod(
   z
@@ -59,10 +60,15 @@ const NewProjectPage = () => {
         <GoBack title="Back to main page" onClick={() => navigate("/")} />
         <ValidatedForm validator={validator} method="post">
           <ProjectForm projectformType="create" />
+          <Box textAlign="center">
+            <button type="submit" className="primary">
+              {"Create Project"}
+            </button>
+          </Box>
         </ValidatedForm>
       </div>
     </div>
-  );
+  )
 };
 
 export default NewProjectPage;
