@@ -10,33 +10,38 @@ import {
 } from "@mui/material";
 import { SkillsSelect } from "app/core/components/SkillsSelect";
 import { DisciplinesSelect } from "app/core/components/DisciplineSelect";
+import { useField, useControlField } from "remix-validated-form";
 
 interface ProfilesSelectProps {
   name: string;
   label: string;
   helperText?: string;
-  handleChange: React.Dispatch<React.SetStateAction<any>>;
-  values: object;
 }
 
 export const ProjectMembersField = ({
   name,
   label,
   helperText,
-  handleChange,
-  values,
 }: ProfilesSelectProps) => {
+  const { error, getInputProps } = useField(name);
+  const [contributosValues, setContributorsValues] =
+    useControlField<string[]>(name);
   const profiles: readonly any[] = ["diego", "jorge", "jose"];
   return (
     <React.Fragment>
       <Autocomplete
         multiple
         options={profiles}
-        value={values.contributors}
-        onChange={(_e, newValue) =>
-          handleChange({ name: "contributors", newValue: newValue })
-        }
-        renderInput={(params) => <TextField {...params} label={label} />}
+        value={contributosValues || []}
+        onChange={(_e, newValue) => setContributorsValues(newValue)}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label={label}
+            error={!!error}
+            {...getInputProps()}
+          />
+        )}
       />
       <Grid
         container
