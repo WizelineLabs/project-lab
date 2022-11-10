@@ -1,6 +1,5 @@
 import type { Profiles, Projects } from "@prisma/client";
 import { Prisma } from "@prisma/client";
-import { stringify } from "querystring";
 import { defaultStatus } from "~/constants";
 
 import { joinCondition, prisma as db } from "~/db.server";
@@ -53,6 +52,10 @@ interface FacetOutput {
   count: number;
 }
 
+interface RelatedProjectInput {
+  relatedProjects: [{ id: string; name: string }]
+}
+
 export class SearchProjectsError extends Error {
   name = "SearchProjectsError";
   message = "There was an error while searching for projects.";
@@ -62,7 +65,7 @@ export function isProjectTeamMember(
   profileId: string,
   project: ProjectComplete
 ) {
-  const isProjectMember = project?.projectMembers.some(
+  const isProjectMember = project?.projectMembers?.some(
     (p) => p.profileId === profileId
   );
   const isProjectOwner = profileId === project?.ownerId;
@@ -73,11 +76,11 @@ export function getProjectTeamMember(
   profileId: string,
   project: ProjectComplete
 ) {
-  return project?.projectMembers.find((p) => p.profileId === profileId);
+  return project?.projectMembers?.find((p) => p.profileId === profileId);
 }
 
 export async function getProject({ id }: Pick<Projects, "id">) {
-  return await db.projects.findFirst({
+  const projectQueried = await db.projects.findFirst({
     where: { id },
     include: {
       skills: true,
@@ -103,8 +106,35 @@ export async function getProject({ id }: Pick<Projects, "id">) {
       votes: { where: { projectId: id } },
       innovationTiers: true,
       repoUrls: true,
+      relatedProjectsA: {
+        include: {
+          projectA: { select: { id: true, name: true } },
+          projectB: { select: { id: true, name: true } },
+        },
+      },
+      relatedProjectsB: {
+        include: {
+          projectA: { select: { id: true, name: true } },
+          projectB: { select: { id: true, name: true } },
+        },
+      },
     },
   });
+
+  // Parse related Projects
+  const relatedProA = projectQueried?.relatedProjectsA.map((e) => {
+    return e.projectA.id === id ? { ...e.projectB } : { ...e.projectA }
+  });
+  const relatedProB = projectQueried?.relatedProjectsB.map((e) => {
+    return e.projectA.id === id ? { ...e.projectB } : { ...e.projectA }
+  });
+  const relatedProjects = [ ...(relatedProA || []), ...(relatedProB || []) ]
+
+  const project = {
+    ...projectQueried,
+    relatedProjects: relatedProjects
+  };
+  return project;
 }
 
 export async function createProject(input: any, profileId: string) {
@@ -173,6 +203,62 @@ export async function updateProjects({
     where: { id: { in: ids } },
     data,
   });
+}
+
+// edit only relatedProjects
+export async function updateRelatedProjects({
+  id,
+  data,
+}: {
+  id: string;
+  data: RelatedProjectInput;
+}) {
+  return await db.$transaction(async (tx) => {
+  // Create related Projects
+  const createResponse = [];
+  let response;
+  for (let i = 0; i < data.relatedProjects.length; i++) {
+    let relationExist = await tx.relatedProjects.count({
+      where: {
+        OR: [
+          {
+            projectAId: data.relatedProjects[i].id,
+            projectBId: id,
+          },
+          {
+            projectAId: id,
+            projectBId: data.relatedProjects[i].id,
+          },
+        ],
+      },
+    });
+
+    if (relationExist === 0) {
+      response = await tx.relatedProjects.create({
+        data: {
+          projectAId: id,
+          projectBId: data.relatedProjects[i].id,
+        },
+      });
+      if(!response){
+        throw new Error(`Error when acreating relation for: ${data.relatedProjects[i].id}`)
+      }
+      createResponse.push(response)
+    }
+  }
+
+  const relatedProjectsIds = data.relatedProjects.map((e) => e.id);
+  // Delete related projects
+  const deleteResponse = await tx.relatedProjects.deleteMany({
+    where: {
+      OR: [
+        { projectAId: id, projectBId: { notIn: relatedProjectsIds } },
+        { projectAId: { notIn: relatedProjectsIds }, projectBId: id },
+      ],
+    },
+  });
+  return {createResponse,deleteResponse}
+})
 }
 
 export async function searchProjects({

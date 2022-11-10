@@ -43,6 +43,7 @@ import {
   unvoteProject,
   checkUserVote,
 } from "~/models/votes.server";
+import RelatedProjectsSection from "~/core/components/RelatedProjectsSection";
 
 type LoaderData = {
   isAdmin: boolean;
@@ -165,7 +166,7 @@ export default function ProjectDetailsPage() {
           <div className="headerInfo--action">
             <div className="headerInfo--edit">
               {(isTeamMember || isAdmin) && (
-                <Link to={`/projects/${project.id}/edit`}>
+                <Link to={`/projects/edit/${project.id}`}>
                   <EditButton>
                     <EditSharp />
                   </EditButton>
@@ -181,7 +182,7 @@ export default function ProjectDetailsPage() {
               <div className="descriptionProposal">{project.description}</div>
               <div className="lastUpdateProposal">
                 Last update:{" "}
-                {formatDistance(new Date(project.updatedAt), new Date(), {
+                {project.updatedAt && formatDistance(new Date(project.updatedAt), new Date(), {
                   addSuffix: true,
                 })}
               </div>
@@ -258,7 +259,7 @@ export default function ProjectDetailsPage() {
               </Grid>
               <Grid item>
                 <Stack direction="row" spacing={1}>
-                  {project.labels.map((item, index) => (
+                  {project.labels && project.labels.map((item, index) => (
                     <Chip key={index} label={item.name} />
                   ))}
                 </Stack>
@@ -306,13 +307,13 @@ export default function ProjectDetailsPage() {
                 <LikeBox>
                   <Like>
                     <div className="like-bubble">
-                      <span>{project.votes.length}</span>
+                      <span>{project?.votes?.length}</span>
                     </div>
                     <Button
                       className="primary"
-                      onClick={() => handleVote(project.id)}
+                      onClick={() => handleVote(project.id || "")}
                     >
-                      {project.votes.filter((vote) => {
+                      {project.votes && project.votes.filter((vote) => {
                         return vote.profileId === profile.id;
                       }).length > 0 ? (
                         <>
@@ -372,7 +373,7 @@ export default function ProjectDetailsPage() {
                   </CardContent>
                 </Card>
               )}
-              {project.skills.length > 0 && (
+              {project.skills && project.skills.length > 0 && (
                 <Card variant="outlined">
                   <CardContent>
                     <big>Skills:</big>
@@ -384,12 +385,12 @@ export default function ProjectDetailsPage() {
                   </CardContent>
                 </Card>
               )}
-              {project.disciplines.length > 0 && (
+              {project.disciplines && project.disciplines.length > 0 && (
                 <Card variant="outlined">
                   <CardContent>
                     <big>Looking for:</big>
                     <Stack direction="row" spacing={1}>
-                      {project.disciplines.map((item, index) => (
+                      {project.disciplines && project.disciplines.map((item, index) => (
                         <Chip key={index} label={item.name} />
                       ))}
                     </Stack>
@@ -422,10 +423,13 @@ export default function ProjectDetailsPage() {
         <ContributorPathReport project={project} />
       </div>
       <JoinProjectModal
-        projectId={project.id}
+        projectId={project.id || ""}
         open={showJoinModal}
         handleCloseModal={handleCloseModal}
       />
+      <div className="wrapper">
+        <RelatedProjectsSection relatedProjects={project.relatedProjects}/>
+      </div>
       {/*
       <div className="wrapper">
         <Comments projectId={project.id} />
