@@ -88,7 +88,16 @@ export const loader: LoaderFunction = async ({ request }) => {
     skip: ITEMS_PER_PAGE * page,
     take: ITEMS_PER_PAGE,
   });
-  return json<LoaderData>({ data, ongoingStatuses, ideaStatuses });
+  // return json<LoaderData>({ data, ongoingStatuses, ideaStatuses });
+  return new Response(JSON.stringify({ data, ongoingStatuses, ideaStatuses }, (key, value) =>
+    typeof value === 'bigint'
+        ? value.toString()
+        : value // return everything else unchanged
+    ), {
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+      },
+    });
 };
 
 export default function Projects() {
