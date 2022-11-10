@@ -6,7 +6,7 @@ import { withZod } from "@remix-validated-form/with-zod";
 import { z } from "zod";
 import { validationError, ValidatedForm } from "remix-validated-form";
 import { json, redirect } from "@remix-run/node";
-import type { ActionFunction } from "@remix-run/node";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { zfd } from "zod-form-data";
 import { requireProfile } from "~/session.server";
 import { createProject } from "~/models/project.server";
@@ -25,7 +25,7 @@ export const validator = withZod(
       skills: zfd.repeatable(z.array(z.string()).optional()),
       labels: zfd.repeatable(z.array(z.string()).optional()),
       // relatedProjectsA: zfd.repeatable(z.array(z.string()).optional()),
-      projectMembers: zfd.repeatable(z.array(z.string()).optional()),
+      projectMembers: zfd.repeatable(z.array(z.object({})).optional()),
     })
     .transform((val) => {
       val.disciplines = val.disciplines?.filter((el) => el != "");
@@ -45,6 +45,11 @@ export const action: ActionFunction = async ({ request }) => {
   console.log(result.data);
   const project = await createProject(result.data, profile.id);
   return redirect(`/projects/${project.id}`);
+};
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const profile = await requireProfile(request);
+  return json({ profile });
 };
 
 const NewProjectPage = () => {
