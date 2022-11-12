@@ -25,7 +25,18 @@ export const validator = withZod(
       skills: zfd.repeatable(z.array(z.string()).optional()),
       labels: zfd.repeatable(z.array(z.string()).optional()),
       // relatedProjectsA: zfd.repeatable(z.array(z.string()).optional()),
-      projectMembers: zfd.repeatable(z.array(z.object({})).optional()),
+      projectMembers: zfd.repeatable(
+        z
+          .array(
+            z.object({
+              name: z.string().optional(),
+              roles: zfd.repeatable(z.array(z.string()).optional()),
+              skills: zfd.repeatable(z.array(z.string()).optional()),
+              hours: z.number().optional(),
+            })
+          )
+          .optional()
+      ),
     })
     .transform((val) => {
       val.disciplines = val.disciplines?.filter((el) => el != "");
@@ -33,7 +44,7 @@ export const validator = withZod(
       val.skills = val.skills?.filter((el) => el != "");
       val.labels = val.labels?.filter((el) => el != "");
       // val.relatedProjectsA = val.relatedProjectsA?.filter((el) => el != "");
-      val.projectMembers = val.projectMembers?.filter((el) => el != "");
+
       return val;
     })
 );
