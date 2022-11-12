@@ -40,7 +40,7 @@ export const SkillsSelect = ({
         multiple
         fullWidth={fullWidth ? fullWidth : false}
         style={style ? style : { margin: "1em 0" }}
-        value={values || defaultValue}
+        value={values || []}
         onChange={(_e, newValue) => setValue(newValue)}
         options={skills}
         filterSelectedOptions
@@ -52,7 +52,6 @@ export const SkillsSelect = ({
             size={size}
             error={!!error}
             helperText={error || helperText}
-            {...getInputProps()}
             style={{ width: "100%", ...style }}
           />
         )}

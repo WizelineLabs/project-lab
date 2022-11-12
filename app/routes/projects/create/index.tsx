@@ -1,6 +1,6 @@
 import Header from "app/core/layouts/Header";
 import GoBack from "app/core/layouts/GoBack";
-import { useNavigate } from "@remix-run/react";
+import { useLoaderData, useNavigate } from "@remix-run/react";
 import { ProjectForm } from "../components/ProjectForm";
 import { withZod } from "@remix-validated-form/with-zod";
 import { z } from "zod";
@@ -44,7 +44,6 @@ export const validator = withZod(
       val.skills = val.skills?.filter((el) => el != "");
       val.labels = val.labels?.filter((el) => el != "");
       // val.relatedProjectsA = val.relatedProjectsA?.filter((el) => el != "");
-
       return val;
     })
 );
@@ -65,6 +64,8 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 const NewProjectPage = () => {
   const navigate = useNavigate();
+  const { profile } = useLoaderData();
+
   return (
     <div>
       <Header title="Create your proposal" />
@@ -73,7 +74,13 @@ const NewProjectPage = () => {
       </div>
       <div className="wrapper">
         <GoBack title="Back to main page" onClick={() => navigate("/")} />
-        <ValidatedForm validator={validator} method="post">
+        <ValidatedForm
+          validator={validator}
+          defaultValues={{
+            projectMembers: [{ name: profile.name }],
+          }}
+          method="post"
+        >
           <ProjectForm projectformType="create" />
         </ValidatedForm>
       </div>

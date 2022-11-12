@@ -26,27 +26,35 @@ export const ProjectMembersField = ({
 }: ProfilesSelectProps) => {
   const { profile } = useLoaderData();
 
-  const { error, getInputProps } = useField(name);
+  const { error } = useField(name);
 
-  const [items, setItems] = useControlField<string[]>(name);
+  const [items, setItems] = useControlField<object[]>(name);
 
-  useEffect(() => {
-    if (profile) {
-      setItems([profile.id]);
-    }
-  }, [profile]);
+  const profiles: readonly any[] = [
+    "jorge",
+    "jose",
+    "Diego Mojarro Tapia",
+    "Andres Contreras",
+  ];
 
-  console.log(items);
-  const profiles: readonly any[] = ["diego", "jorge", "jose"];
   return (
     <React.Fragment>
       <Autocomplete
         multiple
         options={profiles}
         disableClearable
-        value={items || []}
-        onChange={(_event, newValue) => {
-          setItems(newValue);
+        value={items.map((item) => item.name)}
+        onChange={(_event, _newValue, reason, details) => {
+          if (reason === "selectOption") {
+            setItems(
+              items.concat({
+                name: details?.option,
+              })
+            );
+          }
+          if (reason === "removeOption" && profile.name !== details?.option) {
+            setItems(items.filter((item) => item.name !== details?.option));
+          }
         }}
         renderTags={() => null}
         renderInput={(params) => (
@@ -54,27 +62,31 @@ export const ProjectMembersField = ({
             {...params}
             label={label}
             error={!!error}
-            {...getInputProps()}
+            helperText={error || helperText}
           />
         )}
       />
-      {items?.map((item, i) => (
-        <Grid
-          key={i}
-          container
-          spacing={1}
-          alignItems="baseline"
-          rowSpacing={{ xs: 2, sm: 1 }}
-          style={{ paddingTop: 20 }}
-        >
-          <React.Fragment>
+
+      <Grid
+        container
+        spacing={1}
+        alignItems="baseline"
+        rowSpacing={{ xs: 2, sm: 1 }}
+        style={{ paddingTop: 20 }}
+      >
+        {items?.map((item, i) => (
+          <React.Fragment key={i}>
             <Grid item xs={12} sm={2}>
               <>
-                <input type="hidden" name={`${name}[${i}].name`} value={item} />
+                <input
+                  type="hidden"
+                  name={`${name}[${i}].name`}
+                  value={item.name}
+                />
                 <Chip
-                  label={item}
+                  label={item.name}
                   onDelete={() => {
-                    if (item !== profile.name) {
+                    if (item.name !== profile.name) {
                       setItems(items.filter((_, index) => index !== i));
                     }
                   }}
@@ -114,8 +126,8 @@ export const ProjectMembersField = ({
             </Grid>
             <hr className="rows__separator" />
           </React.Fragment>
-        </Grid>
-      ))}
+        ))}
+      </Grid>
     </React.Fragment>
   );
 };

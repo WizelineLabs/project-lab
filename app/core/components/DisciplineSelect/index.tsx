@@ -36,7 +36,7 @@ export const DisciplinesSelect = ({
   size,
   style,
 }: DisciplinesSelectProps) => {
-  const { error, getInputProps } = useField(name);
+  const { error } = useField(name);
   const [values, setValues] = useControlField<string[]>(name);
   return (
     <div {...outerProps}>
@@ -61,7 +61,6 @@ export const DisciplinesSelect = ({
             size={size}
             error={!!error}
             helperText={error || helperText}
-            {...getInputProps()}
             style={{ width: "100%", ...style }}
           />
         )}
