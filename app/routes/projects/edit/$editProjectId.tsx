@@ -22,14 +22,19 @@ import {
   Autocomplete,
   TextField,
   Alert,
-  Box
+  Box,
+  Tabs
 } from "@mui/material";
 import GoBack from "~/core/components/GoBack";
 import RelatedProjectsSection from "~/core/components/RelatedProjectsSection";
-import { useEffect, useState } from "react";
+import { SyntheticEvent, useEffect, useState } from "react";
 import { ProjectForm } from "../components/ProjectForm";
 import { ValidatedForm } from "remix-validated-form";
 import { validator } from "../create";
+import Header from "~/core/layouts/Header";
+import { EditPanelsStyles } from "~/routes/manager/manager.styles";
+import { TabStyles } from "../components/Styles/TabStyles.component";
+import TabPanel from "~/core/components/TabPanel";
 
 type LoaderData = {
   isAdmin: boolean;
@@ -130,7 +135,10 @@ export default function EditProjectPage() {
     project.relatedProjects
   );
   const [error, setError] = useState<string>("");
-
+  
+  const [tabIndex, setTabIndex] = useState(0)
+  const handleTabChange = (event: SyntheticEvent, tabNumber: number) => setTabIndex(tabNumber)
+  
   const handleChange = (v: any) => {
     setSelectedRelatedProjects(() => v);
   };
@@ -161,20 +169,31 @@ export default function EditProjectPage() {
   }, [fetcher]);
   return (
     <>
+      <Header title={"Edit " + project.name} />
+
       <div className="wrapper">
         <h1 className="form__center-text">Edit {project.name}</h1>
       </div>
 
       <div className="wrapper">
         <GoBack title="Back to project" href={`/projects/${projectId}`} />
-        <fetcher.Form method="post">
+
+        <EditPanelsStyles>
+          <Box>
+            <Tabs value={tabIndex} onChange={handleTabChange} aria-label="Edit project">
+              <TabStyles label="Project Details" />
+              <TabStyles label="Contributor's Path" />
+            </Tabs>
+          </Box>
+        </EditPanelsStyles>
+
+        <TabPanel value={tabIndex} index={0}>
           <ValidatedForm validator={validator} method="post">
             <ProjectForm
               submitText="Update Project"
-              //            schema={FullCreate}
+//            schema={FullCreate}
               initialValues={project}
-              //            onSubmit={submitEdition}
-              //            buttonType="button"
+//            onSubmit={handleSubmitProjectDetails}
             />
             <Box textAlign="center">
               <button type="submit" className="primary">
@@ -182,8 +201,8 @@ export default function EditProjectPage() {
               </button>
             </Box>
           </ValidatedForm>
-          {error && <Alert severity="warning">Information could not be saved</Alert>}
-        </fetcher.Form>
+        </TabPanel>
+        {error && <Alert severity="warning">Information could not be saved</Alert>}
       </div>
     </>
   )
