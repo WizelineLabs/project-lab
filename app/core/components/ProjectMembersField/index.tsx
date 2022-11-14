@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   Autocomplete,
   Checkbox,
@@ -18,6 +18,12 @@ interface ProfilesSelectProps {
   label: string;
   helperText?: string;
 }
+interface ProjectMembers {
+  name: string;
+  roles: string[];
+  skills: string[];
+  hours: string;
+}
 
 export const ProjectMembersField = ({
   name,
@@ -28,7 +34,7 @@ export const ProjectMembersField = ({
 
   const { error } = useField(name);
 
-  const [items, setItems] = useControlField<object[]>(name);
+  const [items, setItems] = useControlField<ProjectMembers[]>(name);
 
   const profiles: readonly any[] = [
     "jorge",
@@ -49,6 +55,9 @@ export const ProjectMembersField = ({
             setItems(
               items.concat({
                 name: details?.option,
+                roles: [],
+                skills: [],
+                hours: "",
               })
             );
           }
@@ -94,13 +103,16 @@ export const ProjectMembersField = ({
               </>
             </Grid>
             <Grid item xs={12} sm={4}>
-              <DisciplinesSelect //this still uses constant values instead of values taken from the db
+              <DisciplinesSelect //still uses constant values instead of values taken from the db
                 name={`${name}[${i}].roles`}
                 label="Looking for..."
               />
             </Grid>
             <Grid item xs={12} sm={4}>
-              <SkillsSelect name={`${name}[${i}].skills`} label="Skills" />
+              <SkillsSelect //still uses constant values instead of values taken from the db
+                name={`${name}[${i}].skills`}
+                label="Skills"
+              />
             </Grid>
             <Grid item xs={6} sm={1}>
               <LabeledTextField

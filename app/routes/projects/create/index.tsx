@@ -32,7 +32,7 @@ export const validator = withZod(
               name: z.string().optional(),
               roles: zfd.repeatable(z.array(z.string()).optional()),
               skills: zfd.repeatable(z.array(z.string()).optional()),
-              hours: z.number().optional(),
+              hours: z.string().optional(),
             })
           )
           .optional()
@@ -77,7 +77,14 @@ const NewProjectPage = () => {
         <ValidatedForm
           validator={validator}
           defaultValues={{
-            projectMembers: [{ name: profile.name }],
+            projectMembers: [
+              {
+                name: profile.name,
+                roles: [],
+                skills: [],
+                hours: "",
+              },
+            ],
           }}
           method="post"
         >

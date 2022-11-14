@@ -12,7 +12,7 @@ import LabelsSelect from "~/core/components/LabelsSelect";
 import ProjectOwnerField from "~/core/components/ProjectOwnerField";
 import RelatedProjectsSelect from "~/core/components/RelatedProjectsSelect";
 import ProjectMembersField from "~/core/components/ProjectMembersField";
-import { useControlField, useField } from "remix-validated-form";
+import { useControlField } from "remix-validated-form";
 
 export function ProjectForm({ projectformType }: any) {
   const [displayFields, setDisplayFields] = useState(

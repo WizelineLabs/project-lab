@@ -29,7 +29,7 @@ export const SkillsSelect = ({
   size,
   style,
 }: SkillsSelectProps) => {
-  const { error, getInputProps } = useField(name);
+  const { error } = useField(name);
   const [values, setValue] = useControlField<string[]>(name);
   return (
     <div {...outerProps}>
