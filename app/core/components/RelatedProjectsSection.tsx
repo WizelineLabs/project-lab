@@ -5,12 +5,15 @@ import {
   } from "@mui/material";
   interface IProps {
     relatedProjects: any[]
+    allowEdit: Boolean
   }
 
-function RelatedProjectsSection({relatedProjects}: IProps) {
+function RelatedProjectsSection({relatedProjects, allowEdit}: IProps) {
     return (
     <>
     <big>Related Projects</big>
+      {allowEdit && 
+      <div><p>Edit Button</p></div>}
     <Box>
       {relatedProjects.map((item, i) => {
           return (
