@@ -18,7 +18,6 @@ export function ProjectForm({ projectformType }: any) {
     projectformType === "create" ? false : true
   );
   const [displayDisciplines, setDisplayDisciplines] = useState(false);
-
   const transition = useTransition();
   const isCreating = Boolean(transition.submission);
 

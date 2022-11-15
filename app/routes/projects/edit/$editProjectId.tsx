@@ -185,25 +185,39 @@ export default function EditProjectPage() {
               <TabStyles label="Contributor's Path" />
             </Tabs>
           </Box>
-        </EditPanelsStyles>
 
-        <TabPanel value={tabIndex} index={0}>
-          <ValidatedForm validator={validator} method="post">
-            <ProjectForm
-              submitText="Update Project"
-//            schema={FullCreate}
-              initialValues={project}
-//            onSubmit={handleSubmitProjectDetails}
-            />
-            <Box textAlign="center">
-              <button type="submit" className="primary">
-                {"Update Project"}
-              </button>
-            </Box>
-          </ValidatedForm>
-        </TabPanel>
-        {error && <Alert severity="warning">Information could not be saved</Alert>}
+          <TabPanel value={tabIndex} index={0}>
+            <ValidatedForm validator={validator} method="post">
+              <ProjectForm
+                submitText="Update Project"
+                //         schema={FullCreate}
+                initialValues={project}
+                //         onSubmit={handleSubmitProjectDetails}
+              />
+              <Box textAlign="center">
+                <button type="submit" className="primary">
+                  {"Update Project"}
+                </button>
+              </Box>
+            </ValidatedForm>
+          </TabPanel>
+          {/*<TabPanel value={tabIndex} index={1}>
+            <ProjectContributorsPathForm
+              submitText="Update Stages "
+              schema={ContributorPath}
+              initialValues={project.stages}
+              onSubmit={handleSubmitContributorPath}
+              projectId={project.id}
+              retrieveProjectInfo={retrieveProjectInfo}/>
+           </TabPanel>*/}
+        </EditPanelsStyles>
       </div>
+      <div className="wrapper form__center-text">
+        <button type="submit" className="primary">
+          {"Delete Project"}
+        </button>
+      </div>
+      {error && <Alert severity="warning">Information could not be saved</Alert>}
     </>
   )
 }
