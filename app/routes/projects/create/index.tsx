@@ -17,7 +17,7 @@ export const validator = withZod(
       name: z.string().nonempty("Name is required"),
       description: z.string().nonempty("Description is required"),
       valueStatement: z.optional(z.string()),
-      helpWanted: z.optional(z.boolean()),
+      helpWanted: z.optional(z.string()),
       disciplines: zfd.repeatable(z.array(z.string()).optional()),
       target: z.optional(z.string()),
       repoUrls: zfd.repeatable(z.array(z.string()).optional()),
@@ -33,6 +33,7 @@ export const validator = withZod(
               roles: zfd.repeatable(z.array(z.string()).optional()),
               skills: zfd.repeatable(z.array(z.string()).optional()),
               hours: z.string().optional(),
+              active: z.string().optional(),
             })
           )
           .optional()
@@ -52,7 +53,6 @@ export const action: ActionFunction = async ({ request }) => {
   const profile = await requireProfile(request);
   const result = await validator.validate(await request.formData());
   if (result.error) return validationError(result.error);
-  console.log(result.data);
   const project = await createProject(result.data, profile.id);
   return redirect(`/projects/${project.id}`);
 };
@@ -82,7 +82,8 @@ const NewProjectPage = () => {
                 name: profile.name,
                 roles: [],
                 skills: [],
-                hours: "",
+                hours: "0",
+                active: "false",
               },
             ],
           }}

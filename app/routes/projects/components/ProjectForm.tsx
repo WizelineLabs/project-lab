@@ -19,7 +19,7 @@ export function ProjectForm({ projectformType }: any) {
     projectformType === "create" ? false : true
   );
 
-  const [helpWanted, setHelpWanted] = useControlField<boolean>("helpWanted");
+  const [helpWanted, setHelpWanted] = useControlField("helpWanted");
 
   const transition = useTransition();
   const isCreating = Boolean(transition.submission);
@@ -52,7 +52,8 @@ export function ProjectForm({ projectformType }: any) {
           <Switch
             color="primary"
             name="helpWanted"
-            onChange={(e) => setHelpWanted(e.target.checked)}
+            checked={helpWanted === "true"}
+            onChange={(e) => setHelpWanted(String(e.target.checked))}
           />
         }
         name="helpWanted"
@@ -60,7 +61,7 @@ export function ProjectForm({ projectformType }: any) {
         labelPlacement="end"
       />
 
-      <Collapse in={helpWanted}>
+      <Collapse in={helpWanted === "true"}>
         <DisciplinesSelect //this still uses constant values instead of values taken from the db
           name="disciplines"
           label="Looking for..."
@@ -73,6 +74,7 @@ export function ProjectForm({ projectformType }: any) {
           control={
             <Switch
               color="primary"
+              name="displayFields"
               onChange={(e) => setDisplayFields(e.target.checked)}
             />
           }
@@ -134,11 +136,11 @@ export function ProjectForm({ projectformType }: any) {
           label="Labels"
         />
 
-        {/* <RelatedProjectsSelect //this still uses constant values instead of values taken from the db
+        <RelatedProjectsSelect //this still uses constant values instead of values taken from the db
           thisProject=""
           name="relatedProjectsA"
           label="Related Projects"
-        /> */}
+        />
 
         {/* {projectformType !== "create" && (
           <InputSelect

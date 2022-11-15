@@ -23,6 +23,7 @@ interface ProjectMembers {
   roles: string[];
   skills: string[];
   hours: string;
+  active: string;
 }
 
 export const ProjectMembersField = ({
@@ -58,6 +59,7 @@ export const ProjectMembersField = ({
                 roles: [],
                 skills: [],
                 hours: "",
+                active: "false",
               })
             );
           }
@@ -132,8 +134,25 @@ export const ProjectMembersField = ({
             </Grid>
             <Grid item xs={2} sm={1} style={{ textAlign: "center" }}>
               <FormControlLabel
+                control={
+                  <Checkbox
+                    name={`${name}[${i}].active`}
+                    checked={item.active === "true"}
+                    onChange={(e) => {
+                      setItems(
+                        items.map((item, index) =>
+                          index === i
+                            ? {
+                                ...item,
+                                active: String(e.target.checked),
+                              }
+                            : item
+                        )
+                      );
+                    }}
+                  />
+                }
                 label="Active"
-                control={<Checkbox size="small" />}
               />
             </Grid>
             <hr className="rows__separator" />
