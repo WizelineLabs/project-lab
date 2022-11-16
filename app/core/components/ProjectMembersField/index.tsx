@@ -23,7 +23,7 @@ interface ProjectMembers {
   roles: string[];
   skills: string[];
   hours: string;
-  active: string;
+  active: boolean;
 }
 
 export const ProjectMembersField = ({
@@ -59,7 +59,7 @@ export const ProjectMembersField = ({
                 roles: [],
                 skills: [],
                 hours: "",
-                active: "false",
+                active: false,
               })
             );
           }
@@ -137,14 +137,14 @@ export const ProjectMembersField = ({
                 control={
                   <Checkbox
                     name={`${name}[${i}].active`}
-                    checked={item.active === "true"}
+                    checked={item.active}
                     onChange={(e) => {
                       setItems(
                         items.map((item, index) =>
                           index === i
                             ? {
                                 ...item,
-                                active: String(e.target.checked),
+                                active: e.target.checked,
                               }
                             : item
                         )

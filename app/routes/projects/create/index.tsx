@@ -17,7 +17,7 @@ export const validator = withZod(
       name: z.string().nonempty("Name is required"),
       description: z.string().nonempty("Description is required"),
       valueStatement: z.optional(z.string()),
-      helpWanted: z.optional(z.string()),
+      helpWanted: zfd.checkbox(),
       disciplines: zfd.repeatable(z.array(z.string()).optional()),
       target: z.optional(z.string()),
       repoUrls: zfd.repeatable(z.array(z.string()).optional()),
@@ -33,7 +33,7 @@ export const validator = withZod(
               roles: zfd.repeatable(z.array(z.string()).optional()),
               skills: zfd.repeatable(z.array(z.string()).optional()),
               hours: z.string().optional(),
-              active: z.string().optional(),
+              active: zfd.checkbox(),
             })
           )
           .optional()
@@ -53,8 +53,10 @@ export const action: ActionFunction = async ({ request }) => {
   const profile = await requireProfile(request);
   const result = await validator.validate(await request.formData());
   if (result.error) return validationError(result.error);
-  const project = await createProject(result.data, profile.id);
-  return redirect(`/projects/${project.id}`);
+  // const project = await createProject(result.data, profile.id);
+  // return redirect(`/projects/${project.id}`);
+  console.log(result.data);
+  return result.data;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -77,13 +79,14 @@ const NewProjectPage = () => {
         <ValidatedForm
           validator={validator}
           defaultValues={{
+            helpWanted: false,
             projectMembers: [
               {
                 name: profile.name,
-                roles: [],
+                roles: ["Owner"],
                 skills: [],
                 hours: "0",
-                active: "false",
+                active: true,
               },
             ],
           }}

@@ -23,6 +23,7 @@ const disciplines = [
   "Automatation QA",
   "Backend",
   "Consultant",
+  "Owner",
 ];
 
 export const DisciplinesSelect = ({
