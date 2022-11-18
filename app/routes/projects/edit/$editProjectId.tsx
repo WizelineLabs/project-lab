@@ -187,13 +187,24 @@ export default function EditProjectPage() {
           </Box>
 
           <TabPanel value={tabIndex} index={0}>
-            <ValidatedForm validator={validator} method="post">
-              <ProjectForm
-                submitText="Update Project"
-                //         schema={FullCreate}
-                initialValues={project}
-                //         onSubmit={handleSubmitProjectDetails}
-              />
+            <ValidatedForm
+              validator={validator}
+              defaultValues={{
+                name: project.name,
+                description: project.description,
+                valueStatement: project.valueStatement,
+                helpWanted: project.helpWanted,
+                disciplines: project.disciplines,
+                owner: project.owner,
+                target: project.target,
+                repoUrls: project.repoUrls,
+                slackChannel: project.slackChannel,
+                skills: project.skills,
+                labels: project.labels,
+              }}
+              method="post"
+            >
+              <ProjectForm submitText="Update Project"/>
               <Box textAlign="center">
                 <button type="submit" className="primary">
                   {"Update Project"}
