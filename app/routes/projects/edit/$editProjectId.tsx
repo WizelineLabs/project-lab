@@ -201,6 +201,7 @@ export default function EditProjectPage() {
                 slackChannel: project.slackChannel,
                 skills: project.skills,
                 labels: project.labels,
+                projectMembers: project.projectMembers,
               }}
               method="post"
             >

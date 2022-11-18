@@ -155,12 +155,6 @@ export function ProjectForm({ projectformType }: any) {
 
         <ProjectMembersField name="projectMembers" label="Add a contributor" />
       </Collapse>
-      <hr className="rows__separator" />
-      <Box textAlign="center">
-        <button type="submit" className="primary" disabled={isCreating}>
-          {isCreating ? "Creating..." : "Create Project"}
-        </button>
-      </Box>
     </>
   );
 }

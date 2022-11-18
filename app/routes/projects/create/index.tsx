@@ -54,8 +54,8 @@ export const action: ActionFunction = async ({ request }) => {
   const profile = await requireProfile(request);
   const result = await validator.validate(await request.formData());
   if (result.error) return validationError(result.error);
-  // const project = await createProject(result.data, profile.id);
-  // return redirect(`/projects/${project.id}`);
+  const project = await createProject(result.data, profile.id);
+  return redirect(`/projects/${project.id}`);
   console.log(result.data);
   return result.data;
 };
