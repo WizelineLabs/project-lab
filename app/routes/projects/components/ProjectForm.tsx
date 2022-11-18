@@ -12,12 +12,14 @@ import LabelsSelect from "~/core/components/LabelsSelect";
 import ProjectOwnerField from "~/core/components/ProjectOwnerField";
 import RelatedProjectsSelect from "~/core/components/RelatedProjectsSelect";
 import ProjectMembersField from "~/core/components/ProjectMembersField";
+import { useControlField } from "remix-validated-form";
 
 export function ProjectForm({ projectformType }: any) {
   const [displayFields, setDisplayFields] = useState(
     projectformType === "create" ? false : true
   );
-  const [displayDisciplines, setDisplayDisciplines] = useState(false);
+
+  const [helpWanted, setHelpWanted] = useControlField<boolean>("helpWanted");
 
   const transition = useTransition();
   const isCreating = Boolean(transition.submission);
@@ -50,7 +52,8 @@ export function ProjectForm({ projectformType }: any) {
           <Switch
             color="primary"
             name="helpWanted"
-            onChange={(e) => setDisplayDisciplines(e.target.checked)}
+            checked={helpWanted}
+            onChange={(e) => setHelpWanted(e.target.checked)}
           />
         }
         name="helpWanted"
@@ -58,7 +61,7 @@ export function ProjectForm({ projectformType }: any) {
         labelPlacement="end"
       />
 
-      <Collapse in={displayDisciplines}>
+      <Collapse in={helpWanted}>
         <DisciplinesSelect //this still uses constant values instead of values taken from the db
           name="disciplines"
           label="Looking for..."
@@ -71,6 +74,7 @@ export function ProjectForm({ projectformType }: any) {
           control={
             <Switch
               color="primary"
+              name="displayFields"
               onChange={(e) => setDisplayFields(e.target.checked)}
             />
           }
@@ -132,11 +136,11 @@ export function ProjectForm({ projectformType }: any) {
           label="Labels"
         />
 
-        {/* <RelatedProjectsSelect //this still uses constant values instead of values taken from the db
+        <RelatedProjectsSelect //this still uses constant values instead of values taken from the db
           thisProject=""
           name="relatedProjectsA"
           label="Related Projects"
-        /> */}
+        />
 
         {/* {projectformType !== "create" && (
           <InputSelect
@@ -149,13 +153,9 @@ export function ProjectForm({ projectformType }: any) {
           />
         )} */}
 
-        {/* <ProjectMembersField
-          name="projectMembers"
-          label="Add a contributor"
-          handleChange={handleChangeProjectMembers}
-          values={projectFields.projectMembers}
-        /> */}
+        <ProjectMembersField name="projectMembers" label="Add a contributor" />
       </Collapse>
+      <hr className="rows__separator" />
       <Box textAlign="center">
         <button type="submit" className="primary" disabled={isCreating}>
           {isCreating ? "Creating..." : "Create Project"}
