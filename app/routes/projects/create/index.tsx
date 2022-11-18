@@ -1,12 +1,12 @@
 import Header from "app/core/layouts/Header";
 import GoBack from "app/core/layouts/GoBack";
-import { useNavigate } from "@remix-run/react";
+import { useLoaderData, useNavigate } from "@remix-run/react";
 import { ProjectForm } from "../components/ProjectForm";
 import { withZod } from "@remix-validated-form/with-zod";
 import { z } from "zod";
 import { validationError, ValidatedForm } from "remix-validated-form";
 import { json, redirect } from "@remix-run/node";
-import type { ActionFunction } from "@remix-run/node";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { zfd } from "zod-form-data";
 import { requireProfile } from "~/session.server";
 import { createProject } from "~/models/project.server";
@@ -18,7 +18,7 @@ export const validator = withZod(
       name: z.string().nonempty("Name is required"),
       description: z.string().nonempty("Description is required"),
       valueStatement: z.optional(z.string()),
-      helpWanted: z.optional(z.boolean()),
+      helpWanted: zfd.checkbox(),
       disciplines: zfd.repeatable(z.array(z.string()).optional()),
       target: z.optional(z.string()),
       repoUrls: zfd.repeatable(z.array(z.string()).optional()),
@@ -26,7 +26,19 @@ export const validator = withZod(
       skills: zfd.repeatable(z.array(z.string()).optional()),
       labels: zfd.repeatable(z.array(z.string()).optional()),
       // relatedProjectsA: zfd.repeatable(z.array(z.string()).optional()),
-      projectMembers: zfd.repeatable(z.array(z.string()).optional()),
+      projectMembers: zfd.repeatable(
+        z
+          .array(
+            z.object({
+              name: z.string().optional(),
+              roles: zfd.repeatable(z.array(z.string()).optional()),
+              skills: zfd.repeatable(z.array(z.string()).optional()),
+              hours: z.string().optional(),
+              active: zfd.checkbox(),
+            })
+          )
+          .optional()
+      ),
     })
     .transform((val) => {
       val.disciplines = val.disciplines?.filter((el) => el != "");
@@ -34,7 +46,6 @@ export const validator = withZod(
       val.skills = val.skills?.filter((el) => el != "");
       val.labels = val.labels?.filter((el) => el != "");
       // val.relatedProjectsA = val.relatedProjectsA?.filter((el) => el != "");
-      val.projectMembers = val.projectMembers?.filter((el) => el != "");
       return val;
     })
 );
@@ -43,13 +54,21 @@ export const action: ActionFunction = async ({ request }) => {
   const profile = await requireProfile(request);
   const result = await validator.validate(await request.formData());
   if (result.error) return validationError(result.error);
+  // const project = await createProject(result.data, profile.id);
+  // return redirect(`/projects/${project.id}`);
   console.log(result.data);
-  const project = await createProject(result.data, profile.id);
-  return redirect(`/projects/${project.id}`);
+  return result.data;
+};
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const profile = await requireProfile(request);
+  return json({ profile });
 };
 
 const NewProjectPage = () => {
   const navigate = useNavigate();
+  const { profile } = useLoaderData();
+
   return (
     <div>
       <Header title="Create your proposal" />
@@ -58,7 +77,22 @@ const NewProjectPage = () => {
       </div>
       <div className="wrapper">
         <GoBack title="Back to main page" onClick={() => navigate("/")} />
-        <ValidatedForm validator={validator} method="post">
+        <ValidatedForm
+          validator={validator}
+          defaultValues={{
+            helpWanted: false,
+            projectMembers: [
+              {
+                name: profile.name,
+                roles: ["Owner"],
+                skills: [],
+                hours: "0",
+                active: true,
+              },
+            ],
+          }}
+          method="post"
+        >
           <ProjectForm projectformType="create" />
           <Box textAlign="center">
             <button type="submit" className="primary">

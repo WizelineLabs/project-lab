@@ -23,6 +23,7 @@ const disciplines = [
   "Automatation QA",
   "Backend",
   "Consultant",
+  "Owner",
 ];
 
 export const DisciplinesSelect = ({
@@ -36,15 +37,13 @@ export const DisciplinesSelect = ({
   size,
   style,
 }: DisciplinesSelectProps) => {
-  const { error, getInputProps } = useField(name);
+  const { error } = useField(name);
   const [values, setValues] = useControlField<string[]>(name);
   return (
     <div {...outerProps}>
-      {values
-        ? values.map((val) => (
-            <input type="hidden" name={name} key={val} value={val} />
-          ))
-        : null}
+      {values?.map((val) => (
+        <input type="hidden" name={name} key={val} value={val} />
+      ))}
       <Autocomplete
         multiple
         fullWidth={fullWidth ? fullWidth : false}
@@ -63,7 +62,6 @@ export const DisciplinesSelect = ({
             size={size}
             error={!!error}
             helperText={error || helperText}
-            {...getInputProps()}
             style={{ width: "100%", ...style }}
           />
         )}

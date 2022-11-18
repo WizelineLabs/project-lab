@@ -21,7 +21,7 @@ export const MultivalueInput = ({
   footer,
 }: ProfilesSelectProps) => {
   const [inputValue, setInputValue] = useState("");
-  const { error, getInputProps } = useField(name);
+  const { error } = useField(name);
   const [values, setValue] = useControlField<string[]>(name);
   return (
     <>
@@ -39,8 +39,10 @@ export const MultivalueInput = ({
           if (e.key === "Enter") {
             e.preventDefault();
             e.stopPropagation();
-            setValue(values ? [...values, inputValue] : [inputValue]);
-            setInputValue("");
+            if (inputValue && !values?.includes(inputValue)) {
+              setValue(values ? [...values, inputValue] : [inputValue]);
+              setInputValue("");
+            }
           }
         }}
       />
@@ -52,17 +54,15 @@ export const MultivalueInput = ({
         rowSpacing={{ xs: 2, sm: 1 }}
         style={{ paddingTop: 20 }}
       >
-        {values
-          ? values.map((val, i) => (
-              <span key={i}>
-                <Chip
-                  label={val}
-                  onDelete={() => setValue(values.filter((v) => v !== val))}
-                />
-                <input type="hidden" name={name} value={val} />
-              </span>
-            ))
-          : null}
+        {values?.map((val, i) => (
+          <span key={i}>
+            <Chip
+              label={val}
+              onDelete={() => setValue(values.filter((v) => v !== val))}
+            />
+            <input type="hidden" name={name} value={val} />
+          </span>
+        ))}
       </Grid>
     </>
   );
