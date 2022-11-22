@@ -1,7 +1,8 @@
-import type {
+import {
   ActionFunction,
   LoaderFunction,
   MetaFunction,
+  redirect,
 } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData, useFetcher } from "@remix-run/react";
@@ -12,6 +13,7 @@ import {
   isProjectTeamMember,
   getProject,
   updateRelatedProjects,
+  updateProjects,
 } from "~/models/project.server";
 import type { ProjectComplete } from "~/models/project.server";
 import { getProjects } from "~/models/project.server";
@@ -29,7 +31,7 @@ import GoBack from "~/core/components/GoBack";
 import RelatedProjectsSection from "~/core/components/RelatedProjectsSection";
 import { SyntheticEvent, useEffect, useState } from "react";
 import { ProjectForm } from "../components/ProjectForm";
-import { ValidatedForm } from "remix-validated-form";
+import { ValidatedForm, validationError } from "remix-validated-form";
 import { validator } from "../create";
 import Header from "~/core/layouts/Header";
 import { EditPanelsStyles } from "~/routes/manager/manager.styles";
@@ -80,27 +82,11 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 };
 
 export const action: ActionFunction = async ({ request }) => {
-  const form = await request.formData();
-  const action = form.get("action") as string;
-  try {
-    switch (action) {
-      case "EDIT":
-        const projectId = form.get("projectId") as string;
-        const relatedProjectsParse = JSON.parse(
-          form.get("relatedProjects") as string
-        );
-        await updateRelatedProjects({
-          id: projectId,
-          data: { relatedProjects: relatedProjectsParse },
-        });
-        return json({ error: "" }, { status: 200 });
-      default: {
-        throw new Error(`Something went wrong, ${action}`);
-      }
-    }
-  } catch (error: any) {
-    throw error;
-  }
+  const profile = await requireProfile(request)
+  const result = await validator.validate(await request.formData())
+  if (result.error) return validationError(result.error)
+  const project = await updateProjects(profile.id, true , result.data)
+  return redirect(`/projects/${project.id}`)
 };
 
 export const meta: MetaFunction = ({ data, params }) => {
@@ -195,7 +181,7 @@ export default function EditProjectPage() {
                 valueStatement: project.valueStatement,
                 helpWanted: project.helpWanted,
                 disciplines: project.disciplines,
-                owner: project.owner,
+               // owner: project.owner,
                 target: project.target,
                 repoUrls: project.repoUrls,
                 slackChannel: project.slackChannel,
@@ -205,7 +191,7 @@ export default function EditProjectPage() {
               }}
               method="post"
             >
-              <ProjectForm submitText="Update Project"/>
+              <ProjectForm submitText="Update Project" onSubmit={submitEdition} />
               <Box textAlign="center">
                 <button type="submit" className="primary">
                   {"Update Project"}

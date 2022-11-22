@@ -323,7 +323,6 @@ export async function updateProjects(id: string, isAdmin: boolean, data: { proje
   delete data.projectMembers
   delete data.existedMembers
   delete data.relatedProjects
-
   const project = await db.projects.update({
     where: { id },
     data: {
