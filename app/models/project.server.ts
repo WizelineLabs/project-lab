@@ -202,7 +202,7 @@ export const validateIsTeamMember = (profileId: string, data: { projectMembers: 
   }
 }
 
-export async function updateProjects(id: string, isAdmin: boolean, data: { projectMembers: any; existedMembers?: any; repoUrls?: any; relatedProjects?: any; projectStatus?: any; owner: any; skills?: any; disciplines?: any; labels?: any; innovationTiers?: any; }) {
+export async function updateProjects(id: string, isAdmin: boolean, data: any) {
   //validate if the user have permissions (team member or owner of the project)
   if (!isAdmin) validateIsTeamMember(id, data)
 
@@ -280,7 +280,7 @@ export async function updateProjects(id: string, isAdmin: boolean, data: { proje
   const newRepos = data.repoUrls.filter(
     (repo: { id: number; }) => !projectRepoUrls.find((repoUrl) => repoUrl.id === repo.id)
   )
-
+  /*
   // Create related Projects
   for (let i = 0; i < data.relatedProjects.length; i++) {
     let relationExist = await db.relatedProjects.count({
@@ -318,7 +318,7 @@ export async function updateProjects(id: string, isAdmin: boolean, data: { proje
       ],
     },
   })
-
+  */
   // Delete from Form values because We already updated the project members.
   delete data.projectMembers
   delete data.existedMembers
@@ -328,8 +328,8 @@ export async function updateProjects(id: string, isAdmin: boolean, data: { proje
     data: {
       ...data,
       updatedAt: new Date(),
-      projectStatus: { connect: { name: data.projectStatus?.name } },
-      owner: { connect: { id: data.owner?.id } },
+//      projectStatus: { connect: { name: data.projectStatus?.name } },
+//      owner: { connect: { id: data.owner?.id } },
       skills: {
         set: data.skills,
       },
@@ -342,7 +342,7 @@ export async function updateProjects(id: string, isAdmin: boolean, data: { proje
       repoUrls: {
         create: newRepos,
       },
-      innovationTiers: { connect: { name: data.innovationTiers?.name } },
+//      innovationTiers: { connect: { name: data.innovationTiers?.name } },
     },
     include: {
       projectStatus: true,

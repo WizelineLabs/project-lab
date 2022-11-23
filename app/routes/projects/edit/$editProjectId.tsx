@@ -85,7 +85,7 @@ export const action: ActionFunction = async ({ request }) => {
   const profile = await requireProfile(request)
   const result = await validator.validate(await request.formData())
   if (result.error) return validationError(result.error)
-  const project = await updateProjects(profile.id, true , result.data)
+  const project = await updateProjects(profile.id, true, result.data)
   return redirect(`/projects/${project.id}`)
 };
 
@@ -181,7 +181,7 @@ export default function EditProjectPage() {
                 valueStatement: project.valueStatement,
                 helpWanted: project.helpWanted,
                 disciplines: project.disciplines,
-               // owner: project.owner,
+                owner: project.owner,
                 target: project.target,
                 repoUrls: project.repoUrls,
                 slackChannel: project.slackChannel,
