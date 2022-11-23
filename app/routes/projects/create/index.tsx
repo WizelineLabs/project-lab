@@ -1,16 +1,16 @@
-import Header from "app/core/layouts/Header";
-import GoBack from "app/core/layouts/GoBack";
-import { useLoaderData, useNavigate } from "@remix-run/react";
-import { ProjectForm } from "../components/ProjectForm";
-import { withZod } from "@remix-validated-form/with-zod";
-import { z } from "zod";
-import { validationError, ValidatedForm } from "remix-validated-form";
-import { json, redirect } from "@remix-run/node";
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { zfd } from "zod-form-data";
-import { requireProfile } from "~/session.server";
-import { createProject } from "~/models/project.server";
-import { Box } from "@mui/material";
+import Header from "app/core/layouts/Header"
+import GoBack from "app/core/layouts/GoBack"
+import { useLoaderData, useNavigate } from "@remix-run/react"
+import { ProjectForm } from "../components/ProjectForm"
+import { withZod } from "@remix-validated-form/with-zod"
+import { z } from "zod"
+import { validationError, ValidatedForm } from "remix-validated-form"
+import { json, redirect } from "@remix-run/node"
+import type { ActionFunction, LoaderFunction } from "@remix-run/node"
+import { zfd } from "zod-form-data"
+import { requireProfile } from "~/session.server"
+import { createProject } from "~/models/project.server"
+import { Box } from "@mui/material"
 
 export const validator = withZod(
   z
@@ -30,6 +30,7 @@ export const validator = withZod(
         z
           .array(
             z.object({
+              profileId: z.string(),
               name: z.string().optional(),
               roles: zfd.repeatable(z.array(z.string()).optional()),
               skills: zfd.repeatable(z.array(z.string()).optional()),
@@ -41,33 +42,33 @@ export const validator = withZod(
       ),
     })
     .transform((val) => {
-      val.disciplines = val.disciplines?.filter((el) => el != "");
-      val.repoUrls = val.repoUrls?.filter((el) => el != "");
-      val.skills = val.skills?.filter((el) => el != "");
-      val.labels = val.labels?.filter((el) => el != "");
+      val.disciplines = val.disciplines?.filter((el) => el != "")
+      val.repoUrls = val.repoUrls?.filter((el) => el != "")
+      val.skills = val.skills?.filter((el) => el != "")
+      val.labels = val.labels?.filter((el) => el != "")
       // val.relatedProjectsA = val.relatedProjectsA?.filter((el) => el != "");
-      return val;
+      return val
     })
-);
+)
 
 export const action: ActionFunction = async ({ request }) => {
-  const profile = await requireProfile(request);
-  const result = await validator.validate(await request.formData());
-  if (result.error) return validationError(result.error);
-  const project = await createProject(result.data, profile.id);
-  return redirect(`/projects/${project.id}`);
-  console.log(result.data);
-  return result.data;
-};
+  const profile = await requireProfile(request)
+  const result = await validator.validate(await request.formData())
+  if (result.error) return validationError(result.error)
+  // const project = await createProject(result.data, profile.id)
+  console.log(result.data)
+  return result.data
+  // return redirect(`/projects/${project.id}`)
+}
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const profile = await requireProfile(request);
-  return json({ profile });
-};
+  const profile = await requireProfile(request)
+  return json({ profile })
+}
 
 const NewProjectPage = () => {
-  const navigate = useNavigate();
-  const { profile } = useLoaderData();
+  const navigate = useNavigate()
+  const { profile } = useLoaderData()
 
   return (
     <div>
@@ -83,6 +84,7 @@ const NewProjectPage = () => {
             helpWanted: false,
             projectMembers: [
               {
+                profileId: profile.id,
                 name: profile.name,
                 roles: ["Owner"],
                 skills: [],
@@ -103,6 +105,6 @@ const NewProjectPage = () => {
       </div>
     </div>
   )
-};
+}
 
-export default NewProjectPage;
+export default NewProjectPage

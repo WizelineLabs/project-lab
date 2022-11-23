@@ -1,28 +1,23 @@
-import { FormControlLabel, Switch, Collapse, Box } from "@mui/material";
-import { useState } from "react";
-import { useTransition } from "@remix-run/react";
-import { MultivalueInput } from "~/core/components/MultivalueInput";
-import DisciplinesSelect from "~/core/components/DisciplineSelect";
-import LabeledTextField from "~/core/components/LabeledTextField";
-import LabeledTextFieldArea from "~/core/components/LabeledTextFieldArea";
-import TextEditor from "~/core/components/TextEditor";
+import { FormControlLabel, Switch, Collapse, Box } from "@mui/material"
+import { useState } from "react"
+import { useTransition } from "@remix-run/react"
+import { MultivalueInput } from "~/core/components/MultivalueInput"
+import DisciplinesSelect from "~/core/components/DisciplinesSelect"
+import LabeledTextField from "~/core/components/LabeledTextField"
+import LabeledTextFieldArea from "~/core/components/LabeledTextFieldArea"
+import TextEditor from "~/core/components/TextEditor"
 // import InputSelect from "~/core/components/InputSelect";
-import SkillsSelect from "~/core/components/SkillsSelect";
-import LabelsSelect from "~/core/components/LabelsSelect";
-import ProjectOwnerField from "~/core/components/ProjectOwnerField";
-import RelatedProjectsSelect from "~/core/components/RelatedProjectsSelect";
-import ProjectMembersField from "~/core/components/ProjectMembersField";
-import { useControlField } from "remix-validated-form";
+import SkillsSelect from "~/core/components/SkillsSelect"
+import LabelsSelect from "~/core/components/LabelsSelect"
+import ProjectOwnerField from "~/core/components/ProjectOwnerField"
+import RelatedProjectsSelect from "~/core/components/RelatedProjectsSelect"
+import ProjectMembersField from "~/core/components/ProjectMembersField"
+import { useControlField } from "remix-validated-form"
 
 export function ProjectForm({ projectformType }: any) {
-  const [displayFields, setDisplayFields] = useState(
-    projectformType === "create" ? false : true
-  );
+  const [displayFields, setDisplayFields] = useState(projectformType === "create" ? false : true)
 
-  const [helpWanted, setHelpWanted] = useControlField<boolean>("helpWanted");
-
-  const transition = useTransition();
-  const isCreating = Boolean(transition.submission);
+  const [helpWanted, setHelpWanted] = useControlField<boolean>("helpWanted")
 
   return (
     <>
@@ -42,10 +37,7 @@ export function ProjectForm({ projectformType }: any) {
         placeholder="Problem statement"
       />
 
-      <TextEditor
-        name="valueStatement"
-        defaultValue={"Explain us your proposal..."}
-      />
+      <TextEditor name="valueStatement" defaultValue={"Explain us your proposal..."} />
 
       <FormControlLabel
         control={
@@ -62,10 +54,10 @@ export function ProjectForm({ projectformType }: any) {
       />
 
       <Collapse in={helpWanted}>
-        <DisciplinesSelect //this still uses constant values instead of values taken from the db
+        {/* <DisciplinesSelect //this still uses constant values instead of values taken from the db
           name="disciplines"
           label="Looking for..."
-        />
+        /> */}
       </Collapse>
 
       {projectformType === "create" && (
@@ -84,11 +76,7 @@ export function ProjectForm({ projectformType }: any) {
       )}
 
       {projectformType !== "create" && (
-        <ProjectOwnerField
-          name="owner"
-          label="Owner"
-          owner={{ name: "John Doe" }}
-        />
+        <ProjectOwnerField name="owner" label="Owner" owner={{ name: "John Doe" }} />
       )}
 
       <Collapse in={displayFields}>
@@ -126,21 +114,21 @@ export function ProjectForm({ projectformType }: any) {
           />
         )} */}
 
-        <SkillsSelect //this still uses constant values instead of values taken from the db
+        {/* <SkillsSelect //this still uses constant values instead of values taken from the db
           name="skills"
           label="Skills"
-        />
+        /> */}
 
-        <LabelsSelect //this still uses constant values instead of values taken from the db
+        {/* <LabelsSelect //this still uses constant values instead of values taken from the db
           name="labels"
           label="Labels"
-        />
+        /> */}
 
-        <RelatedProjectsSelect //this still uses constant values instead of values taken from the db
+        {/* <RelatedProjectsSelect //this still uses constant values instead of values taken from the db
           thisProject=""
           name="relatedProjectsA"
           label="Related Projects"
-        />
+        /> */}
 
         {/* {projectformType !== "create" && (
           <InputSelect
@@ -156,5 +144,5 @@ export function ProjectForm({ projectformType }: any) {
         <ProjectMembersField name="projectMembers" label="Add a contributor" />
       </Collapse>
     </>
-  );
+  )
 }
