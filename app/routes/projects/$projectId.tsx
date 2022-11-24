@@ -428,7 +428,7 @@ export default function ProjectDetailsPage() {
         handleCloseModal={handleCloseModal}
       />
       <div className="wrapper">
-        <RelatedProjectsSection allowEdit={true} relatedProjects={project.relatedProjects}/>
+        <RelatedProjectsSection allowEdit={isTeamMember} relatedProjects={project.relatedProjects}/>
       </div>
       {/*
       <div className="wrapper">
