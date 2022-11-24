@@ -1,6 +1,6 @@
 import { FormControlLabel, Switch, Collapse } from "@mui/material"
 import { useState } from "react"
-import { MultivalueInput } from "~/core/components/MultivalueInput"
+import { MultiUrl } from "~/core/components/MultiUrl"
 import DisciplinesSelect from "~/core/components/DisciplinesSelect"
 import LabeledTextField from "~/core/components/LabeledTextField"
 import LabeledTextFieldArea from "~/core/components/LabeledTextFieldArea"
@@ -87,11 +87,11 @@ export function ProjectForm({ projectformType }: any) {
           placeholder="Millenials"
         />
 
-        <MultivalueInput
+        {/* <MultiUrl
           name="repoUrls"
           label="Repo URLs"
           footer="Type the Repo URL and press Enter to add it to your project. You can add as many URLs as you need."
-        />
+        /> */}
 
         <LabeledTextField
           fullWidth

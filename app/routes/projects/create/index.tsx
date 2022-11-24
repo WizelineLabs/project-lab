@@ -21,7 +21,16 @@ export const validator = withZod(
       helpWanted: zfd.checkbox(),
       disciplines: zfd.repeatable(z.array(z.string()).optional()),
       target: z.optional(z.string()),
-      repoUrls: zfd.repeatable(z.array(z.string()).optional()),
+      // repoUrls: zfd.repeatable(
+      //   z
+      //     .array(
+      //       z.object({
+      //         id: z.string().optional(),
+      //         url: z.string().url("Please enter a valid URL"),
+      //       })
+      //     )
+      //     .optional()
+      // ),
       slackChannels: z.optional(z.string()),
       skills: zfd.repeatable(z.array(z.string()).optional()),
       labels: zfd.repeatable(z.array(z.string()).optional()),
@@ -43,7 +52,7 @@ export const validator = withZod(
     })
     .transform((val) => {
       val.disciplines = val.disciplines?.filter((el) => el != "")
-      val.repoUrls = val.repoUrls?.filter((el) => el != "")
+      // val.repoUrls = val.repoUrls?.filter((el) => el.url != "")
       val.skills = val.skills?.filter((el) => el != "")
       val.labels = val.labels?.filter((el) => el != "")
       // val.relatedProjectsA = val.relatedProjectsA?.filter((el) => el != "");
@@ -78,6 +87,9 @@ const NewProjectPage = () => {
         <GoBack title="Back to main page" onClick={() => navigate("/")} />
         <ValidatedForm
           validator={validator}
+          onSubmit={async (data) => {
+            console.log(data)
+          }}
           defaultValues={{
             helpWanted: false,
             projectMembers: [
