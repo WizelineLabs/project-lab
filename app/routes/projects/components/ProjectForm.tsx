@@ -1,6 +1,5 @@
-import { FormControlLabel, Switch, Collapse, Box } from "@mui/material"
+import { FormControlLabel, Switch, Collapse } from "@mui/material"
 import { useState } from "react"
-import { useTransition } from "@remix-run/react"
 import { MultivalueInput } from "~/core/components/MultivalueInput"
 import DisciplinesSelect from "~/core/components/DisciplinesSelect"
 import LabeledTextField from "~/core/components/LabeledTextField"

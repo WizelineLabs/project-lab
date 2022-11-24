@@ -55,10 +55,8 @@ export const action: ActionFunction = async ({ request }) => {
   const profile = await requireProfile(request)
   const result = await validator.validate(await request.formData())
   if (result.error) return validationError(result.error)
-  // const project = await createProject(result.data, profile.id)
-  console.log(result.data)
-  return result.data
-  // return redirect(`/projects/${project.id}`)
+  const project = await createProject(result.data, profile.id)
+  return redirect(`/projects/${project.id}`)
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -86,7 +84,7 @@ const NewProjectPage = () => {
               {
                 profileId: profile.id,
                 name: profile.name,
-                roles: ["Owner"],
+                roles: [],
                 skills: [],
                 hours: "0",
                 active: true,
