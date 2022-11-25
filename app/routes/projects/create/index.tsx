@@ -64,8 +64,12 @@ export const action: ActionFunction = async ({ request }) => {
   const profile = await requireProfile(request)
   const result = await validator.validate(await request.formData())
   if (result.error) return validationError(result.error)
-  const project = await createProject(result.data, profile.id)
-  return redirect(`/projects/${project.id}`)
+  try {
+    const project = await createProject(result.data, profile.id)
+    return redirect(`/projects/${project.id}`)
+  } catch (error) {
+    return json({ error: error.body }, { status: 500 })
+  }
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -87,9 +91,6 @@ const NewProjectPage = () => {
         <GoBack title="Back to main page" onClick={() => navigate("/")} />
         <ValidatedForm
           validator={validator}
-          onSubmit={async (data) => {
-            console.log(data)
-          }}
           defaultValues={{
             helpWanted: false,
             projectMembers: [
