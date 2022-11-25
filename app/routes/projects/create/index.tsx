@@ -15,12 +15,12 @@ import { Box } from "@mui/material"
 export const validator = withZod(
   z
     .object({
-      name: z.string().nonempty("Name is required"),
-      description: z.string().nonempty("Description is required"),
-      valueStatement: z.optional(z.string()),
+      name: z.string().min(1, "Name is required"),
+      description: z.string().min(1, "Description is required"),
+      valueStatement: z.string().optional(),
       helpWanted: zfd.checkbox(),
       disciplines: zfd.repeatable(z.array(z.string()).optional()),
-      target: z.optional(z.string()),
+      target: z.string().optional(),
       // repoUrls: zfd.repeatable(
       //   z
       //     .array(
@@ -31,7 +31,7 @@ export const validator = withZod(
       //     )
       //     .optional()
       // ),
-      slackChannels: z.optional(z.string()),
+      slackChannels: z.string().optional(),
       skills: zfd.repeatable(z.array(z.string()).optional()),
       labels: zfd.repeatable(z.array(z.string()).optional()),
       // relatedProjectsA: zfd.repeatable(z.array(z.string()).optional()),
@@ -62,8 +62,10 @@ export const validator = withZod(
 
 export const action: ActionFunction = async ({ request }) => {
   const profile = await requireProfile(request)
+
   const result = await validator.validate(await request.formData())
   if (result.error) return validationError(result.error)
+
   try {
     const project = await createProject(result.data, profile.id)
     return redirect(`/projects/${project.id}`)
