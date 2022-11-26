@@ -9,7 +9,7 @@ import { json, redirect } from "@remix-run/node"
 import type { ActionFunction, LoaderFunction } from "@remix-run/node"
 import { zfd } from "zod-form-data"
 import { requireProfile } from "~/session.server"
-import { createProject } from "~/models/project.server"
+import { createProject, projectNameExists } from "~/models/project.server"
 
 export const validator = withZod(
   zfd
@@ -63,6 +63,16 @@ export const action: ActionFunction = async ({ request }) => {
   const result = await validator.validate(await request.formData())
 
   if (result.error) return validationError(result.error)
+
+  const { name } = result.data
+
+  if (await projectNameExists(name)) {
+    return validationError({
+      fieldErrors: {
+        name: "Project name already exists",
+      },
+    })
+  }
 
   try {
     const project = await createProject(result.data, profile.id)
