@@ -16,7 +16,6 @@ interface MultiUrlProps {
 }
 
 interface ValuesProps {
-  id?: number
   url: string
 }
 

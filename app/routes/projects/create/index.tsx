@@ -24,7 +24,6 @@ export const validator = withZod(
         z
           .array(
             z.object({
-              id: zfd.numeric(z.number().optional()),
               url: zfd.text(z.string().optional()),
             })
           )
