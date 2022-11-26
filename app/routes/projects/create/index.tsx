@@ -78,8 +78,10 @@ export const action: ActionFunction = async ({ request }) => {
     const project = await createProject(result.data, profile.id)
     return redirect(`/projects/${project.id}`)
   } catch (error) {
-    console.log(error.message)
-    return json({ error: error.message }, { status: 500 })
+    if (error instanceof Error) {
+      console.log(error.message)
+      return json({ error: error.message }, { status: 500 })
+    }
   }
 }
 
