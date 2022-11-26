@@ -49,7 +49,6 @@ export const validator = withZod(
       ),
     })
     .transform((val) => {
-      console.log(val)
       val.disciplines = val.disciplines?.filter((el) => el != "")
       val.skills = val.skills?.filter((el) => el != "")
       val.labels = val.labels?.filter((el) => el != "")
