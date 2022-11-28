@@ -206,130 +206,12 @@ export async function updateProjects(id: string, isAdmin: boolean, data: any) {
   //validate if the user have permissions (team member or owner of the project)
   if (!isAdmin) validateIsTeamMember(id, data)
 
-  let activeMembers: any = []
-
-  // Loop Project Members
-  for (let index = 0; index < data.projectMembers.length; index++) {
-    // Creates the array for the practicedSkills connect
-    const practicedSkillsArrayConnect = data.projectMembers[index].practicedSkills?.map((skill: { id: any; }) => {
-      return { id: skill.id }
-    })
-    // Creates the array for the roles connect
-    const rolesArrayConnect = data.projectMembers[index].role?.map((r: { id: any; }) => {
-      return { id: r.id }
-    })
-    // Create only the members that don't exist in this project
-    if (data.projectMembers[index].profile) {
-      activeMembers.push(data.projectMembers[index]?.id)
-      // Just disconnects ALL related practicedSkills and roles, so it can UPDATE just the new selected ones after...
-      await db.projectMembers.update({
-        where: { id: data.projectMembers[index].id },
-        data: {
-          practicedSkills: { set: [] },
-          role: { set: [] },
-        },
-        include: {
-          practicedSkills: true,
-          role: true,
-        },
-      })
-      // Makes all the actual updates to the projectMember
-      await db.projectMembers.update({
-        where: { id: data.projectMembers[index].id },
-        data: {
-          hoursPerWeek: data.projectMembers[index].hoursPerWeek,
-          role: { connect: rolesArrayConnect },
-          active: data.projectMembers[index].active,
-          practicedSkills: { connect: practicedSkillsArrayConnect },
-        },
-        include: {
-          practicedSkills: true,
-        },
-      })
-    } else {
-      await db.projectMembers.create({
-        data: {
-          project: { connect: { id } },
-          profile: { connect: { id: data.projectMembers[index].profileId } },
-          hoursPerWeek: data.projectMembers[index].hoursPerWeek,
-          role: { connect: rolesArrayConnect },
-          practicedSkills: { connect: practicedSkillsArrayConnect },
-        },
-      })
-    }
-  }
-
-  // Delete members who are no longer active
-  for (let j = 0; j < data.existedMembers?.length; j++) {
-    if (!activeMembers.includes(data.existedMembers[j])) {
-      await db.projectMembers.deleteMany({ where: { id: data.existedMembers[j] } })
-    }
-  }
-
-  // Update RepoUrls
-  const projectRepoUrls = await db.repos.findMany({
-    where: { projectId: id },
-  })
-
-  for (let i = 0; i < projectRepoUrls.length; i++) {
-    if (!data.repoUrls.find((repo: { id: number; }) => repo.id === projectRepoUrls[i]?.id)) {
-      await db.repos.delete({ where: { id: projectRepoUrls[i]?.id } })
-    }
-  }
-
-  const newRepos = data.repoUrls.filter(
-    (repo: { id: number; }) => !projectRepoUrls.find((repoUrl) => repoUrl.id === repo.id)
-  )
-  /*
-  // Create related Projects
-  for (let i = 0; i < data.relatedProjects.length; i++) {
-    let relationExist = await db.relatedProjects.count({
-      where: {
-        OR: [
-          {
-            projectAId: data.relatedProjects[i].id,
-            projectBId: id,
-          },
-          {
-            projectAId: id,
-            projectBId: data.relatedProjects[i].id,
-          },
-        ],
-      },
-    })
-
-    if (relationExist === 0) {
-      await db.relatedProjects.create({
-        data: {
-          projectAId: id,
-          projectBId: data.relatedProjects[i].id,
-        },
-      })
-    }
-  }
-
-  // Delete related projects
-  const relatedProjectsIds = await data.relatedProjects.map((e: { id: any; }) => e.id)
-  await db.relatedProjects.deleteMany({
-    where: {
-      OR: [
-        { projectAId: id, projectBId: { notIn: relatedProjectsIds } },
-        { projectAId: { notIn: relatedProjectsIds }, projectBId: id },
-      ],
-    },
-  })
-  */
-  // Delete from Form values because We already updated the project members.
-  delete data.projectMembers
-  delete data.existedMembers
-  delete data.relatedProjects
   const project = await db.projects.update({
     where: { id },
     data: {
       ...data,
       updatedAt: new Date(),
-//      projectStatus: { connect: { name: data.projectStatus?.name } },
-//      owner: { connect: { id: data.owner?.id } },
+      //      owner: { connect: { id: data.owner?.id } },
       skills: {
         set: data.skills,
       },
@@ -340,12 +222,10 @@ export async function updateProjects(id: string, isAdmin: boolean, data: any) {
         set: data.labels,
       },
       repoUrls: {
-        create: newRepos,
+        set: data.repoUrls,
       },
-//      innovationTiers: { connect: { name: data.innovationTiers?.name } },
     },
     include: {
-      projectStatus: true,
       skills: true,
       disciplines: true,
       labels: true,
@@ -356,19 +236,18 @@ export async function updateProjects(id: string, isAdmin: boolean, data: any) {
           projectTasks: true,
         },
       },
-      projectMembers: {
+       projectMembers: {
         include: {
           profile: { select: { firstName: true, lastName: true, email: true } },
           role: true,
           contributorPath: true,
           practicedSkills: true,
         },
-      },
+      }, 
       votes: { where: { profileId: id } },
-      innovationTiers: true,
     },
   })
-
+    
   return project
 }
 
