@@ -9,29 +9,27 @@ import { json, redirect } from "@remix-run/node"
 import type { ActionFunction, LoaderFunction } from "@remix-run/node"
 import { zfd } from "zod-form-data"
 import { requireProfile } from "~/session.server"
-import { createProject } from "~/models/project.server"
-import { Box } from "@mui/material"
+import { createProject, projectNameExists } from "~/models/project.server"
 
 export const validator = withZod(
-  z
-    .object({
-      name: z.string().nonempty("Name is required"),
-      description: z.string().nonempty("Description is required"),
-      valueStatement: z.optional(z.string()),
+  zfd
+    .formData({
+      name: zfd.text(z.string().min(1)),
+      description: zfd.text(z.string().min(1)),
+      valueStatement: zfd.text(z.string().optional()),
       helpWanted: zfd.checkbox(),
       disciplines: zfd.repeatable(z.array(z.string()).optional()),
-      target: z.optional(z.string()),
-      // repoUrls: zfd.repeatable(
-      //   z
-      //     .array(
-      //       z.object({
-      //         id: z.string().optional(),
-      //         url: z.string().url("Please enter a valid URL"),
-      //       })
-      //     )
-      //     .optional()
-      // ),
-      slackChannels: z.optional(z.string()),
+      target: zfd.text(z.string().optional()),
+      repoUrls: zfd.repeatable(
+        z
+          .array(
+            z.object({
+              url: zfd.text(z.string().optional()),
+            })
+          )
+          .optional()
+      ),
+      slackChannels: zfd.text(z.string().optional()),
       skills: zfd.repeatable(z.array(z.string()).optional()),
       labels: zfd.repeatable(z.array(z.string()).optional()),
       // relatedProjectsA: zfd.repeatable(z.array(z.string()).optional()),
@@ -39,11 +37,11 @@ export const validator = withZod(
         z
           .array(
             z.object({
-              profileId: z.string(),
-              name: z.string().optional(),
+              profileId: zfd.text(),
+              name: zfd.text(z.string().optional()),
               roles: zfd.repeatable(z.array(z.string()).optional()),
               skills: zfd.repeatable(z.array(z.string()).optional()),
-              hours: z.string().optional(),
+              hours: zfd.text(z.string().optional()),
               active: zfd.checkbox(),
             })
           )
@@ -52,7 +50,6 @@ export const validator = withZod(
     })
     .transform((val) => {
       val.disciplines = val.disciplines?.filter((el) => el != "")
-      // val.repoUrls = val.repoUrls?.filter((el) => el.url != "")
       val.skills = val.skills?.filter((el) => el != "")
       val.labels = val.labels?.filter((el) => el != "")
       // val.relatedProjectsA = val.relatedProjectsA?.filter((el) => el != "");
@@ -63,9 +60,28 @@ export const validator = withZod(
 export const action: ActionFunction = async ({ request }) => {
   const profile = await requireProfile(request)
   const result = await validator.validate(await request.formData())
+
   if (result.error) return validationError(result.error)
-  const project = await createProject(result.data, profile.id)
-  return redirect(`/projects/${project.id}`)
+
+  const { name } = result.data
+
+  if (await projectNameExists(name)) {
+    return validationError({
+      fieldErrors: {
+        name: "Project name already exists",
+      },
+    })
+  }
+
+  try {
+    const project = await createProject(result.data, profile.id)
+    return redirect(`/projects/${project.id}`)
+  } catch (error) {
+    if (error instanceof Error) {
+      console.log(error.message)
+      return json({ error: error.message }, { status: 500 })
+    }
+  }
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -87,9 +103,6 @@ const NewProjectPage = () => {
         <GoBack title="Back to main page" onClick={() => navigate("/")} />
         <ValidatedForm
           validator={validator}
-          onSubmit={async (data) => {
-            console.log(data)
-          }}
           defaultValues={{
             helpWanted: false,
             projectMembers: [
@@ -106,11 +119,6 @@ const NewProjectPage = () => {
           method="post"
         >
           <ProjectForm projectformType="create" />
-          <Box textAlign="center">
-            <button type="submit" className="primary">
-              {"Create Project"}
-            </button>
-          </Box>
         </ValidatedForm>
       </div>
     </div>

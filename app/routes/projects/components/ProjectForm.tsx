@@ -12,11 +12,16 @@ import ProjectOwnerField from "~/core/components/ProjectOwnerField"
 import RelatedProjectsSelect from "~/core/components/RelatedProjectsSelect"
 import ProjectMembersField from "~/core/components/ProjectMembersField"
 import { useControlField } from "remix-validated-form"
+import { Box } from "@mui/material"
+import { useFormContext, useIsSubmitting } from "remix-validated-form"
 
 export function ProjectForm({ projectformType }: any) {
   const [displayFields, setDisplayFields] = useState(projectformType === "create" ? false : true)
-
   const [helpWanted, setHelpWanted] = useControlField<boolean>("helpWanted")
+  const isSubmitting = useIsSubmitting()
+  const { isValid, fieldErrors } = useFormContext()
+  console.log(fieldErrors)
+  const disabled = isSubmitting || !isValid
 
   return (
     <>
@@ -87,11 +92,11 @@ export function ProjectForm({ projectformType }: any) {
           placeholder="Millenials"
         />
 
-        {/* <MultiUrl
+        <MultiUrl
           name="repoUrls"
           label="Repo URLs"
           footer="Type the Repo URL and press Enter to add it to your project. You can add as many URLs as you need."
-        /> */}
+        />
 
         <LabeledTextField
           fullWidth
@@ -142,6 +147,12 @@ export function ProjectForm({ projectformType }: any) {
 
         <ProjectMembersField name="projectMembers" label="Add a contributor" />
       </Collapse>
+
+      <Box textAlign="center">
+        <button disabled={disabled} type="submit" className="primary">
+          {isSubmitting ? "Submitting..." : "Submit"}
+        </button>
+      </Box>
     </>
   )
 }

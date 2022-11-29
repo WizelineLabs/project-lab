@@ -1,55 +1,55 @@
-import type { Profiles, Projects } from "@prisma/client";
-import { Prisma } from "@prisma/client";
-import { defaultStatus } from "~/constants";
+import type { Profiles, Projects } from "@prisma/client"
+import { Prisma } from "@prisma/client"
+import { defaultStatus } from "~/constants"
 
-import { joinCondition, prisma as db } from "~/db.server";
+import { joinCondition, prisma as db } from "~/db.server"
 
 interface SearchProjectsInput {
-  profileId: Profiles["id"];
-  search: string | string[];
-  status: string[];
-  skill: string[];
-  discipline: string[];
-  tier: string[];
-  location: string[];
-  label: string[];
-  role: string[];
-  missing: string[];
-  skip: number;
-  take: number;
-  orderBy: { field: string; order: string };
+  profileId: Profiles["id"]
+  search: string | string[]
+  status: string[]
+  skill: string[]
+  discipline: string[]
+  tier: string[]
+  location: string[]
+  label: string[]
+  role: string[]
+  missing: string[]
+  skip: number
+  take: number
+  orderBy: { field: string; order: string }
 }
 
 interface SearchProjectsOutput {
-  id: string;
-  name: string;
-  createdAt: string;
-  updatedAt: string;
-  description: string;
-  firstName: string;
-  lastName: string;
-  avatarUrl: string;
-  status: string;
-  color: string;
-  searchSkills: string;
-  votesCount: number;
-  projectMembers: number;
-  owner: string;
-  tierName: string;
+  id: string
+  name: string
+  createdAt: string
+  updatedAt: string
+  description: string
+  firstName: string
+  lastName: string
+  avatarUrl: string
+  status: string
+  color: string
+  searchSkills: string
+  votesCount: number
+  projectMembers: number
+  owner: string
+  tierName: string
 }
 
 interface ProjectWhereInput {
-  status?: string | null;
-  tierName?: string | null;
+  status?: string | null
+  tierName?: string | null
 }
 
 interface SearchIdsOutput {
-  id: string;
+  id: string
 }
 
 interface FacetOutput {
-  name: string;
-  count: number;
+  name: string
+  count: number
 }
 
 interface RelatedProjectInput {
@@ -57,26 +57,18 @@ interface RelatedProjectInput {
 }
 
 export class SearchProjectsError extends Error {
-  name = "SearchProjectsError";
-  message = "There was an error while searching for projects.";
+  name = "SearchProjectsError"
+  message = "There was an error while searching for projects."
 }
 
-export function isProjectTeamMember(
-  profileId: string,
-  project: ProjectComplete
-) {
-  const isProjectMember = project?.projectMembers?.some(
-    (p) => p.profileId === profileId
-  );
-  const isProjectOwner = profileId === project?.ownerId;
-  return isProjectMember || isProjectOwner;
+export function isProjectTeamMember(profileId: string, project: ProjectComplete) {
+  const isProjectMember = project?.projectMembers?.some((p) => p.profileId === profileId)
+  const isProjectOwner = profileId === project?.ownerId
+  return isProjectMember || isProjectOwner
 }
 
-export function getProjectTeamMember(
-  profileId: string,
-  project: ProjectComplete
-) {
-  return project?.projectMembers?.find((p) => p.profileId === profileId);
+export function getProjectTeamMember(profileId: string, project: ProjectComplete) {
+  return project?.projectMembers?.find((p) => p.profileId === profileId)
 }
 
 export async function getProject({ id }: Pick<Projects, "id">) {
@@ -119,31 +111,36 @@ export async function getProject({ id }: Pick<Projects, "id">) {
         },
       },
     },
-  });
+  })
 
   // Parse related Projects
   const relatedProA = projectQueried?.relatedProjectsA.map((e) => {
     return e.projectA.id === id ? { ...e.projectB } : { ...e.projectA }
-  });
+  })
   const relatedProB = projectQueried?.relatedProjectsB.map((e) => {
     return e.projectA.id === id ? { ...e.projectB } : { ...e.projectA }
-  });
-  const relatedProjects = [ ...(relatedProA || []), ...(relatedProB || []) ]
+  })
+  const relatedProjects = [...(relatedProA || []), ...(relatedProB || [])]
 
   const project = {
     ...projectQueried,
-    relatedProjects: relatedProjects
-  };
-  return project;
+    relatedProjects: relatedProjects,
+  }
+  return project
+}
+
+export async function projectNameExists(name: string) {
+  const project = await db.projects.findFirst({ where: { name } })
+  return !!project
 }
 
 export async function createProject(input: any, profileId: string) {
   const defaultTier = await db.innovationTiers.findFirst({
     select: { name: true },
     where: { defaultRow: true },
-  });
+  })
 
-  const { projectMembers, ...formInput } = input;
+  const { projectMembers, ...formInput } = input
 
   const project = await db.projects.create({
     data: {
@@ -168,12 +165,12 @@ export async function createProject(input: any, profileId: string) {
         connect: { name: input.innovationTiers?.name || defaultTier?.name },
       },
     },
-  });
+  })
 
-  return project;
+  return project
 }
 
-export type ProjectComplete = Prisma.PromiseReturnType<typeof getProject>;
+export type ProjectComplete = Prisma.PromiseReturnType<typeof getProject>
 
 export async function getProjects(where: ProjectWhereInput) {
   try {
@@ -185,14 +182,17 @@ export async function getProjects(where: ProjectWhereInput) {
         skills: true,
         projectMembers: true,
       },
-    });
-    return projects;
+    })
+    return projects
   } catch (e) {
-    throw new Error(JSON.stringify(e));
+    throw new Error(JSON.stringify(e))
   }
 }
 
-export const validateIsTeamMember = (profileId: string, data: { projectMembers: any[]; owner: { id: string; }; }) => {
+export const validateIsTeamMember = (
+  profileId: string,
+  data: { projectMembers: any[]; owner: { id: string } }
+) => {
   //validate if the user have permissions (team member or owner of the project)
   const isProjectMember = data.projectMembers.some((member) => member.profileId === profileId)
   const isProjectOwner = profileId === data.owner?.id
@@ -202,7 +202,22 @@ export const validateIsTeamMember = (profileId: string, data: { projectMembers: 
   }
 }
 
-export async function updateProjects(id: string, isAdmin: boolean, data: { projectMembers: any; existedMembers?: any; repoUrls?: any; relatedProjects?: any; projectStatus?: any; owner: any; skills?: any; disciplines?: any; labels?: any; innovationTiers?: any; }) {
+export async function updateProjects(
+  id: string,
+  isAdmin: boolean,
+  data: {
+    projectMembers: any
+    existedMembers?: any
+    repoUrls?: any
+    relatedProjects?: any
+    projectStatus?: any
+    owner: any
+    skills?: any
+    disciplines?: any
+    labels?: any
+    innovationTiers?: any
+  }
+) {
   //validate if the user have permissions (team member or owner of the project)
   if (!isAdmin) validateIsTeamMember(id, data)
 
@@ -211,11 +226,13 @@ export async function updateProjects(id: string, isAdmin: boolean, data: { proje
   // Loop Project Members
   for (let index = 0; index < data.projectMembers.length; index++) {
     // Creates the array for the practicedSkills connect
-    const practicedSkillsArrayConnect = data.projectMembers[index].practicedSkills?.map((skill: { id: any; }) => {
-      return { id: skill.id }
-    })
+    const practicedSkillsArrayConnect = data.projectMembers[index].practicedSkills?.map(
+      (skill: { id: any }) => {
+        return { id: skill.id }
+      }
+    )
     // Creates the array for the roles connect
-    const rolesArrayConnect = data.projectMembers[index].role?.map((r: { id: any; }) => {
+    const rolesArrayConnect = data.projectMembers[index].role?.map((r: { id: any }) => {
       return { id: r.id }
     })
     // Create only the members that don't exist in this project
@@ -272,13 +289,13 @@ export async function updateProjects(id: string, isAdmin: boolean, data: { proje
   })
 
   for (let i = 0; i < projectRepoUrls.length; i++) {
-    if (!data.repoUrls.find((repo: { id: number; }) => repo.id === projectRepoUrls[i]?.id)) {
+    if (!data.repoUrls.find((repo: { id: number }) => repo.id === projectRepoUrls[i]?.id)) {
       await db.repos.delete({ where: { id: projectRepoUrls[i]?.id } })
     }
   }
 
   const newRepos = data.repoUrls.filter(
-    (repo: { id: number; }) => !projectRepoUrls.find((repoUrl) => repoUrl.id === repo.id)
+    (repo: { id: number }) => !projectRepoUrls.find((repoUrl) => repoUrl.id === repo.id)
   )
 
   // Create related Projects
@@ -309,7 +326,7 @@ export async function updateProjects(id: string, isAdmin: boolean, data: { proje
   }
 
   // Delete related projects
-  const relatedProjectsIds = await data.relatedProjects.map((e: { id: any; }) => e.id)
+  const relatedProjectsIds = await data.relatedProjects.map((e: { id: any }) => e.id)
   await db.relatedProjects.deleteMany({
     where: {
       OR: [
@@ -377,55 +394,55 @@ export async function updateRelatedProjects({
   id,
   data,
 }: {
-  id: string;
-  data: RelatedProjectInput;
+  id: string
+  data: RelatedProjectInput
 }) {
   return await db.$transaction(async (tx) => {
-  // Create related Projects
-  const createResponse = [];
-  let response;
-  for (let i = 0; i < data.relatedProjects.length; i++) {
-    let relationExist = await tx.relatedProjects.count({
-      where: {
-        OR: [
-          {
-            projectAId: data.relatedProjects[i].id,
-            projectBId: id,
-          },
-          {
+    // Create related Projects
+    const createResponse = []
+    let response
+    for (let i = 0; i < data.relatedProjects.length; i++) {
+      let relationExist = await tx.relatedProjects.count({
+        where: {
+          OR: [
+            {
+              projectAId: data.relatedProjects[i].id,
+              projectBId: id,
+            },
+            {
+              projectAId: id,
+              projectBId: data.relatedProjects[i].id,
+            },
+          ],
+        },
+      })
+
+      if (relationExist === 0) {
+        response = await tx.relatedProjects.create({
+          data: {
             projectAId: id,
             projectBId: data.relatedProjects[i].id,
           },
+        })
+        if (!response) {
+          throw new Error(`Error when acreating relation for: ${data.relatedProjects[i].id}`)
+        }
+        createResponse.push(response)
+      }
+    }
+
+    const relatedProjectsIds = data.relatedProjects.map((e) => e.id)
+    // Delete related projects
+    const deleteResponse = await tx.relatedProjects.deleteMany({
+      where: {
+        OR: [
+          { projectAId: id, projectBId: { notIn: relatedProjectsIds } },
+          { projectAId: { notIn: relatedProjectsIds }, projectBId: id },
         ],
       },
-    });
-
-    if (relationExist === 0) {
-      response = await tx.relatedProjects.create({
-        data: {
-          projectAId: id,
-          projectBId: data.relatedProjects[i].id,
-        },
-      });
-      if(!response){
-        throw new Error(`Error when acreating relation for: ${data.relatedProjects[i].id}`)
-      }
-      createResponse.push(response)
-    }
-  }
-
-  const relatedProjectsIds = data.relatedProjects.map((e) => e.id);
-  // Delete related projects
-  const deleteResponse = await tx.relatedProjects.deleteMany({
-    where: {
-      OR: [
-        { projectAId: id, projectBId: { notIn: relatedProjectsIds } },
-        { projectAId: { notIn: relatedProjectsIds }, projectBId: id },
-      ],
-    },
-  });
-  return {createResponse,deleteResponse}
-})
+    })
+    return { createResponse, deleteResponse }
+  })
 }
 
 export async function searchProjects({
@@ -443,69 +460,50 @@ export async function searchProjects({
   skip = 0,
   take = 50,
 }: SearchProjectsInput) {
-  let where = Prisma.sql`WHERE p.id IS NOT NULL`;
-  let having = Prisma.empty;
+  let where = Prisma.sql`WHERE p.id IS NOT NULL`
+  let having = Prisma.empty
   if (search && search !== "") {
     search === "myProposals"
       ? (where = Prisma.sql`WHERE pm."profileId" = ${profileId}`)
-      : (where = Prisma.sql`WHERE "tsColumn" @@ websearch_to_tsquery('english', ${search})`);
+      : (where = Prisma.sql`WHERE "tsColumn" @@ websearch_to_tsquery('english', ${search})`)
   }
 
   if (status.length > 0) {
-    where = Prisma.sql`${where} AND p.status IN (${Prisma.join(status)})`;
+    where = Prisma.sql`${where} AND p.status IN (${Prisma.join(status)})`
   }
 
   if (skill.length > 0) {
-    where = Prisma.sql`${where} AND "Skills".name IN (${Prisma.join(skill)})`;
-    having = joinCondition(
-      having,
-      Prisma.sql`COUNT(DISTINCT "Skills".name) = ${skill.length}`
-    );
+    where = Prisma.sql`${where} AND "Skills".name IN (${Prisma.join(skill)})`
+    having = joinCondition(having, Prisma.sql`COUNT(DISTINCT "Skills".name) = ${skill.length}`)
   }
 
   if (discipline.length > 0) {
-    where = Prisma.sql`${where} AND "Disciplines".name IN (${Prisma.join(
-      discipline
-    )})`;
+    where = Prisma.sql`${where} AND "Disciplines".name IN (${Prisma.join(discipline)})`
     having = joinCondition(
       having,
       Prisma.sql`COUNT(DISTINCT "Disciplines".name) = ${discipline.length}`
-    );
+    )
   }
 
   if (tier.length > 0) {
-    where = Prisma.sql`${where} AND "tierName" IN (${Prisma.join(tier)})`;
-    having = joinCondition(
-      having,
-      Prisma.sql`COUNT(DISTINCT "tierName") = ${tier.length}`
-    );
+    where = Prisma.sql`${where} AND "tierName" IN (${Prisma.join(tier)})`
+    having = joinCondition(having, Prisma.sql`COUNT(DISTINCT "tierName") = ${tier.length}`)
   }
 
   if (label.length > 0) {
-    where = Prisma.sql`${where} AND "Labels".name IN (${Prisma.join(label)})`;
-    having = joinCondition(
-      having,
-      Prisma.sql`COUNT(DISTINCT "Labels".name) = ${label.length}`
-    );
+    where = Prisma.sql`${where} AND "Labels".name IN (${Prisma.join(label)})`
+    having = joinCondition(having, Prisma.sql`COUNT(DISTINCT "Labels".name) = ${label.length}`)
   }
 
   if (location.length > 0) {
-    where = Prisma.sql`${where} AND loc.name IN (${Prisma.join(location)})`;
-    having = joinCondition(
-      having,
-      Prisma.sql`COUNT(DISTINCT loc.name) = ${location.length}`
-    );
+    where = Prisma.sql`${where} AND loc.name IN (${Prisma.join(location)})`
+    having = joinCondition(having, Prisma.sql`COUNT(DISTINCT loc.name) = ${location.length}`)
   }
 
   // TODO: instead imlement a function to join with AND or not depending on if empty
   if (role.length > 0) {
-    where = Prisma.sql`${where} AND roles.name IN (${Prisma.join(
-      role
-    )}) AND pm.active = true`;
-    having = joinCondition(
-      having,
-      Prisma.sql`COUNT(DISTINCT roles.name) = ${role.length}`
-    );
+    where = Prisma.sql`${where} AND roles.name IN (${Prisma.join(role)}) AND pm.active = true`
+    having = joinCondition(having, Prisma.sql`COUNT(DISTINCT roles.name) = ${role.length}`)
   }
 
   if (missing.length > 0) {
@@ -515,22 +513,22 @@ export async function searchProjects({
       INNER JOIN "_DisciplinesToProjectMembers" _dpm ON _dpm."A" = d.id
       INNER JOIN "ProjectMembers" pm ON pm.id = _dpm."B" AND pm.active = true
       WHERE d.name IN (${Prisma.join(missing)})
-    )`;
+    )`
   }
 
-  let orderQuery = Prisma.sql`ORDER BY "tierName" ASC`;
+  let orderQuery = Prisma.sql`ORDER BY "tierName" ASC`
   if (orderBy.field == "updatedAt") {
-    orderQuery = Prisma.sql`ORDER BY p."updatedAt" DESC`;
+    orderQuery = Prisma.sql`ORDER BY p."updatedAt" DESC`
   } else if (orderBy.field == "votesCount") {
-    orderQuery = Prisma.sql`ORDER BY "votesCount" DESC`;
+    orderQuery = Prisma.sql`ORDER BY "votesCount" DESC`
   } else if (orderBy.field == "projectMembers") {
-    orderQuery = Prisma.sql`ORDER BY "projectMembers" DESC`;
+    orderQuery = Prisma.sql`ORDER BY "projectMembers" DESC`
   } else if (orderBy.field == "mostRecent") {
-    orderQuery = Prisma.sql`ORDER BY p."createdAt" DESC`;
+    orderQuery = Prisma.sql`ORDER BY p."createdAt" DESC`
   }
 
   if (having != Prisma.empty) {
-    having = Prisma.sql`HAVING ${having}`;
+    having = Prisma.sql`HAVING ${having}`
   }
 
   const ids = await db.$queryRaw<SearchIdsOutput[]>`
@@ -552,13 +550,11 @@ export async function searchProjects({
     ${where}
     GROUP BY p.id
     ${having};
-  `;
+  `
 
-  let projectIdsWhere = Prisma.sql`false`;
+  let projectIdsWhere = Prisma.sql`false`
   if (ids.length > 0) {
-    projectIdsWhere = Prisma.sql`p.id IN (${Prisma.join(
-      ids.map((val) => val.id)
-    )})`;
+    projectIdsWhere = Prisma.sql`p.id IN (${Prisma.join(ids.map((val) => val.id))})`
   }
 
   const projects = await db.$queryRaw<SearchProjectsOutput[]>`
@@ -577,16 +573,14 @@ export async function searchProjects({
     GROUP BY p.id, pr.id, s.name
     ${orderQuery}
     LIMIT ${take} OFFSET ${skip};
-  `;
+  `
 
   const statusFacets = await db.$queryRaw<FacetOutput[]>`
     SELECT p.status as name, COUNT(DISTINCT p.id) as count
     FROM "Projects" p
-    WHERE ${projectIdsWhere} AND p.status NOT IN (${
-    status.length > 0 ? Prisma.join(status) : ""
-  })
+    WHERE ${projectIdsWhere} AND p.status NOT IN (${status.length > 0 ? Prisma.join(status) : ""})
     GROUP BY p.status
-    ORDER BY count DESC;`;
+    ORDER BY count DESC;`
 
   const skillFacets = await db.$queryRaw<FacetOutput[]>`
     SELECT "Skills".name, "Skills".id, count(DISTINCT p.id) as count
@@ -600,7 +594,7 @@ export async function searchProjects({
     AND "Skills".id IS NOT NULL
     GROUP BY "Skills".id
     ORDER BY count DESC
-  `;
+  `
 
   const disciplineFacets = await db.$queryRaw<FacetOutput[]>`
     SELECT "Disciplines".name, "Disciplines".id, count(DISTINCT p.id) as count
@@ -614,7 +608,7 @@ export async function searchProjects({
     AND "Disciplines".id IS NOT NULL
     GROUP BY "Disciplines".id
     ORDER BY count DESC
-  `;
+  `
 
   const labelFacets = await db.$queryRaw<FacetOutput[]>`
     SELECT "Labels".name, "Labels".id, count(DISTINCT p.id) as count
@@ -628,17 +622,15 @@ export async function searchProjects({
     AND "Labels".id IS NOT NULL
     GROUP BY "Labels".id
     ORDER BY count DESC
-  `;
+  `
 
   const tierFacets = await db.$queryRaw<FacetOutput[]>`
     SELECT p."tierName" as name, COUNT(DISTINCT p.id) as count
     FROM "Projects" p
-    WHERE ${projectIdsWhere} AND p."tierName" NOT IN (${
-    tier.length > 0 ? Prisma.join(tier) : ""
-  })
+    WHERE ${projectIdsWhere} AND p."tierName" NOT IN (${tier.length > 0 ? Prisma.join(tier) : ""})
     GROUP BY p."tierName"
     ORDER BY count DESC, p."tierName"
-  `;
+  `
 
   const locationsFacets = await db.$queryRaw<FacetOutput[]>`
     SELECT loc.name, loc.id, count(DISTINCT p.id) as count
@@ -653,7 +645,7 @@ export async function searchProjects({
     AND loc.id IS NOT NULL
     GROUP BY loc.id
     ORDER BY count DESC
-  `;
+  `
 
   const roleFacets = await db.$queryRaw<FacetOutput[]>`
     SELECT d.name, d.id, count(DISTINCT p.id) as count
@@ -663,10 +655,10 @@ export async function searchProjects({
     LEFT JOIN "Projects" p ON p.id = pm."projectId" AND ${projectIdsWhere}
     GROUP BY d.id
     ORDER BY LOWER(d.name) ASC
-  `;
+  `
 
-  const hasMore = skip + take < ids.length;
-  const nextPage = hasMore ? { take, skip: skip + take } : null;
+  const hasMore = skip + take < ids.length
+  const nextPage = hasMore ? { take, skip: skip + take } : null
 
   return {
     projects,
@@ -679,11 +671,9 @@ export async function searchProjects({
     disciplineFacets,
     tierFacets,
     locationsFacets,
-    roleFacets: roleFacets.filter(
-      (val) => val.count != 0 && role.indexOf(val.name) == -1
-    ),
+    roleFacets: roleFacets.filter((val) => val.count != 0 && role.indexOf(val.name) == -1),
     missingFacets: roleFacets.filter(
       (val) => val.count != ids.length && missing.indexOf(val.name) == -1
     ),
-  };
+  }
 }
