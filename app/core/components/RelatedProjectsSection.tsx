@@ -4,6 +4,7 @@ import type {
   LoaderFunction,
   MetaFunction,
 } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { useLoaderData, useFetcher } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import {
@@ -17,12 +18,16 @@ import { EditButton } from "~/routes/projects/$projectId.styles";
     allowEdit: Boolean
   }
 
-  type loaderData = {
-    projectsList: { id: string; name: string }[];
+  type LoaderData = {
+    projectId: string;
   }
 
   export const loader: LoaderFunction = async ({request, params} ) => {
-    invariant(params.editProject)
+    invariant(params.editProject, "projectId could not be found")
+    const projectId = params.editProjectId;
+    return json<LoaderData>({
+      projectId
+    })
   }
 
 function RelatedProjectsSection({relatedProjects, allowEdit}: IProps) {
