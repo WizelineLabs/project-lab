@@ -19,8 +19,9 @@ export function ProjectForm({ projectformType }: any) {
   const [displayFields, setDisplayFields] = useState(projectformType === "create" ? false : true)
   const [helpWanted, setHelpWanted] = useControlField<boolean>("helpWanted")
   const isSubmitting = useIsSubmitting()
-  const { isValid, fieldErrors } = useFormContext()
+  const { isValid, fieldErrors, getValues } = useFormContext()
   console.log(fieldErrors)
+  console.log(getValues())
   const disabled = isSubmitting || !isValid
 
   return (
@@ -123,10 +124,10 @@ export function ProjectForm({ projectformType }: any) {
           label="Skills"
         /> */}
 
-        {/* <LabelsSelect //this still uses constant values instead of values taken from the db
+        <LabelsSelect //this still uses constant values instead of values taken from the db
           name="labels"
           label="Labels"
-        /> */}
+        />
 
         {/* <RelatedProjectsSelect //this still uses constant values instead of values taken from the db
           thisProject=""
