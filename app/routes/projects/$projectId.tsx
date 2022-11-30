@@ -13,6 +13,8 @@ import {
   getProjectTeamMember,
   isProjectTeamMember,
   getProject,
+  getProjects,
+  updateRelatedProjects,
 } from "~/models/project.server";
 import type { ProjectComplete } from "~/models/project.server";
 
@@ -52,6 +54,7 @@ type LoaderData = {
   profile: Profiles;
   project: ProjectComplete;
   profileId: string;
+  projectsList: { id: string; name: string }[];
 };
 
 type voteProject = {
@@ -67,6 +70,11 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     throw new Response("Not Found", { status: 404 });
   }
 
+  const projects = await getProjects({});
+  const projectsList = projects.map((e) => {
+    return { id: e.id, name: e.name };
+  });
+
   const user = await requireUser(request);
   const profile = await requireProfile(request);
   const isTeamMember = isProjectTeamMember(profile.id, project);
@@ -81,6 +89,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     profile,
     project,
     profileId,
+    projectsList
   });
 };
 
@@ -100,6 +109,17 @@ export const action: ActionFunction = async ({ request }) => {
         } else {
           await unvoteProject(projectId, profileId);
         }
+        return json({ error: "" }, { status: 200 });
+      case "EDIT_RELATED_PROJECTS":
+        console.log("Receive action from realted PRoejcts")
+        const relProProjectId = form.get("projectId") as string;
+        const relatedProjectsParse = JSON.parse(
+          form.get("relatedProjects") as string
+        );
+        await updateRelatedProjects({
+          id: relProProjectId,
+          data: { relatedProjects: relatedProjectsParse },
+        });
         return json({ error: "" }, { status: 200 });
       default: {
         throw new Error("Something went wrong");
@@ -134,7 +154,7 @@ export default function ProjectDetailsPage() {
     setShowJoinModal(false);
   };
 
-  const { isAdmin, isTeamMember, profile, membership, project, profileId } =
+  const { isAdmin, isTeamMember, profile, membership, project, profileId, projectsList } =
     useLoaderData() as LoaderData;
   const [showJoinModal, setShowJoinModal] = useState<boolean>(false);
 
@@ -428,7 +448,11 @@ export default function ProjectDetailsPage() {
         handleCloseModal={handleCloseModal}
       />
       <div className="wrapper">
-        <RelatedProjectsSection allowEdit={isTeamMember} relatedProjects={project.relatedProjects}/>
+        <RelatedProjectsSection 
+        allowEdit={isTeamMember} 
+        relatedProjects={project.relatedProjects} 
+        projectsList={projectsList} 
+        projectId={project.id || ""}/>
       </div>
       {/*
       <div className="wrapper">

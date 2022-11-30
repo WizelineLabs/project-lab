@@ -199,7 +199,7 @@ export default function EditProjectPage() {
         </fetcher.Form>
       </div>
       <div className="wrapper">
-        <RelatedProjectsSection allowEdit={isTeamMember} relatedProjects={project.relatedProjects} />
+        {/* <RelatedProjectsSection allowEdit={isTeamMember} relatedProjects={project.relatedProjects} /> */}
       </div>
 
     </>
