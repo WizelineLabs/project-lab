@@ -1,16 +1,25 @@
 import type { PropsWithoutRef } from "react";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 
-import { CircularProgress, TextField, Autocomplete } from "@mui/material";
-import { useField, useControlField } from "remix-validated-form";
+import { CircularProgress, TextField, Autocomplete, debounce } from "@mui/material";
+import { useField } from "remix-validated-form";
+import type { SubmitOptions } from "@remix-run/react";
+import { useFetcher } from "@remix-run/react";
+
+type LabelValue = {
+  id: string;
+  name: string;
+}
 
 interface LabelsSelectProps {
-  defaultValue?: any[];
+  defaultValue?: LabelValue[];
   name: string;
   label: string;
   helperText?: string;
   outerProps?: PropsWithoutRef<JSX.IntrinsicElements["div"]>;
 }
+
+const labelsOptions: SubmitOptions = { method: "get", action: "/labels-search" }
 
 export const LabelsSelect = ({
   name,
@@ -19,30 +28,56 @@ export const LabelsSelect = ({
   defaultValue = [],
   outerProps,
 }: LabelsSelectProps) => {
-  const labels = ["React", "Node", "Python", "Java", "C++", "C#"];
+  const labelFetcher = useFetcher<LabelValue[]>();
   const { error, getInputProps } = useField(name);
-  const [values, setValue] = useControlField<string[]>(name);
+  const [values, setValues] = useState<LabelValue[]>([]);
+  const searchLabels = (value: string) => {
+    labelFetcher.submit(
+      { q: value },
+      labelsOptions
+    );
+  };
+  const searchLabelsDebounced = debounce(searchLabels, 500)
+
+  useEffect(() => {
+    if (labelFetcher.type === "init") {
+      labelFetcher.submit({}, labelsOptions);
+    }
+  }, [labelFetcher]);
   return (
     <div {...outerProps}>
-      {values?.map((val) => (
-        <input type="hidden" name={name} key={val} value={val} />
+      {values?.map((value, i) => (
+        <input type="hidden" name={`${name}[${i}].id`} key={i} value={value.id} />
       ))}
       <Autocomplete
         multiple={true}
         fullWidth
+        {...getInputProps()}
         style={{ margin: "1em 0" }}
-        options={labels}
-        value={values || defaultValue}
-        onChange={(_e, newValue) => setValue(newValue)}
+        options={labelFetcher.data ?? []}
+        defaultValue={defaultValue}
+        isOptionEqualToValue={(option, value) => option.id === value.id}
+        getOptionLabel={(option) => option.name}
+        onInputChange={(_, value) => searchLabelsDebounced(value)}
+        onChange={(_e, newValues) => {
+          setValues(newValues)
+        }}
         filterSelectedOptions
         renderInput={(params) => (
           <TextField
             {...params}
-            id={name}
             label={label}
             error={!!error}
             helperText={error || helperText}
-            {...getInputProps()}
+            InputProps={{
+              ...params.InputProps,
+              endAdornment: (
+                <Fragment>
+                  {labelFetcher.state === "submitting" ? <CircularProgress color="inherit" size={20} /> : null}
+                  {params.InputProps.endAdornment}
+                </Fragment>
+              ),
+            }}
           />
         )}
       />

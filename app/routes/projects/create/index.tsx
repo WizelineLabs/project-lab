@@ -25,13 +25,19 @@ export const validator = withZod(
           .array(
             z.object({
               url: zfd.text(z.string().optional()),
+              id: z.string().optional(),
             })
           )
           .optional()
       ),
       slackChannels: zfd.text(z.string().optional()),
       skills: zfd.repeatable(z.array(z.string()).optional()),
-      labels: zfd.repeatable(z.array(z.string()).optional()),
+      labels: z.array(
+        z.object({
+          id: z.string(),
+          name: z.string().optional(),
+        })
+      ).optional(),
       // relatedProjectsA: zfd.repeatable(z.array(z.string()).optional()),
       projectMembers: zfd.repeatable(
         z
@@ -49,9 +55,6 @@ export const validator = withZod(
       ),
     })
     .transform((val) => {
-      val.disciplines = val.disciplines?.filter((el) => el != "")
-      val.skills = val.skills?.filter((el) => el != "")
-      val.labels = val.labels?.filter((el) => el != "")
       // val.relatedProjectsA = val.relatedProjectsA?.filter((el) => el != "");
       return val
     })
