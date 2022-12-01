@@ -9,7 +9,8 @@ import { json, redirect } from "@remix-run/node"
 import type { ActionFunction, LoaderFunction } from "@remix-run/node"
 import { zfd } from "zod-form-data"
 import { requireProfile } from "~/session.server"
-import { createProject, projectNameExists } from "~/models/project.server"
+import { createProject } from "~/models/project.server"
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime"
 
 export const validator = withZod(
   zfd
@@ -32,12 +33,14 @@ export const validator = withZod(
       ),
       slackChannels: zfd.text(z.string().optional()),
       skills: zfd.repeatable(z.array(z.string()).optional()),
-      labels: z.array(
-        z.object({
-          id: z.string(),
-          name: z.string().optional(),
-        })
-      ).optional(),
+      labels: z
+        .array(
+          z.object({
+            id: z.string(),
+            name: z.string().optional(),
+          })
+        )
+        .optional(),
       // relatedProjectsA: zfd.repeatable(z.array(z.string()).optional()),
       projectMembers: zfd.repeatable(
         z
@@ -66,23 +69,26 @@ export const action: ActionFunction = async ({ request }) => {
 
   if (result.error) return validationError(result.error)
 
-  const { name } = result.data
-
-  if (await projectNameExists(name)) {
-    return validationError({
-      fieldErrors: {
-        name: "Project name already exists",
-      },
-    })
-  }
-
   try {
     const project = await createProject(result.data, profile.id)
     return redirect(`/projects/${project.id}`)
-  } catch (error) {
-    if (error instanceof Error) {
-      console.log(error.message)
-      return json({ error: error.message }, { status: 500 })
+  } catch (e) {
+    if (e instanceof PrismaClientKnownRequestError && Array.isArray(e.meta?.target)) {
+      if (e.meta?.target.includes("name")) {
+        return validationError({
+          fieldErrors: {
+            name: "Project name already exists",
+          },
+        })
+      } else {
+        e.meta?.target?.map((target: string) => {
+          return validationError({
+            fieldErrors: {
+              [target]: "Invalid value",
+            },
+          })
+        })
+      }
     }
   }
 }

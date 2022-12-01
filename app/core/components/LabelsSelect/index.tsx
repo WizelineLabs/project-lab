@@ -1,22 +1,22 @@
-import type { PropsWithoutRef } from "react";
-import { Fragment, useEffect, useState } from "react";
+import type { PropsWithoutRef } from "react"
+import { Fragment, useEffect } from "react"
 
-import { CircularProgress, TextField, Autocomplete, debounce } from "@mui/material";
-import { useField } from "remix-validated-form";
-import type { SubmitOptions } from "@remix-run/react";
-import { useFetcher } from "@remix-run/react";
+import { CircularProgress, TextField, Autocomplete, debounce } from "@mui/material"
+import { useControlField, useField } from "remix-validated-form"
+import type { SubmitOptions } from "@remix-run/react"
+import { useFetcher } from "@remix-run/react"
 
 type LabelValue = {
-  id: string;
-  name: string;
+  id: string
+  name: string
 }
 
 interface LabelsSelectProps {
-  defaultValue?: LabelValue[];
-  name: string;
-  label: string;
-  helperText?: string;
-  outerProps?: PropsWithoutRef<JSX.IntrinsicElements["div"]>;
+  defaultValue?: LabelValue[]
+  name: string
+  label: string
+  helperText?: string
+  outerProps?: PropsWithoutRef<JSX.IntrinsicElements["div"]>
 }
 
 const labelsOptions: SubmitOptions = { method: "get", action: "/labels-search" }
@@ -28,22 +28,19 @@ export const LabelsSelect = ({
   defaultValue = [],
   outerProps,
 }: LabelsSelectProps) => {
-  const labelFetcher = useFetcher<LabelValue[]>();
-  const { error, getInputProps } = useField(name);
-  const [values, setValues] = useState<LabelValue[]>([]);
+  const labelFetcher = useFetcher<LabelValue[]>()
+  const { error, getInputProps } = useField(name)
+  const [values, setValues] = useControlField<LabelValue[]>(name)
   const searchLabels = (value: string) => {
-    labelFetcher.submit(
-      { q: value },
-      labelsOptions
-    );
-  };
+    labelFetcher.submit({ q: value }, labelsOptions)
+  }
   const searchLabelsDebounced = debounce(searchLabels, 500)
 
   useEffect(() => {
     if (labelFetcher.type === "init") {
-      labelFetcher.submit({}, labelsOptions);
+      labelFetcher.submit({}, labelsOptions)
     }
-  }, [labelFetcher]);
+  }, [labelFetcher])
   return (
     <div {...outerProps}>
       {values?.map((value, i) => (
@@ -73,7 +70,9 @@ export const LabelsSelect = ({
               ...params.InputProps,
               endAdornment: (
                 <Fragment>
-                  {labelFetcher.state === "submitting" ? <CircularProgress color="inherit" size={20} /> : null}
+                  {labelFetcher.state === "submitting" ? (
+                    <CircularProgress color="inherit" size={20} />
+                  ) : null}
                   {params.InputProps.endAdornment}
                 </Fragment>
               ),
@@ -82,7 +81,7 @@ export const LabelsSelect = ({
         )}
       />
     </div>
-  );
-};
+  )
+}
 
-export default LabelsSelect;
+export default LabelsSelect
