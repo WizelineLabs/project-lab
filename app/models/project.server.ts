@@ -129,11 +129,6 @@ export async function getProject({ id }: Pick<Projects, "id">) {
   return project
 }
 
-export async function projectNameExists(name: string) {
-  const project = await db.projects.findFirst({ where: { name } })
-  return !!project
-}
-
 export async function createProject(input: any, profileId: string) {
   const defaultTier = await db.innovationTiers.findFirst({
     select: { name: true },
