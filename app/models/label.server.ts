@@ -27,6 +27,16 @@ export async function getLabels() {
   return labels
 }
 
+export async function searchLabels(searchTerm: string) {
+  const labels = await prisma.labels.findMany({
+    where: { name: { contains: searchTerm, mode: "insensitive" } },
+    orderBy: {
+      name: "asc",
+    },
+  })
+  return labels
+}
+
 export async function addLabel(input: { name: string }) {
   const label = await prisma.labels.create({ data: input })
   return { label }
