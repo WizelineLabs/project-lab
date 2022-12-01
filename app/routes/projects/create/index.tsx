@@ -32,7 +32,14 @@ export const validator = withZod(
           .optional()
       ),
       slackChannels: zfd.text(z.string().optional()),
-      skills: zfd.repeatable(z.array(z.string()).optional()),
+      skills: z
+        .array(
+          z.object({
+            id: z.string(),
+            name: z.string().optional(),
+          })
+        )
+        .optional(),
       labels: z
         .array(
           z.object({

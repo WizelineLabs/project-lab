@@ -12,22 +12,15 @@ type LabelValue = {
 }
 
 interface LabelsSelectProps {
-  defaultValue?: LabelValue[]
   name: string
   label: string
   helperText?: string
   outerProps?: PropsWithoutRef<JSX.IntrinsicElements["div"]>
 }
 
-const labelsOptions: SubmitOptions = { method: "get", action: "/labels-search" }
+const labelsOptions: SubmitOptions = { method: "get", action: "/api/labels-search" }
 
-export const LabelsSelect = ({
-  name,
-  label,
-  helperText,
-  defaultValue = [],
-  outerProps,
-}: LabelsSelectProps) => {
+export const LabelsSelect = ({ name, label, helperText, outerProps }: LabelsSelectProps) => {
   const labelFetcher = useFetcher<LabelValue[]>()
   const { error, getInputProps } = useField(name)
   const [values, setValues] = useControlField<LabelValue[]>(name)
@@ -52,7 +45,7 @@ export const LabelsSelect = ({
         {...getInputProps()}
         style={{ margin: "1em 0" }}
         options={labelFetcher.data ?? []}
-        defaultValue={defaultValue}
+        defaultValue={values}
         isOptionEqualToValue={(option, value) => option.id === value.id}
         getOptionLabel={(option) => option.name}
         onInputChange={(_, value) => searchLabelsDebounced(value)}
