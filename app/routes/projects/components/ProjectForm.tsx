@@ -119,10 +119,10 @@ export function ProjectForm({ projectformType }: any) {
           />
         )} */}
 
-        {/* <SkillsSelect //this still uses constant values instead of values taken from the db
+        <SkillsSelect //this still uses constant values instead of values taken from the db
           name="skills"
           label="Skills"
-        /> */}
+        />
 
         <LabelsSelect //this still uses constant values instead of values taken from the db
           name="labels"
