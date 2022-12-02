@@ -179,11 +179,6 @@ export default function EditProjectPage() {
               method="post"
             >
               <ProjectForm submitText="Update Project" onSubmit={submitEdition} />
-              <Box textAlign="center">
-                <button type="submit" className="primary">
-                  {"Update Project"}
-                </button>
-              </Box>
             </ValidatedForm>
           </TabPanel>
           {/*<TabPanel value={tabIndex} index={1}>

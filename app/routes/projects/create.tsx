@@ -136,11 +136,6 @@ const NewProjectPage = () => {
           method="post"
         >
           <ProjectForm projectformType="create" />
-          <Box textAlign="center">
-            <button type="submit" className="primary">
-              {"Create Project"}
-            </button>
-          </Box>
         </ValidatedForm>
       </div>
     </div>
