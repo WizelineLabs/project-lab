@@ -1,7 +1,7 @@
 import Header from "app/core/layouts/Header"
 import GoBack from "app/core/layouts/GoBack"
 import { useLoaderData, useNavigate } from "@remix-run/react"
-import { ProjectForm } from "../components/ProjectForm"
+import { ProjectForm } from "./components/ProjectForm"
 import { withZod } from "@remix-validated-form/with-zod"
 import { z } from "zod"
 import { validationError, ValidatedForm } from "remix-validated-form"
@@ -11,6 +11,7 @@ import { zfd } from "zod-form-data"
 import { requireProfile } from "~/session.server"
 import { createProject } from "~/models/project.server"
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime"
+import { Box } from "@mui/material"
 
 export const validator = withZod(
   zfd

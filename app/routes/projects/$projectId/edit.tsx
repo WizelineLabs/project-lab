@@ -39,8 +39,8 @@ type LoaderData = {
 }
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  invariant(params.editProjectId, "projectId could not be found")
-  const projectId = params.editProjectId
+  invariant(params.projectId, "projectId could not be found")
+  const projectId = params.projectId
   const project = await getProject({ id: projectId })
   if (!project) {
     throw new Response("Not Found", { status: 404 })
@@ -174,16 +174,11 @@ export default function EditProjectPage() {
                 slackChannel: project.slackChannel,
                 skills: project.skills,
                 labels: project.labels,
-                projectMembers: project.projectMembers,
+                //projectMembers: project.projectMembers,
               }}
               method="post"
             >
               <ProjectForm submitText="Update Project" onSubmit={submitEdition} />
-              <Box textAlign="center">
-                <button type="submit" className="primary">
-                  {"Update Project"}
-                </button>
-              </Box>
             </ValidatedForm>
           </TabPanel>
           {/*<TabPanel value={tabIndex} index={1}>
