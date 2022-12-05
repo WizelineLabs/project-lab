@@ -197,22 +197,7 @@ export const validateIsTeamMember = (
   }
 }
 
-export async function updateProjects(
-  id: string,
-  isAdmin: boolean,
-  data: {
-    projectMembers: any
-    existedMembers?: any
-    repoUrls?: any
-    relatedProjects?: any
-    projectStatus?: any
-    owner: any
-    skills?: any
-    disciplines?: any
-    labels?: any
-    innovationTiers?: any
-  }
-) {
+export async function updateProjects(id: string, isAdmin: boolean, data: any) {
   //validate if the user have permissions (team member or owner of the project)
   if (!isAdmin) validateIsTeamMember(id, data)
 
@@ -340,7 +325,8 @@ export async function updateProjects(
     data: {
       ...data,
       updatedAt: new Date(),
-      //      owner: { connect: { id: data.owner?.id } },
+      projectStatus: { connect: { name: data.projectStatus?.name } },
+      owner: { connect: { id: data.owner?.id } },
       skills: {
         set: data.skills,
       },
@@ -351,10 +337,12 @@ export async function updateProjects(
         set: data.labels,
       },
       repoUrls: {
-        set: data.repoUrls,
+        create: newRepos,
       },
+      innovationTiers: { connect: { name: data.innovationTiers?.name } },
     },
     include: {
+      projectStatus: true,
       skills: true,
       disciplines: true,
       labels: true,
@@ -365,18 +353,19 @@ export async function updateProjects(
           projectTasks: true,
         },
       },
-       projectMembers: {
+      projectMembers: {
         include: {
           profile: { select: { firstName: true, lastName: true, email: true } },
           role: true,
           contributorPath: true,
           practicedSkills: true,
         },
-      }, 
+      },
       votes: { where: { profileId: id } },
+      innovationTiers: true,
     },
   })
-    
+
   return project
 }
 
