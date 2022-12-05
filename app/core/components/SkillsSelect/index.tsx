@@ -1,66 +1,80 @@
-import type { PropsWithoutRef } from "react";
-import { Fragment, useState } from "react";
+import type { PropsWithoutRef } from "react"
+import { Fragment, useEffect } from "react"
 
-import { CircularProgress, TextField, Autocomplete } from "@mui/material";
-import { useField, useControlField } from "remix-validated-form";
+import { CircularProgress, TextField, Autocomplete, debounce } from "@mui/material"
+import { useControlField, useField } from "remix-validated-form"
+import type { SubmitOptions } from "@remix-run/react"
+import { useFetcher } from "@remix-run/react"
 
-interface SkillsSelectProps {
-  defaultValue?: any[];
-  customOnChange?: (arg: any) => void;
-  fullWidth?: boolean;
-  name: string;
-  label: string;
-  helperText?: string;
-  outerProps?: PropsWithoutRef<JSX.IntrinsicElements["div"]>;
-  size?: "small" | "medium" | undefined;
-  style?: object;
+type SkillValue = {
+  id: string
+  name: string
 }
 
-const skills = ["React", "Node", "Python", "Java", "C++", "C#"];
+interface SkillsSelectProps {
+  name: string
+  label: string
+  helperText?: string
+  outerProps?: PropsWithoutRef<JSX.IntrinsicElements["div"]>
+}
 
-export const SkillsSelect = ({
-  customOnChange,
-  defaultValue = [],
-  fullWidth,
-  name,
-  label,
-  helperText,
-  outerProps,
-  size,
-  style,
-}: SkillsSelectProps) => {
-  const { error, getInputProps } = useField(name);
-  const [value, setValue] = useControlField<string[]>(name);
+const skillsOptions: SubmitOptions = { method: "get", action: "/api/skills-search" }
+
+export const SkillsSelect = ({ name, label, helperText, outerProps }: SkillsSelectProps) => {
+  const skillFetcher = useFetcher<SkillValue[]>()
+  const { error, getInputProps } = useField(name)
+  const [values, setValues] = useControlField<SkillValue[]>(name)
+  const searchSkills = (value: string) => {
+    skillFetcher.submit({ q: value }, skillsOptions)
+  }
+  const searchSkillsDebounced = debounce(searchSkills, 500)
+
+  useEffect(() => {
+    if (skillFetcher.type === "init") {
+      skillFetcher.submit({}, skillsOptions)
+    }
+  }, [skillFetcher])
   return (
     <div {...outerProps}>
-      {value
-        ? value.map((val) => (
-            <input type="hidden" name={name} key={val} value={val} />
-          ))
-        : null}
+      {values?.map((value, i) => (
+        <input type="hidden" name={`${name}[${i}].id`} key={i} value={value.id} />
+      ))}
       <Autocomplete
-        multiple
-        fullWidth={fullWidth ? fullWidth : false}
-        style={style ? style : { margin: "1em 0" }}
-        value={value || defaultValue}
-        onChange={(_e, newValue) => setValue(newValue)}
-        options={skills}
+        multiple={true}
+        fullWidth
+        {...getInputProps()}
+        style={{ margin: "1em 0" }}
+        options={skillFetcher.data ?? []}
+        defaultValue={values}
+        isOptionEqualToValue={(option, value) => option.id === value.id}
+        getOptionLabel={(option) => option.name}
+        onInputChange={(_, value) => searchSkillsDebounced(value)}
+        onChange={(_e, newValues) => {
+          setValues(newValues)
+        }}
         filterSelectedOptions
         renderInput={(params) => (
           <TextField
             {...params}
-            id={name}
             label={label}
-            size={size}
             error={!!error}
             helperText={error || helperText}
-            {...getInputProps()}
-            style={{ width: "100%", ...style }}
+            InputProps={{
+              ...params.InputProps,
+              endAdornment: (
+                <Fragment>
+                  {skillFetcher.state === "submitting" ? (
+                    <CircularProgress color="inherit" size={20} />
+                  ) : null}
+                  {params.InputProps.endAdornment}
+                </Fragment>
+              ),
+            }}
           />
         )}
       />
     </div>
-  );
-};
+  )
+}
 
-export default SkillsSelect;
+export default SkillsSelect

@@ -1,26 +1,28 @@
-import { FormControlLabel, Switch, Collapse, Box } from "@mui/material";
-import { useState } from "react";
-import { useTransition } from "@remix-run/react";
-import { MultivalueInput } from "~/core/components/MultivalueInput";
-import DisciplinesSelect from "~/core/components/DisciplineSelect";
-import LabeledTextField from "~/core/components/LabeledTextField";
-import LabeledTextFieldArea from "~/core/components/LabeledTextFieldArea";
-import TextEditor from "~/core/components/TextEditor";
+import { FormControlLabel, Switch, Collapse } from "@mui/material"
+import { useState } from "react"
+import { MultiUrl } from "~/core/components/MultiUrl"
+import DisciplinesSelect from "~/core/components/DisciplinesSelect"
+import LabeledTextField from "~/core/components/LabeledTextField"
+import LabeledTextFieldArea from "~/core/components/LabeledTextFieldArea"
+import TextEditor from "~/core/components/TextEditor"
 // import InputSelect from "~/core/components/InputSelect";
-import SkillsSelect from "~/core/components/SkillsSelect";
-import LabelsSelect from "~/core/components/LabelsSelect";
-import ProjectOwnerField from "~/core/components/ProjectOwnerField";
-import RelatedProjectsSelect from "~/core/components/RelatedProjectsSelect";
-import ProjectMembersField from "~/core/components/ProjectMembersField";
+import SkillsSelect from "~/core/components/SkillsSelect"
+import LabelsSelect from "~/core/components/LabelsSelect"
+import ProjectOwnerField from "~/core/components/ProjectOwnerField"
+import RelatedProjectsSelect from "~/core/components/RelatedProjectsSelect"
+import ProjectMembersField from "~/core/components/ProjectMembersField"
+import { useControlField } from "remix-validated-form"
+import { Box } from "@mui/material"
+import { useFormContext, useIsSubmitting } from "remix-validated-form"
 
 export function ProjectForm({ projectformType }: any) {
-  const [displayFields, setDisplayFields] = useState(
-    projectformType === "create" ? false : true
-  );
-  const [displayDisciplines, setDisplayDisciplines] = useState(false);
-
-  const transition = useTransition();
-  const isCreating = Boolean(transition.submission);
+  const [displayFields, setDisplayFields] = useState(projectformType === "create" ? false : true)
+  const [helpWanted, setHelpWanted] = useControlField<boolean>("helpWanted")
+  const isSubmitting = useIsSubmitting()
+  const { isValid, fieldErrors, getValues } = useFormContext()
+  console.log(fieldErrors)
+  console.log(getValues())
+  const disabled = isSubmitting || !isValid
 
   return (
     <>
@@ -40,17 +42,15 @@ export function ProjectForm({ projectformType }: any) {
         placeholder="Problem statement"
       />
 
-      <TextEditor
-        name="valueStatement"
-        defaultValue={"Explain us your proposal..."}
-      />
+      <TextEditor name="valueStatement" defaultValue={"Explain us your proposal..."} />
 
       <FormControlLabel
         control={
           <Switch
             color="primary"
             name="helpWanted"
-            onChange={(e) => setDisplayDisciplines(e.target.checked)}
+            checked={helpWanted}
+            onChange={(e) => setHelpWanted(e.target.checked)}
           />
         }
         name="helpWanted"
@@ -58,11 +58,11 @@ export function ProjectForm({ projectformType }: any) {
         labelPlacement="end"
       />
 
-      <Collapse in={displayDisciplines}>
-        <DisciplinesSelect //this still uses constant values instead of values taken from the db
+      <Collapse in={helpWanted}>
+        {/* <DisciplinesSelect //this still uses constant values instead of values taken from the db
           name="disciplines"
           label="Looking for..."
-        />
+        /> */}
       </Collapse>
 
       {projectformType === "create" && (
@@ -71,6 +71,7 @@ export function ProjectForm({ projectformType }: any) {
           control={
             <Switch
               color="primary"
+              name="displayFields"
               onChange={(e) => setDisplayFields(e.target.checked)}
             />
           }
@@ -80,11 +81,7 @@ export function ProjectForm({ projectformType }: any) {
       )}
 
       {projectformType !== "create" && (
-        <ProjectOwnerField
-          name="owner"
-          label="Owner"
-          owner={{ name: "John Doe" }}
-        />
+        <ProjectOwnerField name="owner" label="Owner" owner={{ name: "John Doe" }} />
       )}
 
       <Collapse in={displayFields}>
@@ -96,7 +93,7 @@ export function ProjectForm({ projectformType }: any) {
           placeholder="Millenials"
         />
 
-        <MultivalueInput
+        <MultiUrl
           name="repoUrls"
           label="Repo URLs"
           footer="Type the Repo URL and press Enter to add it to your project. You can add as many URLs as you need."
@@ -149,18 +146,13 @@ export function ProjectForm({ projectformType }: any) {
           />
         )} */}
 
-        {/* <ProjectMembersField
-          name="projectMembers"
-          label="Add a contributor"
-          handleChange={handleChangeProjectMembers}
-          values={projectFields.projectMembers}
-        /> */}
+        {/*<ProjectMembersField name="projectMembers" label="Add a contributor" />*/}
       </Collapse>
       <Box textAlign="center">
-        <button type="submit" className="primary" disabled={isCreating}>
-          {isCreating ? "Creating..." : "Create Project"}
+        <button disabled={disabled} type="submit" className="primary">
+          {isSubmitting ? "Submitting..." : "Submit"}
         </button>
       </Box>
     </>
-  );
+  )
 }

@@ -30,7 +30,7 @@ export const ContributorPathReport = ({ project }: IProps) => {
       <big>
         Contributors (
         {
-          project.projectMembers.filter((member: ProjectMember) => {
+          project.projectMembers?.filter((member: ProjectMember) => {
             return member.active;
           }).length
         }{" "}
@@ -54,7 +54,7 @@ export const ContributorPathReport = ({ project }: IProps) => {
               <th key={i}>
                 {stage.name}
                 <br />
-                {stage.projectTasks.map(
+                {stage.projectTasks?.map(
                   (task: ProjectTask, taskIndex: number) => (
                     <HtmlTooltip key={taskIndex} title={task.description}>
                       <TipBubble>{taskIndex + 1}</TipBubble>
@@ -66,7 +66,7 @@ export const ContributorPathReport = ({ project }: IProps) => {
           </tr>
         </thead>
         <tbody>
-          {project.projectMembers.map(
+          {project.projectMembers?.map(
             (member: ProjectMember, memberIndex: number) => {
               const projectTaskIds: any = member.contributorPath.map(
                 (cp: ContributorPath) => cp.projectTaskId

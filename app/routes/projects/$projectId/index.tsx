@@ -37,7 +37,7 @@ import {
 } from "./$projectId.styles";
 import { adminRoleName } from "app/constants";
 import type { Profiles, ProjectMembers } from "@prisma/client";
-import ContributorPathReport from "../../core/components/ContributorPathReport/index";
+import ContributorPathReport from "../../../core/components/ContributorPathReport/index";
 import { useState } from "react";
 import JoinProjectModal from "~/core/components/JoinProjectModal";
 import {
@@ -186,7 +186,7 @@ export default function ProjectDetailsPage() {
           <div className="headerInfo--action">
             <div className="headerInfo--edit">
               {(isTeamMember || isAdmin) && (
-                <Link to={`/projects/edit/${project.id}`}>
+                <Link to={`/projects/${project.id}/edit`}>
                   <EditButton>
                     <EditSharp />
                   </EditButton>

@@ -10,6 +10,8 @@ interface LabeledTextFieldProps {
   helperText?: string;
   placeholder?: string;
   fullWidth?: boolean;
+  size?: "small" | "medium" | undefined;
+  sx?: object;
   style?: any;
   multiline?: boolean;
   rows?: number;
@@ -21,6 +23,7 @@ export const LabeledTextField = ({
   label,
   type,
   helperText,
+  size,
   outerProps,
   ...props
 }: LabeledTextFieldProps) => {
@@ -32,6 +35,7 @@ export const LabeledTextField = ({
         name={name}
         label={label}
         type={type}
+        size={size}
         helperText={error || helperText}
         error={!!error}
         {...getInputProps()}

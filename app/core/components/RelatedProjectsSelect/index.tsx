@@ -35,11 +35,9 @@ export const RelatedProjectsSelect = ({
   return (
     <>
       <div {...outerProps}>
-        {values
-          ? values.map((val) => (
-              <input type="hidden" name={name} key={val} value={val} />
-            ))
-          : null}
+        {values?.map((val) => (
+          <input type="hidden" name={name} key={val} value={val} />
+        ))}
         <Autocomplete
           multiple
           fullWidth={fullWidth ? fullWidth : false}
