@@ -146,7 +146,7 @@ export function ProjectForm({ projectformType }: any) {
           />
         )} */}
 
-        {/*<ProjectMembersField name="projectMembers" label="Add a contributor" />*/}
+        <ProjectMembersField name="projectMembers" label="Add a contributor" />
       </Collapse>
       <Box textAlign="center">
         <button disabled={disabled} type="submit" className="primary">

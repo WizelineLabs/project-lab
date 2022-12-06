@@ -1,10 +1,19 @@
-import React from "react"
-import { Autocomplete, Checkbox, Chip, FormControlLabel, Grid, TextField } from "@mui/material"
+import React, { useEffect } from "react"
+import {
+  Autocomplete,
+  Checkbox,
+  Chip,
+  FormControlLabel,
+  Grid,
+  TextField,
+  debounce,
+} from "@mui/material"
 import { SkillsSelect } from "app/core/components/SkillsSelect"
 import { DisciplinesSelect } from "~/core/components/DisciplinesSelect"
 import { useField, useControlField } from "remix-validated-form"
 import LabeledTextField from "../LabeledTextField"
-import { useLoaderData } from "@remix-run/react"
+import { useLoaderData, useFetcher } from "@remix-run/react"
+import type { SubmitOptions } from "@remix-run/react"
 
 interface ProfilesSelectProps {
   name: string
@@ -12,13 +21,20 @@ interface ProfilesSelectProps {
   helperText?: string
 }
 interface ProjectMembers {
+  profileId?: string
+  name?: string
+  role?: string[]
+  skills?: string[]
+  hours?: number
+  active?: boolean
+}
+
+type profilesValue = {
   profileId: string
   name: string
-  roles: string[]
-  skills: string[]
-  hours: string
-  active: boolean
 }
+
+const profilesOptions: SubmitOptions = { method: "get", action: "/api/profiles-search" }
 
 export const ProjectMembersField = ({ name, label, helperText }: ProfilesSelectProps) => {
   const { profile } = useLoaderData()
@@ -26,20 +42,25 @@ export const ProjectMembersField = ({ name, label, helperText }: ProfilesSelectP
   const { error } = useField(name)
 
   const [items, setItems] = useControlField<ProjectMembers[]>(name)
+  const profilesFetcher = useFetcher<profilesValue[]>()
+  const searchprofiles = (value: string) => {
+    profilesFetcher.submit({ q: value }, profilesOptions)
+  }
+  const searchprofilesDebounced = debounce(searchprofiles, 500)
 
-  const profiles: readonly any[] = [
-    { id: "03a87185-0972-4329-8fcc-e665b7b88874", name: "Joaquin" },
-    { id: "0de348b1-cff5-42d2-8786-abef6ed66c2a", name: "Juan" },
-    { id: "12fd45b0-0d43-43a0-881c-445fa0bf1da1", name: "Diego Mojarro Tapia" },
-    { id: "135c2bcf-5a75-41e9-84b8-2b1ca4261d94", name: "Andres Refugio" },
-  ]
+  useEffect(() => {
+    if (profilesFetcher.type === "init") {
+      profilesFetcher.submit({}, profilesOptions)
+    }
+  }, [profilesFetcher])
 
   return (
     <React.Fragment>
       <Autocomplete
         multiple
-        options={profiles}
+        options={profilesFetcher.data ?? []}
         getOptionLabel={(option) => option.name}
+        onInputChange={(_, value) => searchprofilesDebounced(value)}
         value={items}
         isOptionEqualToValue={(option, value) => option.name === value.name}
         disableClearable
@@ -47,11 +68,11 @@ export const ProjectMembersField = ({ name, label, helperText }: ProfilesSelectP
           if (reason === "selectOption") {
             setItems(
               items.concat({
-                profileId: details?.option.id,
+                profileId: details?.option.profileId,
                 name: details?.option.name,
-                roles: [],
+                role: [],
                 skills: [],
-                hours: "",
+                hours: 0,
                 active: false,
               })
             )
@@ -89,22 +110,22 @@ export const ProjectMembersField = ({ name, label, helperText }: ProfilesSelectP
               </>
             </Grid>
             <Grid item xs={12} sm={4}>
-              {/* <DisciplinesSelect //still uses constant values instead of values taken from the db
-                name={`${name}[${i}].roles`}
+              <DisciplinesSelect //still uses constant values instead of values taken from the db
+                name={`${name}[${i}].role`}
                 label="Looking for..."
-              /> */}
+              />
             </Grid>
             <Grid item xs={12} sm={4}>
-              {/* <SkillsSelect //still uses constant values instead of values taken from the db
-                name={`${name}[${i}].skills`}
+              <SkillsSelect //still uses constant values instead of values taken from the db
+                name={`${name}[${i}].practicedSkills`}
                 label="Skills"
-              /> */}
+              />
             </Grid>
             <Grid item xs={6} sm={1}>
               <LabeledTextField
                 label="Hours"
                 helperText="H. per week"
-                name={`${name}[${i}].hours`}
+                name={`${name}[${i}].hoursPerWeek`}
                 size="small"
                 type="number"
                 sx={{

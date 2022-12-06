@@ -63,9 +63,23 @@ export const validator = withZod(
             z.object({
               profileId: zfd.text(),
               name: zfd.text(z.string().optional()),
-              roles: zfd.repeatable(z.array(z.string()).optional()),
-              skills: zfd.repeatable(z.array(z.string()).optional()),
-              hours: zfd.text(z.string().optional()),
+              role: z
+                .array(
+                  z.object({
+                    id: z.string(),
+                    name: z.string().optional(),
+                  })
+                )
+                .optional(),
+              practicedSkills: z
+                .array(
+                  z.object({
+                    id: z.string(),
+                    name: z.string().optional(),
+                  })
+                )
+                .optional(),
+              hoursPerWeek: zfd.numeric(z.number().optional()),
               active: zfd.checkbox(),
             })
           )
@@ -96,15 +110,14 @@ export const action: ActionFunction = async ({ request }) => {
           },
         })
       } else {
-        e.meta?.target?.map((target: string) => {
-          return validationError({
-            fieldErrors: {
-              [target]: "Invalid value",
-            },
-          })
+        return validationError({
+          fieldErrors: {
+            [e.meta?.target[0]]: "Invalid value",
+          },
         })
       }
     }
+    throw e
   }
 }
 
@@ -133,9 +146,9 @@ const NewProjectPage = () => {
               {
                 profileId: profile.id,
                 name: profile.name,
-                roles: [],
-                skills: [],
-                hours: "0",
+                role: [],
+                practicedSkills: [],
+                hoursPerWeek: 0,
                 active: true,
               },
             ],

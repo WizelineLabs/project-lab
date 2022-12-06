@@ -162,6 +162,26 @@ export async function createProject(input: any, profileId: string) {
     },
   })
 
+  // Loop Project Members
+  for (let index = 0; index < projectMembers.length; index++) {
+    // Creates the array for the roles connect
+    const rolesArrayConnect = projectMembers[index].role?.map((r) => {
+      return r.name === "Owner" ? { name: r.name } : { id: r.id }
+    })
+    await db.projectMembers.create({
+      data: {
+        project: { connect: { id: project.id } },
+        profile: {
+          connect: { id: projectMembers[index].profileId },
+        },
+        hoursPerWeek: projectMembers[index].hoursPerWeek,
+        role: { connect: rolesArrayConnect },
+        practicedSkills: {
+          connect: projectMembers[index].practicedSkills,
+        },
+      },
+    })
+  }
   return project
 }
 
