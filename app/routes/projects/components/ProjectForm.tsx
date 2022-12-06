@@ -59,10 +59,10 @@ export function ProjectForm({ projectformType }: any) {
       />
 
       <Collapse in={helpWanted}>
-        {/* <DisciplinesSelect //this still uses constant values instead of values taken from the db
+        <DisciplinesSelect //this still uses constant values instead of values taken from the db
           name="disciplines"
           label="Looking for..."
-        /> */}
+        />
       </Collapse>
 
       {projectformType === "create" && (

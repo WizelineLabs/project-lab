@@ -20,7 +20,14 @@ export const validator = withZod(
       description: zfd.text(z.string().min(1)),
       valueStatement: zfd.text(z.string().optional()),
       helpWanted: zfd.checkbox(),
-      disciplines: zfd.repeatable(z.array(z.string()).optional()),
+      disciplines: z
+        .array(
+          z.object({
+            id: z.string(),
+            name: z.string().optional(),
+          })
+        )
+        .optional(),
       target: zfd.text(z.string().optional()),
       repoUrls: zfd.repeatable(
         z

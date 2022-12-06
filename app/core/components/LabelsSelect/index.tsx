@@ -45,8 +45,8 @@ export const LabelsSelect = ({ name, label, helperText, outerProps }: LabelsSele
         {...getInputProps()}
         style={{ margin: "1em 0" }}
         options={labelFetcher.data ?? []}
-        defaultValue={values}
-        isOptionEqualToValue={(option, value) => option.id === value.id}
+        value={values}
+        isOptionEqualToValue={(option, value) => option.name === value.name}
         getOptionLabel={(option) => option.name}
         onInputChange={(_, value) => searchLabelsDebounced(value)}
         onChange={(_e, newValues) => {

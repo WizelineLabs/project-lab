@@ -1,9 +1,13 @@
-export type { Disciplines } from "@prisma/client";
+import { prisma } from "~/db.server"
 
-type newDiscipline = {
-  name: string;
-};
+export type { Disciplines } from "@prisma/client"
 
-interface ResponseError extends Error {
-  code?: string;
+export async function searchDisciplines(searchTerm: string) {
+  const disciplines = await prisma.disciplines.findMany({
+    where: { name: { contains: searchTerm, mode: "insensitive" } },
+    orderBy: {
+      name: "asc",
+    },
+  })
+  return disciplines
 }

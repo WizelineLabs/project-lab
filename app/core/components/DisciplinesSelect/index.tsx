@@ -1,68 +1,80 @@
 import type { PropsWithoutRef } from "react"
-import { Fragment, useState } from "react"
+import { Fragment, useEffect } from "react"
 
-import { CircularProgress, TextField, Autocomplete } from "@mui/material"
-import { useField, useControlField } from "remix-validated-form"
+import { CircularProgress, TextField, Autocomplete, debounce } from "@mui/material"
+import { useControlField, useField } from "remix-validated-form"
+import type { SubmitOptions } from "@remix-run/react"
+import { useFetcher } from "@remix-run/react"
 
-interface DisciplinesSelectProps {
-  defaultValue?: any[]
-  customOnChange?: (arg: any) => void
-  fullWidth?: boolean
+type disciplineValue = {
+  id: string
+  name: string
+}
+
+interface disciplinesSelectProps {
   name: string
   label: string
   helperText?: string
   outerProps?: PropsWithoutRef<JSX.IntrinsicElements["div"]>
-  size?: "small" | "medium" | undefined
-
-  style?: object
-  parentName?: string
 }
 
-const disciplines = [
-  { name: "Android Engineer", id: "075118eb-7263-4c7b-8fef-3769645478b3" },
-  "Automatation QA",
-  "Backend",
-  "Consultant",
-  "Owner",
-]
+const disciplinesOptions: SubmitOptions = { method: "get", action: "/api/disciplines-search" }
 
 export const DisciplinesSelect = ({
-  customOnChange,
-  defaultValue = [],
-  fullWidth,
   name,
   label,
   helperText,
   outerProps,
-  size,
-  style,
-}: DisciplinesSelectProps) => {
-  const { error } = useField(name)
-  const [values, setValues] = useControlField<string[]>(name)
+}: disciplinesSelectProps) => {
+  const disciplineFetcher = useFetcher<disciplineValue[]>()
+  const { error, getInputProps } = useField(name)
+  const [values, setValues] = useControlField<disciplineValue[]>(name)
+  const searchdisciplines = (value: string) => {
+    disciplineFetcher.submit({ q: value }, disciplinesOptions)
+  }
+  const searchdisciplinesDebounced = debounce(searchdisciplines, 500)
+
+  useEffect(() => {
+    if (disciplineFetcher.type === "init") {
+      disciplineFetcher.submit({}, disciplinesOptions)
+    }
+  }, [disciplineFetcher])
   return (
     <div {...outerProps}>
-      {values?.map((val) => (
-        <input type="hidden" name={name} key={val} value={val} />
+      {values?.map((value, i) => (
+        <input type="hidden" name={`${name}[${i}].id`} key={i} value={value.id} />
       ))}
       <Autocomplete
-        multiple
-        fullWidth={fullWidth ? fullWidth : false}
-        style={style ? style : { margin: "1em 0" }}
-        value={values || []}
+        multiple={true}
+        fullWidth
+        {...getInputProps()}
+        style={{ margin: "1em 0" }}
+        options={disciplineFetcher.data ?? []}
+        value={values}
+        isOptionEqualToValue={(option, value) => option.name === value.name}
+        getOptionLabel={(option) => option.name}
+        onInputChange={(_, value) => searchdisciplinesDebounced(value)}
         onChange={(_e, newValues) => {
           setValues(newValues)
         }}
-        options={disciplines}
         filterSelectedOptions
         renderInput={(params) => (
           <TextField
             {...params}
-            id={name}
             label={label}
-            size={size}
             error={!!error}
             helperText={error || helperText}
-            style={{ width: "100%", ...style }}
+            InputProps={{
+              ...params.InputProps,
+              endAdornment: (
+                <Fragment>
+                  {disciplineFetcher.state === "submitting" ? (
+                    <CircularProgress color="inherit" size={20} />
+                  ) : null}
+                  {params.InputProps.endAdornment}
+                </Fragment>
+              ),
+            }}
           />
         )}
       />
