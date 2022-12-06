@@ -45,8 +45,8 @@ export const SkillsSelect = ({ name, label, helperText, outerProps }: SkillsSele
         {...getInputProps()}
         style={{ margin: "1em 0" }}
         options={skillFetcher.data ?? []}
-        defaultValue={values}
-        isOptionEqualToValue={(option, value) => option.id === value.id}
+        value={values}
+        isOptionEqualToValue={(option, value) => option.name === value.name}
         getOptionLabel={(option) => option.name}
         onInputChange={(_, value) => searchSkillsDebounced(value)}
         onChange={(_e, newValues) => {
