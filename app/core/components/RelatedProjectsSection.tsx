@@ -48,12 +48,12 @@ function RelatedProjectsSection({ relatedProjects, allowEdit, projectsList, proj
 
   useEffect(() => {
     setSelectedRelatedProjects(relatedProjects)
-  }, [])
+  }, [relatedProjects])
 
   return (
     <>
       <big>Related Projects</big>
-      {JSON.stringify(selectedRelatedProjects,null,2)}
+      {/* {JSON.stringify(selectedRelatedProjects,null,2)} */}
       {allowEdit && isEditActive ? (
         <>
           <IconButton sx={{ margin: "1em .5em" }}  onClick={() => handleChangeEditView(false)}>
