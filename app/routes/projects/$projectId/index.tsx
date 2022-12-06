@@ -1,55 +1,81 @@
-import { formatDistance } from "date-fns"
-import type { ActionFunction, LoaderFunction, MetaFunction } from "@remix-run/node"
-import { json } from "@remix-run/node"
-import { Link, useCatch, useLoaderData, useFetcher } from "@remix-run/react"
-import invariant from "tiny-invariant"
-import { requireProfile, requireUser } from "~/session.server"
-import { getProjectTeamMember, isProjectTeamMember, getProject } from "~/models/project.server"
-import type { ProjectComplete } from "~/models/project.server"
+import { formatDistance } from "date-fns";
+import type {
+  ActionFunction,
+  LoaderFunction,
+  MetaFunction,
+} from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { Link, useCatch, useLoaderData, useFetcher } from "@remix-run/react";
+import invariant from "tiny-invariant";
+import { requireProfile, requireUser } from "~/session.server";
+import {
+  getProjectTeamMember,
+  isProjectTeamMember,
+  getProject,
+} from "~/models/project.server";
+import type { ProjectComplete } from "~/models/project.server";
 
-import { Card, CardContent, Chip, Stack, Grid, Box, Button } from "@mui/material"
-import { EditSharp, ThumbUpSharp, ThumbDownSharp } from "@mui/icons-material"
-import { HeaderInfo, DetailMoreHead, Like, LikeBox, EditButton } from "./$projectId.styles"
-import { adminRoleName } from "app/constants"
-import type { Profiles, ProjectMembers } from "@prisma/client"
-import ContributorPathReport from "../../../core/components/ContributorPathReport/index"
-import { useState } from "react"
-import JoinProjectModal from "~/core/components/JoinProjectModal"
-import { upvoteProject, unvoteProject, checkUserVote } from "~/models/votes.server"
-import RelatedProjectsSection from "~/core/components/RelatedProjectsSection"
+import {
+  Card,
+  CardContent,
+  Chip,
+  Stack,
+  Grid,
+  Box,
+  Button,
+} from "@mui/material";
+import { EditSharp, ThumbUpSharp, ThumbDownSharp } from "@mui/icons-material";
+import {
+  HeaderInfo,
+  DetailMoreHead,
+  Like,
+  LikeBox,
+  EditButton,
+} from "./$projectId.styles";
+import { adminRoleName } from "app/constants";
+import type { Profiles, ProjectMembers } from "@prisma/client";
+import ContributorPathReport from "../../../core/components/ContributorPathReport/index";
+import { useState } from "react";
+import JoinProjectModal from "~/core/components/JoinProjectModal";
+import {
+  upvoteProject,
+  unvoteProject,
+  checkUserVote,
+} from "~/models/votes.server";
+import RelatedProjectsSection from "~/core/components/RelatedProjectsSection";
 
-import parse from "html-react-parser"
-import Header from "~/core/layouts/Header"
+import parse from "html-react-parser";
+import Header from "~/core/layouts/Header";
 
 type LoaderData = {
-  isAdmin: boolean
-  isTeamMember: boolean
-  membership: ProjectMembers | undefined
-  profile: Profiles
-  project: ProjectComplete
-  profileId: string
-}
+  isAdmin: boolean;
+  isTeamMember: boolean;
+  membership: ProjectMembers | undefined;
+  profile: Profiles;
+  project: ProjectComplete;
+  profileId: string;
+};
 
 type voteProject = {
-  projectId: string
-  profileId: string
-}
+  projectId: string;
+  profileId: string;
+};
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  invariant(params.projectId, "projectId not found")
+  invariant(params.projectId, "projectId not found");
 
-  const project = await getProject({ id: params.projectId })
+  const project = await getProject({ id: params.projectId });
   if (!project) {
-    throw new Response("Not Found", { status: 404 })
+    throw new Response("Not Found", { status: 404 });
   }
 
-  const user = await requireUser(request)
-  const profile = await requireProfile(request)
-  const isTeamMember = isProjectTeamMember(profile.id, project)
+  const user = await requireUser(request);
+  const profile = await requireProfile(request);
+  const isTeamMember = isProjectTeamMember(profile.id, project);
 
-  const membership = getProjectTeamMember(profile.id, project)
-  const isAdmin = user.role == adminRoleName
-  const profileId = profile.id
+  const membership = getProjectTeamMember(profile.id, project);
+  const isAdmin = user.role == adminRoleName;
+  const profileId = profile.id;
   return json<LoaderData>({
     isAdmin,
     isTeamMember,
@@ -57,83 +83,83 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     profile,
     project,
     profileId,
-  })
-}
+  });
+};
 
 export const action: ActionFunction = async ({ request }) => {
-  const form = await request.formData()
-  const action = form.get("action")
+  const form = await request.formData();
+  const action = form.get("action");
   try {
     switch (action) {
       case "POST_VOTE":
-        const projectId = form.get("projectId") as string
-        const profileId = form.get("profileId") as string
-        const isVote = await checkUserVote(projectId, profileId)
+        const projectId = form.get("projectId") as string;
+        const profileId = form.get("profileId") as string;
+        const isVote = await checkUserVote(projectId, profileId);
 
-        const haveIVoted = isVote > 0 ? true : false
+        const haveIVoted = isVote > 0 ? true : false;
         if (!haveIVoted) {
-          await upvoteProject(projectId, profileId)
+          await upvoteProject(projectId, profileId);
         } else {
-          await unvoteProject(projectId, profileId)
+          await unvoteProject(projectId, profileId);
         }
-        return json({ error: "" }, { status: 200 })
+        return json({ error: "" }, { status: 200 });
       default: {
-        throw new Error("Something went wrong")
+        throw new Error("Something went wrong");
       }
     }
   } catch (error: any) {
-    throw error
+    throw error;
   }
-}
+};
 
 export const meta: MetaFunction = ({ data, params }) => {
   if (!data) {
     return {
       title: "Missing Project",
       description: `There is no Project with the ID of ${params.projectId}. 😢`,
-    }
+    };
   }
 
-  const { project } = data as LoaderData
+  const { project } = data as LoaderData;
   return {
     title: `${project?.name} milkshake`,
     description: project?.description,
-  }
-}
+  };
+};
 
 export default function ProjectDetailsPage() {
   const handleJoinProject = () => {
-    setShowJoinModal(true)
-  }
+    setShowJoinModal(true);
+  };
 
   const handleCloseModal = () => {
-    setShowJoinModal(false)
-  }
+    setShowJoinModal(false);
+  };
 
   const { isAdmin, isTeamMember, profile, membership, project, profileId } =
-    useLoaderData() as LoaderData
-  const [showJoinModal, setShowJoinModal] = useState<boolean>(false)
+    useLoaderData() as LoaderData;
+  const [showJoinModal, setShowJoinModal] = useState<boolean>(false);
 
-  invariant(project, "project not found")
+  invariant(project, "project not found");
 
   const handleVote = async (id: string) => {
-    const payload = { projectId: id, profileId: profileId }
-    await voteForProject(payload)
-    return
-  }
+    const payload = { projectId: id, profileId: profileId };
+    await voteForProject(payload);
+    return;
+  };
 
-  const fetcher = useFetcher()
+  const fetcher = useFetcher();
   const voteForProject = async (values: voteProject) => {
     try {
       const body = {
         ...values,
         action: "POST_VOTE",
-      }
-      await fetcher.submit(body, { method: "post" })
+      };
+      await fetcher.submit(body, { method: "post" });
     } catch (error: any) {
-      console.error(error)
+      console.error(error);
     }
-  }
+  };
 
   return (
     <>
@@ -238,7 +264,9 @@ export default function ProjectDetailsPage() {
               <Grid item>
                 <Stack direction="row" spacing={1}>
                   {project.labels &&
-                    project.labels.map((item, index) => <Chip key={index} label={item.name} />)}
+                    project.labels.map((item, index) => (
+                      <Chip key={index} label={item.name} />
+                    ))}
                 </Stack>
               </Grid>
             </Grid>
@@ -262,7 +290,9 @@ export default function ProjectDetailsPage() {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  <div className="itemHeadValue innovationTier">{project.tierName}</div>
+                  <div className="itemHeadValue innovationTier">
+                    {project.tierName}
+                  </div>
                 </a>
               </Grid>
             </Grid>
@@ -270,7 +300,9 @@ export default function ProjectDetailsPage() {
         </DetailMoreHead>
       </div>
       {isTeamMember && (
-        <div className="wrapper">{/* <Stages path={project.stages} project={project} /> */}</div>
+        <div className="wrapper">
+          {/* <Stages path={project.stages} project={project} /> */}
+        </div>
       )}
       <div className="wrapper">
         <Grid container spacing={2} alignItems="stretch">
@@ -282,10 +314,13 @@ export default function ProjectDetailsPage() {
                     <div className="like-bubble">
                       <span>{project?.votes?.length}</span>
                     </div>
-                    <Button className="primary" onClick={() => handleVote(project.id || "")}>
+                    <Button
+                      className="primary"
+                      onClick={() => handleVote(project.id || "")}
+                    >
                       {project.votes &&
                       project.votes.filter((vote) => {
-                        return vote.profileId === profile.id
+                        return vote.profileId === profile.id;
                       }).length > 0 ? (
                         <>
                           {"Unlike"}&nbsp;
@@ -371,7 +406,9 @@ export default function ProjectDetailsPage() {
                   // disabled={joinProjectButton}
                   // onClick={() => setShowModal(true)}
                 >
-                  {membership?.active ? "Suspend my Membership" : "Join Project Again"}
+                  {membership?.active
+                    ? "Suspend my Membership"
+                    : "Join Project Again"}
                 </Button>
               ) : (
                 project.helpWanted && (
@@ -413,21 +450,21 @@ export default function ProjectDetailsPage() {
         />
       )} */}
     </>
-  )
+  );
 }
 
 export function ErrorBoundary({ error }: { error: Error }) {
-  console.error(error)
+  console.error(error);
 
-  return <div>An unexpected error occurred: {error.message}</div>
+  return <div>An unexpected error occurred: {error.message}</div>;
 }
 
 export function CatchBoundary() {
-  const caught = useCatch()
+  const caught = useCatch();
 
   if (caught.status === 404) {
-    return <div>Project not found</div>
+    return <div>Project not found</div>;
   }
 
-  throw new Error(`Unexpected caught response with status: ${caught.status}`)
+  throw new Error(`Unexpected caught response with status: ${caught.status}`);
 }
