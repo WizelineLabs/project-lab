@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import React, { useEffect } from "react";
 import {
   Autocomplete,
   Checkbox,
@@ -7,52 +7,59 @@ import {
   Grid,
   TextField,
   debounce,
-} from "@mui/material"
-import { SkillsSelect } from "app/core/components/SkillsSelect"
-import { DisciplinesSelect } from "~/core/components/DisciplinesSelect"
-import { useField, useControlField } from "remix-validated-form"
-import LabeledTextField from "../LabeledTextField"
-import { useLoaderData, useFetcher } from "@remix-run/react"
-import type { SubmitOptions } from "@remix-run/react"
+} from "@mui/material";
+import { SkillsSelect } from "app/core/components/SkillsSelect";
+import { DisciplinesSelect } from "~/core/components/DisciplinesSelect";
+import { useField, useControlField } from "remix-validated-form";
+import LabeledTextField from "../LabeledTextField";
+import { useLoaderData, useFetcher } from "@remix-run/react";
+import type { SubmitOptions } from "@remix-run/react";
 
 interface ProfilesSelectProps {
-  name: string
-  label: string
-  helperText?: string
+  name: string;
+  label: string;
+  helperText?: string;
 }
 interface ProjectMembers {
-  profileId?: string
-  name?: string
-  role?: string[]
-  skills?: string[]
-  hours?: number
-  active?: boolean
+  profileId?: string;
+  name?: string;
+  role?: string[];
+  skills?: string[];
+  hours?: number;
+  active?: boolean;
 }
 
 type profilesValue = {
-  profileId: string
-  name: string
-}
+  profileId: string;
+  name: string;
+};
 
-const profilesOptions: SubmitOptions = { method: "get", action: "/api/profiles-search" }
+const profilesOptions: SubmitOptions = {
+  method: "get",
+  action: "/api/profiles-search",
+};
 
-export const ProjectMembersField = ({ name, label, helperText }: ProfilesSelectProps) => {
-  const { profile } = useLoaderData()
+export const ProjectMembersField = ({
+  name,
+  label,
+  helperText,
+}: ProfilesSelectProps) => {
+  const { profile } = useLoaderData();
 
-  const { error } = useField(name)
+  const { error } = useField(name);
 
-  const [items, setItems] = useControlField<ProjectMembers[]>(name)
-  const profilesFetcher = useFetcher<profilesValue[]>()
+  const [items, setItems] = useControlField<ProjectMembers[]>(name);
+  const profilesFetcher = useFetcher<profilesValue[]>();
   const searchprofiles = (value: string) => {
-    profilesFetcher.submit({ q: value }, profilesOptions)
-  }
-  const searchprofilesDebounced = debounce(searchprofiles, 500)
+    profilesFetcher.submit({ q: value }, profilesOptions);
+  };
+  const searchprofilesDebounced = debounce(searchprofiles, 500);
 
   useEffect(() => {
     if (profilesFetcher.type === "init") {
-      profilesFetcher.submit({}, profilesOptions)
+      profilesFetcher.submit({}, profilesOptions);
     }
-  }, [profilesFetcher])
+  }, [profilesFetcher]);
 
   return (
     <React.Fragment>
@@ -61,8 +68,9 @@ export const ProjectMembersField = ({ name, label, helperText }: ProfilesSelectP
         options={profilesFetcher.data ?? []}
         getOptionLabel={(option) => option.name}
         onInputChange={(_, value) => searchprofilesDebounced(value)}
-        value={items}
-        isOptionEqualToValue={(option, value) => option.name === value.name}
+        isOptionEqualToValue={(option, value) =>
+          option.profileId === value.profileId
+        }
         disableClearable
         onChange={(_event, _newValue, reason, details) => {
           if (reason === "selectOption") {
@@ -70,20 +78,27 @@ export const ProjectMembersField = ({ name, label, helperText }: ProfilesSelectP
               items.concat({
                 profileId: details?.option.profileId,
                 name: details?.option.name,
-                role: [],
-                skills: [],
-                hours: 0,
-                active: false,
+                active: true,
               })
-            )
+            );
           }
-          if (reason === "removeOption" && profile.name !== details?.option.name) {
-            setItems(items.filter((item) => item.name !== details?.option.name))
+          if (
+            reason === "removeOption" &&
+            profile.name !== details?.option.name
+          ) {
+            setItems(
+              items.filter((item) => item.name !== details?.option.name)
+            );
           }
         }}
         renderTags={() => null}
         renderInput={(params) => (
-          <TextField {...params} label={label} error={!!error} helperText={error || helperText} />
+          <TextField
+            {...params}
+            label={label}
+            error={!!error}
+            helperText={error || helperText}
+          />
         )}
       />
 
@@ -98,12 +113,16 @@ export const ProjectMembersField = ({ name, label, helperText }: ProfilesSelectP
           <React.Fragment key={i}>
             <Grid item xs={12} sm={2}>
               <>
-                <input type="hidden" name={`${name}[${i}].profileId`} value={item.profileId} />
+                <input
+                  type="hidden"
+                  name={`${name}[${i}].profileId`}
+                  value={item.profileId}
+                />
                 <Chip
                   label={item.name}
                   onDelete={() => {
                     if (item.name !== profile.name) {
-                      setItems(items.filter((_, index) => index !== i))
+                      setItems(items.filter((_, index) => index !== i));
                     }
                   }}
                 />
@@ -153,7 +172,7 @@ export const ProjectMembersField = ({ name, label, helperText }: ProfilesSelectP
                               }
                             : item
                         )
-                      )
+                      );
                     }}
                   />
                 }
@@ -165,6 +184,6 @@ export const ProjectMembersField = ({ name, label, helperText }: ProfilesSelectP
         ))}
       </Grid>
     </React.Fragment>
-  )
-}
-export default ProjectMembersField
+  );
+};
+export default ProjectMembersField;

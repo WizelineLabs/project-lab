@@ -1,8 +1,8 @@
-import type { LoaderFunction } from "@remix-run/node"
-import { json } from "@remix-run/node"
-import { searchDisciplines } from "~/models/disciplines.server"
+import type { LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { searchDisciplines } from "~/models/discipline.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const url = new URL(request.url)
-  return json(await searchDisciplines(url.searchParams.get("q") || ""))
-}
+  const url = new URL(request.url);
+  return json(await searchDisciplines(url.searchParams.get("q") || ""));
+};
