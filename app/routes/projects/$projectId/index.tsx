@@ -19,6 +19,7 @@ import { upvoteProject, unvoteProject, checkUserVote } from "~/models/votes.serv
 import RelatedProjectsSection from "~/core/components/RelatedProjectsSection"
 
 import parse from "html-react-parser"
+import Header from "~/core/layouts/Header"
 
 type LoaderData = {
   isAdmin: boolean
@@ -136,6 +137,7 @@ export default function ProjectDetailsPage() {
 
   return (
     <>
+      <Header title="Projects" />
       <div className="wrapper">
         <HeaderInfo>
           <div className="headerInfo--action">
