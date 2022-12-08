@@ -28,7 +28,7 @@ function RelatedProjectsSection({ relatedProjects, allowEdit, projectsList, proj
         relatedProjects: JSON.stringify(selectedRelatedProjects),
         action: "EDIT_RELATED_PROJECTS",
       }
-      await fetcher.submit(body, { method: "put" })
+      await fetcher.submit(body, { method: "post" })
     } catch (error: any) {
       console.error(error)
     }
@@ -83,12 +83,14 @@ function RelatedProjectsSection({ relatedProjects, allowEdit, projectsList, proj
                 isOptionEqualToValue={(option, value) => option.name === value.name}
                 renderInput={(params) => (
                   <TextField
+                  name="relateProjects"
                     label="Related Projects"
                     {...params}
                     placeholder="Add Related Projects..."
                   />
                 )}
               />
+              {error && <span>{JSON.stringify(error)}</span>}
               <div className="margin-vertical-separator">
                 <button
                   disabled={fetcher.state === "submitting"}

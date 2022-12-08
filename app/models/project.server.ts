@@ -53,7 +53,7 @@ interface FacetOutput {
 }
 
 interface RelatedProjectInput {
-  relatedProjects: [{ id: string; name: string }]
+  relatedProjects: [{ id: string; name: string }] | any[]
 }
 
 export class SearchProjectsError extends Error {
