@@ -20,9 +20,10 @@ export function ProjectForm({ projectformType }: any) {
   const [helpWanted, setHelpWanted] = useControlField<boolean>("helpWanted")
   const isSubmitting = useIsSubmitting()
   const { isValid, fieldErrors, getValues } = useFormContext()
-  console.log(fieldErrors)
   console.log(getValues())
-  const disabled = isSubmitting || !isValid
+
+  console.log(fieldErrors)
+  const disabled = isSubmitting
 
   return (
     <>

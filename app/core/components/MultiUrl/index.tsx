@@ -20,9 +20,12 @@ interface ValuesProps {
 }
 
 export const MultiUrl = ({ name, label, footer }: MultiUrlProps) => {
-  const [inputValue, setInputValue] = useState("")
-  const { error } = useField(name)
   const [values, setValue] = useControlField<ValuesProps[]>(name)
+  const [inputValue, setInputValue] = useState("")
+  let { error } = useField(`${name}[0].url`)
+  console.log(error)
+  console.log("inputValue", inputValue)
+  console.log(values)
 
   return (
     <>
