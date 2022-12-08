@@ -1,6 +1,6 @@
-import { prisma } from "~/db.server"
+import { prisma } from "~/db.server";
 
-export type { Skills } from "@prisma/client"
+export type { Skills } from "@prisma/client";
 
 export async function searchSkills(searchTerm: string) {
   const skills = await prisma.skills.findMany({
@@ -8,6 +8,7 @@ export async function searchSkills(searchTerm: string) {
     orderBy: {
       name: "asc",
     },
-  })
-  return skills
+    take: 100,
+  });
+  return skills;
 }
