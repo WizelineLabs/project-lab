@@ -18,7 +18,7 @@ export async function getProfileByUserId(id: User["id"]) {
 
 export async function searchProfiles(searchTerm: string) {
   const select = Prisma.sql`
-    SELECT id as "profileId", "firstName" || ' ' || "lastName" || ' <' || "email" || '>' as name
+    SELECT id, "firstName" || ' ' || "lastName" || ' <' || "email" || '>' as name
     FROM "Profiles"
   `;
   const orderBy = Prisma.sql`
