@@ -1,7 +1,12 @@
 import { useState } from "react";
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
+import {
+  Link,
+  useFetcher,
+  useLoaderData,
+  useSearchParams,
+} from "@remix-run/react";
 import CardBox from "app/core/components/CardBox";
 import ProposalCard from "app/core/components/ProposalCard";
 import Header from "app/core/layouts/Header";
@@ -16,7 +21,7 @@ import ExpandMore from "@mui/icons-material/ExpandMore";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import CloseIcon from "@mui/icons-material/Close";
 import { SortInput } from "app/core/components/SortInput";
-import Wrapper from "./projects.styles";
+import Wrapper from "../../styles/projects.styles";
 import { searchProjects } from "~/models/project.server";
 import { requireProfile } from "~/session.server";
 import type { ProjectStatus } from "~/models/status.server";
@@ -48,9 +53,9 @@ interface Tab {
 }
 
 type SortByProps = {
-  field: string,
-  order: string,
-}
+  field: string;
+  order: string;
+};
 
 export const loader: LoaderFunction = async ({ request }) => {
   const profile = await requireProfile(request);
@@ -89,19 +94,21 @@ export const loader: LoaderFunction = async ({ request }) => {
     take: ITEMS_PER_PAGE,
   });
   // return json<LoaderData>({ data, ongoingStatuses, ideaStatuses });
-  return new Response(JSON.stringify({ data, ongoingStatuses, ideaStatuses }, (key, value) =>
-    typeof value === 'bigint'
-        ? value.toString()
-        : value // return everything else unchanged
-    ), {
+  return new Response(
+    JSON.stringify(
+      { data, ongoingStatuses, ideaStatuses },
+      (key, value) => (typeof value === "bigint" ? value.toString() : value) // return everything else unchanged
+    ),
+    {
       headers: {
         "Content-Type": "application/json; charset=utf-8",
       },
-    });
+    }
+  );
 };
 
 export default function Projects() {
-  const fetcher = useFetcher()
+  const fetcher = useFetcher();
   //functions to load and paginate projects in `Popular` CardBox
   const [searchParams, setSearchParams] = useSearchParams();
   const page = Number(searchParams.get("page") || 0);
