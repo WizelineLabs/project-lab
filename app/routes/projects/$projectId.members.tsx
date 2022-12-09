@@ -1,6 +1,6 @@
 import { Fragment, useEffect } from "react";
 import Header from "app/core/layouts/Header";
-import GoBack from "app/core/layouts/GoBack";
+import GoBack from "app/core/components/GoBack";
 import {
   Autocomplete,
   CircularProgress,
@@ -29,12 +29,7 @@ import {
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import type { SubmitOptions } from "@remix-run/react";
 import { json, redirect } from "@remix-run/node";
-import {
-  useTransition,
-  useLoaderData,
-  useNavigate,
-  useFetcher,
-} from "@remix-run/react";
+import { useTransition, useLoaderData, useFetcher } from "@remix-run/react";
 import { requireProfile, requireUser } from "~/session.server";
 import { getProjectTeamMembers, updateMembers } from "~/models/project.server";
 import invariant from "tiny-invariant";
@@ -118,7 +113,6 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 };
 
 const EditMembersPage = () => {
-  const navigate = useNavigate();
   const { profile, projectMembers, projectId } = useLoaderData();
   const profileFetcher = useFetcher<ProfileValue[]>();
   const transition = useTransition();
@@ -141,10 +135,7 @@ const EditMembersPage = () => {
         <h1 className="form__center-text">Project Members</h1>
       </div>
       <div className="wrapper">
-        <GoBack
-          title="Back to main page"
-          onClick={() => navigate(`/projects/${projectId}`)}
-        />
+        <GoBack title="Back to project" href={`/projects/${projectId}`} />
         <ValidatedForm
           validator={validator}
           defaultValues={{
