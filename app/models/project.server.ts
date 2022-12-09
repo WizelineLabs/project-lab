@@ -314,89 +314,40 @@ export async function updateProjects(
   id: string,
   isAdmin: boolean,
   data: {
-    repoUrls?: any;
-    projectMembers: any;
-    relatedProjects?: any;
-    projectStatus?: any;
-    owner: any;
-    skills?: any;
-    disciplines?: any;
-    labels?: any;
-    innovationTiers?: any;
+    repoUrls?: { url: string }[];
+    projectStatus?: { name: string };
+    skills?: { id: string }[];
+    disciplines?: { id: string }[];
+    labels?: { id: string }[];
+    innovationTiers?: { name: string };
   }
 ) {
   //validate if the user have permissions (team member or owner of the project)
-  if (!isAdmin) validateIsTeamMember(id, data.projectMembers, data.owner.id);
-
-  // Update RepoUrls
-  const projectRepoUrls = await db.repos.findMany({
-    where: { projectId: id },
-  });
-
-  for (let i = 0; i < projectRepoUrls.length; i++) {
-    if (
-      !data.repoUrls.find(
-        (repo: { id: number }) => repo.id === projectRepoUrls[i]?.id
-      )
-    ) {
-      await db.repos.delete({ where: { id: projectRepoUrls[i]?.id } });
-    }
-  }
-
-  const newRepos = data.repoUrls.filter(
-    (repo: { id: number }) =>
-      !projectRepoUrls.find((repoUrl) => repoUrl.id === repo.id)
-  );
-
-  // Create related Projects
-  for (let i = 0; i < data.relatedProjects.length; i++) {
-    let relationExist = await db.relatedProjects.count({
-      where: {
-        OR: [
-          {
-            projectAId: data.relatedProjects[i].id,
-            projectBId: id,
-          },
-          {
-            projectAId: id,
-            projectBId: data.relatedProjects[i].id,
-          },
-        ],
-      },
-    });
-
-    if (relationExist === 0) {
-      await db.relatedProjects.create({
-        data: {
-          projectAId: id,
-          projectBId: data.relatedProjects[i].id,
-        },
-      });
-    }
-  }
-
-  // Delete related projects
-  const relatedProjectsIds = await data.relatedProjects.map(
-    (e: { id: any }) => e.id
-  );
-  await db.relatedProjects.deleteMany({
-    where: {
-      OR: [
-        { projectAId: id, projectBId: { notIn: relatedProjectsIds } },
-        { projectAId: { notIn: relatedProjectsIds }, projectBId: id },
-      ],
+  const currentProject = await db.projects.findUniqueOrThrow({
+    where: { id },
+    select: {
+      ownerId: true,
     },
   });
+  const projectMembers = await db.projectMembers.findMany({
+    where: { projectId: id },
+    select: {
+      profileId: true,
+    },
+  });
+  if (!isAdmin)
+    validateIsTeamMember(id, projectMembers, currentProject.ownerId);
+
+  // Unlink repos before linking again
+  await db.repos.deleteMany({ where: { projectId: id } });
 
   // Delete from Form values because We already updated the project members.
-  delete data.relatedProjects;
   const project = await db.projects.update({
     where: { id },
     data: {
       ...data,
       updatedAt: new Date(),
       projectStatus: { connect: { name: data.projectStatus?.name } },
-      owner: { connect: { id: data.owner?.id } },
       skills: {
         set: data.skills,
       },
@@ -407,7 +358,7 @@ export async function updateProjects(
         set: data.labels,
       },
       repoUrls: {
-        create: newRepos,
+        create: data.repoUrls,
       },
       innovationTiers: { connect: { name: data.innovationTiers?.name } },
     },
