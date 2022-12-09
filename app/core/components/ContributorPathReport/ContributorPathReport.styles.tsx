@@ -14,14 +14,6 @@ export const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
   },
 }));
 
-export const EmailAt = styled.span`
-  cursor: pointer;
-
-  svg path {
-    fill: #e94d44;
-  }
-`;
-
 export const TipBubble = styled.span`
   background-color: #fff;
   text-align: center;

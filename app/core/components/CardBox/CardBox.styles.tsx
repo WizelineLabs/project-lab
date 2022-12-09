@@ -1,4 +1,4 @@
-import styled from "@emotion/styled"
+import styled from "@emotion/styled";
 
 export const CardBoxStyle = styled.div`
   background-color: #fff;
@@ -18,4 +18,4 @@ export const CardBoxStyle = styled.div`
       text-align: center;
     }
   }
-`
+`;
