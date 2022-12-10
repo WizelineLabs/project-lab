@@ -18,6 +18,9 @@ export const validator = withZod(
       description: zfd.text(z.string().min(1)),
       valueStatement: zfd.text(z.string().optional()),
       helpWanted: zfd.checkbox(),
+      projectStatus: z.object({ name: z.string() }).optional(),
+      innovationTiers: z.object({ name: z.string() }).optional(),
+      owner: z.object({ id: z.string() }).optional(),
       disciplines: z
         .array(
           z.object({
