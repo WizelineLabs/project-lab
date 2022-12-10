@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useControlField } from "remix-validated-form";
 import { useQuill } from "react-quilljs";
 
 type TextEditorProps = {
-  name: string
-  defaultValue?: string
-  initialValues?: any
-}
+  name: string;
+  placeholder?: string;
+};
 
-export default function TextEditor({ defaultValue, name, initialValues }: TextEditorProps) {
+export default function TextEditor({ placeholder, name }: TextEditorProps) {
   const modules = {
     toolbar: [
       [{ header: [1, 2, 3, 4, 5, 6, false] }],
@@ -32,14 +32,15 @@ export default function TextEditor({ defaultValue, name, initialValues }: TextEd
     "link",
   ];
 
-  const placeholder = defaultValue;
-
   const { quill, quillRef } = useQuill({ modules, formats, placeholder });
 
-  const [text, setText] = useState("");
+  const [text, setText] = useControlField<string>(name);
 
   useEffect(() => {
     if (quill) {
+      if (text) {
+        quill.clipboard.dangerouslyPasteHTML(text);
+      }
       quill.on("text-change", (_delta: any, _oldDelta: any, _source: any) => {
         setText(quill.root.innerHTML);
       });

@@ -1,17 +1,15 @@
 import Header from "app/core/layouts/Header";
-import GoBack from "app/core/layouts/GoBack";
-import { useLoaderData, useNavigate } from "@remix-run/react";
+import GoBack from "app/core/components/GoBack";
 import { ProjectForm } from "./components/ProjectForm";
 import { withZod } from "@remix-validated-form/with-zod";
 import { z } from "zod";
 import { validationError, ValidatedForm } from "remix-validated-form";
-import { json, redirect } from "@remix-run/node";
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
+import type { ActionFunction } from "@remix-run/node";
 import { zfd } from "zod-form-data";
 import { requireProfile } from "~/session.server";
 import { createProject } from "~/models/project.server";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
-import { Box } from "@mui/material";
 
 export const validator = withZod(
   zfd
@@ -20,6 +18,9 @@ export const validator = withZod(
       description: zfd.text(z.string().min(1)),
       valueStatement: zfd.text(z.string().optional()),
       helpWanted: zfd.checkbox(),
+      projectStatus: z.object({ name: z.string() }).optional(),
+      innovationTiers: z.object({ name: z.string() }).optional(),
+      owner: z.object({ id: z.string() }).optional(),
       disciplines: z
         .array(
           z.object({
@@ -30,16 +31,13 @@ export const validator = withZod(
         .optional(),
       target: zfd.text(z.string().optional()),
       repoUrls: zfd.repeatable(
-        z
-          .array(
-            z.object({
-              url: zfd.text(z.string().optional()),
-              id: z.string().optional(),
-            })
-          )
-          .optional()
+        z.array(
+          z.object({
+            url: zfd.text(),
+          })
+        )
       ),
-      slackChannels: zfd.text(z.string().optional()),
+      slackChannel: zfd.text(z.string().optional()),
       skills: z
         .array(
           z.object({
@@ -97,8 +95,6 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 const NewProjectPage = () => {
-  const navigate = useNavigate();
-
   return (
     <div>
       <Header title="Create your proposal" />
@@ -106,7 +102,7 @@ const NewProjectPage = () => {
         <h1 className="form__center-text">Create your proposal</h1>
       </div>
       <div className="wrapper">
-        <GoBack title="Back to main page" onClick={() => navigate("/")} />
+        <GoBack title="Back to main page" href="/" />
         <ValidatedForm
           validator={validator}
           defaultValues={{

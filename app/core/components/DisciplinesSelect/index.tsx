@@ -1,5 +1,4 @@
-import type { PropsWithoutRef } from "react";
-import { Fragment, useEffect } from "react";
+import { useEffect } from "react";
 
 import {
   CircularProgress,
@@ -20,7 +19,6 @@ interface disciplinesSelectProps {
   name: string;
   label: string;
   helperText?: string;
-  outerProps?: PropsWithoutRef<JSX.IntrinsicElements["div"]>;
 }
 
 const disciplinesOptions: SubmitOptions = {
@@ -32,10 +30,9 @@ export const DisciplinesSelect = ({
   name,
   label,
   helperText,
-  outerProps,
 }: disciplinesSelectProps) => {
   const disciplineFetcher = useFetcher<disciplineValue[]>();
-  const { error, getInputProps } = useField(name);
+  const { error } = useField(name);
   const [values, setValues] = useControlField<disciplineValue[]>(name);
   const searchdisciplines = (value: string) => {
     disciplineFetcher.submit({ q: value }, disciplinesOptions);
@@ -48,7 +45,7 @@ export const DisciplinesSelect = ({
     }
   }, [disciplineFetcher]);
   return (
-    <div {...outerProps}>
+    <>
       {values?.map((value, i) => (
         <input
           type="hidden"
@@ -59,9 +56,6 @@ export const DisciplinesSelect = ({
       ))}
       <Autocomplete
         multiple={true}
-        fullWidth
-        {...getInputProps()}
-        style={{ margin: "1em 0" }}
         options={disciplineFetcher.data ?? []}
         value={values}
         isOptionEqualToValue={(option, value) => option.name === value.name}
@@ -80,18 +74,18 @@ export const DisciplinesSelect = ({
             InputProps={{
               ...params.InputProps,
               endAdornment: (
-                <Fragment>
+                <>
                   {disciplineFetcher.state === "submitting" ? (
                     <CircularProgress color="inherit" size={20} />
                   ) : null}
                   {params.InputProps.endAdornment}
-                </Fragment>
+                </>
               ),
             }}
           />
         )}
       />
-    </div>
+    </>
   );
 };
 
