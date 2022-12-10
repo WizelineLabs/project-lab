@@ -4,7 +4,7 @@ import type {
   MetaFunction,
 } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { useLoaderData, useFetcher } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import { requireProfile, requireUser } from "~/session.server";
 import {
@@ -17,7 +17,12 @@ import {
 import type { ProjectComplete } from "~/models/project.server";
 import { getProjects } from "~/models/project.server";
 import { adminRoleName } from "app/constants";
-import type { Profiles, ProjectMembers } from "@prisma/client";
+import type {
+  InnovationTiers,
+  Profiles,
+  ProjectMembers,
+  ProjectStatus,
+} from "@prisma/client";
 
 import { Alert, Box, Tabs } from "@mui/material";
 import GoBack from "~/core/components/GoBack";
@@ -31,6 +36,8 @@ import Header from "~/core/layouts/Header";
 import { EditPanelsStyles } from "~/routes/manager/manager.styles";
 import { TabStyles } from "../components/Styles/TabStyles.component";
 import TabPanel from "~/core/components/TabPanel";
+import { getProjectStatuses } from "~/models/status.server";
+import { getInnovationTiers } from "~/models/innovationTier.server";
 
 type LoaderData = {
   isAdmin: boolean;
@@ -40,7 +47,8 @@ type LoaderData = {
   project: ProjectComplete;
   profileId: string;
   projectId: string;
-  projectsList: { id: string; name: string }[];
+  statuses: ProjectStatus[];
+  tiers: InnovationTiers[];
 };
 
 export const loader: LoaderFunction = async ({ request, params }) => {
@@ -51,10 +59,8 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     throw new Response("Not Found", { status: 404 });
   }
 
-  const projects = await getProjects({});
-  const projectsList = projects.map((e) => {
-    return { id: e.id, name: e.name };
-  });
+  const statuses = await getProjectStatuses();
+  const tiers = await getInnovationTiers();
 
   const user = await requireUser(request);
   const profile = await requireProfile(request);
@@ -71,15 +77,19 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     project,
     profileId,
     projectId,
-    projectsList,
+    statuses,
+    tiers,
   });
 };
 
-export const action: ActionFunction = async ({ request }) => {
-  const profile = await requireProfile(request);
+export const action: ActionFunction = async ({ request, params }) => {
+  invariant(params.projectId, "projectId could not be found");
+  const projectId = params.projectId;
+  const user = await requireUser(request);
+  const isAdmin = user.role == adminRoleName;
   const result = await validator.validate(await request.formData());
   if (result.error) return validationError(result.error);
-  const project = await updateProjects(profile.id, true, result.data);
+  const project = await updateProjects(projectId, isAdmin, result.data);
   return redirect(`/projects/${project.id}`);
 };
 
@@ -99,7 +109,6 @@ export const meta: MetaFunction = ({ data, params }) => {
 };
 
 export default function EditProjectPage() {
-  const fetcher = useFetcher();
   const {
     isAdmin,
     isTeamMember,
@@ -108,46 +117,17 @@ export default function EditProjectPage() {
     project,
     profileId,
     projectId,
-    projectsList,
+    statuses,
+    tiers,
   } = useLoaderData() as LoaderData;
 
   const [selectedRelatedProjects, setSelectedRelatedProjects] = useState(
     project.relatedProjects
   );
-  const [error, setError] = useState<string>("");
-
   const [tabIndex, setTabIndex] = useState(0);
   const handleTabChange = (event: SyntheticEvent, tabNumber: number) =>
     setTabIndex(tabNumber);
 
-  const handleChange = (v: any) => {
-    setSelectedRelatedProjects(() => v);
-  };
-
-  const submitEdition = async () => {
-    try {
-      const body = {
-        ...fetcher.data,
-        projectId,
-        relatedProjects: JSON.stringify(selectedRelatedProjects),
-        action: "EDIT",
-      };
-      await fetcher.submit(body, { method: "put" });
-    } catch (error: any) {
-      console.error(error);
-    }
-  };
-
-  useEffect(() => {
-    //It handles the fetcher error from the response
-    if (fetcher.state === "idle" && fetcher.data) {
-      if (fetcher.data.error) {
-        setError(fetcher.data.error);
-      } else {
-        setError("");
-      }
-    }
-  }, [fetcher]);
   return (
     <>
       <Header title={"Edit " + project.name} />
@@ -176,11 +156,13 @@ export default function EditProjectPage() {
               validator={validator}
               defaultValues={{
                 name: project.name,
+                projectStatus: project.projectStatus || undefined,
+                innovationTiers: project.innovationTiers || undefined,
                 description: project.description || "",
                 valueStatement: project.valueStatement || "",
                 helpWanted: project.helpWanted,
                 disciplines: project.disciplines,
-                // owner: project.owner,
+                owner: project.owner || undefined,
                 target: project.target || "",
                 repoUrls: project.repoUrls || [],
                 slackChannel: project.slackChannel || "",
@@ -190,10 +172,7 @@ export default function EditProjectPage() {
               }}
               method="post"
             >
-              <ProjectForm
-                submitText="Update Project"
-                onSubmit={submitEdition}
-              />
+              <ProjectForm statuses={statuses} tiers={tiers} />
             </ValidatedForm>
           </TabPanel>
           {/*<TabPanel value={tabIndex} index={1}>
@@ -212,9 +191,6 @@ export default function EditProjectPage() {
           {"Delete Project"}
         </button>
       </div>
-      {error && (
-        <Alert severity="warning">Information could not be saved</Alert>
-      )}
     </>
   );
 }
