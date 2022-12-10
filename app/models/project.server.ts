@@ -314,6 +314,7 @@ export async function updateProjects(
   id: string,
   isAdmin: boolean,
   data: {
+    owner?: { id: string };
     repoUrls?: { url: string }[];
     projectStatus?: { name: string };
     skills?: { id: string }[];
@@ -348,6 +349,8 @@ export async function updateProjects(
       ...data,
       updatedAt: new Date(),
       projectStatus: { connect: { name: data.projectStatus?.name } },
+      innovationTiers: { connect: { name: data.innovationTiers?.name } },
+      owner: { connect: { id: data.owner?.id } },
       skills: {
         set: data.skills,
       },
@@ -360,7 +363,6 @@ export async function updateProjects(
       repoUrls: {
         create: data.repoUrls,
       },
-      innovationTiers: { connect: { name: data.innovationTiers?.name } },
     },
     include: {
       projectStatus: true,
