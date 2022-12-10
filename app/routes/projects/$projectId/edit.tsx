@@ -15,7 +15,6 @@ import {
   updateProjects,
 } from "~/models/project.server";
 import type { ProjectComplete } from "~/models/project.server";
-import { getProjects } from "~/models/project.server";
 import { adminRoleName } from "app/constants";
 import type {
   InnovationTiers,
@@ -28,7 +27,7 @@ import { Alert, Box, Tabs } from "@mui/material";
 import GoBack from "~/core/components/GoBack";
 import RelatedProjectsSection from "~/core/components/RelatedProjectsSection";
 import type { SyntheticEvent } from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ProjectForm } from "../components/ProjectForm";
 import { ValidatedForm, validationError } from "remix-validated-form";
 import { validator } from "../create";
