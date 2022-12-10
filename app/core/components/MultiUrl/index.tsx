@@ -1,59 +1,58 @@
-import React, { useState } from "react"
-import { Chip, Grid, TextField } from "@mui/material"
-import styled from "@emotion/styled"
-import { useField, useControlField } from "remix-validated-form"
-
-export const MultiUrlSpan = styled.span`
-  font-size: 12px;
-  color: #727e8c;
-`
+import React, { useState } from "react";
+import { Chip, Stack, TextField } from "@mui/material";
+import { useField, useControlField } from "remix-validated-form";
 
 interface MultiUrlProps {
-  name: string
-  label: string
-  footer: string
-  helperText?: string
+  name: string;
+  label: string;
+  helperText?: string;
 }
 
 interface ValuesProps {
-  url: string
+  url: string;
 }
 
-export const MultiUrl = ({ name, label, footer }: MultiUrlProps) => {
-  const [inputValue, setInputValue] = useState("")
-  const { error } = useField(name)
-  const [values, setValue] = useControlField<ValuesProps[]>(name)
+export const MultiUrl = ({ name, label, helperText }: MultiUrlProps) => {
+  const [inputValue, setInputValue] = useState("");
+  const { error } = useField(name);
+  const [values, setValue] = useControlField<ValuesProps[]>(name);
 
   return (
     <>
-      <MultiUrlSpan>* {footer}</MultiUrlSpan>
       <TextField
         id={name}
         label={label}
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
         error={!!error}
-        helperText={error}
+        helperText={error || helperText}
         fullWidth
         onKeyDown={(e) => {
           if (e.key === "Enter") {
-            e.preventDefault()
-            e.stopPropagation()
+            e.preventDefault();
+            e.stopPropagation();
             if (inputValue && !values?.find((v) => v.url === inputValue)) {
-              setValue(values ? [...values, { url: inputValue }] : [{ url: inputValue }])
-              setInputValue("")
+              setValue(
+                values
+                  ? [...values, { url: inputValue }]
+                  : [{ url: inputValue }]
+              );
+              setInputValue("");
             }
           }
         }}
       />
-      <Grid container rowSpacing={{ xs: 2, sm: 1 }} style={{ paddingTop: 20 }}>
+      <Stack direction="row" spacing={1}>
         {values?.map((val, i) => (
           <span key={i}>
-            <Chip label={val.url} onDelete={() => setValue(values.filter((v) => v !== val))} />
+            <Chip
+              label={val.url}
+              onDelete={() => setValue(values.filter((v) => v !== val))}
+            />
             <input type="hidden" name={`${name}[${i}].url`} value={val.url} />
           </span>
         ))}
-      </Grid>
+      </Stack>
     </>
-  )
-}
+  );
+};
