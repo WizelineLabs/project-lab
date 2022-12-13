@@ -22,16 +22,14 @@ export const validator = withZod(
       helpWanted: zfd.checkbox(),
       disciplines: zfd.repeatable(z.array(z.string()).optional()),
       target: zfd.text(z.string().optional()),
-      repoUrls: zfd.repeatable(
-        z
-          .array(
-            z.object({
-              url: zfd.text(z.string().url().optional()),
-              id: z.string().optional(),
-            })
-          )
-          .optional()
-      ),
+      repoUrls: z
+        .array(
+          z.object({
+            url: zfd.text(z.string().url().optional()),
+            id: z.string().optional(),
+          })
+        )
+        .optional(),
       slackChannels: zfd.text(z.string().optional()),
       skills: z
         .array(
