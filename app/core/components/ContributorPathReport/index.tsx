@@ -3,11 +3,9 @@ import CheckSharpIcon from "@mui/icons-material/CheckSharp";
 import ClearSharpIcon from "@mui/icons-material/ClearSharp";
 import CheckBoxSharpIcon from "@mui/icons-material/CheckBoxSharp";
 import CheckBoxOutlineBlankSharpIcon from "@mui/icons-material/CheckBoxOutlineBlankSharp";
-import AlternateEmailSharpIcon from "@mui/icons-material/AlternateEmailSharp";
 
 import {
   CompleteIcon,
-  EmailAt,
   IncompleteIcon,
   TipBubble,
   HtmlTooltip,
@@ -19,14 +17,38 @@ import type {
   ProjectTask,
   Stage,
 } from "~/core/interfaces/ContributorPathReport";
+import { Link } from "@remix-run/react";
+import { EditSharp } from "@mui/icons-material";
+import HeaderInfo, {
+  EditButton,
+} from "~/routes/projects/$projectId/$projectId.styles";
 
 interface IProps {
   project: any;
+  isTeamMember: boolean;
+  isAdmin: boolean;
 }
 
-export const ContributorPathReport = ({ project }: IProps) => {
+export const ContributorPathReport = ({
+  project,
+  isTeamMember,
+  isAdmin,
+}: IProps) => {
   return (
     <>
+      <HeaderInfo>
+        <div className="headerInfo--action">
+          <div className="headerInfo--edit">
+            {(isTeamMember || isAdmin) && (
+              <Link to={`/projects/${project.id}/members`}>
+                <EditButton>
+                  <EditSharp />
+                </EditButton>
+              </Link>
+            )}
+          </div>
+        </div>
+      </HeaderInfo>
       <big>
         Contributors (
         {
@@ -41,8 +63,8 @@ export const ContributorPathReport = ({ project }: IProps) => {
           <tr>
             <th>Active</th>
             <th>Name</th>
-            <th align="center">Email</th>
-            <th>Role</th>
+            <th>Role(s)</th>
+            <th>Skills</th>
             <th>
               H.P.W.
               <br />
@@ -87,23 +109,14 @@ export const ContributorPathReport = ({ project }: IProps) => {
                   </td>
 
                   <td>
-                    {member.profile?.firstName} {member.profile?.lastName}
+                    <a href={`mailto:${member.profile.email}`}>
+                      {member.profile?.firstName} {member.profile?.lastName}
+                    </a>
                   </td>
 
-                  <td align="center">
-                    <HtmlTooltip
-                      key={memberIndex}
-                      title={
-                        <React.Fragment>{member.profile?.email}</React.Fragment>
-                      }
-                    >
-                      <EmailAt>
-                        <AlternateEmailSharpIcon />
-                      </EmailAt>
-                    </HtmlTooltip>
-                  </td>
+                  <td>{member.role?.map((skill) => skill.name)}</td>
 
-                  <td>{member.role?.map((role) => role.name)}</td>
+                  <td>{member.practicedSkills?.map((skill) => skill.name)}</td>
 
                   <td align="center">{member.hoursPerWeek}</td>
                   {project.stages?.map((stage: Stage, stageIndex: number) => (

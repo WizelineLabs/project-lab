@@ -1,40 +1,46 @@
-import { Select, MenuItem, FormControl, InputLabel, FormHelperText } from "@mui/material"
+import {
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  FormHelperText,
+} from "@mui/material";
+import { useControlField, useField } from "remix-validated-form";
+
+type SelectValue = {
+  name: string;
+};
 
 interface InputSelectProps {
-  valuesList: Array<{ name: string }>
-  defaultValue?: String
-  name: string
-  label: string
-  helperText?: string
-  margin?: "normal" | "none" | "dense" | undefined
-  disabled?: boolean
-  value: string
-  handleChange: React.Dispatch<React.SetStateAction<{ name: string }>>
+  valuesList: SelectValue[];
+  name: string;
+  label: string;
+  helperText?: string;
+  disabled?: boolean;
 }
 
 export const InputSelect = ({
   valuesList,
-  defaultValue,
   name,
   label,
   helperText,
-  margin,
   disabled,
-  value,
-  handleChange,
 }: InputSelectProps) => {
+  const { error } = useField(name);
+  const [value, setValue] = useControlField<SelectValue>(name);
   return (
-    <FormControl fullWidth id={name} margin={margin || "normal"} size="small" >
+    <FormControl fullWidth id={name} size="small" error={!!error}>
+      <input type="hidden" name={`${name}.name`} value={value.name} />
       <InputLabel id={name}>{label}</InputLabel>
       <Select
-        style={{ width: "100%" }}
-        id={name}
-        sx={{ width: 300 }}
         label={label}
-        value={value || defaultValue}
+        value={value.name}
+        error={!!error}
         onChange={(event) => {
-          const newValue = valuesList.find((item) => item.name === event.target.value)
-          if (newValue) handleChange(newValue)
+          const newValue = valuesList.find(
+            (item) => item.name === event.target.value
+          );
+          if (newValue) setValue(newValue);
         }}
         disabled={disabled}
       >
@@ -44,9 +50,9 @@ export const InputSelect = ({
           </MenuItem>
         ))}
       </Select>
-      <FormHelperText>{helperText}</FormHelperText>
+      <FormHelperText>{error || helperText}</FormHelperText>
     </FormControl>
-  )
-}
+  );
+};
 
-export default InputSelect
+export default InputSelect;

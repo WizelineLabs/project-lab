@@ -1,68 +1,56 @@
-import { FormControlLabel, Switch, Collapse } from "@mui/material"
+import { FormControlLabel, Switch, Collapse, Stack } from "@mui/material"
 import { useState } from "react"
 import { MultiUrl } from "~/core/components/MultiUrl"
 import DisciplinesSelect from "~/core/components/DisciplinesSelect"
 import LabeledTextField from "~/core/components/LabeledTextField"
 import LabeledTextFieldArea from "~/core/components/LabeledTextFieldArea"
 import TextEditor from "~/core/components/TextEditor"
-// import InputSelect from "~/core/components/InputSelect";
+import InputSelect from "~/core/components/InputSelect"
 import SkillsSelect from "~/core/components/SkillsSelect"
 import LabelsSelect from "~/core/components/LabelsSelect"
 import ProjectOwnerField from "~/core/components/ProjectOwnerField"
 import RelatedProjectsSelect from "~/core/components/RelatedProjectsSelect"
-import ProjectMembersField from "~/core/components/ProjectMembersField"
 import { useControlField } from "remix-validated-form"
 import { Box } from "@mui/material"
 import { useFormContext, useIsSubmitting } from "remix-validated-form"
+import type { InnovationTiers, ProjectStatus } from "@prisma/client"
 
-export function ProjectForm({ projectformType }: any) {
+export function ProjectForm({
+  projectformType,
+  statuses,
+  tiers,
+}: {
+  projectformType?: "create" | undefined
+  statuses?: ProjectStatus[]
+  tiers?: InnovationTiers[]
+}) {
   const [displayFields, setDisplayFields] = useState(projectformType === "create" ? false : true)
   const [helpWanted, setHelpWanted] = useControlField<boolean>("helpWanted")
   const isSubmitting = useIsSubmitting()
   const { isValid, fieldErrors, getValues } = useFormContext()
-
   const disabled = isSubmitting
+  if (!isValid) {
+    console.log(fieldErrors)
+    console.log(getValues())
+  }
 
   return (
-    <>
-      <LabeledTextField
-        style={{ minHeight: "4em" }}
-        fullWidth
-        name="name"
-        label="Name"
-        placeholder="Name"
-      />
+    <Stack spacing={2}>
+      <LabeledTextField fullWidth name="name" label="Name" placeholder="Name" />
 
       <LabeledTextFieldArea
-        style={{ minHeight: "4em" }}
         fullWidth
         name="description"
         label="Problem Statement"
         placeholder="Problem statement"
       />
 
-      <TextEditor name="valueStatement" defaultValue={"Explain us your proposal..."} />
+      <TextEditor name="valueStatement" placeholder={"Explain us your proposal..."} />
 
-      <FormControlLabel
-        control={
-          <Switch
-            color="primary"
-            name="helpWanted"
-            checked={helpWanted}
-            onChange={(e) => setHelpWanted(e.target.checked)}
-          />
-        }
-        name="helpWanted"
-        label="We need some help"
-        labelPlacement="end"
+      <LabelsSelect //this still uses constant values instead of values taken from the db
+        name="labels"
+        label="Labels"
       />
-
-      <Collapse in={helpWanted}>
-        {/* <DisciplinesSelect //this still uses constant values instead of values taken from the db
-          name="disciplines"
-          label="Looking for..."
-        /> */}
-      </Collapse>
 
       {projectformType === "create" && (
         <FormControlLabel
@@ -79,79 +67,76 @@ export function ProjectForm({ projectformType }: any) {
         />
       )}
 
-      {projectformType !== "create" && (
-        <ProjectOwnerField name="owner" label="Owner" owner={{ name: "John Doe" }} />
+      {projectformType !== "create" && ( //this still uses constant values instead of values taken from the db
+        <InputSelect valuesList={statuses || []} name="projectStatus" label="Status" />
       )}
 
+      {projectformType !== "create" && ( //this still uses constant values instead of values taken from the db
+        <InputSelect valuesList={tiers || []} name="innovationTiers" label="Innovation Tier" />
+      )}
+
+      {projectformType !== "create" && <ProjectOwnerField name="owner" label="Owner" />}
+
       <Collapse in={displayFields}>
-        <LabeledTextField
-          fullWidth
-          style={{ margin: "1em 0" }}
-          name="target"
-          label="Who is your target user/client"
-          placeholder="Millenials"
-        />
-
-        <MultiUrl
-          name="repoUrls"
-          label="Repo URLs"
-          footer="Type the Repo URL and press Enter to add it to your project. You can add as many URLs as you need."
-        />
-
-        <LabeledTextField
-          fullWidth
-          style={{ margin: "1em 0" }}
-          name="slackChannel"
-          label="Slack Channel"
-          placeholder="#project-name"
-        />
-
-        {/* {projectformType !== "create" && ( //this still uses constant values instead of values taken from the db
-          <InputSelect
-            valuesList={statuses}
-            defaultValue=""
-            name="projectStatus"
-            label="Status"
-            disabled={false}
-            value={selectedStatus.name}
-            handleChange={setSelectedStatus}
+        <Stack spacing={2}>
+          <LabeledTextField
+            fullWidth
+            name="target"
+            label="Who is your target user/client"
+            placeholder="Millenials"
           />
-        )} */}
 
-        <SkillsSelect //this still uses constant values instead of values taken from the db
-          name="skills"
-          label="Skills"
-        />
+          <MultiUrl
+            name="repoUrls"
+            label="Repo URLs"
+            footer="* Type the Repo URL and press Enter to add it to your project. You can add as many URLs as you need."
+          />
 
-        <LabelsSelect //this still uses constant values instead of values taken from the db
-          name="labels"
-          label="Labels"
-        />
+          <LabeledTextField
+            fullWidth
+            name="slackChannel"
+            label="Slack Channel"
+            placeholder="#project-name"
+          />
 
-        {/* <RelatedProjectsSelect //this still uses constant values instead of values taken from the db
+          <SkillsSelect //this still uses constant values instead of values taken from the db
+            name="skills"
+            label="Skills"
+          />
+
+          <FormControlLabel
+            control={
+              <Switch
+                color="primary"
+                name="helpWanted"
+                checked={helpWanted}
+                onChange={(e) => setHelpWanted(e.target.checked)}
+              />
+            }
+            name="helpWanted"
+            label="We need some help"
+            labelPlacement="end"
+          />
+
+          <Collapse in={helpWanted}>
+            <DisciplinesSelect //this still uses constant values instead of values taken from the db
+              name="disciplines"
+              label="Looking for..."
+            />
+          </Collapse>
+
+          {/* <RelatedProjectsSelect //this still uses constant values instead of values taken from the db
           thisProject=""
           name="relatedProjectsA"
           label="Related Projects"
         /> */}
-
-        {/* {projectformType !== "create" && (
-          <InputSelect
-            valuesList={tiers}
-            name="innovationTiers"
-            label="Innovation Tier"
-            disabled={false}
-            value={selectedTiers.name}
-            handleChange={setSelectedTiers}
-          />
-        )} */}
-
-        {/*<ProjectMembersField name="projectMembers" label="Add a contributor" />*/}
+        </Stack>
       </Collapse>
       <Box textAlign="center">
         <button disabled={disabled} type="submit" className="primary">
           {isSubmitting ? "Submitting..." : "Submit"}
         </button>
       </Box>
-    </>
+    </Stack>
   )
 }

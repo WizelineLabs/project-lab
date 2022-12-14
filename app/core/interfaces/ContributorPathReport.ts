@@ -20,7 +20,7 @@ export interface ProjectMember {
   createdAt: string;
   hoursPerWeek: number;
   id: string;
-  practicedSkills: [];
+  practicedSkills: [{ id: string; name: string }];
   profile: {
     firstName: string;
     lastName: string;

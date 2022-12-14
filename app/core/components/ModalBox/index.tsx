@@ -1,7 +1,7 @@
-import React from "react"
-import { Modal, Box, IconButton } from "@mui/material"
-import styled from "@emotion/styled"
-import { Close as CloseIcon } from "@mui/icons-material"
+import React from "react";
+import { Modal, Box, IconButton } from "@mui/material";
+import styled from "@emotion/styled";
+import { Close as CloseIcon } from "@mui/icons-material";
 
 export const BoxContainer = styled.div`
   width: 500px;
@@ -9,25 +9,25 @@ export const BoxContainer = styled.div`
   background: #fff;
   padding: 10px;
   border-radius: 4px;
-`
+`;
 
 export const ModalContainer = styled.div`
   display: flex;
   align-items: center;
   height: 100%;
-`
+`;
 
 export const Action = styled.div`
   display: flex;
   justify-content: flex-end;
-`
+`;
 
 interface IProps {
-  children: React.ReactNode
-  open: boolean
-  handleClose: React.MouseEventHandler
-  close: Function
-  boxStyle?: React.CSSProperties
+  children: React.ReactNode;
+  open: boolean;
+  handleClose: React.MouseEventHandler;
+  close: Function;
+  boxStyle?: React.CSSProperties;
 }
 
 export const ModalBox = ({ children, boxStyle, ...props }: IProps) => {
@@ -51,7 +51,7 @@ export const ModalBox = ({ children, boxStyle, ...props }: IProps) => {
         </BoxContainer>
       </ModalContainer>
     </Modal>
-  )
-}
+  );
+};
 
-export default ModalBox
+export default ModalBox;

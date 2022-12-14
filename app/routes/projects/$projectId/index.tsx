@@ -44,6 +44,7 @@ import {
   checkUserVote,
 } from "~/models/votes.server";
 import RelatedProjectsSection from "~/core/components/RelatedProjectsSection";
+import Header from "~/core/layouts/Header";
 
 type LoaderData = {
   isAdmin: boolean;
@@ -161,6 +162,8 @@ export default function ProjectDetailsPage() {
 
   return (
     <>
+      <Header title={project.name || ""} />
+
       <div className="wrapper">
         <HeaderInfo>
           <div className="headerInfo--action">
@@ -182,9 +185,10 @@ export default function ProjectDetailsPage() {
               <div className="descriptionProposal">{project.description}</div>
               <div className="lastUpdateProposal">
                 Last update:{" "}
-                {project.updatedAt && formatDistance(new Date(project.updatedAt), new Date(), {
-                  addSuffix: true,
-                })}
+                {project.updatedAt &&
+                  formatDistance(new Date(project.updatedAt), new Date(), {
+                    addSuffix: true,
+                  })}
               </div>
             </Grid>
           </Grid>
@@ -259,9 +263,10 @@ export default function ProjectDetailsPage() {
               </Grid>
               <Grid item>
                 <Stack direction="row" spacing={1}>
-                  {project.labels && project.labels.map((item, index) => (
-                    <Chip key={index} label={item.name} />
-                  ))}
+                  {project.labels &&
+                    project.labels.map((item, index) => (
+                      <Chip key={index} label={item.name} />
+                    ))}
                 </Stack>
               </Grid>
             </Grid>
@@ -313,7 +318,8 @@ export default function ProjectDetailsPage() {
                       className="primary"
                       onClick={() => handleVote(project.id || "")}
                     >
-                      {project.votes && project.votes.filter((vote) => {
+                      {project.votes &&
+                      project.votes.filter((vote) => {
                         return vote.profileId === profile.id;
                       }).length > 0 ? (
                         <>
@@ -390,9 +396,10 @@ export default function ProjectDetailsPage() {
                   <CardContent>
                     <big>Looking for:</big>
                     <Stack direction="row" spacing={1}>
-                      {project.disciplines && project.disciplines.map((item, index) => (
-                        <Chip key={index} label={item.name} />
-                      ))}
+                      {project.disciplines &&
+                        project.disciplines.map((item, index) => (
+                          <Chip key={index} label={item.name} />
+                        ))}
                     </Stack>
                   </CardContent>
                 </Card>
@@ -420,7 +427,11 @@ export default function ProjectDetailsPage() {
         </Grid>
       </div>
       <div className="wrapper">
-        <ContributorPathReport project={project} />
+        <ContributorPathReport
+          project={project}
+          isTeamMember={isTeamMember}
+          isAdmin={isAdmin}
+        />
       </div>
       <JoinProjectModal
         projectId={project.id || ""}
@@ -428,7 +439,7 @@ export default function ProjectDetailsPage() {
         handleCloseModal={handleCloseModal}
       />
       <div className="wrapper">
-        <RelatedProjectsSection relatedProjects={project.relatedProjects}/>
+        <RelatedProjectsSection relatedProjects={project.relatedProjects} />
       </div>
       {/*
       <div className="wrapper">

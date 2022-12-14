@@ -11,7 +11,7 @@ import {
   LinkStyles,
 } from "./manager/manager.styles";
 
-import Wrapper from "./projects/projects.styles";
+import Wrapper from "../styles/projects.styles";
 import { adminRoleName } from "app/constants";
 import { requireUser } from "~/session.server";
 
@@ -24,8 +24,9 @@ export const loader: LoaderFunction = async ({ request }) => {
   const user = await requireUser(request);
   const isAdmin = user.role == adminRoleName;
   const url = new URL(request.url);
-  if (!isAdmin) return redirect("/")
-  if (url.pathname === "/manager") return redirect("/manager/filter-tags/labels")
+  if (!isAdmin) return redirect("/");
+  if (url.pathname === "/manager")
+    return redirect("/manager/filter-tags/labels");
   const initialTabIdx = request.url.includes("admins") ? 1 : 0;
   const initialTitle = request.url.includes("admins")
     ? "Admins"
@@ -37,8 +38,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export default function ManagerPage() {
-  const { initialTabIdx, initialTitle } =
-    useLoaderData() as LoaderData;
+  const { initialTabIdx, initialTitle } = useLoaderData() as LoaderData;
   const [tabIndex, setTabIndex] = useState(initialTabIdx);
   const [tabTitle, setTabTitle] = useState(initialTitle);
 

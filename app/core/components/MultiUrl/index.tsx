@@ -12,8 +12,8 @@ export const MultiUrlSpan = styled.span`
 interface MultiUrlProps {
   name: string
   label: string
-  footer: string
   helperText?: string
+  footer?: string
 }
 
 export const MultiUrl = ({ name, label, footer }: MultiUrlProps) => {
@@ -25,7 +25,7 @@ export const MultiUrl = ({ name, label, footer }: MultiUrlProps) => {
     <FieldArray name={name}>
       {(items, { push, remove }) => (
         <>
-          <MultiUrlSpan>* {footer}</MultiUrlSpan>
+          <MultiUrlSpan>{footer}</MultiUrlSpan>
           <TextField
             id={name}
             label={label}

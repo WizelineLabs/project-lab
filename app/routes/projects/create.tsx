@@ -1,17 +1,15 @@
 import Header from "app/core/layouts/Header"
-import GoBack from "app/core/layouts/GoBack"
-import { useLoaderData, useNavigate } from "@remix-run/react"
+import GoBack from "app/core/components/GoBack"
 import { ProjectForm } from "./components/ProjectForm"
 import { withZod } from "@remix-validated-form/with-zod"
 import { z } from "zod"
 import { validationError, ValidatedForm } from "remix-validated-form"
-import { json, redirect } from "@remix-run/node"
-import type { ActionFunction, LoaderFunction } from "@remix-run/node"
+import { redirect } from "@remix-run/node"
+import type { ActionFunction } from "@remix-run/node"
 import { zfd } from "zod-form-data"
 import { requireProfile } from "~/session.server"
 import { createProject } from "~/models/project.server"
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime"
-import { Box } from "@mui/material"
 
 export const validator = withZod(
   zfd
@@ -20,7 +18,17 @@ export const validator = withZod(
       description: zfd.text(z.string().min(1)),
       valueStatement: zfd.text(z.string().optional()),
       helpWanted: zfd.checkbox(),
-      disciplines: zfd.repeatable(z.array(z.string()).optional()),
+      projectStatus: z.object({ name: z.string() }).optional(),
+      innovationTiers: z.object({ name: z.string() }).optional(),
+      owner: z.object({ id: z.string() }).optional(),
+      disciplines: z
+        .array(
+          z.object({
+            id: z.string(),
+            name: z.string().optional(),
+          })
+        )
+        .optional(),
       target: zfd.text(z.string().optional()),
       repoUrls: z
         .array(
@@ -48,20 +56,6 @@ export const validator = withZod(
         )
         .optional(),
       // relatedProjectsA: zfd.repeatable(z.array(z.string()).optional()),
-      projectMembers: zfd.repeatable(
-        z
-          .array(
-            z.object({
-              profileId: zfd.text(),
-              name: zfd.text(z.string().optional()),
-              roles: zfd.repeatable(z.array(z.string()).optional()),
-              skills: zfd.repeatable(z.array(z.string()).optional()),
-              hours: zfd.text(z.string().optional()),
-              active: zfd.checkbox(),
-            })
-          )
-          .optional()
-      ),
     })
     .transform((val) => {
       // val.relatedProjectsA = val.relatedProjectsA?.filter((el) => el != "");
@@ -87,27 +81,18 @@ export const action: ActionFunction = async ({ request }) => {
           },
         })
       } else {
-        e.meta?.target?.map((target: string) => {
-          return validationError({
-            fieldErrors: {
-              [target]: "Invalid value",
-            },
-          })
+        return validationError({
+          fieldErrors: {
+            [e.meta?.target[0]]: "Invalid value",
+          },
         })
       }
     }
+    throw e
   }
 }
 
-export const loader: LoaderFunction = async ({ request }) => {
-  const profile = await requireProfile(request)
-  return json({ profile })
-}
-
 const NewProjectPage = () => {
-  const navigate = useNavigate()
-  const { profile } = useLoaderData()
-
   return (
     <div>
       <Header title="Create your proposal" />
@@ -115,21 +100,15 @@ const NewProjectPage = () => {
         <h1 className="form__center-text">Create your proposal</h1>
       </div>
       <div className="wrapper">
-        <GoBack title="Back to main page" onClick={() => navigate("/")} />
+        <GoBack title="Back to main page" href="/" />
         <ValidatedForm
           validator={validator}
           defaultValues={{
+            name: "",
+            description: "",
             helpWanted: false,
-            projectMembers: [
-              {
-                profileId: profile.id,
-                name: profile.name,
-                roles: [],
-                skills: [],
-                hours: "0",
-                active: true,
-              },
-            ],
+            skills: [],
+            labels: [],
           }}
           method="post"
         >
