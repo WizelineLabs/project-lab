@@ -3,7 +3,7 @@ import { Prisma } from "@prisma/client";
 
 import { prisma } from "~/db.server";
 
-export type { User } from "@prisma/client";
+export type { Profiles, User } from "@prisma/client";
 
 export async function getProfileByUserId(id: User["id"]) {
   const result = await prisma.$queryRaw<Profiles[]>`
@@ -14,6 +14,16 @@ export async function getProfileByUserId(id: User["id"]) {
 
   if (result.length != 1 || !result[0]) return null;
   else return result[0];
+}
+
+export async function getProfileByEmail(email: Profiles["email"]) {
+  return prisma.profiles.findUnique({
+    where: { email },
+  });
+}
+
+export async function createProfile(data: Prisma.ProfilesCreateInput) {
+  return prisma.profiles.create({ data });
 }
 
 export async function searchProfiles(searchTerm: string) {
