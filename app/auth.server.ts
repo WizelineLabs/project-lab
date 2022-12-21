@@ -30,14 +30,14 @@ let auth0Strategy = new Auth0Strategy(
       try {
         const lakeProfile = await findProfileData(email);
         createProfile({
-          id: lakeProfile.contact__wizeos_profile_id,
+          id: lakeProfile.contact__employee_number,
           email: lakeProfile.contact__email,
           firstName: lakeProfile.contact__preferred_name,
           lastName: lakeProfile.contact__last_name,
           department: lakeProfile.contact__department,
           jobLevelTier: lakeProfile.contact__wizeos__level,
-          jobLevelTitle: lakeProfile.contact__wizeos__job_title,
-          // avatarUrl ?
+          jobLevelTitle: lakeProfile.contact__title,
+          avatarUrl: lakeProfile.contact__photo__url,
           // contact__first_name
           // contact__employee_number
           // contact__location
