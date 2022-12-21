@@ -30,7 +30,7 @@ let auth0Strategy = new Auth0Strategy(
       try {
         const lakeProfile = await findProfileData(email);
         createProfile({
-          id: lakeProfile.contact__employee_number,
+          id: String(lakeProfile.contact__employee_number),
           email: lakeProfile.contact__email,
           firstName: lakeProfile.contact__preferred_name,
           lastName: lakeProfile.contact__last_name,
