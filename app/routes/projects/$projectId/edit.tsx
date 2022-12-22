@@ -159,7 +159,7 @@ export default function EditProjectPage() {
         <h1 className="form__center-text">Edit {project.name}</h1>
       </div>
 
-      {/* <div className="wrapper">
+      <div className="wrapper">
         <GoBack title="Back to project" href={`/projects/${projectId}`} />
 
         <EditPanelsStyles>
@@ -175,7 +175,7 @@ export default function EditProjectPage() {
           </Box>
 
           <TabPanel value={tabIndex} index={0}>
-            <ValidatedForm
+            {/* <ValidatedForm
               validator={validator}
               defaultValues={{
                 name: project.name,
@@ -195,19 +195,20 @@ export default function EditProjectPage() {
               method="post"
             >
               <ProjectForm statuses={statuses} tiers={tiers} />
-            </ValidatedForm>
+            </ValidatedForm> */}
           </TabPanel>
           <TabPanel value={tabIndex} index={1}>
-            <ProjectContributorsPathForm
+            {/* <ProjectContributorsPathForm
               submitText="Update Stages "
               schema={ContributorPath}
               initialValues={project.stages}
               onSubmit={handleSubmitContributorPath}
               projectId={project.id}
-              retrieveProjectInfo={retrieveProjectInfo}/>
-           </TabPanel>
+              retrieveProjectInfo={retrieveProjectInfo}
+            /> */}
+          </TabPanel>
         </EditPanelsStyles>
-      </div> */}
+      </div>
       <div className="wrapper form__center-text">
         <button onClick={handleClickOpen} className="primary warning">
           {"Delete Project"}
