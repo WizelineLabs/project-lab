@@ -310,6 +310,27 @@ export async function updateMembers(
   }
 }
 
+export async function joinProject(
+  projectId: string,
+  profileId: string,
+  data: {
+    hoursPerWeek?: number;
+    role?: { id: string }[];
+    practicedSkills?: { id: string }[];
+  }
+) {
+  const projectMember = await db.projectMembers.create({
+    data: {
+      project: { connect: { id: projectId } },
+      profile: { connect: { id: profileId } },
+      hoursPerWeek: data.hoursPerWeek,
+      practicedSkills: { connect: data.practicedSkills },
+      role: { connect: data.role },
+    },
+  });
+  return projectMember;
+}
+
 export async function updateProjects(
   id: string,
   isAdmin: boolean,
