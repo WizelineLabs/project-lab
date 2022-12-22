@@ -1,4 +1,6 @@
 import LabeledTextField from "app/core/components/LabeledTextField";
+import DisciplinesSelect from "app/core/components/DisciplinesSelect";
+import SkillsSelect from "app/core/components/SkillsSelect";
 import ModalBox from "app/core/components/ModalBox";
 import Button from "@mui/material/Button";
 
@@ -7,12 +9,38 @@ import {
   FormDivContainer,
   CommitmentDivContainer,
 } from "./joinProjectModal.styles";
+import { ValidatedForm } from "remix-validated-form";
+import { withZod } from "@remix-validated-form/with-zod";
+import { zfd } from "zod-form-data";
+import { z } from "zod";
 
 interface IProps {
   open: boolean;
   handleCloseModal: Function;
   projectId: string;
 }
+
+export const validator = withZod(
+  zfd.formData({
+    hoursPerWeek: zfd.numeric(z.number().optional()),
+    role: z
+      .array(
+        z.object({
+          id: z.string(),
+          name: z.string().optional(),
+        })
+      )
+      .optional(),
+    practicedSkills: z
+      .array(
+        z.object({
+          id: z.string(),
+          name: z.string().optional(),
+        })
+      )
+      .optional(),
+  })
+);
 
 const JoinProjectModal = (props: IProps) => {
   return (
@@ -22,13 +50,13 @@ const JoinProjectModal = (props: IProps) => {
       handleClose={() => {}}
       boxStyle={{ width: "800px" }}
     >
-      <form method="post" action="/">
+      <ValidatedForm method="post" action="./joinProject" validator={validator}>
         <Grid>
           <FormDivContainer>
             <h1>Join Project</h1>
 
             <p className="question">What role will you be playing?</p>
-            {/* <DisciplinesSelect name="role" label="Role(s)" /> */}
+            <DisciplinesSelect name="role" label="Role(s)" />
 
             <p className="question">What's your availability?</p>
             <LabeledTextField
@@ -40,7 +68,7 @@ const JoinProjectModal = (props: IProps) => {
             />
 
             <p className="question">Which skills are you practicing?</p>
-            <input type="text" name="skills" />
+            <SkillsSelect name="practicedSkills" label="Skills" />
           </FormDivContainer>
 
           <CommitmentDivContainer>
@@ -72,7 +100,7 @@ const JoinProjectModal = (props: IProps) => {
             </Button>
           </CommitmentDivContainer>
         </Grid>
-      </form>
+      </ValidatedForm>
     </ModalBox>
   );
 };
