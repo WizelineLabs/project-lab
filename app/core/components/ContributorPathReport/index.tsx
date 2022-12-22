@@ -114,9 +114,13 @@ export const ContributorPathReport = ({
                     </a>
                   </td>
 
-                  <td>{member.role?.map((skill) => skill.name)}</td>
+                  <td>{member.role?.map((skill) => skill.name).join(", ")}</td>
 
-                  <td>{member.practicedSkills?.map((skill) => skill.name)}</td>
+                  <td>
+                    {member.practicedSkills
+                      ?.map((skill) => skill.name)
+                      .join(", ")}
+                  </td>
 
                   <td align="center">{member.hoursPerWeek}</td>
                   {project.stages?.map((stage: Stage, stageIndex: number) => (
