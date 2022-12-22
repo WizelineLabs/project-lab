@@ -32,17 +32,16 @@ let auth0Strategy = new Auth0Strategy(
         createProfile({
           id: String(lakeProfile.contact__employee_number),
           email: lakeProfile.contact__email,
-          firstName: lakeProfile.contact__preferred_name,
+          firstName: lakeProfile.contact__first_name,
+          preferredName: lakeProfile.contact__preferred_name,
           lastName: lakeProfile.contact__last_name,
           department: lakeProfile.contact__department,
           jobLevelTier: lakeProfile.contact__wizeos__level,
           jobLevelTitle: lakeProfile.contact__title,
           avatarUrl: lakeProfile.contact__photo__url,
-          // contact__first_name
-          // contact__employee_number
-          // contact__location
-          // contact__country
-          // contact__status
+          location: lakeProfile.contact__location,
+          country: lakeProfile.contact__country,
+          status: lakeProfile.contact__status,
           // - NULL
           // - Bench
           // - Assigned
