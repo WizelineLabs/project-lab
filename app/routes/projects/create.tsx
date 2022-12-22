@@ -1,15 +1,15 @@
-import Header from "app/core/layouts/Header"
-import GoBack from "app/core/components/GoBack"
-import { ProjectForm } from "./components/ProjectForm"
-import { withZod } from "@remix-validated-form/with-zod"
-import { z } from "zod"
-import { validationError, ValidatedForm } from "remix-validated-form"
-import { redirect } from "@remix-run/node"
-import type { ActionFunction } from "@remix-run/node"
-import { zfd } from "zod-form-data"
-import { requireProfile } from "~/session.server"
-import { createProject } from "~/models/project.server"
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime"
+import Header from "app/core/layouts/Header";
+import GoBack from "app/core/components/GoBack";
+import { ProjectForm } from "./components/ProjectForm";
+import { withZod } from "@remix-validated-form/with-zod";
+import { z } from "zod";
+import { validationError, ValidatedForm } from "remix-validated-form";
+import { redirect } from "@remix-run/node";
+import type { ActionFunction } from "@remix-run/node";
+import { zfd } from "zod-form-data";
+import { requireProfile } from "~/session.server";
+import { createProject } from "~/models/project.server";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 
 export const validator = withZod(
   zfd
@@ -33,12 +33,12 @@ export const validator = withZod(
       repoUrls: z
         .array(
           z.object({
-            url: zfd.text(z.string().url().optional()),
-            id: z.string().optional(),
+            url: zfd.text(z.string().url()),
+            id: zfd.numeric().optional(),
           })
         )
         .optional(),
-      slackChannels: zfd.text(z.string().optional()),
+      slackChannel: zfd.text().optional(),
       skills: z
         .array(
           z.object({
@@ -59,38 +59,41 @@ export const validator = withZod(
     })
     .transform((val) => {
       // val.relatedProjectsA = val.relatedProjectsA?.filter((el) => el != "");
-      return val
+      return val;
     })
-)
+);
 
 export const action: ActionFunction = async ({ request }) => {
-  const profile = await requireProfile(request)
-  const result = await validator.validate(await request.formData())
+  const profile = await requireProfile(request);
+  const result = await validator.validate(await request.formData());
 
-  if (result.error) return validationError(result.error)
+  if (result.error) return validationError(result.error);
 
   try {
-    const project = await createProject(result.data, profile.id)
-    return redirect(`/projects/${project.id}`)
+    const project = await createProject(result.data, profile.id);
+    return redirect(`/projects/${project.id}`);
   } catch (e) {
-    if (e instanceof PrismaClientKnownRequestError && Array.isArray(e.meta?.target)) {
+    if (
+      e instanceof PrismaClientKnownRequestError &&
+      Array.isArray(e.meta?.target)
+    ) {
       if (e.meta?.target.includes("name")) {
         return validationError({
           fieldErrors: {
             name: "Project name already exists",
           },
-        })
+        });
       } else {
         return validationError({
           fieldErrors: {
             [e.meta?.target[0]]: "Invalid value",
           },
-        })
+        });
       }
     }
-    throw e
+    throw e;
   }
-}
+};
 
 const NewProjectPage = () => {
   return (
@@ -116,7 +119,7 @@ const NewProjectPage = () => {
         </ValidatedForm>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default NewProjectPage
+export default NewProjectPage;

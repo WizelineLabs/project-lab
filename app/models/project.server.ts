@@ -335,6 +335,7 @@ export async function updateProjects(
   id: string,
   isAdmin: boolean,
   data: {
+    slackChannel?: string;
     owner?: { id: string };
     repoUrls?: { url: string }[];
     projectStatus?: { name: string };
