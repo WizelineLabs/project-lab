@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  previewFeatures = ["interactiveTransactions"]
 }
 
 datasource db {
@@ -9,15 +8,15 @@ datasource db {
 }
 
 model User {
-  id    String @id @default(cuid())
-  email String @unique
-  name  String?
-  role  String @default("USER")
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  role      String   @default("USER")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   notes     Note[]
 }
-    
+
 model Note {
   id        String   @id @default(cuid())
   title     String
@@ -49,6 +48,7 @@ model Profiles {
   id                     String                   @id @default(uuid())
   email                  String                   @unique
   firstName              String
+  preferredName          String?
   lastName               String
   searchCol              String?
   avatarUrl              String?
@@ -57,6 +57,9 @@ model Profiles {
   jobLevelTier           String?
   jobLevelTitle          String?
   department             String?
+  location               String?
+  country                String?
+  status                 String?
   createdAt              DateTime                 @default(now())
   updatedAt              DateTime                 @default(now())
   terminatedAt           DateTime?
@@ -69,11 +72,15 @@ model Profiles {
   projects               Projects[]
   projectsVersions       ProjectsVersions[]
   votes                  Vote[]
-// here "name" was changed for "map"
+
+  // here "name" was changed for "map"
   @@index([email], map: "profiles_email_idx")
   @@index([jobTitleId], map: "profiles_job_title_id_idx")
   @@index([locationId], map: "profiles_location_id_idx")
   @@index([searchCol], map: "profiles_search_col_idx")
+  @@index([location], map: "profiles_location_idx")
+  @@index([country], map: "profiles_country_idx")
+  @@index([status], map: "profiles_status_idx")
 }
 
 model ProjectMembers {
@@ -89,7 +96,8 @@ model ProjectMembers {
   contributorPath ContributorPath[]
   role            Disciplines[]
   practicedSkills Skills[]
-//also here "name" was changed for "map" 
+
+  //also here "name" was changed for "map" 
   @@unique([projectId, profileId], name: "project_members_project_id_profile_id_key")
   @@index([profileId], map: "project_members_profile_id_idx")
   @@index([projectId], map: "project_members_project_id_idx")
@@ -107,7 +115,8 @@ model ProjectMembersVersions {
   practicedSkills String?
   profile         Profiles @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   project         Projects @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-//also here the map for name change 
+
+  //also here the map for name change 
   @@index([projectId, profileId], map: "project_members_v_project_id_profile_id_key")
   @@index([profileId], map: "project_members_v_profile_id_idx")
   @@index([projectId], map: "project_members_v_project_id_idx")
@@ -155,7 +164,8 @@ model Projects {
   disciplines            Disciplines[]
   labels                 Labels[]
   skills                 Skills[]
-// here also the change of name for map
+
+  // here also the change of name for map
   @@index([ownerId], map: "projects_owner_id_idx")
   @@index([status], map: "projects_status_idx")
   @@index([isArchived], map: "projects_isArchived_idx")
@@ -210,7 +220,8 @@ model Skills {
   updatedAt      DateTime         @default(now())
   projectMembers ProjectMembers[]
   projects       Projects[]
-// also here the map for name change
+
+  // also here the map for name change
   @@index([name], map: "skills_name_idx")
 }
 
@@ -221,7 +232,8 @@ model Disciplines {
   updatedAt      DateTime         @default(now())
   projectMembers ProjectMembers[]
   projects       Projects[]
-// also here the map for name change
+
+  // also here the map for name change
   @@index([name], map: "discipline_name_idx")
 }
 
