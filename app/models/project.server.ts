@@ -709,3 +709,26 @@ export async function searchProjects({
     ),
   };
 }
+
+export async function deleteProject(projectId: string, profileId: string) {
+  const currentProject = await db.projects.findUniqueOrThrow({
+    where: { id: projectId },
+    select: {
+      name: true,
+      ownerId: true,
+    },
+  });
+
+  const projectMembers = await db.projectMembers.findMany({
+    where: { id: profileId },
+    select: {
+      profileId: true,
+    },
+  });
+  console.log(currentProject);
+
+  validateIsTeamMember(profileId, projectMembers, currentProject.ownerId);
+
+  await db.projects.delete({ where: { id: projectId } });
+  return true;
+}

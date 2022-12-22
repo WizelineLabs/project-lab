@@ -4,7 +4,7 @@ import type {
   MetaFunction,
 } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Form, useLoaderData } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import { requireProfile, requireUser } from "~/session.server";
 import {
@@ -23,7 +23,16 @@ import type {
   ProjectStatus,
 } from "@prisma/client";
 
-import { Alert, Box, Tabs } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Tabs,
+} from "@mui/material";
 import GoBack from "~/core/components/GoBack";
 import RelatedProjectsSection from "~/core/components/RelatedProjectsSection";
 import type { SyntheticEvent } from "react";
@@ -127,6 +136,21 @@ export default function EditProjectPage() {
   const handleTabChange = (event: SyntheticEvent, tabNumber: number) =>
     setTabIndex(tabNumber);
 
+  const [open, setOpen] = useState(false);
+  const [deleteSelection, setDeleteSelection] = useState("");
+  const [isButtonDisabled, setisButtonDisabled] = useState(true);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+
+    setTimeout(() => setisButtonDisabled(false), 5000);
+  };
+
+  const handleClose = () => {
+    setisButtonDisabled(true);
+    setOpen(false);
+  };
+
   return (
     <>
       <Header title={"Edit " + project.name} />
@@ -135,7 +159,7 @@ export default function EditProjectPage() {
         <h1 className="form__center-text">Edit {project.name}</h1>
       </div>
 
-      <div className="wrapper">
+      {/* <div className="wrapper">
         <GoBack title="Back to project" href={`/projects/${projectId}`} />
 
         <EditPanelsStyles>
@@ -164,7 +188,6 @@ export default function EditProjectPage() {
                 owner: project.owner || undefined,
                 target: project.target || "",
                 repoUrls: project.repoUrls || [],
-                slackChannel: project.slackChannel || "",
                 skills: project.skills,
                 labels: project.labels,
                 //projectMembers: project.projectMembers,
@@ -174,7 +197,7 @@ export default function EditProjectPage() {
               <ProjectForm statuses={statuses} tiers={tiers} />
             </ValidatedForm>
           </TabPanel>
-          {/*<TabPanel value={tabIndex} index={1}>
+          <TabPanel value={tabIndex} index={1}>
             <ProjectContributorsPathForm
               submitText="Update Stages "
               schema={ContributorPath}
@@ -182,14 +205,37 @@ export default function EditProjectPage() {
               onSubmit={handleSubmitContributorPath}
               projectId={project.id}
               retrieveProjectInfo={retrieveProjectInfo}/>
-           </TabPanel>*/}
+           </TabPanel>
         </EditPanelsStyles>
-      </div>
+      </div> */}
       <div className="wrapper form__center-text">
-        <button type="submit" className="primary">
+        <button onClick={handleClickOpen} className="primary warning">
           {"Delete Project"}
         </button>
       </div>
+      <Dialog onClose={handleClose} open={open}>
+        <DialogTitle>
+          Are you sure you want to delete this proposal?
+        </DialogTitle>
+        <Form action={`/projects/delete`} method="delete">
+          <DialogContent>
+            This action cannot be undone.
+            <input type="hidden" name="projectId" value={projectId} />
+          </DialogContent>
+          <DialogActions>
+            <Button className="primary" onClick={handleClose}>
+              Cancel
+            </Button>
+            <Button
+              disabled={isButtonDisabled}
+              type="submit"
+              className="primary warning"
+            >
+              Yes, delete it
+            </Button>
+          </DialogActions>
+        </Form>
+      </Dialog>
     </>
   );
 }
