@@ -6,7 +6,13 @@ import type {
   MetaFunction,
 } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useCatch, useLoaderData, useFetcher } from "@remix-run/react";
+import {
+  Link,
+  useCatch,
+  useLoaderData,
+  useFetcher,
+  useTransition,
+} from "@remix-run/react";
 import invariant from "tiny-invariant";
 import { requireProfile, requireUser } from "~/session.server";
 import {
@@ -36,7 +42,7 @@ import {
 import { adminRoleName } from "app/constants";
 import type { Profiles, ProjectMembers } from "@prisma/client";
 import ContributorPathReport from "../../../core/components/ContributorPathReport/index";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import JoinProjectModal from "~/core/components/JoinProjectModal";
 import {
   upvoteProject,
@@ -159,6 +165,13 @@ export default function ProjectDetailsPage() {
       console.error(error);
     }
   };
+
+  const transition = useTransition();
+  useEffect(() => {
+    if (transition.type == "actionRedirect") {
+      setShowJoinModal(false);
+    }
+  }, [transition]);
 
   return (
     <>
