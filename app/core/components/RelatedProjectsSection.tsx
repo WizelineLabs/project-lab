@@ -1,4 +1,4 @@
-import { useFetcher } from "@remix-run/react";
+import { useTransition } from "@remix-run/react";
 import {
   Autocomplete,
   TextField,
@@ -8,14 +8,35 @@ import {
   IconButton,
 } from "@mui/material";
 import { EditSharp, Close } from "@mui/icons-material";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useField, ValidatedForm } from "remix-validated-form";
+import { withZod } from "@remix-validated-form/with-zod";
+import { zfd } from "zod-form-data";
+import { z } from "zod";
 import Link from "./Link";
+
+type ProjectValue = {
+  id: string;
+  name: string;
+};
+
 interface IProps {
-  relatedProjects: any[];
+  relatedProjects: ProjectValue[];
   allowEdit: Boolean;
   projectsList: { id: string; name: string }[];
   projectId: string;
 }
+
+export const validator = withZod(
+  zfd.formData({
+    relatedProjects: z.array(
+      z.object({
+        id: z.string(),
+        name: z.string().optional(),
+      })
+    ),
+  })
+);
 
 function RelatedProjectsSection({
   relatedProjects,
@@ -23,50 +44,24 @@ function RelatedProjectsSection({
   projectsList,
   projectId,
 }: IProps) {
-  const fetcher = useFetcher();
   const [isEditActive, setIsEditActive] = useState(false);
   const handleChangeEditView = (val: Boolean) => setIsEditActive(!isEditActive);
   const [selectedRelatedProjects, setSelectedRelatedProjects] =
     useState(relatedProjects);
-  const [error, setError] = useState<string>("");
-  const handleChange = (v: any) => {
-    setSelectedRelatedProjects(() => v);
-  };
-
-  const submitEdition = async () => {
-    try {
-      const body = {
-        ...fetcher.data,
-        projectId,
-        relatedProjects: JSON.stringify(selectedRelatedProjects),
-        action: "EDIT_RELATED_PROJECTS",
-      };
-      await fetcher.submit(body, { method: "post" });
-    } catch (error: any) {
-      console.error(error);
-    }
-    handleChangeEditView(false);
-  };
+  const { error } = useField("relatedProjects", {
+    formId: "relatedProjectsForm",
+  });
+  const transition = useTransition();
 
   useEffect(() => {
-    //It handles the fetcher error from the response
-    if (fetcher.state === "idle" && fetcher.data) {
-      if (fetcher.data.error) {
-        setError(fetcher.data.error);
-      } else {
-        setError("");
-      }
+    if (transition.type == "actionRedirect") {
+      setIsEditActive(false);
     }
-  }, [fetcher]);
-
-  useEffect(() => {
-    setSelectedRelatedProjects(relatedProjects);
-  }, [relatedProjects]);
+  }, [transition]);
 
   return (
     <>
       <big>Related Projects</big>
-      {/* {JSON.stringify(selectedRelatedProjects,null,2)} */}
       {allowEdit && isEditActive ? (
         <>
           <IconButton
@@ -87,7 +82,20 @@ function RelatedProjectsSection({
       <div>
         {isEditActive && (
           <>
-            <fetcher.Form method="post">
+            <ValidatedForm
+              id="relatedProjectsForm"
+              action="./updateRelatedProjects"
+              method="post"
+              validator={validator}
+            >
+              {selectedRelatedProjects?.map((value, i) => (
+                <input
+                  type="hidden"
+                  name={`relatedProjects[${i}].id`}
+                  key={i}
+                  value={value.id}
+                />
+              ))}
               <Autocomplete
                 multiple
                 id="relatedProjects"
@@ -95,7 +103,7 @@ function RelatedProjectsSection({
                 getOptionLabel={(option) => option.name}
                 value={selectedRelatedProjects}
                 onChange={(event, value: { id: string; name: string }[] | []) =>
-                  handleChange(value)
+                  setSelectedRelatedProjects(value)
                 }
                 defaultValue={relatedProjects}
                 filterSelectedOptions
@@ -111,12 +119,11 @@ function RelatedProjectsSection({
                   />
                 )}
               />
-              {error && <span>{JSON.stringify(error)}</span>}
+              {error && <span>{error}</span>}
               <div className="margin-vertical-separator">
                 <button
-                  disabled={fetcher.state === "submitting"}
+                  disabled={transition.state === "submitting"}
                   className="primary"
-                  onClick={() => submitEdition()}
                 >
                   Submit
                 </button>
@@ -124,7 +131,7 @@ function RelatedProjectsSection({
               {error && (
                 <Alert severity="warning">Information could not be saved</Alert>
               )}
-            </fetcher.Form>
+            </ValidatedForm>
           </>
         )}
       </div>
