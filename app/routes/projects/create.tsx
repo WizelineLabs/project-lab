@@ -11,6 +11,16 @@ import { requireProfile } from "~/session.server";
 import { createProject } from "~/models/project.server";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 
+import MDEditorStyles from "@uiw/react-md-editor/markdown-editor.css";
+import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
+
+export function links() {
+  return [
+    { rel: "stylesheet", href: MDEditorStyles },
+    { rel: "stylesheet", href: MarkdownStyles },
+  ];
+}
+
 export const validator = withZod(
   zfd
     .formData({

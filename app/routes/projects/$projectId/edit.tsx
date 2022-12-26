@@ -44,6 +44,16 @@ import TabPanel from "~/core/components/TabPanel";
 import { getProjectStatuses } from "~/models/status.server";
 import { getInnovationTiers } from "~/models/innovationTier.server";
 
+import MDEditorStyles from "@uiw/react-md-editor/markdown-editor.css";
+import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
+
+export function links() {
+  return [
+    { rel: "stylesheet", href: MDEditorStyles },
+    { rel: "stylesheet", href: MarkdownStyles },
+  ];
+}
+
 type LoaderData = {
   isAdmin: boolean;
   isTeamMember: boolean;
