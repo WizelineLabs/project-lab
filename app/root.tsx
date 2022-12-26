@@ -3,7 +3,6 @@ import type {
   LoaderFunction,
   MetaFunction,
 } from "@remix-run/node";
-import { json } from "@remix-run/node";
 import {
   Links,
   LiveReload,
@@ -14,7 +13,6 @@ import {
 } from "@remix-run/react";
 
 import StylesheetUrl from "./styles/style.css";
-import quillCss from "quill/dist/quill.snow.css";
 
 import { getUser } from "./session.server";
 import { LensTwoTone } from "@mui/icons-material";
@@ -26,7 +24,6 @@ export const links: LinksFunction = () => {
       rel: "stylesheet",
       href: "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap",
     },
-    { rel: "stylesheet", href: quillCss },
   ];
 };
 

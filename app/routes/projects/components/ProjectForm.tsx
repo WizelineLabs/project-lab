@@ -1,37 +1,38 @@
-import { FormControlLabel, Switch, Collapse, Stack } from "@mui/material"
-import { useState } from "react"
-import { MultiUrl } from "~/core/components/MultiUrl"
-import DisciplinesSelect from "~/core/components/DisciplinesSelect"
-import LabeledTextField from "~/core/components/LabeledTextField"
-import LabeledTextFieldArea from "~/core/components/LabeledTextFieldArea"
-import TextEditor from "~/core/components/TextEditor"
-import InputSelect from "~/core/components/InputSelect"
-import SkillsSelect from "~/core/components/SkillsSelect"
-import LabelsSelect from "~/core/components/LabelsSelect"
-import ProjectOwnerField from "~/core/components/ProjectOwnerField"
-import RelatedProjectsSelect from "~/core/components/RelatedProjectsSelect"
-import { useControlField } from "remix-validated-form"
-import { Box } from "@mui/material"
-import { useFormContext, useIsSubmitting } from "remix-validated-form"
-import type { InnovationTiers, ProjectStatus } from "@prisma/client"
+import { FormControlLabel, Switch, Collapse, Stack } from "@mui/material";
+import { useState } from "react";
+import { MultiUrl } from "~/core/components/MultiUrl";
+import DisciplinesSelect from "~/core/components/DisciplinesSelect";
+import LabeledTextField from "~/core/components/LabeledTextField";
+import LabeledTextFieldArea from "~/core/components/LabeledTextFieldArea";
+import TextEditor from "~/core/components/TextEditor";
+import InputSelect from "~/core/components/InputSelect";
+import SkillsSelect from "~/core/components/SkillsSelect";
+import LabelsSelect from "~/core/components/LabelsSelect";
+import ProjectOwnerField from "~/core/components/ProjectOwnerField";
+import { useControlField } from "remix-validated-form";
+import { Box } from "@mui/material";
+import { useFormContext, useIsSubmitting } from "remix-validated-form";
+import type { InnovationTiers, ProjectStatus } from "@prisma/client";
 
 export function ProjectForm({
   projectformType,
   statuses,
   tiers,
 }: {
-  projectformType?: "create" | undefined
-  statuses?: ProjectStatus[]
-  tiers?: InnovationTiers[]
+  projectformType?: "create" | undefined;
+  statuses?: ProjectStatus[];
+  tiers?: InnovationTiers[];
 }) {
-  const [displayFields, setDisplayFields] = useState(projectformType === "create" ? false : true)
-  const [helpWanted, setHelpWanted] = useControlField<boolean>("helpWanted")
-  const isSubmitting = useIsSubmitting()
-  const { isValid, fieldErrors, getValues } = useFormContext()
-  const disabled = isSubmitting
+  const [displayFields, setDisplayFields] = useState(
+    projectformType === "create" ? false : true
+  );
+  const [helpWanted, setHelpWanted] = useControlField<boolean>("helpWanted");
+  const isSubmitting = useIsSubmitting();
+  const { isValid, fieldErrors, getValues } = useFormContext();
+  const disabled = isSubmitting;
   if (!isValid) {
-    console.log(fieldErrors)
-    console.log(getValues())
+    console.log(fieldErrors);
+    console.log(getValues());
   }
 
   return (
@@ -45,7 +46,10 @@ export function ProjectForm({
         placeholder="Problem statement"
       />
 
-      <TextEditor name="valueStatement" placeholder={"Explain us your proposal..."} />
+      <TextEditor
+        name="valueStatement"
+        placeholder={"Explain us your proposal..."}
+      />
 
       <LabelsSelect //this still uses constant values instead of values taken from the db
         name="labels"
@@ -68,14 +72,24 @@ export function ProjectForm({
       )}
 
       {projectformType !== "create" && ( //this still uses constant values instead of values taken from the db
-        <InputSelect valuesList={statuses || []} name="projectStatus" label="Status" />
+        <InputSelect
+          valuesList={statuses || []}
+          name="projectStatus"
+          label="Status"
+        />
       )}
 
       {projectformType !== "create" && ( //this still uses constant values instead of values taken from the db
-        <InputSelect valuesList={tiers || []} name="innovationTiers" label="Innovation Tier" />
+        <InputSelect
+          valuesList={tiers || []}
+          name="innovationTiers"
+          label="Innovation Tier"
+        />
       )}
 
-      {projectformType !== "create" && <ProjectOwnerField name="owner" label="Owner" />}
+      {projectformType !== "create" && (
+        <ProjectOwnerField name="owner" label="Owner" />
+      )}
 
       <Collapse in={displayFields}>
         <Stack spacing={2}>
@@ -124,12 +138,6 @@ export function ProjectForm({
               label="Looking for..."
             />
           </Collapse>
-
-          {/* <RelatedProjectsSelect //this still uses constant values instead of values taken from the db
-          thisProject=""
-          name="relatedProjectsA"
-          label="Related Projects"
-        /> */}
         </Stack>
       </Collapse>
       <Box textAlign="center">
@@ -138,5 +146,5 @@ export function ProjectForm({
         </button>
       </Box>
     </Stack>
-  )
+  );
 }
