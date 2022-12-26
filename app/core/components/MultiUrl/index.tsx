@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Chip, Grid, TextField } from "@mui/material";
 import styled from "@emotion/styled";
-import { useField, FieldArray } from "remix-validated-form";
+import { useField, FieldArray, useFormContext } from "remix-validated-form";
 import { FormInput } from "../FormInput";
 
 export const MultiUrlSpan = styled.span`
@@ -18,8 +18,13 @@ interface MultiUrlProps {
 
 export const MultiUrl = ({ name, label, footer }: MultiUrlProps) => {
   const [inputValue, setInputValue] = useState("");
-  const [urlWithError, setUrlWithError] = useState(false);
   let { error } = useField(name);
+
+  const { fieldErrors } = useFormContext();
+  let urlWithError = false;
+  if (Object.keys(fieldErrors).find((v) => v.startsWith(name))) {
+    urlWithError = true;
+  }
 
   return (
     <FieldArray name={name}>
@@ -40,7 +45,7 @@ export const MultiUrl = ({ name, label, footer }: MultiUrlProps) => {
                 e.stopPropagation();
                 if (inputValue && !items?.find((v) => v === inputValue)) {
                   setInputValue("");
-                  push(inputValue);
+                  push({ url: inputValue });
                 }
               }
             }}
@@ -48,23 +53,21 @@ export const MultiUrl = ({ name, label, footer }: MultiUrlProps) => {
           <Grid
             container
             rowSpacing={{ xs: 2, sm: 1 }}
-            style={{ paddingTop: 20 }}
+            style={{ paddingBottom: 20 }}
           >
             {items?.map((val, i) => (
               <span key={i}>
                 <Chip
-                  label={val}
+                  label={val.url}
                   onDelete={() => {
                     remove(i);
-                    setUrlWithError(false);
                   }}
                 />
 
                 <FormInput
                   name={`${name}[${i}].url`}
                   label={`${name}[${i}].url`}
-                  value={val}
-                  setUrlWithError={setUrlWithError}
+                  value={val.url}
                 />
               </span>
             ))}
