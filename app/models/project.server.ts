@@ -731,3 +731,10 @@ export async function searchProjects({
     ),
   };
 }
+
+export async function deleteProject(projectId: string, isAdmin: boolean) {
+  if (isAdmin) {
+    await db.projects.delete({ where: { id: projectId } });
+  }
+  return true;
+}
