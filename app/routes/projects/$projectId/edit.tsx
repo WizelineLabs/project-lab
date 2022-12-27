@@ -11,7 +11,6 @@ import {
   getProjectTeamMember,
   isProjectTeamMember,
   getProject,
-  updateRelatedProjects,
   updateProjects,
 } from "~/models/project.server";
 import type { ProjectComplete } from "~/models/project.server";
@@ -24,7 +23,6 @@ import type {
 } from "@prisma/client";
 
 import {
-  Alert,
   Box,
   Button,
   Dialog,
@@ -34,7 +32,6 @@ import {
   Tabs,
 } from "@mui/material";
 import GoBack from "~/core/components/GoBack";
-import RelatedProjectsSection from "~/core/components/RelatedProjectsSection";
 import type { SyntheticEvent } from "react";
 import { useState } from "react";
 import { ProjectForm } from "../components/ProjectForm";

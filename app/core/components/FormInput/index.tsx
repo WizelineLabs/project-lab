@@ -7,7 +7,6 @@ type FormInputProps = {
   label: string;
   isRequired?: boolean;
   value?: string;
-  setUrlWithError: any;
 };
 
 export const FormInput = ({
@@ -15,16 +14,9 @@ export const FormInput = ({
   label,
   isRequired,
   value,
-  setUrlWithError,
   ...rest
 }: FormInputProps) => {
-  const { getInputProps, error } = useField(name);
-
-  if (error === "Invalid url") {
-    setUrlWithError(true);
-  } else {
-    setUrlWithError(false);
-  }
+  const { error } = useField(name);
 
   return (
     <Stack direction="column-reverse" alignItems="center">
