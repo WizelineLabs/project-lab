@@ -208,11 +208,13 @@ export default function EditProjectPage() {
             /> */}
           </TabPanel>
         </EditPanelsStyles>
-      </div>
-      <div className="wrapper form__center-text">
-        <button onClick={handleClickOpen} className="primary warning">
-          {"Delete Project"}
-        </button>
+        {isAdmin && (
+          <div className="wrapper form__center-text">
+            <button onClick={handleClickOpen} className="primary warning">
+              {"Delete Project"}
+            </button>
+          </div>
+        )}
       </div>
       <Dialog onClose={handleClose} open={open}>
         <DialogTitle>
