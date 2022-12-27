@@ -7,8 +7,6 @@ export const action: ActionFunction = async ({ request }) => {
   const profile = await requireProfile(request);
   let formData = await request.formData();
   let id: string = formData.get("projectId");
-  console.log("result", id);
-
   try {
     await deleteProject(id, profile.id);
     return redirect("/projects");
