@@ -1,14 +1,16 @@
 import type { ActionFunction } from "@remix-run/server-runtime";
 import { deleteProject } from "~/models/project.server";
-import { requireProfile } from "~/session.server";
 import { redirect } from "@remix-run/node";
+import { requireUser } from "~/session.server";
+import { adminRoleName } from "~/constants";
 
 export const action: ActionFunction = async ({ request }) => {
-  const profile = await requireProfile(request);
+  const user = await requireUser(request);
+  const isAdmin = user.role == adminRoleName;
   let formData = await request.formData();
-  let id: string = formData.get("projectId");
+  let id: string = formData.get("projectId") as string;
   try {
-    await deleteProject(id, profile.id);
+    await deleteProject(id, isAdmin);
     return redirect("/projects");
   } catch (e) {
     throw e;

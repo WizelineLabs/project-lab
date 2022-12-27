@@ -172,7 +172,7 @@ export default function EditProjectPage() {
           </Box>
 
           <TabPanel value={tabIndex} index={0}>
-            {/* <ValidatedForm
+            <ValidatedForm
               validator={validator}
               defaultValues={{
                 name: project.name,
@@ -192,7 +192,7 @@ export default function EditProjectPage() {
               method="post"
             >
               <ProjectForm statuses={statuses} tiers={tiers} />
-            </ValidatedForm> */}
+            </ValidatedForm>
           </TabPanel>
           <TabPanel value={tabIndex} index={1}>
             {/* <ProjectContributorsPathForm
