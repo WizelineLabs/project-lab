@@ -23,7 +23,7 @@ import {
   updateInnovationTier,
 } from "~/models/innovationTier.server"
 import type { InnovationTiers } from "~/models/innovationTier.server"
-import { getProjects, updateProjects } from "~/models/project.server"
+import { getProjects, updateManyProjects } from "~/models/project.server"
 
 declare module "@mui/material/Button" {
   interface ButtonPropsColorOverrides {
@@ -123,7 +123,7 @@ export const action: ActionFunction = async ({ request }) => {
         const ids = JSON.parse(formData.get("ids") as string)
         const tierName = formData.get("tierName") as string
         invariant(tierName, "Innovation tier name is required")
-        await updateProjects({ ids, data: { tierName } })
+        await updateManyProjects({ ids, data: { tierName } })
         return json({ error: "" }, { status: 200 })
 
       default: {

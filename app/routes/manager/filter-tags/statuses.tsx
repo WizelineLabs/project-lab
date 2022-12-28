@@ -23,7 +23,7 @@ import {
   updateProjectStatus,
 } from "~/models/status.server"
 import type { ProjectStatus } from "~/models/status.server"
-import { getProjects, updateProjects } from "~/models/project.server"
+import { getProjects, updateManyProjects } from "~/models/project.server"
 import { stageOptions } from "~/constants"
 
 declare module "@mui/material/Button" {
@@ -117,7 +117,7 @@ export const action: ActionFunction = async ({ request }) => {
         const ids = JSON.parse(formData.get("ids") as string)
         const projectStatus = formData.get("status") as string
         invariant(projectStatus, "Project status is required")
-        await updateProjects({ ids, data: { status: projectStatus } })
+        await updateManyProjects({ ids, data: { status: projectStatus } })
         return json({error: ""}, { status: 200 })
 
       default: {
