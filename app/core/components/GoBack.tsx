@@ -37,11 +37,7 @@ const Wrapper = styled.div`
     font-size: 1.2em;
   }
   .wrapper__back--text {
-    color: #000000;
-    font-family: Poppins;
     font-size: 18px;
-    letter-spacing: 0;
-    line-height: 27px;
     margin-left: 14px;
   }
 `;
