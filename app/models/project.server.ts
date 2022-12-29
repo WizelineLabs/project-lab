@@ -1,3 +1,4 @@
+import { CompressOutlined } from "@mui/icons-material";
 import type { Profiles, Projects } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import { defaultStatus } from "~/constants";
@@ -737,4 +738,76 @@ export async function deleteProject(projectId: string, isAdmin: boolean) {
     await db.projects.delete({ where: { id: projectId } });
   }
   return true;
+}
+
+export async function archiveProject(
+  projectId: string,
+  profileId: string,
+  isAdmin: boolean
+) {
+  const currentProject = await db.projects.findUniqueOrThrow({
+    where: { id: projectId },
+    select: {
+      ownerId: true,
+    },
+  });
+
+  const projectMembers = await db.projectMembers.findMany({
+    where: { projectId },
+    select: {
+      profileId: true,
+    },
+  });
+
+  if (!isAdmin)
+    validateIsTeamMember(profileId, projectMembers, currentProject.ownerId);
+
+  const project = await db.projects.update({
+    where: { id: projectId },
+    data: {
+      updatedAt: new Date(),
+      isArchived: true,
+    },
+    include: {
+      projectStatus: true,
+    },
+  });
+
+  return project;
+}
+
+export async function unarchiveProject(
+  projectId: string,
+  profileId: string,
+  isAdmin: boolean
+) {
+  const currentProject = await db.projects.findUniqueOrThrow({
+    where: { id: projectId },
+    select: {
+      ownerId: true,
+    },
+  });
+
+  const projectMembers = await db.projectMembers.findMany({
+    where: { projectId },
+    select: {
+      profileId: true,
+    },
+  });
+
+  if (!isAdmin)
+    validateIsTeamMember(profileId, projectMembers, currentProject.ownerId);
+
+  const project = await db.projects.update({
+    where: { id: projectId },
+    data: {
+      updatedAt: new Date(),
+      isArchived: false,
+    },
+    include: {
+      projectStatus: true,
+    },
+  });
+
+  return project;
 }

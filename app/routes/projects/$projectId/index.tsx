@@ -30,6 +30,8 @@ import {
   Grid,
   Box,
   Button,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
 import { EditSharp, ThumbUpSharp, ThumbDownSharp } from "@mui/icons-material";
 import {
@@ -51,6 +53,8 @@ import {
 } from "~/models/votes.server";
 import RelatedProjectsSection from "~/core/components/RelatedProjectsSection";
 import Header from "~/core/layouts/Header";
+import { ArchiveProject } from "~/core/components/ArchiveProject";
+import { UnarchiveProject } from "~/core/components/UnarchiveProject";
 
 type LoaderData = {
   isAdmin: boolean;
@@ -179,21 +183,38 @@ export default function ProjectDetailsPage() {
 
       <div className="wrapper">
         <HeaderInfo>
-          <div className="headerInfo--action">
-            <div className="headerInfo--edit">
+          <Stack
+            direction="row"
+            justifyContent="flex-end"
+            alignItems="center"
+            spacing={1}
+          >
+            <div>
               {(isTeamMember || isAdmin) && (
-                <Link to={`/projects/${project.id}/edit`}>
-                  <EditButton>
-                    <EditSharp />
-                  </EditButton>
-                </Link>
+                <Tooltip title="Edit project">
+                  <IconButton aria-label="Edit-project-button">
+                    <Link to={`/projects/${project.id}/edit`}>
+                      <EditSharp />
+                    </Link>
+                  </IconButton>
+                </Tooltip>
               )}
             </div>
-          </div>
+
+            <div>
+              {(isTeamMember || isAdmin) &&
+                (!project.isArchived ? (
+                  <ArchiveProject projectId={project.id} />
+                ) : (
+                  <UnarchiveProject projectId={project.id} />
+                ))}
+            </div>
+          </Stack>
           <Grid container justifyContent="space-between">
             <Grid item xs={12} className="">
               <div className="titleProposal">
                 <h1>{project.name}</h1>
+                {project.isArchived && <h2>(Archived)</h2>}
               </div>
               <div className="descriptionProposal">{project.description}</div>
               <div className="lastUpdateProposal">
