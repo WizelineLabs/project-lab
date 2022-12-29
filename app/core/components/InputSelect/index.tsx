@@ -30,11 +30,11 @@ export const InputSelect = ({
   const [value, setValue] = useControlField<SelectValue>(name);
   return (
     <FormControl fullWidth id={name} size="small" error={!!error}>
-      <input type="hidden" name={`${name}.name`} value={value.name} />
+      <input type="hidden" name={`${name}.name`} value={value?.name} />
       <InputLabel id={name}>{label}</InputLabel>
       <Select
         label={label}
-        value={value.name}
+        value={value?.name || ""}
         error={!!error}
         onChange={(event) => {
           const newValue = valuesList.find(
