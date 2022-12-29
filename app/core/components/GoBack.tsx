@@ -20,10 +20,9 @@ function GoBack({ title, href }: IProps) {
 }
 
 const Wrapper = styled.div`
-  margin-left: 12px;
   display: flex;
   height: 51px;
-  margin-bottom: 35px;
+  margin-bottom: 20px;
   .wrapper__link {
     display: flex;
     align-items: center;

@@ -1,8 +1,8 @@
-import React from "react";
 import CheckSharpIcon from "@mui/icons-material/CheckSharp";
 import ClearSharpIcon from "@mui/icons-material/ClearSharp";
 import CheckBoxSharpIcon from "@mui/icons-material/CheckBoxSharp";
 import CheckBoxOutlineBlankSharpIcon from "@mui/icons-material/CheckBoxOutlineBlankSharp";
+import EditSharp from "@mui/icons-material/EditSharp";
 
 import {
   CompleteIcon,
@@ -17,11 +17,7 @@ import type {
   ProjectTask,
   Stage,
 } from "~/core/interfaces/ContributorPathReport";
-import { Link } from "@remix-run/react";
-import { EditSharp } from "@mui/icons-material";
-import HeaderInfo, {
-  EditButton,
-} from "~/routes/projects/$projectId/$projectId.styles";
+import { Grid, IconButton } from "@mui/material";
 
 interface IProps {
   project: any;
@@ -36,28 +32,25 @@ export const ContributorPathReport = ({
 }: IProps) => {
   return (
     <>
-      <HeaderInfo>
-        <div className="headerInfo--action">
-          <div className="headerInfo--edit">
-            {(isTeamMember || isAdmin) && (
-              <Link to={`/projects/${project.id}/members`}>
-                <EditButton>
-                  <EditSharp />
-                </EditButton>
-              </Link>
-            )}
-          </div>
-        </div>
-      </HeaderInfo>
-      <big>
-        Contributors (
-        {
-          project.projectMembers?.filter((member: ProjectMember) => {
-            return member.active;
-          }).length
-        }{" "}
-        active)
-      </big>
+      <Grid container justifyContent="space-between" alignItems="flext-start">
+        <big>
+          Contributors (
+          {
+            project.projectMembers?.filter((member: ProjectMember) => {
+              return member.active;
+            }).length
+          }{" "}
+          active)
+        </big>
+        {(isTeamMember || isAdmin) && (
+          <IconButton
+            aria-label="Edit"
+            href={`/projects/${project.id}/members`}
+          >
+            <EditSharp />
+          </IconButton>
+        )}
+      </Grid>
       <table width="100%" className="table-project-members">
         <thead>
           <tr>

@@ -10,6 +10,7 @@ import { zfd } from "zod-form-data";
 import { requireProfile } from "~/session.server";
 import { createProject } from "~/models/project.server";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
+import { Container, Paper } from "@mui/material";
 
 import MDEditorStyles from "@uiw/react-md-editor/markdown-editor.css";
 import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
@@ -107,28 +108,41 @@ export const action: ActionFunction = async ({ request }) => {
 
 const NewProjectPage = () => {
   return (
-    <div>
+    <>
       <Header title="Create your proposal" />
-      <div className="wrapper">
-        <h1 className="form__center-text">Create your proposal</h1>
-      </div>
-      <div className="wrapper">
-        <GoBack title="Back to main page" href="/" />
-        <ValidatedForm
-          validator={validator}
-          defaultValues={{
-            name: "",
-            description: "",
-            helpWanted: false,
-            skills: [],
-            labels: [],
+      <Container>
+        <Paper
+          elevation={0}
+          sx={{
+            paddingLeft: 2,
+            paddingRight: 2,
           }}
-          method="post"
         >
-          <ProjectForm projectformType="create" />
-        </ValidatedForm>
-      </div>
-    </div>
+          <h1>Create your proposal</h1>
+        </Paper>
+      </Container>
+      <Container>
+        <Paper
+          elevation={0}
+          sx={{ paddingLeft: 2, paddingRight: 2, paddingBottom: 2 }}
+        >
+          <GoBack title="Back to main page" href="/" />
+          <ValidatedForm
+            validator={validator}
+            defaultValues={{
+              name: "",
+              description: "",
+              helpWanted: false,
+              skills: [],
+              labels: [],
+            }}
+            method="post"
+          >
+            <ProjectForm projectformType="create" />
+          </ValidatedForm>
+        </Paper>
+      </Container>
+    </>
   );
 };
 
