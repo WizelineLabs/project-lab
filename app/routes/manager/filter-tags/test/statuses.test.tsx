@@ -1,16 +1,16 @@
 /* eslint-disable jest-dom/prefer-in-document */
-import { describe, test, vi } from "vitest"
-import { render, screen, waitFor } from "@testing-library/react"
-import userEvent from "@testing-library/user-event"
-import Statuses from "../statuses"
-import { loader } from "../statuses"
-import type { DataGridProps } from "@mui/x-data-grid"
-import "@testing-library/jest-dom"
+import { describe, test, vi } from "vitest";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import Statuses from "../statuses";
+import { loader } from "../statuses";
+import type { DataGridProps } from "@mui/x-data-grid";
+import "@testing-library/jest-dom";
 
 describe("Statuses test", () => {
   // mocking remix module to handle Loaders
   vi.mock("@remix-run/react", async () => {
-    let remix: any = await vi.importActual("@remix-run/react")
+    let remix: any = await vi.importActual("@remix-run/react");
     return {
       ...remix,
       // get useFetcher to return an idle state initially and an empty submit
@@ -24,54 +24,70 @@ describe("Statuses test", () => {
         ],
         projects: [],
       }),
-    }
-  })
+    };
+  });
   // Disable Virtualization so vitest can render all the columns
   vi.mock("@mui/x-data-grid", async () => {
-    const datagrid: any = await vi.importActual("@mui/x-data-grid")
-    const { DataGrid } = datagrid
+    const datagrid: any = await vi.importActual("@mui/x-data-grid");
+    const { DataGrid } = datagrid;
     return {
       ...datagrid,
       DataGrid: (props: DataGridProps) => {
-        return <DataGrid {...props} autoHeight disableVirtualization />
+        return <DataGrid {...props} autoHeight disableVirtualization />;
       },
-    }
-  })
+    };
+  });
+
+  vi.mock("remix-validated-form", async () => {
+    const validateForm: any = await vi.importActual("remix-validated-form");
+    return {
+      ...validateForm,
+      useFieldArray: vi.fn().mockReturnValue([
+        [],
+        {
+          push: () => {},
+        },
+      ]),
+      ValidatedForm: ({ children }: any) => <>{children}</>,
+    };
+  });
 
   afterEach(() => {
-    vi.clearAllMocks()
-  })
+    vi.clearAllMocks();
+  });
 
   test("Path loader", async () => {
-    let request = new Request("http://localhost:3000/manager/filter-tags/statuses")
+    let request = new Request(
+      "http://localhost:3000/manager/filter-tags/statuses"
+    );
 
-    const response = await loader({ request, params: {}, context: {} })
+    const response = await loader({ request, params: {}, context: {} });
 
-    expect(response).toBeInstanceOf(Response)
-  })
+    expect(response).toBeInstanceOf(Response);
+  });
 
   test("Statuses from loader rendered", () => {
-    render(<Statuses />)
-    expect(screen.getByText(/Test Status/i)).toBeDefined()
-  })
+    render(<Statuses />);
+    expect(screen.getByText(/Test Status/i)).toBeDefined();
+  });
 
   test("Delete button opens the delete modal", async () => {
-    const deleteButton = userEvent.setup()
-    render(<Statuses />)
-    expect(await screen.findByTestId("testStatusDelete")).toBeInTheDocument()
-    await deleteButton.click(screen.getByTestId("testStatusDelete"))
+    const deleteButton = userEvent.setup();
+    render(<Statuses />);
+    expect(await screen.findByTestId("testStatusDelete")).toBeInTheDocument();
+    await deleteButton.click(screen.getByTestId("testStatusDelete"));
     await waitFor(() => {
-      expect(screen.getByTestId("deleteStatusModal")).toBeInTheDocument()
-    })
-  })
+      expect(screen.getByTestId("deleteStatusModal")).toBeInTheDocument();
+    });
+  });
 
   test("Create button adds a new row in the table", async () => {
-    const saveButton = userEvent.setup()
-    render(<Statuses />)
-    expect(await screen.findByTestId("testStatusCreate")).toBeInTheDocument()
-    await saveButton.click(screen.getByTestId("testStatusCreate"))
+    const saveButton = userEvent.setup();
+    render(<Statuses />);
+    expect(await screen.findByTestId("testStatusCreate")).toBeInTheDocument();
+    await saveButton.click(screen.getByTestId("testStatusCreate"));
     await waitFor(() => {
-      expect(screen.getByTestId("testStatusSave")).toBeInTheDocument()
-    })
-  })
-})
+      expect(screen.getByTestId("testStatusSave")).toBeInTheDocument();
+    });
+  });
+});
