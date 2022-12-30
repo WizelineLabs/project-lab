@@ -10,6 +10,7 @@ import {
   Box,
   Button,
   Chip,
+  Container,
   Grid,
   IconButton,
   Paper,
@@ -27,7 +28,6 @@ import { requireProfile } from "~/session.server";
 import type { ProjectStatus } from "~/models/status.server";
 import { getProjectStatuses } from "~/models/status.server";
 import { ongoingStage, ideaStage } from "~/constants";
-import { Container } from "@mui/system";
 import Link from "~/core/components/Link";
 
 type LoaderData = {
