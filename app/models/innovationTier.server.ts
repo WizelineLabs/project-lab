@@ -7,6 +7,7 @@ type newInnovationTier = {
   benefits: string
   requisites: string
   goals: string
+  id?: string
 }
 
 interface ResponseError extends Error {
@@ -45,6 +46,10 @@ export async function removeInnovationTier({ name }: { name: string }) {
 }
 
 export async function updateInnovationTier(data: newInnovationTier) {
-  await validateInnovationTier(data.name)
-  await prisma.innovationTiers.update({ where: { name: data.name }, data })
+  console.log(data)
+  if (data.id) {
+    const { id, ...rest} = data
+    await validateInnovationTier(id)
+    await prisma.innovationTiers.update({ where: { name: id }, data: rest })
+  }
 }

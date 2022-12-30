@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react"
 import { useFetcher, useLoaderData, useCatch } from "@remix-run/react"
 import type { LoaderFunction, ActionFunction } from "@remix-run/node"
+import { ValidatedForm, validationError, useFieldArray } from "remix-validated-form";
+import { withZod } from "@remix-validated-form/with-zod";
+import { zfd } from "zod-form-data";
+import { z } from "zod";
 import { json } from "@remix-run/node"
 import styled from "@emotion/styled"
 import { DataGrid, GridToolbarContainer } from "@mui/x-data-grid"
@@ -23,7 +27,7 @@ import {
   updateInnovationTier,
 } from "~/models/innovationTier.server"
 import type { InnovationTiers } from "~/models/innovationTier.server"
-import { getProjects, updateProjects } from "~/models/project.server"
+import { getProjects, updateManyProjects } from "~/models/project.server"
 
 declare module "@mui/material/Button" {
   interface ButtonPropsColorOverrides {
@@ -62,6 +66,19 @@ type ProjectRecord = {
   name: string | null
 }
 
+const validatorFront = withZod(
+  zfd.formData({
+    name: z.object({ name: z.string() }).optional(),
+  })
+)
+
+const validatorBack = withZod(
+  zfd.formData({
+    name: z.object({ name: z.string() }).optional(),
+    ids: z.array(z.union([z.string(), z.number()]))
+  })
+)
+
 const ModalButtonsContainer = styled.div`
   display: flex;
   justify-content: flex-end;
@@ -81,9 +98,11 @@ export const loader: LoaderFunction = async ({ request }) => {
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
 
-  const action = formData.get("action")
+  let action = formData.get("action")
   let response
-  let name, benefits, requisites, goals, data
+  let name, benefits, requisites, goals, data, id
+  const subaction = formData.get("subaction")
+  if (subaction) action = subaction
 
   try {
     switch (action) {
@@ -108,6 +127,7 @@ export const action: ActionFunction = async ({ request }) => {
 
       case "UPDATE":
         data = JSON.parse(formData.get("data") as string)
+        id = formData.get("id") as string
         name = data.name
         benefits = data.benefits
         requisites = data.requisites
@@ -116,21 +136,24 @@ export const action: ActionFunction = async ({ request }) => {
         invariant(benefits, "Invalid innovation tier benefits")
         invariant(requisites, "Invalid innovation tier requisites")
         invariant(goals, "Invalid innovation tier goals")
-        await updateInnovationTier({ name, benefits, requisites, goals })
+        await updateInnovationTier({ id, name, benefits, requisites, goals })
         return json({ error: "" }, { status: 200 })
 
       case "UPDATE-PROJECTS":
-        const ids = JSON.parse(formData.get("ids") as string)
-        const tierName = formData.get("tierName") as string
+        const result = await validatorBack.validate(formData);
+        if (result.error) return validationError(result.error);
+
+        const ids = result.data.ids as string[]
+        const tierName = result.data.name?.name
         invariant(tierName, "Innovation tier name is required")
-        await updateProjects({ ids, data: { tierName } })
+        await updateManyProjects({ ids, data: { tierName } })
         return json({ error: "" }, { status: 200 })
 
       default: {
         throw new Error("Something went wrong")
       }
     }
-  } catch (e: any) {
+  }     catch (e: any) {
     switch (e.code) {
       case "NOT_FOUND":
         return json({ error: e.message }, { status: 404 })
@@ -183,8 +206,10 @@ const InnovationTiersGrid = () => {
     }))
   )
   const [selectedRowID, setSelectedRowID] = useState("")
-  const [selectedTier, setSelectedTier] = useState({ name: "" })
   const [projects, setProjects] = useState<ProjectRecord[]>([])
+  const [items, { push }] = useFieldArray("ids", {
+    formId: "delete-tier-form",
+  });
 
   useEffect(() => {
     //It handles the fetcher error from the response
@@ -259,7 +284,7 @@ const InnovationTiersGrid = () => {
     const newRequisites = idRef.api.getCellValue(id, "requisites")
     const newGoals = idRef.api.getCellValue(id, "goals")
 
-    if (innovationTiers.find((rowValue) => rowValue.name === newName)) {
+    if (innovationTiers.find((rowValue) => rowValue.name === newName) && row.isNew) {
       setError("Field Already exists")
       return
     }
@@ -333,12 +358,7 @@ const InnovationTiersGrid = () => {
   }
 
   const handleSubmit = async ({ projectsIds }: { projectsIds: (string | number)[] }) => {
-    const body = {
-      ids: JSON.stringify(projectsIds),
-      tierName: selectedTier.name,
-      action: "UPDATE-PROJECTS",
-    }
-    await fetcher.submit(body, { method: "put" })
+    projectsIds.forEach(id => push(id))
 
     await deleteConfirmationHandler()
   }
@@ -475,24 +495,35 @@ const InnovationTiersGrid = () => {
         </p>
         <br />
         <div>
-          <form
-            onSubmit={async (values) => {
+          <ValidatedForm
+            validator={validatorFront}
+            onSubmit={async () => {
               await handleSubmit({
                 projectsIds: projects.map((project) => project.id),
               })
             }}
+            method="put"
+            subaction="UPDATE-PROJECTS"
+            id="delete-tier-form"
           >
             {isMergeAction && (
               <InputSelect
                 valuesList={innovationTiers.filter((tier) => tier.name !== selectedRowID)}
-                defaultValue=""
-                name="tierName"
+                name="name"
                 label="Innovation Tier to merge with"
                 disabled={false}
-                value={selectedTier.name}
-                handleChange={setSelectedTier}
               />
             )}
+            {
+              items.map((item, idx) => (
+                <input
+                  key={item}
+                  type="hidden"
+                  name={`ids[${idx}]`}
+                  value={item}
+                />
+              ))
+            }
 
             <ModalButtonsContainer>
               <Button className="primary default" onClick={() => setOpenDeleteModal(false)}>
@@ -516,7 +547,7 @@ const InnovationTiersGrid = () => {
                 {isMergeAction ? "Merge" : "Delete"}
               </Button>
             </ModalButtonsContainer>
-          </form>
+          </ValidatedForm>
         </div>
       </ModalBox>
     </div>

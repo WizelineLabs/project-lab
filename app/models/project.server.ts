@@ -414,6 +414,20 @@ export async function updateProjects(
   return project;
 }
 
+// update several projects from manager tab
+export async function updateManyProjects({
+  ids,
+  data,
+}: {
+  ids: string[];
+  data: ProjectWhereInput;
+}) {
+  await db.projects.updateMany({
+    where: { id: { in: ids } },
+    data,
+  });
+}
+
 // edit only relatedProjects
 export async function updateRelatedProjects({
   id,

@@ -15,7 +15,6 @@ import {
 import StylesheetUrl from "./styles/style.css";
 
 import { getUser } from "./session.server";
-import { LensTwoTone } from "@mui/icons-material";
 
 export const links: LinksFunction = () => {
   return [
@@ -33,10 +32,6 @@ export const meta: MetaFunction = () => ({
   viewport: "width=device-width,initial-scale=1",
   description: "Wizeline's innovation hub",
 });
-
-type LoaderData = {
-  user: Awaited<ReturnType<typeof getUser>>;
-};
 
 export const loader: LoaderFunction = async ({ request }) => {
   return { user: await getUser(request) };

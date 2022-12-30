@@ -1,9 +1,7 @@
 import { useState } from "react";
 import type { LoaderFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
 import {
   Link,
-  useFetcher,
   useLoaderData,
   useSearchParams,
 } from "@remix-run/react";
@@ -51,11 +49,6 @@ interface Tab {
   title: string;
   searchParams: URLSearchParams;
 }
-
-type SortByProps = {
-  field: string;
-  order: string;
-};
 
 export const loader: LoaderFunction = async ({ request }) => {
   const profile = await requireProfile(request);
@@ -108,13 +101,12 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export default function Projects() {
-  const fetcher = useFetcher();
   //functions to load and paginate projects in `Popular` CardBox
   const [searchParams, setSearchParams] = useSearchParams();
   const page = Number(searchParams.get("page") || 0);
 
   //sorting variables
-  const [sortQuery, setSortQuery] = useState({ field: "name", order: "desc" });
+  const [, setSortQuery] = useState({ field: "name", order: "desc" });
 
   let {
     data: {

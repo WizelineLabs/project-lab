@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react"
 import { useFetcher, useLoaderData, useCatch } from "@remix-run/react"
 import type { LoaderFunction, ActionFunction } from "@remix-run/node"
+import { ValidatedForm, validationError, useFieldArray } from "remix-validated-form";
+import { withZod } from "@remix-validated-form/with-zod";
+import { zfd } from "zod-form-data";
+import { z } from "zod";
 import { json } from "@remix-run/node"
 import styled from "@emotion/styled"
 import { DataGrid, GridToolbarContainer } from "@mui/x-data-grid"
@@ -15,6 +19,7 @@ import { ThemeProvider } from "@mui/material/styles"
 import invariant from "tiny-invariant"
 import themeWize from "app/core/utils/themeWize"
 import { InputSelect } from "app/core/components/InputSelect"
+import { InputSelectWOValidate } from "app/core/components/InputSelectWOValidate"
 import ModalBox from "../../../core/components/ModalBox"
 import {
   getProjectStatuses,
@@ -23,7 +28,7 @@ import {
   updateProjectStatus,
 } from "~/models/status.server"
 import type { ProjectStatus } from "~/models/status.server"
-import { getProjects, updateProjects } from "~/models/project.server"
+import { getProjects, updateManyProjects } from "~/models/project.server"
 import { stageOptions } from "~/constants"
 
 declare module "@mui/material/Button" {
@@ -59,6 +64,19 @@ type ProjectRecord = {
   name: string | null
 }
 
+const validatorFront = withZod(
+  zfd.formData({
+    status: z.object({ name: z.string() }).optional(),
+  })
+)
+
+const validatorBack = withZod(
+  zfd.formData({
+    status: z.object({ name: z.string() }).optional(),
+    ids: z.array(z.union([z.string(), z.number()]))
+  })
+)
+
 const ModalButtonsContainer = styled.div`
   display: flex;
   justify-content: flex-end;
@@ -78,8 +96,10 @@ export const loader: LoaderFunction = async ({ request }) => {
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
 
-  const action = formData.get("action")
+  let action = formData.get("action")
   let response, name, stage, data
+  const subaction = formData.get("subaction")
+  if (subaction) action = subaction
 
   try {
     switch (action) {
@@ -114,10 +134,13 @@ export const action: ActionFunction = async ({ request }) => {
         return json({ error: "" }, { status: 200 })
 
       case "UPDATE-PROJECTS":
-        const ids = JSON.parse(formData.get("ids") as string)
-        const projectStatus = formData.get("status") as string
+        const result = await validatorBack.validate(formData);
+        if (result.error) return validationError(result.error);
+        console.log(result)
+        const ids = result.data.ids as string[]
+        const projectStatus = result.data.status?.name
         invariant(projectStatus, "Project status is required")
-        await updateProjects({ ids, data: { status: projectStatus } })
+        await updateManyProjects({ ids, data: { status: projectStatus } })
         return json({error: ""}, { status: 200 })
 
       default: {
@@ -176,8 +199,10 @@ export default function ProjectStatusDataGrid() {
     }))
   )
   const [selectedRowID, setSelectedRowID] = useState("")
-  const [selectedStatus, setSelectedStatus] = useState({ name: "" })
   const [projects, setProjects] = useState<ProjectRecord[]>([])
+  const [items, { push }] = useFieldArray("ids", {
+    formId: "delete-status-form",
+  });
 
   useEffect(() => {
     //It handles the fetcher error from the response
@@ -246,7 +271,7 @@ export default function ProjectStatusDataGrid() {
     const newName = idRef.api.getCellValue(id, "name")
     const newStage = idRef.api.getCellValue(id, "stage")
 
-    if (statuses.find((rowValue) => rowValue.name === newName)) {
+    if (statuses.find((rowValue) => rowValue.name === newName) && row.isNew) {
       setError("Field Already exists")
       return
     }
@@ -317,12 +342,7 @@ export default function ProjectStatusDataGrid() {
   }
 
   const handleSubmit = async ({ projectsIds }: { projectsIds: (string | number)[] }) => {
-    const body = {
-      ids: JSON.stringify(projectsIds),
-      status: selectedStatus.name,
-      action: "UPDATE-PROJECTS",
-    }
-    await fetcher.submit(body, { method: "put" })
+    projectsIds.forEach(id => push(id))
 
     await deleteConfirmationHandler()
   }
@@ -365,7 +385,7 @@ export default function ProjectStatusDataGrid() {
           )
         }
         return (
-          <InputSelect
+          <InputSelectWOValidate
             valuesList={stageOptions}
             defaultValue=""
             name="stage"
@@ -488,48 +508,59 @@ export default function ProjectStatusDataGrid() {
         </p>
         <br />
         <div>
-          <form
-            onSubmit={async () => {
-              await handleSubmit({
-                projectsIds: projects.map((project) => project.id),
-              })
-            }}
-          >
-            {isMergeAction && (
-              <InputSelect
-                valuesList={statuses.filter((status) => status.name !== selectedRowID)}
-                defaultValue=""
-                name="status"
-                label="Status to merge with"
-                disabled={false}
-                value={selectedStatus.name}
-                handleChange={setSelectedStatus}
-              />
-            )}
+          <ValidatedForm
+              validator={validatorFront}
+              onSubmit={async () => {
+                await handleSubmit({
+                  projectsIds: projects.map((project) => project.id),
+                })
+              }}
+              method="put"
+              subaction="UPDATE-PROJECTS"
+              id="delete-status-form"
+            >
+              {isMergeAction && (
+                <InputSelect
+                  valuesList={statuses.filter((status) => status.name !== selectedRowID)}
+                  name="status"
+                  label="Status to merge with"
+                  disabled={false}
+                />
+              )}
+              {
+                items.map((item, idx) => (
+                  <input
+                    key={item}
+                    type="hidden"
+                    name={`ids[${idx}]`}
+                    value={item}
+                  />
+                ))
+              }
 
-            <ModalButtonsContainer>
-              <Button className="primary default" onClick={() => setOpenDeleteModal(false)}>
-                Cancel
-              </Button>
-              &nbsp;
-              <Button
-                className="primary warning"
-                disabled={false}
-                data-testid="deleteStatusModal"
-                {...(isMergeAction
-                  ? {
-                      type: "submit",
-                    }
-                  : {
-                      onClick: async () => {
-                        await deleteConfirmationHandler()
-                      },
-                    })}
-              >
-                {isMergeAction ? "Merge" : "Delete"}
-              </Button>
-            </ModalButtonsContainer>
-          </form>
+              <ModalButtonsContainer>
+                <Button className="primary default" onClick={() => setOpenDeleteModal(false)}>
+                  Cancel
+                </Button>
+                &nbsp;
+                <Button
+                  className="primary warning"
+                  disabled={false}
+                  data-testid="deleteStatusModal"
+                  {...(isMergeAction
+                    ? {
+                        type: "submit",
+                      }
+                    : {
+                        onClick: async () => {
+                          await deleteConfirmationHandler()
+                        },
+                      })}
+                >
+                  {isMergeAction ? "Merge" : "Delete"}
+                </Button>
+              </ModalButtonsContainer>
+          </ValidatedForm>
         </div>
       </ModalBox>
     </div>

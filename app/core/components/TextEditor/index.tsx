@@ -7,7 +7,7 @@ type TextEditorProps = {
 };
 
 export default function TextEditor({ placeholder, name }: TextEditorProps) {
-  const [text, setText] = useControlField<string | undefined>(name);
+  const [text] = useControlField<string | undefined>(name);
 
   return <TextareaAutosize value={text} placeholder={placeholder} />;
 }
