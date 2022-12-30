@@ -187,7 +187,7 @@ export default function EditProjectPage() {
                 repoUrls: project.repoUrls || [],
                 skills: project.skills,
                 labels: project.labels,
-                //projectMembers: project.projectMembers,
+                slackChannel: project.slackChannel || "",
               }}
               method="post"
             >
