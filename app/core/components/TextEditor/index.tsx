@@ -23,7 +23,7 @@ export default function TextEditor({ placeholder, name }: TextEditorProps) {
   return (
     <ClientOnly>
       <Suspense fallback="">
-        <input type="hidden" value={text} />
+        <input name={name} type="hidden" value={text} />
         <LazyMDEditor
           value={text}
           placeholder={placeholder}

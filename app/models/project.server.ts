@@ -335,7 +335,11 @@ export async function updateProjects(
   id: string,
   isAdmin: boolean,
   data: {
+    name: string;
     slackChannel?: string;
+    description: string;
+    valueStatement?: string;
+    helpWanted: boolean;
     owner?: { id: string };
     repoUrls?: { url: string }[];
     projectStatus?: { name: string };
