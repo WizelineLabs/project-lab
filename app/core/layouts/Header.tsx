@@ -1,10 +1,10 @@
-import { Link, useSubmit } from "@remix-run/react";
+import { useSubmit } from "@remix-run/react";
 import { useUser } from "~/utils";
 import DropDownButton from "../components/DropDownButton";
 import Search from "../components/Search";
-import { Button, Container, Grid, useTheme } from "@mui/material";
-import { Box } from "@mui/system";
+import { Button, Container, Grid, Paper, useTheme } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import Link from "../components/Link";
 
 interface IProps {
   title: String;
@@ -39,16 +39,10 @@ const Header = ({ title }: IProps) => {
         ]
       : []),
   ];
-  const theme = useTheme();
 
   return (
     <>
-      <Box
-        sx={{
-          backgroundColor: theme.palette.background.default,
-          marginBottom: 2,
-        }}
-      >
+      <Paper sx={{ marginBottom: 2 }}>
         <Container>
           <Grid
             container
@@ -88,7 +82,7 @@ const Header = ({ title }: IProps) => {
             </Grid>
           </Grid>
         </Container>
-      </Box>
+      </Paper>
     </>
   );
 };

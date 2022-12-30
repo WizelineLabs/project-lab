@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { LoaderFunction } from "@remix-run/node";
-import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
+import { useLoaderData, useSearchParams } from "@remix-run/react";
 import ProposalCard from "app/core/components/ProposalCard";
 import Header from "app/core/layouts/Header";
 import {
@@ -28,6 +28,7 @@ import type { ProjectStatus } from "~/models/status.server";
 import { getProjectStatuses } from "~/models/status.server";
 import { ongoingStage, ideaStage } from "~/constants";
 import { Container } from "@mui/system";
+import Link from "~/core/components/Link";
 
 type LoaderData = {
   data: Awaited<ReturnType<typeof searchProjects>>;
@@ -250,7 +251,7 @@ export default function Projects() {
         </Paper>
       </Container>
       <Container>
-        <Grid container spacing={2}>
+        <Grid container spacing={2} alignItems="flex-start">
           <Grid
             item
             xs={8}

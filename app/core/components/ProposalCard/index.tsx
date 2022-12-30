@@ -5,6 +5,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import HelpIcon from "@mui/icons-material/Help";
 
 import { ProposalCardWrap } from "./ProposalCard.styles";
+import Link from "../Link";
 
 interface IProps {
   id: string | number;
@@ -28,10 +29,7 @@ export const ProposalCard = (props: IProps) => {
   return (
     <>
       <Card>
-        <CardActionArea
-          style={{ height: "100%" }}
-          href={`/projects/${props.id}`}
-        >
+        <CardActionArea sx={{ height: "100%" }} href={`/projects/${props.id}`}>
           <CardContent>
             <ProposalCardWrap>
               <div className="ProposalCard__head">
@@ -80,8 +78,8 @@ export const ProposalCard = (props: IProps) => {
                       {props.status}
                     </span>
                     <div className="ProposalCard__tier">
-                      <a
-                        href="https://wizeline.atlassian.net/wiki/spaces/wiki/pages/3075342381/Innovation+Tiers"
+                      <Link
+                        to="https://wizeline.atlassian.net/wiki/spaces/wiki/pages/3075342381/Innovation+Tiers"
                         target="_blank"
                         rel="noreferrer"
                         onClick={stopEvent}
@@ -89,12 +87,12 @@ export const ProposalCard = (props: IProps) => {
                         <label className="ProposalCard__head__description--tier">
                           {props.tierName}
                         </label>
-                      </a>
+                      </Link>
                       <label
                         className="ProposalCard__head__description--tier--extra"
                         title="Maturation framework for innovation projects"
                       >
-                        <HelpIcon sx={{ fontSize: 15 }} />
+                        <HelpIcon />
                       </label>
                     </div>
                   </div>
@@ -102,13 +100,13 @@ export const ProposalCard = (props: IProps) => {
                     <div className="ProposalCard__status--like">
                       <span>{props.votesCount} </span>
                       <span>
-                        <ThumbUpIcon sx={{ color: "#AF2E33", fontSize: 15 }} />
+                        <ThumbUpIcon />
                       </span>
                     </div>
                     <div className="ProposalCard__status--members">
                       <span>{props.projectMembers} </span>
                       <span>
-                        <PersonIcon sx={{ color: "#000000", fontSize: 15 }} />
+                        <PersonIcon />
                       </span>
                     </div>
                   </div>

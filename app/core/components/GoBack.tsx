@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
-import { Link } from "@remix-run/react";
 import { ArrowBack } from "@mui/icons-material";
+import Link from "./Link";
 interface IProps {
   title: String;
   href: any;
@@ -8,14 +8,12 @@ interface IProps {
 
 function GoBack({ title, href }: IProps) {
   return (
-    <>
-      <Wrapper className="wrapper__back">
-        <Link className="link_button wrapper__link" to={href}>
-          <ArrowBack className="wrapper__back--icon"></ArrowBack>
-          <div className="wrapper__back--text">{title}</div>
-        </Link>
-      </Wrapper>
-    </>
+    <Wrapper className="wrapper__back">
+      <Link className="link_button wrapper__link" to={href}>
+        <ArrowBack className="wrapper__back--icon"></ArrowBack>
+        <div className="wrapper__back--text">{title}</div>
+      </Link>
+    </Wrapper>
   );
 }
 
