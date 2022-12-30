@@ -2,7 +2,7 @@ import { useSubmit } from "@remix-run/react";
 import { useUser } from "~/utils";
 import DropDownButton from "../components/DropDownButton";
 import Search from "../components/Search";
-import { Button, Container, Grid, Paper, useTheme } from "@mui/material";
+import { Button, Container, Grid, Paper } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import Link from "../components/Link";
 
@@ -42,7 +42,7 @@ const Header = ({ title }: IProps) => {
 
   return (
     <>
-      <Paper sx={{ marginBottom: 2 }}>
+      <Paper elevation={0} sx={{ marginBottom: 2 }}>
         <Container>
           <Grid
             container

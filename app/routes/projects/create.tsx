@@ -111,13 +111,7 @@ const NewProjectPage = () => {
     <>
       <Header title="Create your proposal" />
       <Container>
-        <Paper
-          elevation={0}
-          sx={{
-            paddingLeft: 2,
-            paddingRight: 2,
-          }}
-        >
+        <Paper elevation={0} sx={{ paddingLeft: 2, paddingRight: 2 }}>
           <h1>Create your proposal</h1>
         </Paper>
       </Container>

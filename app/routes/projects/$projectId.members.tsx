@@ -142,7 +142,7 @@ const EditMembersPage = () => {
             paddingRight: 2,
           }}
         >
-          <h1 className="form__center-text">Project Members</h1>
+          <h1>Project Members</h1>
         </Paper>
       </Container>
       <Container>

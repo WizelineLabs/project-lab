@@ -165,13 +165,7 @@ export default function EditProjectPage() {
       <Header title={"Edit " + project.name} />
 
       <Container>
-        <Paper
-          elevation={0}
-          sx={{
-            paddingLeft: 2,
-            paddingRight: 2,
-          }}
-        >
+        <Paper elevation={0} sx={{ paddingLeft: 2, paddingRight: 2 }}>
           <h1 className="form__center-text">Edit {project.name}</h1>
         </Paper>
       </Container>

@@ -68,8 +68,8 @@ export default function ManagerPage() {
             </LinkStyles>
           </EditPanelsStyles>
         </NavBarTabsStyles>
-        <Paper elevation={0} title={tabTitle} sx={{ padding: 2 }}>
-          <h2>{tabTitle}</h2>
+        <Paper elevation={0} sx={{ padding: 2 }}>
+          <h2 style={{ marginTop: 0 }}>{tabTitle}</h2>
           <Outlet />
         </Paper>
       </Container>

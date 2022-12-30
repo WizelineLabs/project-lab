@@ -179,7 +179,6 @@ export default function ProjectDetailsPage() {
 
       <Container sx={{ marginBottom: 2 }}>
         <Paper
-          elevation={0}
           sx={{
             paddingLeft: 2,
             paddingRight: 2,
@@ -212,7 +211,7 @@ export default function ProjectDetailsPage() {
         </Paper>
       </Container>
       <Container sx={{ marginBottom: 2 }}>
-        <Paper elevation={0} sx={{ padding: 2 }}>
+        <Paper sx={{ padding: 2 }}>
           <Grid container alignItems="flex-start" justifyContent="flex-start">
             <Grid
               item
