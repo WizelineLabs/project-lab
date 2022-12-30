@@ -326,7 +326,7 @@ export default function ProjectDetailsPage() {
       <Container>
         <Grid container spacing={2} alignItems="stretch">
           <Grid item xs={12} md={8}>
-            <Card variant="outlined">
+            <Card>
               <CardContent>
                 <Box sx={{ float: "right" }}>
                   <Button variant="outlined">{project?.votes?.length}</Button>
@@ -351,7 +351,7 @@ export default function ProjectDetailsPage() {
           <Grid item xs={12} md={4}>
             <Stack direction="column" spacing={1}>
               {project.slackChannel && (
-                <Card variant="outlined">
+                <Card>
                   <CardContent>
                     <big>Slack Channel:</big>
                     <Stack direction="row" spacing={1}>
@@ -361,7 +361,7 @@ export default function ProjectDetailsPage() {
                 </Card>
               )}
               {project.repoUrls && (
-                <Card variant="outlined">
+                <Card>
                   <CardContent>
                     <big>Repos URLs:</big>
                     <ul>
@@ -377,7 +377,7 @@ export default function ProjectDetailsPage() {
                 </Card>
               )}
               {project.skills && project.skills.length > 0 && (
-                <Card variant="outlined">
+                <Card>
                   <CardContent>
                     <big>Skills:</big>
                     {project.skills.map((item, index) => (
@@ -391,7 +391,7 @@ export default function ProjectDetailsPage() {
                 </Card>
               )}
               {project.disciplines && project.disciplines.length > 0 && (
-                <Card variant="outlined">
+                <Card>
                   <CardContent>
                     <big>Looking for:</big>
                     {project.disciplines &&
