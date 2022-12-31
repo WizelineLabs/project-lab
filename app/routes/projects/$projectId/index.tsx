@@ -438,12 +438,14 @@ export default function ProjectDetailsPage() {
         </Grid>
       </Container>
       <Container>
-        <RelatedProjectsSection
-          allowEdit={isTeamMember}
-          relatedProjects={project.relatedProjects}
-          projectsList={projectsList}
-          projectId={project.id || ""}
-        />
+        <Paper sx={{ padding: 2, marginBottom: 2 }}>
+          <RelatedProjectsSection
+            allowEdit={isTeamMember}
+            relatedProjects={project.relatedProjects}
+            projectsList={projectsList}
+            projectId={project.id || ""}
+          />
+        </Paper>
       </Container>
       <Container>
         <ContributorPathReport

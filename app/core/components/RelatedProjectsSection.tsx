@@ -6,6 +6,7 @@ import {
   Chip,
   Box,
   IconButton,
+  Button,
 } from "@mui/material";
 import { EditSharp, Close } from "@mui/icons-material";
 import { useEffect, useState } from "react";
@@ -61,21 +62,15 @@ function RelatedProjectsSection({
 
   return (
     <>
-      <big>Related Projects</big>
+      <big>Related Projects</big>&nbsp;
       {allowEdit && isEditActive ? (
         <>
-          <IconButton
-            sx={{ margin: "1em .5em" }}
-            onClick={() => handleChangeEditView(false)}
-          >
+          <IconButton onClick={() => handleChangeEditView(false)}>
             <Close>Cancel</Close>
           </IconButton>
         </>
       ) : (
-        <IconButton
-          sx={{ margin: "1em .5em" }}
-          onClick={() => handleChangeEditView(true)}
-        >
+        <IconButton onClick={() => handleChangeEditView(true)}>
           <EditSharp></EditSharp>
         </IconButton>
       )}
@@ -120,14 +115,13 @@ function RelatedProjectsSection({
                 )}
               />
               {error && <span>{error}</span>}
-              <div className="margin-vertical-separator">
-                <button
-                  disabled={transition.state === "submitting"}
-                  className="primary"
-                >
-                  Submit
-                </button>
-              </div>
+              <Button
+                variant="contained"
+                type="submit"
+                disabled={transition.state === "submitting"}
+              >
+                Submit
+              </Button>
               {error && (
                 <Alert severity="warning">Information could not be saved</Alert>
               )}
@@ -135,7 +129,6 @@ function RelatedProjectsSection({
           </>
         )}
       </div>
-
       {!isEditActive && (
         <Box>
           {relatedProjects.map((item, i) => {
