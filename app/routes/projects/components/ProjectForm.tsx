@@ -48,6 +48,7 @@ export function ProjectForm({
 
       <TextEditor
         name="valueStatement"
+        label="Value proposition"
         placeholder={"Explain us your proposal..."}
       />
 
