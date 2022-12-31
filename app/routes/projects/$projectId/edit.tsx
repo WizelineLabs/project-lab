@@ -25,10 +25,12 @@ import type {
 import {
   Box,
   Button,
+  Container,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  Paper,
   Tabs,
 } from "@mui/material";
 import GoBack from "~/core/components/GoBack";
@@ -162,67 +164,77 @@ export default function EditProjectPage() {
     <>
       <Header title={"Edit " + project.name} />
 
-      <div className="wrapper">
-        <h1 className="form__center-text">Edit {project.name}</h1>
-      </div>
+      <Container>
+        <Paper elevation={0} sx={{ paddingLeft: 2, paddingRight: 2 }}>
+          <h1 className="form__center-text">Edit {project.name}</h1>
+        </Paper>
+      </Container>
 
-      <div className="wrapper">
-        <GoBack title="Back to project" href={`/projects/${projectId}`} />
+      <Container>
+        <Paper
+          elevation={0}
+          sx={{ paddingLeft: 2, paddingRight: 2, paddingBottom: 2 }}
+        >
+          <GoBack title="Back to project" href={`/projects/${projectId}`} />
 
-        <EditPanelsStyles>
-          <Box>
-            <Tabs
-              value={tabIndex}
-              onChange={handleTabChange}
-              aria-label="Edit project"
-            >
-              <TabStyles label="Project Details" />
-              <TabStyles label="Contributor's Path" />
-            </Tabs>
-          </Box>
+          <EditPanelsStyles>
+            <Box>
+              <Tabs
+                value={tabIndex}
+                onChange={handleTabChange}
+                aria-label="Edit project"
+              >
+                <TabStyles label="Project Details" />
+                <TabStyles label="Contributor's Path" />
+              </Tabs>
+            </Box>
 
-          <TabPanel value={tabIndex} index={0}>
-            <ValidatedForm
-              validator={validator}
-              defaultValues={{
-                name: project.name,
-                projectStatus: project.projectStatus || undefined,
-                innovationTiers: project.innovationTiers || undefined,
-                description: project.description || "",
-                valueStatement: project.valueStatement || "",
-                helpWanted: project.helpWanted,
-                disciplines: project.disciplines,
-                owner: project.owner || undefined,
-                target: project.target || "",
-                repoUrls: project.repoUrls || [],
-                skills: project.skills,
-                labels: project.labels,
-                slackChannel: project.slackChannel || "",
-              }}
-              method="post"
-            >
-              <ProjectForm statuses={statuses} tiers={tiers} />
-            </ValidatedForm>
-          </TabPanel>
-          <TabPanel value={tabIndex} index={1}>
-            {/* <ProjectContributorsPathForm
+            <TabPanel value={tabIndex} index={0}>
+              <ValidatedForm
+                validator={validator}
+                defaultValues={{
+                  name: project.name,
+                  projectStatus: project.projectStatus || undefined,
+                  innovationTiers: project.innovationTiers || undefined,
+                  description: project.description || "",
+                  valueStatement: project.valueStatement || "",
+                  helpWanted: project.helpWanted,
+                  disciplines: project.disciplines,
+                  owner: project.owner || undefined,
+                  target: project.target || "",
+                  repoUrls: project.repoUrls || [],
+                  slackChannel: project.slackChannel || "",
+                  skills: project.skills,
+                  labels: project.labels,
+                  //projectMembers: project.projectMembers,
+                }}
+                method="post"
+              >
+                <ProjectForm statuses={statuses} tiers={tiers} />
+              </ValidatedForm>
+            </TabPanel>
+            {/*<TabPanel value={tabIndex} index={1}>
+             <ProjectContributorsPathForm
               submitText="Update Stages "
               schema={ContributorPath}
               initialValues={project.stages}
               onSubmit={handleSubmitContributorPath}
               projectId={project.id}
               retrieveProjectInfo={retrieveProjectInfo}
-            /> */}
-          </TabPanel>
-        </EditPanelsStyles>
-        {isAdmin && (
-          <div className="wrapper form__center-text">
-            <button onClick={handleClickOpen} className="primary warning">
+            />
+          </TabPanel> */}
+          </EditPanelsStyles>
+          {isAdmin && (
+            <Button
+              onClick={handleClickOpen}
+              color="warning"
+              variant="contained"
+            >
               {"Delete Project"}
-            </button>
-          </div>
-        )}
-      </div>
+            </Button>
+          )}
+        </Paper>
+      </Container>
       <Dialog onClose={handleClose} open={open}>
         <DialogTitle>
           Are you sure you want to delete this proposal?
@@ -233,13 +245,13 @@ export default function EditProjectPage() {
             <input type="hidden" name="projectId" value={projectId} />
           </DialogContent>
           <DialogActions>
-            <Button className="primary" onClick={handleClose}>
+            <Button variant="contained" onClick={handleClose}>
               Cancel
             </Button>
             <Button
+              variant="contained"
               disabled={isButtonDisabled}
-              type="submit"
-              className="primary warning"
+              color="warning"
             >
               Yes, delete it
             </Button>

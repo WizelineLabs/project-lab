@@ -15,6 +15,10 @@ import {
 import StylesheetUrl from "./styles/style.css";
 
 import { getUser } from "./session.server";
+import { CssBaseline, useMediaQuery } from "@mui/material";
+import { createTheme } from "./theme";
+import { useMemo } from "react";
+import { ThemeProvider } from "@emotion/react";
 
 export const links: LinksFunction = () => {
   return [
@@ -42,13 +46,24 @@ interface IDocumentProps {
 }
 
 export default function App() {
+  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+
+  const theme = useMemo(
+    () => createTheme({ prefersDarkMode }),
+    [prefersDarkMode]
+  );
+
+  // TODO: https://mui.com/material-ui/customization/dark-mode/#dark-mode-by-default
   return (
-    <Document>
-      <Outlet />
-      <ScrollRestoration />
-      <Scripts />
-      <LiveReload />
-    </Document>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Document>
+        <Outlet />
+        <ScrollRestoration />
+        <Scripts />
+        <LiveReload />
+      </Document>
+    </ThemeProvider>
   );
 }
 

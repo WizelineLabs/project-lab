@@ -7,7 +7,6 @@ import type {
 } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
-  Link,
   useCatch,
   useLoaderData,
   useFetcher,
@@ -30,15 +29,12 @@ import {
   Grid,
   Box,
   Button,
+  Container,
+  Paper,
+  IconButton,
+  Typography,
 } from "@mui/material";
 import { EditSharp, ThumbUpSharp, ThumbDownSharp } from "@mui/icons-material";
-import {
-  HeaderInfo,
-  DetailMoreHead,
-  Like,
-  LikeBox,
-  EditButton,
-} from "./$projectId.styles";
 import { adminRoleName } from "app/constants";
 import type { Profiles, ProjectMembers } from "@prisma/client";
 import ContributorPathReport from "../../../core/components/ContributorPathReport/index";
@@ -173,42 +169,49 @@ export default function ProjectDetailsPage() {
     }
   }, [transition]);
 
+  const voteCount = project.votes?.filter(
+    (vote) => vote.profileId === profile.id
+  ).length;
+
   return (
     <>
       <Header title={project.name || ""} />
 
-      <div className="wrapper">
-        <HeaderInfo>
-          <div className="headerInfo--action">
-            <div className="headerInfo--edit">
-              {(isTeamMember || isAdmin) && (
-                <Link to={`/projects/${project.id}/edit`}>
-                  <EditButton>
-                    <EditSharp />
-                  </EditButton>
-                </Link>
-              )}
-            </div>
-          </div>
+      <Container sx={{ marginBottom: 2 }}>
+        <Paper
+          sx={{
+            paddingLeft: 2,
+            paddingRight: 2,
+            paddingBottom: 2,
+          }}
+        >
           <Grid container justifyContent="space-between">
-            <Grid item xs={12} className="">
-              <div className="titleProposal">
-                <h1>{project.name}</h1>
-              </div>
-              <div className="descriptionProposal">{project.description}</div>
-              <div className="lastUpdateProposal">
+            <Grid item>
+              <h1 style={{ marginBottom: 0 }}>{project.name}</h1>
+              <Typography color="text.secondary">
                 Last update:{" "}
                 {project.updatedAt &&
                   formatDistance(new Date(project.updatedAt), new Date(), {
                     addSuffix: true,
                   })}
-              </div>
+              </Typography>
+            </Grid>
+            <Grid item>
+              {(isTeamMember || isAdmin) && (
+                <IconButton
+                  aria-label="Edit"
+                  href={`/projects/${project.id}/edit`}
+                >
+                  <EditSharp />
+                </IconButton>
+              )}
             </Grid>
           </Grid>
-        </HeaderInfo>
-      </div>
-      <div className="wrapper">
-        <DetailMoreHead>
+          <p className="descriptionProposal">{project.description}</p>
+        </Paper>
+      </Container>
+      <Container sx={{ marginBottom: 2 }}>
+        <Paper sx={{ padding: 2 }}>
           <Grid container alignItems="flex-start" justifyContent="flex-start">
             <Grid
               item
@@ -275,12 +278,14 @@ export default function ProjectDetailsPage() {
                 <div className="itemHeadName">Labels:</div>
               </Grid>
               <Grid item>
-                <Stack direction="row" spacing={1}>
-                  {project.labels &&
-                    project.labels.map((item, index) => (
-                      <Chip key={index} label={item.name} />
-                    ))}
-                </Stack>
+                {project.labels &&
+                  project.labels.map((item, index) => (
+                    <Chip
+                      key={index}
+                      label={item.name}
+                      sx={{ marginRight: 1, marginBottom: 1 }}
+                    />
+                  ))}
               </Grid>
             </Grid>
 
@@ -310,44 +315,29 @@ export default function ProjectDetailsPage() {
               </Grid>
             </Grid>
           </Grid>
-        </DetailMoreHead>
-      </div>
+        </Paper>
+      </Container>
       {isTeamMember && (
         <div className="wrapper">
           {/* <Stages path={project.stages} project={project} /> */}
         </div>
       )}
-      <div className="wrapper">
+      <Container>
         <Grid container spacing={2} alignItems="stretch">
           <Grid item xs={12} md={8}>
-            <Card variant="outlined">
+            <Card>
               <CardContent>
-                <LikeBox>
-                  <Like>
-                    <div className="like-bubble">
-                      <span>{project?.votes?.length}</span>
-                    </div>
-                    <Button
-                      className="primary"
-                      onClick={() => handleVote(project.id || "")}
-                    >
-                      {project.votes &&
-                      project.votes.filter((vote) => {
-                        return vote.profileId === profile.id;
-                      }).length > 0 ? (
-                        <>
-                          {"Unlike"}&nbsp;
-                          <ThumbDownSharp />
-                        </>
-                      ) : (
-                        <>
-                          {"Like"}&nbsp;
-                          <ThumbUpSharp />
-                        </>
-                      )}
-                    </Button>
-                  </Like>
-                </LikeBox>
+                <Box sx={{ float: "right" }}>
+                  <Button variant="outlined">{project?.votes?.length}</Button>
+                  &nbsp;
+                  <Button
+                    variant="contained"
+                    onClick={() => handleVote(project.id || "")}
+                    endIcon={voteCount ? <ThumbDownSharp /> : <ThumbUpSharp />}
+                  >
+                    {voteCount ? "Unlike" : "Like"}
+                  </Button>
+                </Box>
                 <h2>Description</h2>
                 <div>
                   <Markdown>
@@ -360,7 +350,7 @@ export default function ProjectDetailsPage() {
           <Grid item xs={12} md={4}>
             <Stack direction="column" spacing={1}>
               {project.slackChannel && (
-                <Card variant="outlined">
+                <Card>
                   <CardContent>
                     <big>Slack Channel:</big>
                     <Stack direction="row" spacing={1}>
@@ -370,56 +360,53 @@ export default function ProjectDetailsPage() {
                 </Card>
               )}
               {project.repoUrls && (
-                <Card variant="outlined">
+                <Card>
                   <CardContent>
                     <big>Repos URLs:</big>
-                    <Box
-                      component="form"
-                      sx={{
-                        "& .MuiTextField-root": { width: "100%" },
-                      }}
-                      noValidate
-                      autoComplete="off"
-                    >
+                    <ul>
                       {project.repoUrls.map((item, index) => (
-                        <Stack spacing={2} key={index}>
+                        <li key={index}>
                           <a href={item.url} target="_blank" rel="noreferrer">
                             {item.url}
                           </a>
-                        </Stack>
+                        </li>
                       ))}
-                    </Box>
+                    </ul>
                   </CardContent>
                 </Card>
               )}
               {project.skills && project.skills.length > 0 && (
-                <Card variant="outlined">
+                <Card>
                   <CardContent>
                     <big>Skills:</big>
-                    <Stack direction="row" spacing={1}>
-                      {project.skills.map((item, index) => (
-                        <Chip key={index} label={item.name} />
-                      ))}
-                    </Stack>
+                    {project.skills.map((item, index) => (
+                      <Chip
+                        key={index}
+                        label={item.name}
+                        sx={{ marginRight: 1, marginBottom: 1 }}
+                      />
+                    ))}
                   </CardContent>
                 </Card>
               )}
               {project.disciplines && project.disciplines.length > 0 && (
-                <Card variant="outlined">
+                <Card>
                   <CardContent>
                     <big>Looking for:</big>
-                    <Stack direction="row" spacing={1}>
-                      {project.disciplines &&
-                        project.disciplines.map((item, index) => (
-                          <Chip key={index} label={item.name} />
-                        ))}
-                    </Stack>
+                    {project.disciplines &&
+                      project.disciplines.map((item, index) => (
+                        <Chip
+                          key={index}
+                          label={item.name}
+                          sx={{ marginRight: 1, marginBottom: 1 }}
+                        />
+                      ))}
                   </CardContent>
                 </Card>
               )}
               {isTeamMember ? (
                 <Button
-                  className="primary large"
+                  variant="contained"
                   // disabled={joinProjectButton}
                   // onClick={() => setShowModal(true)}
                 >
@@ -429,7 +416,7 @@ export default function ProjectDetailsPage() {
                 </Button>
               ) : (
                 project.helpWanted && (
-                  <Button className="primary large" onClick={handleJoinProject}>
+                  <Button variant="contained" onClick={handleJoinProject}>
                     Want to Join?
                   </Button>
                 )
@@ -438,22 +425,22 @@ export default function ProjectDetailsPage() {
           </Grid>
           <Grid item xs={12}></Grid>
         </Grid>
-      </div>
-      <div className="wrapper">
+      </Container>
+      <Container>
+        <RelatedProjectsSection relatedProjects={project.relatedProjects} />
+      </Container>
+      <Container>
         <ContributorPathReport
           project={project}
           isTeamMember={isTeamMember}
           isAdmin={isAdmin}
         />
-      </div>
+      </Container>
       <JoinProjectModal
         projectId={project.id || ""}
         open={showJoinModal}
         handleCloseModal={handleCloseModal}
       />
-      <div className="wrapper">
-        <RelatedProjectsSection relatedProjects={project.relatedProjects} />
-      </div>
       {/*
       <div className="wrapper">
         <Comments projectId={project.id} />

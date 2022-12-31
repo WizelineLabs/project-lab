@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useFetcher, useLoaderData, useCatch } from "@remix-run/react";
-import type { LoaderFunction, ActionFunction, MetaFunction } from "@remix-run/node";
+import type {
+  LoaderFunction,
+  ActionFunction,
+  MetaFunction,
+} from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { GridRenderCellParams } from "@mui/x-data-grid";
 import { DataGrid, GridToolbarContainer } from "@mui/x-data-grid";
-import { ThemeProvider } from "@mui/material/styles";
 import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
@@ -12,9 +15,12 @@ import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Close";
 import invariant from "tiny-invariant";
 
-import themeWize from "app/core/utils/themeWize";
 import ConfirmationModal from "../../core/components/ConfirmationModal";
-import { getAdminUsers, addAdminUser, removeAdminUser } from "~/models/user.server";
+import {
+  getAdminUsers,
+  addAdminUser,
+  removeAdminUser,
+} from "~/models/user.server";
 
 type LoaderData = {
   admins: Awaited<ReturnType<typeof getAdminUsers>>;
@@ -45,35 +51,34 @@ export const loader: LoaderFunction = async () => {
 export const meta: MetaFunction = () => {
   return {
     title: "Wizelabs - Admins",
-    description:
-      "This is the Manager's Admin Tab",
+    description: "This is the Manager's Admin Tab",
   };
 };
 
 export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData()
+  const formData = await request.formData();
 
-  const action = formData.get('action')
-  let response
+  const action = formData.get("action");
+  let response;
 
   switch (action) {
-    case 'POST':
-      const email = formData.get("email") as string
-      invariant(email, 'Invalid email address')
-      response = await addAdminUser({email})
+    case "POST":
+      const email = formData.get("email") as string;
+      invariant(email, "Invalid email address");
+      response = await addAdminUser({ email });
       if (response.error) {
-        return json({error: response.error}, {status: 404})
+        return json({ error: response.error }, { status: 404 });
       }
-      return json(response, {status: 201})
-    
-    case 'DELETE':
-      const id = formData.get("id") as string
-      invariant(id, "User Id is required")
-      response = await removeAdminUser({id})
+      return json(response, { status: 201 });
+
+    case "DELETE":
+      const id = formData.get("id") as string;
+      invariant(id, "User Id is required");
+      response = await removeAdminUser({ id });
       if (response.error) {
-        return json({error: response.error}, {status: 400})
+        return json({ error: response.error }, { status: 400 });
       }
-      return json(response, {status: 200})
+      return json(response, { status: 200 });
 
     default: {
       throw new Error("Something went wrong");
@@ -113,43 +118,46 @@ const GridEditToolbar = (props: gridEditToolbarProps) => {
   );
 };
 
-export default function  AdminsDataGrid() {
+export default function AdminsDataGrid() {
   const fetcher = useFetcher();
   const { admins } = useLoaderData() as LoaderData;
   const [error, setError] = useState<string>("");
   const createButtonText = "Add New Admin";
   const [rows, setRows] = useState<AdminRecord[]>(() =>
-    admins ? admins.map((item: AdminRecord) => ({
-        id: item.id,
-        name: item.name,
-        email: item.email,
-      }))
-    : []
+    admins
+      ? admins.map((item: AdminRecord) => ({
+          id: item.id,
+          name: item.name,
+          email: item.email,
+        }))
+      : []
   );
 
   // handle Delete Admin variables
   const [selectedRowID, setSelectedRowID] = useState("");
   const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
 
-  useEffect(() =>{
+  useEffect(() => {
     //It handles the fetcher error from the response
     if (fetcher.state === "idle" && fetcher.data) {
-      if (fetcher.data.error){
+      if (fetcher.data.error) {
         setError(fetcher.data.error);
       } else {
-        setError("")
+        setError("");
       }
     }
-  }, [fetcher])
+  }, [fetcher]);
 
-  useEffect(()=> {
+  useEffect(() => {
     //It changes the rows shown based on admins
-    setRows(admins.map((item: AdminRecord) => ({
-      id: item.id,
-      name: item.name,
-      email: item.email,
-    })))
-  }, [admins])
+    setRows(
+      admins.map((item: AdminRecord) => ({
+        id: item.id,
+        name: item.name,
+        email: item.email,
+      }))
+    );
+  }, [admins]);
 
   // Set handles for interactions
   const handleRowEditStart = (event: any) => {
@@ -169,8 +177,8 @@ export default function  AdminsDataGrid() {
     try {
       const body = {
         ...values,
-        action: 'POST'
-      }
+        action: "POST",
+      };
       await fetcher.submit(body, { method: "post" });
     } catch (error: any) {
       console.error(error);
@@ -215,19 +223,19 @@ export default function  AdminsDataGrid() {
       const newValues = { email: newEmail };
       idRef.api.setRowMode(id, "view");
       addNewAdminUser(newValues);
-      setRows(prevRows => prevRows.filter(row => row.id !== "new-value"))
+      setRows((prevRows) => prevRows.filter((row) => row.id !== "new-value"));
       return;
     }
   };
-  
+
   //Delete Admin
   const deleteConfirmationHandler = async () => {
     setOpenDeleteModal(false);
     try {
       const body = {
         id: selectedRowID,
-        action: 'DELETE'
-      }
+        action: "DELETE",
+      };
       await fetcher.submit(body, { method: "delete" });
     } catch (error: any) {
       console.error(error);
@@ -282,7 +290,7 @@ export default function  AdminsDataGrid() {
         return (
           <Button
             variant="contained"
-            color="primary"
+            color="warning"
             size="small"
             onClick={() => handleDeleteClick(idRef)}
             style={{ marginLeft: 16 }}
@@ -299,25 +307,23 @@ export default function  AdminsDataGrid() {
     <>
       <div style={{ display: "flex", width: "100%", height: "70vh" }}>
         <div style={{ flexGrow: 1 }}>
-          <ThemeProvider theme={themeWize}>
-            {error && <p style={{ color: "red" }}>{error}</p>}
-            <DataGrid
-              rows={rows}
-              columns={columns}
-              rowsPerPageOptions={[50]}
-              pageSize={50}
-              editMode="row"
-              onRowEditStart={handleRowEditStart}
-              onRowEditStop={handleRowEditStop}
-              onCellFocusOut={handleCellFocusOut}
-              components={{
-                Toolbar: GridEditToolbar,
-              }}
-              componentsProps={{
-                toolbar: { setRows, createButtonText },
-              }}
-            />
-          </ThemeProvider>
+          {error && <p style={{ color: "red" }}>{error}</p>}
+          <DataGrid
+            rows={rows}
+            columns={columns}
+            rowsPerPageOptions={[50]}
+            pageSize={50}
+            editMode="row"
+            onRowEditStart={handleRowEditStart}
+            onRowEditStop={handleRowEditStop}
+            onCellFocusOut={handleCellFocusOut}
+            components={{
+              Toolbar: GridEditToolbar,
+            }}
+            componentsProps={{
+              toolbar: { setRows, createButtonText },
+            }}
+          />
         </div>
       </div>
       {/* Confirmation for deletion */}
@@ -340,7 +346,7 @@ export default function  AdminsDataGrid() {
       </ConfirmationModal>
     </>
   );
-};
+}
 
 export function ErrorBoundary({ error }: { error: Error }) {
   console.error(error);

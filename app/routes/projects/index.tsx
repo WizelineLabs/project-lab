@@ -1,30 +1,34 @@
 import { useState } from "react";
 import type { LoaderFunction } from "@remix-run/node";
-import {
-  Link,
-  useLoaderData,
-  useSearchParams,
-} from "@remix-run/react";
-import CardBox from "app/core/components/CardBox";
+import { useLoaderData, useSearchParams } from "@remix-run/react";
 import ProposalCard from "app/core/components/ProposalCard";
 import Header from "app/core/layouts/Header";
 import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Box,
+  Button,
   Chip,
+  Container,
+  Grid,
+  IconButton,
+  Paper,
+  Stack,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import CloseIcon from "@mui/icons-material/Close";
 import { SortInput } from "app/core/components/SortInput";
-import Wrapper from "../../styles/projects.styles";
 import { searchProjects } from "~/models/project.server";
 import { requireProfile } from "~/session.server";
 import type { ProjectStatus } from "~/models/status.server";
 import { getProjectStatuses } from "~/models/status.server";
 import { ongoingStage, ideaStage } from "~/constants";
+import Link from "~/core/components/Link";
 
 type LoaderData = {
   data: Awaited<ReturnType<typeof searchProjects>>;
@@ -101,7 +105,6 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export default function Projects() {
-  //functions to load and paginate projects in `Popular` CardBox
   const [searchParams, setSearchParams] = useSearchParams();
   const page = Number(searchParams.get("page") || 0);
 
@@ -201,16 +204,12 @@ export default function Projects() {
     return "All Projects";
   };
 
-  const getTabClass = (tab: string) => {
-    if (
+  const isTabActive = (tab: string) => {
+    return (
       (tab == myProposalsTab.name && isMyProposalTab()) ||
       (tab == ideasTab.name && isIdeasTab()) ||
       (tab == activeProjectsTab.name && isInProgressTab())
-    ) {
-      return "homeWrapper__navbar__tabs--title--selected";
-    } else {
-      return "";
-    }
+    );
   };
 
   const handleTabChange = (selectedTab: string) => {
@@ -226,327 +225,332 @@ export default function Projects() {
     setOpenMobileFilters(!openMobileFilters);
   };
 
+  const theme = useTheme();
+  const lessThanMd = useMediaQuery(theme.breakpoints.down("md"));
+
   return (
     <>
       <Header title="Projects" />
-      <Wrapper className="homeWrapper" filtersOpen={openMobileFilters}>
-        <div className="homeWrapper__navbar">
-          <div className="homeWrapper__navbar__tabs">
+      {/*
+        Disable Gutters based on:
+        https://stackoverflow.com/questions/70038913/materialui-show-and-hide-the-containers-gutters-based-on-breakpoints
+      */}
+      <Container sx={{ marginBottom: 2 }}>
+        <Paper elevation={0} sx={{ padding: 2 }}>
+          <Stack direction="row">
             {tabs.map((tab) => (
-              <div
-                className={`homeWrapper__navbar__tabs--title ${getTabClass(
-                  tab.name
-                )}`}
+              <Button
+                color={isTabActive(tab.name) ? "secondary" : "primary"}
                 onClick={() => handleTabChange(tab.name)}
                 key={tab.name}
               >
                 {tab.title}
-              </div>
+              </Button>
             ))}
-          </div>
-        </div>
-        <div className="homeWrapper--content">
-          <div className="homeWrapper__myProposals">
-            <CardBox
-              className="filter__box"
-              bodyClassName="filter__content__card"
-            >
-              <div>
-                <CloseIcon
-                  fontSize="large"
-                  className="filter__mobile-close-button"
-                  onClick={handleMobileFilters}
-                />
-                <div>
-                  <div className="filter__title">Selected Filters</div>
-                  <div>
-                    {FACETS.filter((facet) =>
-                      searchParams.get(facet) ? true : null
-                    )
-                      .flatMap((facet) => {
-                        return searchParams.getAll(facet).map((item) => {
-                          return { filter: facet, value: item };
-                        });
-                      })
-                      .map((chip) => (
-                        <Chip
-                          key={`${chip.filter}-${chip.value}`}
-                          label={chip.value}
-                          clickable={true}
-                          size="small"
-                          variant="outlined"
-                          className="homeWrapper__myProposals--filters"
-                          icon={<HighlightOffIcon />}
-                          component={Link}
-                          to={deleteFilterUrl(chip.filter, chip.value)}
-                        />
-                      ))}
-                  </div>
-                </div>
-                <div className="filter__title">Filters</div>
-                {statusFacets.length > 0 && (
-                  <Accordion
-                    expanded
-                    disableGutters
-                    className="homeWrapper__accordion"
-                  >
-                    <AccordionSummary
-                      expandIcon={<ExpandMore />}
-                      aria-controls="panel1a-controls"
-                      id="panel1a-header"
-                      className="accordion__filter__title"
-                    >
-                      <h4>Status</h4>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <ul className="homeWrapper__myProposals--list">
-                        {statusFacets.map((item) => (
-                          <li key={item.name}>
-                            <Link
-                              id={item.name}
-                              color="#AF2E33"
-                              to={`?${searchParams.toString()}&status=${
-                                item.name
-                              }`}
-                            >
-                              {item.name} ({item.count})
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </AccordionDetails>
-                  </Accordion>
-                )}
-                {tierFacets.length > 0 && (
-                  <Accordion disableGutters className="homeWrapper__accordion">
-                    <AccordionSummary
-                      expandIcon={<ExpandMore />}
-                      aria-controls="panel3a-controls"
-                      id="panel3a-header"
-                      className="accordion__filter__title"
-                    >
-                      <h4>Innovation tiers</h4>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <ul className="homeWrapper__myProposals--list">
-                        {tierFacets.map((item) => (
-                          <li key={item.name}>
-                            <Link
-                              id={item.name}
-                              color="#AF2E33"
-                              to={`?${searchParams.toString()}&tier=${
-                                item.name
-                              }`}
-                            >
-                              {item.name} ({item.count})
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </AccordionDetails>
-                  </Accordion>
-                )}
-                {labelFacets.length > 0 && (
-                  <Accordion disableGutters className="homeWrapper__accordion">
-                    <AccordionSummary
-                      expandIcon={<ExpandMore />}
-                      aria-controls="panel3a-controls"
-                      id="panel3a-header"
-                      className="accordion__filter__title"
-                    >
-                      <h4>Labels</h4>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <ul className="homeWrapper__myProposals--list">
-                        {labelFacets.map((item) => (
-                          <li key={item.name}>
-                            <Link
-                              id={item.name}
-                              color="#AF2E33"
-                              to={`?${searchParams.toString()}&label=${
-                                item.name
-                              }`}
-                            >
-                              {item.name} ({item.count})
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </AccordionDetails>
-                  </Accordion>
-                )}
-                {disciplineFacets.length > 0 && (
-                  <Accordion disableGutters className="homeWrapper__accordion">
-                    <AccordionSummary
-                      expandIcon={<ExpandMore />}
-                      aria-controls="panel2a-controls"
-                      id="panel2a-header"
-                      className="accordion__filter__title"
-                    >
-                      <h4>Looking for</h4>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <ul className="homeWrapper__myProposals--list">
-                        {disciplineFacets.map((item) => (
-                          <li key={item.name}>
-                            <Link
-                              id={item.name}
-                              color="#AF2E33"
-                              to={`?${searchParams.toString()}&discipline=${
-                                item.name
-                              }`}
-                            >
-                              {item.name} ({item.count})
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </AccordionDetails>
-                  </Accordion>
-                )}
-                {roleFacets.length > 0 && (
-                  <Accordion disableGutters className="homeWrapper__accordion">
-                    <AccordionSummary
-                      expandIcon={<ExpandMore />}
-                      aria-controls="panel2a-controls"
-                      id="panel2a-header"
-                      className="accordion__filter__title"
-                    >
-                      <h4>Roles</h4>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <ul className="homeWrapper__myProposals--list">
-                        {roleFacets.map((item) => (
-                          <li key={item.name}>
-                            <Link
-                              id={item.name}
-                              color="#AF2E33"
-                              to={`?${searchParams.toString()}&role=${
-                                item.name
-                              }`}
-                            >
-                              {item.name} ({item.count})
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </AccordionDetails>
-                  </Accordion>
-                )}
-                {missingFacets.length > 0 && (
-                  <Accordion disableGutters className="homeWrapper__accordion">
-                    <AccordionSummary
-                      expandIcon={<ExpandMore />}
-                      aria-controls="panel2a-controls"
-                      id="panel2a-header"
-                      className="accordion__filter__title"
-                    >
-                      <h4>Missing Roles</h4>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <ul className="homeWrapper__myProposals--list">
-                        {missingFacets.map((item) => (
-                          <li key={item.name}>
-                            <Link
-                              id={item.name}
-                              color="#AF2E33"
-                              to={`?${searchParams.toString()}&missing=${
-                                item.name
-                              }`}
-                            >
-                              {item.name} ({item.count})
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </AccordionDetails>
-                  </Accordion>
-                )}
-                {skillFacets.length > 0 && (
-                  <Accordion disableGutters className="homeWrapper__accordion">
-                    <AccordionSummary
-                      expandIcon={<ExpandMore />}
-                      aria-controls="panel2a-controls"
-                      id="panel2a-header"
-                      className="accordion__filter__title"
-                    >
-                      <h4>Skills</h4>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <ul className="homeWrapper__myProposals--list">
-                        {skillFacets.map((item) => (
-                          <li key={item.name}>
-                            <Link
-                              id={item.name}
-                              color="#AF2E33"
-                              to={`?${searchParams.toString()}&skill=${
-                                item.name
-                              }`}
-                            >
-                              {item.name} ({item.count})
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </AccordionDetails>
-                  </Accordion>
-                )}
-                {locationsFacets.length > 0 && (
-                  <Accordion disableGutters className="homeWrapper__accordion">
-                    <AccordionSummary
-                      expandIcon={<ExpandMore />}
-                      aria-controls="panel3a-controls"
-                      id="panel3a-header"
-                      className="accordion__filter__title"
-                    >
-                      <h4>Locations</h4>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <ul className="homeWrapper__myProposals--list">
-                        {locationsFacets.map((item) => (
-                          <li key={item.name}>
-                            <Link
-                              id={item.name}
-                              color="#AF2E33"
-                              to={`?${searchParams.toString()}&location=${
-                                item.name
-                              }`}
-                            >
-                              {item.name} ({item.count})
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </AccordionDetails>
-                  </Accordion>
-                )}
-              </div>
-            </CardBox>
-          </div>
-          <div className="homeWrapper__information">
-            <div className="homeWrapper__information--row">
-              <CardBox title={getTitle() + ` (${count || 0})`}>
-                <div className="homeWrapper__navbar__sort">
-                  <SortInput setSortQuery={setSortQuery} sortBy={""} />
-                  <button
-                    className="filter__mobile-button"
+          </Stack>
+        </Paper>
+      </Container>
+      <Container>
+        <Grid container spacing={2} alignItems="flex-start">
+          <Grid
+            item
+            xs={8}
+            md={3}
+            sx={{
+              position: { xs: "absolute", md: "inherit" },
+              left: { xs: 0, md: undefined },
+              zIndex: { xs: 2, md: undefined },
+              display: {
+                xs: openMobileFilters ? undefined : "none",
+                md: "inherit",
+              },
+            }}
+          >
+            <Paper elevation={lessThanMd ? 5 : 0}>
+              <Box sx={{ paddingTop: 1, paddingLeft: 2, paddingRight: 2 }}>
+                <h3>
+                  Selected Filters{" "}
+                  <IconButton
+                    aria-label="close"
                     onClick={handleMobileFilters}
+                    sx={{ display: { md: "none" } }}
                   >
-                    Filters
-                    <FilterAltIcon
-                      sx={{
-                        fontSize: "17px",
-                        position: "absolute",
-                        top: "20%",
-                      }}
+                    <CloseIcon />
+                  </IconButton>
+                </h3>
+                {FACETS.filter((facet) =>
+                  searchParams.get(facet) ? true : null
+                )
+                  .flatMap((facet) => {
+                    return searchParams.getAll(facet).map((item) => {
+                      return { filter: facet, value: item };
+                    });
+                  })
+                  .map((chip) => (
+                    <Chip
+                      key={`${chip.filter}-${chip.value}`}
+                      label={chip.value}
+                      clickable={true}
+                      size="small"
+                      variant="outlined"
+                      icon={<HighlightOffIcon />}
+                      component={Link}
+                      to={deleteFilterUrl(chip.filter, chip.value)}
                     />
-                  </button>
-                </div>
-                <div className="homeWrapper__popular">
-                  {projects.map((item, i) => {
-                    return (
+                  ))}
+              </Box>
+              <hr />
+              <Box sx={{ paddingLeft: 2, paddingRight: 2 }}>
+                <h3>Filters</h3>
+              </Box>
+              {statusFacets.length > 0 && (
+                <Accordion defaultExpanded={true} disableGutters>
+                  <AccordionSummary
+                    expandIcon={<ExpandMore />}
+                    aria-controls="panel1a-controls"
+                    id="panel1a-header"
+                  >
+                    <strong>Status</strong>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <ul>
+                      {statusFacets.map((item) => (
+                        <li key={item.name}>
+                          <Link
+                            id={item.name}
+                            color="#AF2E33"
+                            to={`?${searchParams.toString()}&status=${
+                              item.name
+                            }`}
+                          >
+                            {item.name} ({item.count})
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </AccordionDetails>
+                </Accordion>
+              )}
+              {tierFacets.length > 0 && (
+                <Accordion disableGutters>
+                  <AccordionSummary
+                    expandIcon={<ExpandMore />}
+                    aria-controls="panel3a-controls"
+                    id="panel3a-header"
+                  >
+                    <strong>Innovation tiers</strong>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <ul>
+                      {tierFacets.map((item) => (
+                        <li key={item.name}>
+                          <Link
+                            id={item.name}
+                            color="#AF2E33"
+                            to={`?${searchParams.toString()}&tier=${item.name}`}
+                          >
+                            {item.name} ({item.count})
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </AccordionDetails>
+                </Accordion>
+              )}
+              {labelFacets.length > 0 && (
+                <Accordion disableGutters>
+                  <AccordionSummary
+                    expandIcon={<ExpandMore />}
+                    aria-controls="panel3a-controls"
+                    id="panel3a-header"
+                  >
+                    <strong>Labels</strong>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <ul>
+                      {labelFacets.map((item) => (
+                        <li key={item.name}>
+                          <Link
+                            id={item.name}
+                            color="#AF2E33"
+                            to={`?${searchParams.toString()}&label=${
+                              item.name
+                            }`}
+                          >
+                            {item.name} ({item.count})
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </AccordionDetails>
+                </Accordion>
+              )}
+              {disciplineFacets.length > 0 && (
+                <Accordion disableGutters>
+                  <AccordionSummary
+                    expandIcon={<ExpandMore />}
+                    aria-controls="panel2a-controls"
+                    id="panel2a-header"
+                  >
+                    <strong>Looking for</strong>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <ul>
+                      {disciplineFacets.map((item) => (
+                        <li key={item.name}>
+                          <Link
+                            id={item.name}
+                            color="#AF2E33"
+                            to={`?${searchParams.toString()}&discipline=${
+                              item.name
+                            }`}
+                          >
+                            {item.name} ({item.count})
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </AccordionDetails>
+                </Accordion>
+              )}
+              {roleFacets.length > 0 && (
+                <Accordion disableGutters>
+                  <AccordionSummary
+                    expandIcon={<ExpandMore />}
+                    aria-controls="panel2a-controls"
+                    id="panel2a-header"
+                  >
+                    <strong>Roles</strong>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <ul>
+                      {roleFacets.map((item) => (
+                        <li key={item.name}>
+                          <Link
+                            id={item.name}
+                            color="#AF2E33"
+                            to={`?${searchParams.toString()}&role=${item.name}`}
+                          >
+                            {item.name} ({item.count})
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </AccordionDetails>
+                </Accordion>
+              )}
+              {missingFacets.length > 0 && (
+                <Accordion disableGutters>
+                  <AccordionSummary
+                    expandIcon={<ExpandMore />}
+                    aria-controls="panel2a-controls"
+                    id="panel2a-header"
+                  >
+                    <strong>Missing Roles</strong>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <ul>
+                      {missingFacets.map((item) => (
+                        <li key={item.name}>
+                          <Link
+                            id={item.name}
+                            color="#AF2E33"
+                            to={`?${searchParams.toString()}&missing=${
+                              item.name
+                            }`}
+                          >
+                            {item.name} ({item.count})
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </AccordionDetails>
+                </Accordion>
+              )}
+              {skillFacets.length > 0 && (
+                <Accordion disableGutters>
+                  <AccordionSummary
+                    expandIcon={<ExpandMore />}
+                    aria-controls="panel2a-controls"
+                    id="panel2a-header"
+                  >
+                    <strong>Skills</strong>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <ul>
+                      {skillFacets.map((item) => (
+                        <li key={item.name}>
+                          <Link
+                            id={item.name}
+                            color="#AF2E33"
+                            to={`?${searchParams.toString()}&skill=${
+                              item.name
+                            }`}
+                          >
+                            {item.name} ({item.count})
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </AccordionDetails>
+                </Accordion>
+              )}
+              {locationsFacets.length > 0 && (
+                <Accordion disableGutters>
+                  <AccordionSummary
+                    expandIcon={<ExpandMore />}
+                    aria-controls="panel3a-controls"
+                    id="panel3a-header"
+                  >
+                    <strong>Locations</strong>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <ul>
+                      {locationsFacets.map((item) => (
+                        <li key={item.name}>
+                          <Link
+                            id={item.name}
+                            color="#AF2E33"
+                            to={`?${searchParams.toString()}&location=${
+                              item.name
+                            }`}
+                          >
+                            {item.name} ({item.count})
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </AccordionDetails>
+                </Accordion>
+              )}
+            </Paper>
+          </Grid>
+          <Grid item xs={12} md={9}>
+            <Paper elevation={0} sx={{ padding: 2 }}>
+              <h2 style={{ marginTop: 0 }}>
+                {getTitle() + ` (${count || 0})`}
+              </h2>
+              <div>
+                <SortInput setSortQuery={setSortQuery} sortBy={""} />
+                &nbsp;
+                <Button
+                  variant="contained"
+                  onClick={handleMobileFilters}
+                  endIcon={<FilterAltIcon />}
+                  sx={{ display: { md: "none" } }}
+                >
+                  Filters
+                </Button>
+              </div>
+              <Grid
+                container
+                spacing={2}
+                sx={{ paddingTop: 2, paddingBottom: 2 }}
+              >
+                {projects.map((item, i) => {
+                  return (
+                    <Grid item xs={12} sm={6} lg={4} key={i}>
                       <ProposalCard
-                        key={i}
                         id={item.id}
                         title={item.name}
                         picture={item.avatarUrl}
@@ -561,45 +565,37 @@ export default function Projects() {
                         color={item.color}
                         votesCount={Number(item.votesCount)}
                         skills={item.searchSkills
+                          .trim()
                           .split(",")
-                          .map((skill) => ({ name: skill.trim() }))}
+                          .map((skill) => ({ name: skill }))}
                         tierName={item.tierName}
                         projectMembers={Number(item.projectMembers)}
                       />
-                    );
-                  })}
-                </div>
-                <div className="homeWrapper__pagination-buttons">
-                  <button
-                    type="button"
-                    disabled={page === 0}
-                    className={
-                      page == 0
-                        ? "primary default pageButton"
-                        : "primary pageButton"
-                    }
-                    onClick={goToPreviousPage}
-                  >
-                    Previous
-                  </button>
-                  <button
-                    type="button"
-                    disabled={!hasMore}
-                    className={
-                      !hasMore
-                        ? "primary default pageButton"
-                        : "primary pageButton"
-                    }
-                    onClick={goToNextPage}
-                  >
-                    Next
-                  </button>
-                </div>
-              </CardBox>
-            </div>
-          </div>
-        </div>
-      </Wrapper>
+                    </Grid>
+                  );
+                })}
+              </Grid>
+              <div>
+                <Button
+                  variant="contained"
+                  disabled={page === 0}
+                  onClick={goToPreviousPage}
+                >
+                  Previous
+                </Button>
+                &nbsp;
+                <Button
+                  variant="contained"
+                  disabled={!hasMore}
+                  onClick={goToNextPage}
+                >
+                  Next
+                </Button>
+              </div>
+            </Paper>
+          </Grid>
+        </Grid>
+      </Container>
     </>
   );
 }
