@@ -53,7 +53,7 @@ interface FacetOutput {
 }
 
 interface RelatedProjectInput {
-  relatedProjects: [{ id: string; name: string }];
+  relatedProjects: { id: string }[];
 }
 
 export class SearchProjectsError extends Error {
@@ -204,12 +204,7 @@ export async function getProjects(where: ProjectWhereInput) {
   try {
     const projects = await db.projects.findMany({
       where,
-      include: {
-        projectStatus: true,
-        owner: true,
-        skills: true,
-        projectMembers: true,
-      },
+      select: { id: true, name: true },
     });
     return projects;
   } catch (e) {

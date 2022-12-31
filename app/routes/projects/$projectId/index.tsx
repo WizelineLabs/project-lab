@@ -18,6 +18,7 @@ import {
   getProjectTeamMember,
   isProjectTeamMember,
   getProject,
+  getProjects,
 } from "~/models/project.server";
 import type { ProjectComplete } from "~/models/project.server";
 
@@ -54,6 +55,7 @@ type LoaderData = {
   membership: ProjectMembers | undefined;
   profile: Profiles;
   project: ProjectComplete;
+  projectsList: Awaited<ReturnType<typeof getProjects>>;
   profileId: string;
 };
 
@@ -73,6 +75,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const user = await requireUser(request);
   const profile = await requireProfile(request);
   const isTeamMember = isProjectTeamMember(profile.id, project);
+  const projectsList = await getProjects({});
 
   const membership = getProjectTeamMember(profile.id, project);
   const isAdmin = user.role == adminRoleName;
@@ -83,6 +86,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
     membership,
     profile,
     project,
+    projectsList,
     profileId,
   });
 };
@@ -137,8 +141,15 @@ export default function ProjectDetailsPage() {
     setShowJoinModal(false);
   };
 
-  const { isAdmin, isTeamMember, profile, membership, project, profileId } =
-    useLoaderData() as LoaderData;
+  const {
+    isAdmin,
+    isTeamMember,
+    profile,
+    membership,
+    project,
+    projectsList,
+    profileId,
+  } = useLoaderData() as LoaderData;
   const [showJoinModal, setShowJoinModal] = useState<boolean>(false);
 
   invariant(project, "project not found");
@@ -427,7 +438,14 @@ export default function ProjectDetailsPage() {
         </Grid>
       </Container>
       <Container>
-        <RelatedProjectsSection relatedProjects={project.relatedProjects} />
+        <Paper sx={{ padding: 2, marginBottom: 2 }}>
+          <RelatedProjectsSection
+            allowEdit={isTeamMember}
+            relatedProjects={project.relatedProjects}
+            projectsList={projectsList}
+            projectId={project.id || ""}
+          />
+        </Paper>
       </Container>
       <Container>
         <ContributorPathReport
