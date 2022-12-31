@@ -20,7 +20,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   const isAdmin = user.role == adminRoleName;
   const isTeamMember = isProjectTeamMember(profile.id, project);
 
-  if (!isAdmin || !isTeamMember) {
+  if (!isAdmin && !isTeamMember) {
     return validationError({
       fieldErrors: {
         formError: "Operation not allowed",
