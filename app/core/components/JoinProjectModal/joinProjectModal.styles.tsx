@@ -5,9 +5,7 @@ export const Grid = styled.div`
   column-gap: 2rem;
   grid-template-columns: 1fr 1fr;
   padding: 1rem;
-  color: #545454;
-  font-size: 0.8rem;
-  font-weight: 300;
+  font-size: 0.9rem;
 
   @media (max-width: 768px) {
     row-gap: 1rem;
@@ -34,7 +32,6 @@ export const CommitmentDivContainer = styled.div`
 
   .title {
     margin: 1rem 0 1.5rem 0;
-    color: #203449;
     font-weight: bold;
   }
 

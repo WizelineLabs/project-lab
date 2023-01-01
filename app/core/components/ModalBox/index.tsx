@@ -1,23 +1,22 @@
 import React from "react";
-import { Modal, Box, IconButton } from "@mui/material";
-import styled from "@emotion/styled";
+import { Modal, Box, IconButton, styled } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
 
-export const BoxContainer = styled.div`
-  width: 500px;
-  margin: 0 auto;
-  background: #fff;
-  padding: 10px;
-  border-radius: 4px;
-`;
+export const BoxContainer = styled("div")(({ theme }) => ({
+  backgroundColor: theme.palette.background.default,
+  width: 500,
+  margin: "auto",
+  padding: 2,
+  borderRadius: 1,
+}));
 
-export const ModalContainer = styled.div`
+export const ModalContainer = styled("div")`
   display: flex;
   align-items: center;
   height: 100%;
 `;
 
-export const Action = styled.div`
+export const Action = styled("div")`
   display: flex;
   justify-content: flex-end;
 `;
