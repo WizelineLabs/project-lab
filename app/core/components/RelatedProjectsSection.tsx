@@ -63,16 +63,20 @@ function RelatedProjectsSection({
   return (
     <>
       <big>Related Projects</big>&nbsp;
-      {allowEdit && isEditActive ? (
-        <>
-          <IconButton onClick={() => handleChangeEditView(false)}>
-            <Close>Cancel</Close>
+      {allowEdit ? (
+        isEditActive ? (
+          <>
+            <IconButton onClick={() => handleChangeEditView(false)}>
+              <Close>Cancel</Close>
+            </IconButton>
+          </>
+        ) : (
+          <IconButton onClick={() => handleChangeEditView(true)}>
+            <EditSharp></EditSharp>
           </IconButton>
-        </>
+        )
       ) : (
-        <IconButton onClick={() => handleChangeEditView(true)}>
-          <EditSharp></EditSharp>
-        </IconButton>
+        <></>
       )}
       <div>
         {isEditActive && (

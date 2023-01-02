@@ -419,7 +419,7 @@ export default function ProjectDetailsPage() {
       <Container>
         <Paper sx={{ padding: 2, marginBottom: 2 }}>
           <RelatedProjectsSection
-            allowEdit={isTeamMember}
+            allowEdit={isTeamMember || isAdmin}
             relatedProjects={project.relatedProjects}
             projectsList={projectsList}
             projectId={project.id || ""}
