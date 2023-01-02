@@ -74,9 +74,9 @@ export const DropDownButton = ({
         <Popper
           open={openActionsUser}
           anchorEl={actionsUserRef.current}
-          role={undefined}
           transition
-          disablePortal
+          onResize={undefined}
+          onResizeCapture={undefined}
         >
           {({ TransitionProps, placement }) => (
             <Grow

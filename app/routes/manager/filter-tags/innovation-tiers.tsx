@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { useFetcher, useLoaderData, useCatch } from "@remix-run/react";
-import type { LoaderFunction, ActionFunction } from "@remix-run/node";
+import { useFetcher, useCatch } from "@remix-run/react";
+import type { ActionFunction, LoaderArgs } from "@remix-run/node";
+import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import {
   ValidatedForm,
   validationError,
@@ -51,11 +52,6 @@ type gridEditToolbarProps = {
   createButtonText: string;
 };
 
-type LoaderData = {
-  innovationTiers: Awaited<ReturnType<typeof getInnovationTiers>>;
-  projects: Awaited<ReturnType<typeof getProjects>>;
-};
-
 type newInnovationTier = {
   name: string;
   benefits: string;
@@ -86,12 +82,12 @@ const ModalButtonsContainer = styled.div`
   justify-content: flex-end;
 `;
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: LoaderArgs) => {
   const url = new URL(request.url);
   const innovationTier = url.searchParams.get("innovationTier");
   const innovationTiers = await getInnovationTiers();
   const projects = await getProjects({ tierName: innovationTier });
-  return json<LoaderData>({
+  return typedjson({
     innovationTiers,
     projects,
   });
@@ -199,7 +195,7 @@ const GridEditToolbar = (props: gridEditToolbarProps) => {
 
 const InnovationTiersGrid = () => {
   const fetcher = useFetcher();
-  const { innovationTiers } = useLoaderData() as LoaderData;
+  const { innovationTiers } = useTypedLoaderData<typeof loader>();
   const createButtonText = "Create New Innovation Tier";
   const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
   const [error, setError] = useState<string>("");

@@ -1,17 +1,9 @@
 import { formatDistance } from "date-fns";
 import Markdown from "marked-react";
-import type {
-  ActionFunction,
-  LoaderFunction,
-  MetaFunction,
-} from "@remix-run/node";
-import { json } from "@remix-run/node";
-import {
-  useCatch,
-  useLoaderData,
-  useFetcher,
-  useTransition,
-} from "@remix-run/react";
+import type { ActionFunction, LoaderArgs } from "@remix-run/node";
+import { useCatch, useFetcher, useTransition } from "@remix-run/react";
+import { typedjson, useTypedLoaderData } from "remix-typedjson";
+import type { TypedMetaFunction } from "remix-typedjson";
 import invariant from "tiny-invariant";
 import { requireProfile, requireUser } from "~/session.server";
 import {
@@ -20,7 +12,6 @@ import {
   getProject,
   getProjects,
 } from "~/models/project.server";
-import type { ProjectComplete } from "~/models/project.server";
 
 import {
   Card,
@@ -37,7 +28,6 @@ import {
 } from "@mui/material";
 import { EditSharp, ThumbUpSharp, ThumbDownSharp } from "@mui/icons-material";
 import { adminRoleName } from "app/constants";
-import type { Profiles, ProjectMembers } from "@prisma/client";
 import ContributorPathReport from "../../../core/components/ContributorPathReport/index";
 import { useEffect, useState } from "react";
 import JoinProjectModal from "~/core/components/JoinProjectModal";
@@ -50,22 +40,12 @@ import RelatedProjectsSection from "~/core/components/RelatedProjectsSection";
 import Header from "~/core/layouts/Header";
 import MembershipStatusModal from "~/core/components/MembershipStatusModal";
 
-type LoaderData = {
-  isAdmin: boolean;
-  isTeamMember: boolean;
-  membership: ProjectMembers | undefined;
-  profile: Profiles;
-  project: ProjectComplete;
-  projectsList: Awaited<ReturnType<typeof getProjects>>;
-  profileId: string;
-};
-
 type voteProject = {
   projectId: string;
   profileId: string;
 };
 
-export const loader: LoaderFunction = async ({ request, params }) => {
+export const loader = async ({ request, params }: LoaderArgs) => {
   invariant(params.projectId, "projectId not found");
 
   const project = await getProject({ id: params.projectId });
@@ -81,7 +61,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const membership = getProjectTeamMember(profile.id, project);
   const isAdmin = user.role == adminRoleName;
   const profileId = profile.id;
-  return json<LoaderData>({
+  return typedjson({
     isAdmin,
     isTeamMember,
     membership,
@@ -108,7 +88,7 @@ export const action: ActionFunction = async ({ request }) => {
         } else {
           await unvoteProject(projectId, profileId);
         }
-        return json({ error: "" }, { status: 200 });
+        return typedjson({ error: "" }, { status: 200 });
       default: {
         throw new Error("Something went wrong");
       }
@@ -118,7 +98,7 @@ export const action: ActionFunction = async ({ request }) => {
   }
 };
 
-export const meta: MetaFunction = ({ data, params }) => {
+export const meta: TypedMetaFunction<typeof loader> = ({ data, params }) => {
   if (!data) {
     return {
       title: "Missing Project",
@@ -126,7 +106,7 @@ export const meta: MetaFunction = ({ data, params }) => {
     };
   }
 
-  const { project } = data as LoaderData;
+  const { project } = data;
   return {
     title: `${project?.name} milkshake`,
     description: project?.description,
@@ -142,7 +122,7 @@ export default function ProjectDetailsPage() {
     project,
     projectsList,
     profileId,
-  } = useLoaderData() as LoaderData;
+  } = useTypedLoaderData<typeof loader>();
   const [showJoinModal, setShowJoinModal] = useState<boolean>(false);
   const [showMembershipModal, setShowMembershipModal] =
     useState<boolean>(false);

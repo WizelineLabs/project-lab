@@ -1,26 +1,16 @@
-import type {
-  ActionFunction,
-  LoaderFunction,
-  MetaFunction,
-} from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import { Form, useLoaderData } from "@remix-run/react";
+import type { ActionFunction, LoaderArgs } from "@remix-run/node";
+import { typedjson, useTypedLoaderData } from "remix-typedjson";
+import type { TypedMetaFunction } from "remix-typedjson";
+import { redirect } from "@remix-run/node";
+import { Form } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import { requireProfile, requireUser } from "~/session.server";
 import {
-  getProjectTeamMember,
   isProjectTeamMember,
   getProject,
   updateProjects,
 } from "~/models/project.server";
-import type { ProjectComplete } from "~/models/project.server";
 import { adminRoleName } from "app/constants";
-import type {
-  InnovationTiers,
-  Profiles,
-  ProjectMembers,
-  ProjectStatus,
-} from "@prisma/client";
 
 import {
   Box,
@@ -56,19 +46,7 @@ export function links() {
   ];
 }
 
-type LoaderData = {
-  isAdmin: boolean;
-  isTeamMember: boolean;
-  membership: ProjectMembers | undefined;
-  profile: Profiles;
-  project: ProjectComplete;
-  profileId: string;
-  projectId: string;
-  statuses: ProjectStatus[];
-  tiers: InnovationTiers[];
-};
-
-export const loader: LoaderFunction = async ({ request, params }) => {
+export const loader = async ({ request, params }: LoaderArgs) => {
   invariant(params.projectId, "projectId could not be found");
   const projectId = params.projectId;
   const project = await getProject({ id: projectId });
@@ -83,13 +61,11 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const profile = await requireProfile(request);
   const isTeamMember = isProjectTeamMember(profile.id, project);
 
-  const membership = getProjectTeamMember(profile.id, project);
   const isAdmin = user.role == adminRoleName;
   const profileId = profile.id;
-  return json<LoaderData>({
+  return typedjson({
     isAdmin,
     isTeamMember,
-    membership,
     profile,
     project,
     profileId,
@@ -110,7 +86,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   return redirect(`/projects/${project.id}`);
 };
 
-export const meta: MetaFunction = ({ data, params }) => {
+export const meta: TypedMetaFunction = ({ data, params }) => {
   if (!data) {
     return {
       title: "Missing Project",
@@ -118,7 +94,7 @@ export const meta: MetaFunction = ({ data, params }) => {
     };
   }
 
-  const { project } = data as LoaderData;
+  const { project } = data;
   return {
     title: `${project?.name} edit project`,
     description: project?.description,
@@ -126,27 +102,14 @@ export const meta: MetaFunction = ({ data, params }) => {
 };
 
 export default function EditProjectPage() {
-  const {
-    isAdmin,
-    isTeamMember,
-    profile,
-    membership,
-    project,
-    profileId,
-    projectId,
-    statuses,
-    tiers,
-  } = useLoaderData() as LoaderData;
+  const { isAdmin, project, projectId, statuses, tiers } =
+    useTypedLoaderData<typeof loader>();
 
-  const [selectedRelatedProjects, setSelectedRelatedProjects] = useState(
-    project.relatedProjects
-  );
   const [tabIndex, setTabIndex] = useState(0);
   const handleTabChange = (event: SyntheticEvent, tabNumber: number) =>
     setTabIndex(tabNumber);
 
   const [open, setOpen] = useState(false);
-  const [deleteSelection, setDeleteSelection] = useState("");
   const [isButtonDisabled, setisButtonDisabled] = useState(true);
 
   const handleClickOpen = () => {

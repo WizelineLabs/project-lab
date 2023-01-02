@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useFetcher, useLoaderData, useCatch } from "@remix-run/react";
-import type { LoaderFunction, ActionFunction } from "@remix-run/node";
+import { useFetcher, useCatch } from "@remix-run/react";
+import type { ActionFunction } from "@remix-run/node";
+import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import { json } from "@remix-run/node";
 import type { GridRenderCellParams } from "@mui/x-data-grid";
 import { DataGrid, GridToolbarContainer } from "@mui/x-data-grid";
@@ -37,17 +38,13 @@ type gridEditToolbarProps = {
   createButtonText: string;
 };
 
-type LoaderData = {
-  labels: Awaited<ReturnType<typeof getLabels>>;
-};
-
 type newLabel = {
   name: string;
 };
 
-export const loader: LoaderFunction = async () => {
+export const loader = async () => {
   const labels = await getLabels();
-  return json<LoaderData>({
+  return typedjson({
     labels,
   });
 };
@@ -122,7 +119,7 @@ const GridEditToolbar = (props: gridEditToolbarProps) => {
 
 export default function LabelsDataGrid() {
   const fetcher = useFetcher();
-  const { labels } = useLoaderData() as LoaderData;
+  const { labels } = useTypedLoaderData<typeof loader>();
   const createButtonText = "Create New Label";
   const [error, setError] = useState<string>("");
   const [rows, setRows] = useState<LabelRecord[]>(() =>

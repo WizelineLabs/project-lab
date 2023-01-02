@@ -1,7 +1,6 @@
-import React from "react";
 import { Link as RemixLink } from "@remix-run/react";
 import { styled } from "@mui/material";
-import type { RemixLinkProps } from "@remix-run/react/components";
+import type { RemixLinkProps } from "@remix-run/react/dist/components";
 
 const StyledLink = styled(RemixLink)(({ theme }) => ({
   color: theme.palette.primary.main,

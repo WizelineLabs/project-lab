@@ -23,6 +23,9 @@ let auth0Strategy = new Auth0Strategy(
     domain: process.env.AUTH0_DOMAIN,
   },
   async ({ accessToken, refreshToken, extraParams, profile }) => {
+    if (profile.emails == undefined || !profile.emails[0]) {
+      throw new Error("we need an email to login");
+    }
     // search profile in our DB or get from data lake
     const email = profile.emails[0].value;
     const userProfile = await getProfileByEmail(email);
@@ -58,7 +61,7 @@ let auth0Strategy = new Auth0Strategy(
     // Get the user data from your DB or API using the tokens and profile
     return findOrCreate({
       email: profile.emails[0].value,
-      name: profile.displayName,
+      name: profile.displayName || "Unnamed",
     });
   }
 );
