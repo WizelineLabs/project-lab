@@ -4,7 +4,6 @@ export const Grid = styled.div`
   display: grid;
   column-gap: 2rem;
   grid-template-columns: 1fr 1fr;
-  padding: 1rem;
   font-size: 0.9rem;
 
   @media (max-width: 768px) {
