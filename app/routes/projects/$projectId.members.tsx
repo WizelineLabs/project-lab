@@ -9,6 +9,9 @@ import {
   TextField,
   debounce,
   Box,
+  Container,
+  Paper,
+  Button,
 } from "@mui/material";
 import { SkillsSelect } from "app/core/components/SkillsSelect";
 import { DisciplinesSelect } from "~/core/components/DisciplinesSelect";
@@ -129,155 +132,172 @@ const EditMembersPage = () => {
   }, [profileFetcher]);
 
   return (
-    <div>
+    <>
       <Header title="Project Members" />
-      <div className="wrapper">
-        <h1 className="form__center-text">Project Members</h1>
-      </div>
-      <div className="wrapper">
-        <GoBack title="Back to project" href={`/projects/${projectId}`} />
-        <ValidatedForm
-          validator={validator}
-          defaultValues={{
-            projectMembers,
+      <Container>
+        <Paper
+          elevation={0}
+          sx={{
+            paddingLeft: 2,
+            paddingRight: 2,
           }}
-          method="post"
-          id="profileMembersForm"
         >
-          <FieldArray name="projectMembers">
-            {(items, { push, remove }) => (
-              <>
-                <Autocomplete
-                  multiple
-                  style={{ margin: "1em 0" }}
-                  options={profileFetcher.data ?? []}
-                  isOptionEqualToValue={(option, value) =>
-                    option.id === value.id
-                  }
-                  getOptionLabel={(option) => option.name}
-                  onInputChange={(_, value) => searchProfilesDebounced(value)}
-                  disableClearable
-                  onChange={(_event, _newValue, reason, details) => {
-                    if (reason === "selectOption") {
-                      push({
-                        profileId: details?.option.id,
-                        hoursPerWeek: "",
-                        practicedSkills: [],
-                        role: [],
-                        profile: { firstName: details?.option.name },
-                        active: true,
-                      });
+          <h1>Project Members</h1>
+        </Paper>
+      </Container>
+      <Container>
+        <Paper
+          elevation={0}
+          sx={{ paddingLeft: 2, paddingRight: 2, paddingBottom: 2 }}
+        >
+          <GoBack title="Back to project" href={`/projects/${projectId}`} />
+          <ValidatedForm
+            validator={validator}
+            defaultValues={{
+              projectMembers,
+            }}
+            method="post"
+            id="profileMembersForm"
+          >
+            <FieldArray name="projectMembers">
+              {(items, { push, remove }) => (
+                <>
+                  <Autocomplete
+                    multiple
+                    style={{ margin: "1em 0" }}
+                    options={profileFetcher.data ?? []}
+                    isOptionEqualToValue={(option, value) =>
+                      option.id === value.id
                     }
-                    if (
-                      reason === "removeOption" &&
-                      profile.name !== details?.option.name
-                    ) {
-                      remove(
-                        items.findIndex(
-                          (item) => item.profileId !== details?.option.id
-                        )
-                      );
-                    }
-                  }}
-                  renderTags={() => null}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Add a contributor"
-                      InputProps={{
-                        ...params.InputProps,
-                        endAdornment: (
-                          <Fragment>
-                            {profileFetcher.state === "submitting" ? (
-                              <CircularProgress color="inherit" size={20} />
-                            ) : null}
-                            {params.InputProps.endAdornment}
-                          </Fragment>
-                        ),
-                      }}
-                    />
-                  )}
-                />
+                    getOptionLabel={(option) => option.name}
+                    onInputChange={(_, value) => searchProfilesDebounced(value)}
+                    disableClearable
+                    onChange={(_event, _newValue, reason, details) => {
+                      if (reason === "selectOption") {
+                        push({
+                          profileId: details?.option.id,
+                          hoursPerWeek: "",
+                          practicedSkills: [],
+                          role: [],
+                          profile: { firstName: details?.option.name },
+                          active: true,
+                        });
+                      }
+                      if (
+                        reason === "removeOption" &&
+                        profile.name !== details?.option.name
+                      ) {
+                        remove(
+                          items.findIndex(
+                            (item) => item.profileId !== details?.option.id
+                          )
+                        );
+                      }
+                    }}
+                    renderTags={() => null}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Add a contributor"
+                        InputProps={{
+                          ...params.InputProps,
+                          endAdornment: (
+                            <Fragment>
+                              {profileFetcher.state === "submitting" ? (
+                                <CircularProgress color="inherit" size={20} />
+                              ) : null}
+                              {params.InputProps.endAdornment}
+                            </Fragment>
+                          ),
+                        }}
+                      />
+                    )}
+                  />
 
-                <Grid
-                  container
-                  spacing={1}
-                  alignItems="baseline"
-                  rowSpacing={{ xs: 2, sm: 1 }}
-                  style={{ paddingTop: 20 }}
-                >
-                  {items?.map((item, i) => (
-                    <Fragment key={i}>
-                      <Grid item xs={12} sm={2}>
-                        <>
-                          <input
-                            type="hidden"
-                            name={`projectMembers[${i}].profileId`}
-                            value={item.profileId}
+                  <Grid
+                    container
+                    spacing={1}
+                    alignItems="baseline"
+                    rowSpacing={{ xs: 2, sm: 1 }}
+                    style={{ paddingTop: 20 }}
+                  >
+                    {items?.map((item, i) => (
+                      <Fragment key={i}>
+                        <Grid item xs={12} sm={2}>
+                          <>
+                            <input
+                              type="hidden"
+                              name={`projectMembers[${i}].profileId`}
+                              value={item.profileId}
+                            />
+                            <Chip
+                              label={`${item.profile?.firstName} ${item.profile?.lastName}`}
+                              onDelete={() => {
+                                if (item.profileId !== profile.id) {
+                                  remove(i);
+                                }
+                              }}
+                            />
+                          </>
+                        </Grid>
+                        <Grid item xs={12} sm={4}>
+                          <DisciplinesSelect //still uses constant values instead of values taken from the db
+                            name={`projectMembers[${i}].role`}
+                            label="Role(s)"
                           />
-                          <Chip
-                            label={`${item.profile?.firstName} ${item.profile?.lastName}`}
-                            onDelete={() => {
-                              if (item.profileId !== profile.id) {
-                                remove(i);
-                              }
+                        </Grid>
+                        <Grid item xs={12} sm={4}>
+                          <SkillsSelect //still uses constant values instead of values taken from the db
+                            name={`projectMembers[${i}].practicedSkills`}
+                            label="Skills"
+                          />
+                        </Grid>
+                        <Grid item xs={6} sm={1}>
+                          <LabeledTextField
+                            label="Hours"
+                            helperText="H. per week"
+                            name={`projectMembers[${i}].hoursPerWeek`}
+                            size="small"
+                            type="number"
+                            sx={{
+                              "& .MuiFormHelperText-root": {
+                                marginLeft: 0,
+                                marginRight: 0,
+                                textAlign: "center",
+                              },
                             }}
                           />
-                        </>
-                      </Grid>
-                      <Grid item xs={12} sm={4}>
-                        <DisciplinesSelect //still uses constant values instead of values taken from the db
-                          name={`projectMembers[${i}].role`}
-                          label="Role(s)"
-                        />
-                      </Grid>
-                      <Grid item xs={12} sm={4}>
-                        <SkillsSelect //still uses constant values instead of values taken from the db
-                          name={`projectMembers[${i}].practicedSkills`}
-                          label="Skills"
-                        />
-                      </Grid>
-                      <Grid item xs={6} sm={1}>
-                        <LabeledTextField
-                          label="Hours"
-                          helperText="H. per week"
-                          name={`projectMembers[${i}].hoursPerWeek`}
-                          size="small"
-                          type="number"
-                          sx={{
-                            "& .MuiFormHelperText-root": {
-                              marginLeft: 0,
-                              marginRight: 0,
-                              textAlign: "center",
-                            },
-                          }}
-                        />
-                      </Grid>
-                      <Grid item xs={2} sm={1} style={{ textAlign: "center" }}>
-                        <LabeledCheckbox
-                          name={`projectMembers[${i}].active`}
-                          label="Active"
-                        />
-                      </Grid>
-                      <hr className="rows__separator" />
-                    </Fragment>
-                  ))}
-                </Grid>
-              </>
-            )}
-          </FieldArray>
-          <Box textAlign="center">
-            <button
-              disabled={transition.state === "submitting"}
-              type="submit"
-              className="primary"
-            >
-              {transition.state === "submitting" ? "Submitting..." : "Submit"}
-            </button>
-          </Box>
-        </ValidatedForm>
-      </div>
-    </div>
+                        </Grid>
+                        <Grid
+                          item
+                          xs={2}
+                          sm={1}
+                          style={{ textAlign: "center" }}
+                        >
+                          <LabeledCheckbox
+                            name={`projectMembers[${i}].active`}
+                            label="Active"
+                          />
+                        </Grid>
+                        <hr className="rows__separator" />
+                      </Fragment>
+                    ))}
+                  </Grid>
+                </>
+              )}
+            </FieldArray>
+            <Box textAlign="center">
+              <Button
+                disabled={transition.state === "submitting"}
+                variant="contained"
+              >
+                {transition.state === "submitting" ? "Submitting..." : "Submit"}
+              </Button>
+            </Box>
+          </ValidatedForm>
+        </Paper>
+      </Container>
+    </>
   );
 };
 

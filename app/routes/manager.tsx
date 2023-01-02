@@ -1,5 +1,4 @@
 import Header from "app/core/layouts/Header";
-import CardBox from "app/core/components/CardBox";
 import { useState } from "react";
 import { useLoaderData, Outlet } from "@remix-run/react";
 import { redirect } from "@remix-run/server-runtime";
@@ -11,9 +10,9 @@ import {
   LinkStyles,
 } from "./manager/manager.styles";
 
-import Wrapper from "../styles/projects.styles";
 import { adminRoleName } from "app/constants";
 import { requireUser } from "~/session.server";
+import { Container, Paper } from "@mui/material";
 
 type LoaderData = {
   initialTabIdx: number;
@@ -50,7 +49,7 @@ export default function ManagerPage() {
   return (
     <div>
       <Header title="Manager" />
-      <Wrapper className="homeWrapper">
+      <Container>
         <NavBarTabsStyles>
           <EditPanelsStyles>
             <LinkStyles
@@ -69,10 +68,11 @@ export default function ManagerPage() {
             </LinkStyles>
           </EditPanelsStyles>
         </NavBarTabsStyles>
-        <CardBox title={tabTitle}>
+        <Paper elevation={0} sx={{ padding: 2 }}>
+          <h2 style={{ marginTop: 0 }}>{tabTitle}</h2>
           <Outlet />
-        </CardBox>
-      </Wrapper>
+        </Paper>
+      </Container>
     </div>
   );
 }

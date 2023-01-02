@@ -1,4 +1,10 @@
-import { FormControlLabel, Switch, Collapse, Stack } from "@mui/material";
+import {
+  FormControlLabel,
+  Switch,
+  Collapse,
+  Stack,
+  Button,
+} from "@mui/material";
 import { useState } from "react";
 import { MultiUrl } from "~/core/components/MultiUrl";
 import DisciplinesSelect from "~/core/components/DisciplinesSelect";
@@ -48,6 +54,7 @@ export function ProjectForm({
 
       <TextEditor
         name="valueStatement"
+        label="Value proposition"
         placeholder={"Explain us your proposal..."}
       />
 
@@ -141,9 +148,9 @@ export function ProjectForm({
         </Stack>
       </Collapse>
       <Box textAlign="center">
-        <button disabled={disabled} type="submit" className="primary">
+        <Button type="submit" disabled={disabled} variant="contained">
           {isSubmitting ? "Submitting..." : "Submit"}
-        </button>
+        </Button>
       </Box>
     </Stack>
   );

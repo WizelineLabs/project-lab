@@ -11,7 +11,7 @@ import {
 import { Form, useTransition } from "@remix-run/react";
 import { useEffect, useState } from "react";
 
-export const UnarchiveProject = ({ projectId }: { projectId: string }) => {
+export const UnarchiveProject = ({ projectId }: { projectId?: string }) => {
   const [open, setOpen] = useState(false);
   const [isButtonDisabled, setisButtonDisabled] = useState(true);
 

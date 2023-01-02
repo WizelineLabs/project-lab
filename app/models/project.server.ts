@@ -54,7 +54,7 @@ interface FacetOutput {
 }
 
 interface RelatedProjectInput {
-  relatedProjects: [{ id: string; name: string }];
+  relatedProjects: { id: string }[];
 }
 
 export class SearchProjectsError extends Error {
@@ -205,12 +205,7 @@ export async function getProjects(where: ProjectWhereInput) {
   try {
     const projects = await db.projects.findMany({
       where,
-      include: {
-        projectStatus: true,
-        owner: true,
-        skills: true,
-        projectMembers: true,
-      },
+      select: { id: true, name: true },
     });
     return projects;
   } catch (e) {
@@ -311,6 +306,26 @@ export async function updateMembers(
   }
 }
 
+export async function updateMembership(
+  projectId: string,
+  projectMemberId: string,
+  data: {
+    active: boolean;
+    newOwner?: string | undefined;
+  }
+) {
+  if (data.newOwner) {
+    await db.projects.update({
+      where: { id: projectId },
+      data: { ownerId: data.newOwner },
+    });
+  }
+  await db.projectMembers.update({
+    where: { id: projectMemberId },
+    data: { active: data.active },
+  });
+}
+
 export async function joinProject(
   projectId: string,
   profileId: string,
@@ -336,7 +351,11 @@ export async function updateProjects(
   id: string,
   isAdmin: boolean,
   data: {
+    name: string;
     slackChannel?: string;
+    description: string;
+    valueStatement?: string;
+    helpWanted: boolean;
     owner?: { id: string };
     repoUrls?: { url: string }[];
     projectStatus?: { name: string };
@@ -413,6 +432,20 @@ export async function updateProjects(
   });
 
   return project;
+}
+
+// update several projects from manager tab
+export async function updateManyProjects({
+  ids,
+  data,
+}: {
+  ids: string[];
+  data: ProjectWhereInput;
+}) {
+  await db.projects.updateMany({
+    where: { id: { in: ids } },
+    data,
+  });
 }
 
 // edit only relatedProjects

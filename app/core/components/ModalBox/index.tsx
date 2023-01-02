@@ -1,31 +1,29 @@
 import React from "react";
-import { Modal, Box, IconButton } from "@mui/material";
-import styled from "@emotion/styled";
+import { Modal, IconButton, styled } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
 
-export const BoxContainer = styled.div`
-  width: 500px;
-  margin: 0 auto;
-  background: #fff;
-  padding: 10px;
-  border-radius: 4px;
-`;
+export const BoxContainer = styled("div")(({ theme }) => ({
+  backgroundColor: theme.palette.background.default,
+  width: 500,
+  margin: "auto",
+  padding: theme.spacing(2),
+  borderRadius: 1,
+}));
 
-export const ModalContainer = styled.div`
+export const ModalContainer = styled("div")`
   display: flex;
   align-items: center;
   height: 100%;
 `;
 
-export const Action = styled.div`
-  display: flex;
-  justify-content: flex-end;
+export const Action = styled("div")`
+  float: right;
 `;
 
 interface IProps {
   children: React.ReactNode;
   open: boolean;
-  handleClose: React.MouseEventHandler;
+  handleClose?: React.MouseEventHandler;
   close: Function;
   boxStyle?: React.CSSProperties;
 }
@@ -40,14 +38,12 @@ export const ModalBox = ({ children, boxStyle, ...props }: IProps) => {
     >
       <ModalContainer>
         <BoxContainer style={boxStyle}>
-          <Box sx={{ marginTop: "0px" }}>
-            <Action>
-              <IconButton onClick={() => props.close()}>
-                <CloseIcon />
-              </IconButton>
-            </Action>
-            {children}
-          </Box>
+          <Action>
+            <IconButton onClick={() => props.close()}>
+              <CloseIcon />
+            </IconButton>
+          </Action>
+          {children}
         </BoxContainer>
       </ModalContainer>
     </Modal>

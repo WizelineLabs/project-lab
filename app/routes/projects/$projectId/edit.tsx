@@ -1,34 +1,26 @@
-import type {
-  ActionFunction,
-  LoaderFunction,
-  MetaFunction,
-} from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import { Form, useLoaderData } from "@remix-run/react";
+import type { ActionFunction, LoaderArgs } from "@remix-run/node";
+import { typedjson, useTypedLoaderData } from "remix-typedjson";
+import type { TypedMetaFunction } from "remix-typedjson";
+import { redirect } from "@remix-run/node";
+import { Form } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import { requireProfile, requireUser } from "~/session.server";
 import {
-  getProjectTeamMember,
   isProjectTeamMember,
   getProject,
   updateProjects,
 } from "~/models/project.server";
-import type { ProjectComplete } from "~/models/project.server";
 import { adminRoleName } from "app/constants";
-import type {
-  InnovationTiers,
-  Profiles,
-  ProjectMembers,
-  ProjectStatus,
-} from "@prisma/client";
 
 import {
   Box,
   Button,
+  Container,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  Paper,
   Tabs,
 } from "@mui/material";
 import GoBack from "~/core/components/GoBack";
@@ -44,19 +36,17 @@ import TabPanel from "~/core/components/TabPanel";
 import { getProjectStatuses } from "~/models/status.server";
 import { getInnovationTiers } from "~/models/innovationTier.server";
 
-type LoaderData = {
-  isAdmin: boolean;
-  isTeamMember: boolean;
-  membership: ProjectMembers | undefined;
-  profile: Profiles;
-  project: ProjectComplete;
-  profileId: string;
-  projectId: string;
-  statuses: ProjectStatus[];
-  tiers: InnovationTiers[];
-};
+import MDEditorStyles from "@uiw/react-md-editor/markdown-editor.css";
+import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
 
-export const loader: LoaderFunction = async ({ request, params }) => {
+export function links() {
+  return [
+    { rel: "stylesheet", href: MDEditorStyles },
+    { rel: "stylesheet", href: MarkdownStyles },
+  ];
+}
+
+export const loader = async ({ request, params }: LoaderArgs) => {
   invariant(params.projectId, "projectId could not be found");
   const projectId = params.projectId;
   const project = await getProject({ id: projectId });
@@ -71,13 +61,11 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const profile = await requireProfile(request);
   const isTeamMember = isProjectTeamMember(profile.id, project);
 
-  const membership = getProjectTeamMember(profile.id, project);
   const isAdmin = user.role == adminRoleName;
   const profileId = profile.id;
-  return json<LoaderData>({
+  return typedjson({
     isAdmin,
     isTeamMember,
-    membership,
     profile,
     project,
     profileId,
@@ -98,7 +86,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   return redirect(`/projects/${project.id}`);
 };
 
-export const meta: MetaFunction = ({ data, params }) => {
+export const meta: TypedMetaFunction = ({ data, params }) => {
   if (!data) {
     return {
       title: "Missing Project",
@@ -106,7 +94,7 @@ export const meta: MetaFunction = ({ data, params }) => {
     };
   }
 
-  const { project } = data as LoaderData;
+  const { project } = data;
   return {
     title: `${project?.name} edit project`,
     description: project?.description,
@@ -114,27 +102,14 @@ export const meta: MetaFunction = ({ data, params }) => {
 };
 
 export default function EditProjectPage() {
-  const {
-    isAdmin,
-    isTeamMember,
-    profile,
-    membership,
-    project,
-    profileId,
-    projectId,
-    statuses,
-    tiers,
-  } = useLoaderData() as LoaderData;
+  const { isAdmin, project, projectId, statuses, tiers } =
+    useTypedLoaderData<typeof loader>();
 
-  const [selectedRelatedProjects, setSelectedRelatedProjects] = useState(
-    project.relatedProjects
-  );
   const [tabIndex, setTabIndex] = useState(0);
   const handleTabChange = (event: SyntheticEvent, tabNumber: number) =>
     setTabIndex(tabNumber);
 
   const [open, setOpen] = useState(false);
-  const [deleteSelection, setDeleteSelection] = useState("");
   const [isButtonDisabled, setisButtonDisabled] = useState(true);
 
   const handleClickOpen = () => {
@@ -152,67 +127,77 @@ export default function EditProjectPage() {
     <>
       <Header title={"Edit " + project.name} />
 
-      <div className="wrapper">
-        <h1 className="form__center-text">Edit {project.name}</h1>
-      </div>
+      <Container>
+        <Paper elevation={0} sx={{ paddingLeft: 2, paddingRight: 2 }}>
+          <h1 className="form__center-text">Edit {project.name}</h1>
+        </Paper>
+      </Container>
 
-      <div className="wrapper">
-        <GoBack title="Back to project" href={`/projects/${projectId}`} />
+      <Container>
+        <Paper
+          elevation={0}
+          sx={{ paddingLeft: 2, paddingRight: 2, paddingBottom: 2 }}
+        >
+          <GoBack title="Back to project" href={`/projects/${projectId}`} />
 
-        <EditPanelsStyles>
-          <Box>
-            <Tabs
-              value={tabIndex}
-              onChange={handleTabChange}
-              aria-label="Edit project"
-            >
-              <TabStyles label="Project Details" />
-              <TabStyles label="Contributor's Path" />
-            </Tabs>
-          </Box>
+          <EditPanelsStyles>
+            <Box>
+              <Tabs
+                value={tabIndex}
+                onChange={handleTabChange}
+                aria-label="Edit project"
+              >
+                <TabStyles label="Project Details" />
+                <TabStyles label="Contributor's Path" />
+              </Tabs>
+            </Box>
 
-          <TabPanel value={tabIndex} index={0}>
-            <ValidatedForm
-              validator={validator}
-              defaultValues={{
-                name: project.name,
-                projectStatus: project.projectStatus || undefined,
-                innovationTiers: project.innovationTiers || undefined,
-                description: project.description || "",
-                valueStatement: project.valueStatement || "",
-                helpWanted: project.helpWanted,
-                disciplines: project.disciplines,
-                owner: project.owner || undefined,
-                target: project.target || "",
-                repoUrls: project.repoUrls || [],
-                skills: project.skills,
-                labels: project.labels,
-                //projectMembers: project.projectMembers,
-              }}
-              method="post"
-            >
-              <ProjectForm statuses={statuses} tiers={tiers} />
-            </ValidatedForm>
-          </TabPanel>
-          <TabPanel value={tabIndex} index={1}>
-            {/* <ProjectContributorsPathForm
+            <TabPanel value={tabIndex} index={0}>
+              <ValidatedForm
+                validator={validator}
+                defaultValues={{
+                  name: project.name,
+                  projectStatus: project.projectStatus || undefined,
+                  innovationTiers: project.innovationTiers || undefined,
+                  description: project.description || "",
+                  valueStatement: project.valueStatement || "",
+                  helpWanted: project.helpWanted,
+                  disciplines: project.disciplines,
+                  owner: project.owner || undefined,
+                  target: project.target || "",
+                  repoUrls: project.repoUrls || [],
+                  slackChannel: project.slackChannel || "",
+                  skills: project.skills,
+                  labels: project.labels,
+                  //projectMembers: project.projectMembers,
+                }}
+                method="post"
+              >
+                <ProjectForm statuses={statuses} tiers={tiers} />
+              </ValidatedForm>
+            </TabPanel>
+            {/*<TabPanel value={tabIndex} index={1}>
+             <ProjectContributorsPathForm
               submitText="Update Stages "
               schema={ContributorPath}
               initialValues={project.stages}
               onSubmit={handleSubmitContributorPath}
               projectId={project.id}
               retrieveProjectInfo={retrieveProjectInfo}
-            /> */}
-          </TabPanel>
-        </EditPanelsStyles>
-        {isAdmin && (
-          <div className="wrapper form__center-text">
-            <button onClick={handleClickOpen} className="primary warning">
+            />
+          </TabPanel> */}
+          </EditPanelsStyles>
+          {isAdmin && (
+            <Button
+              onClick={handleClickOpen}
+              color="warning"
+              variant="contained"
+            >
               {"Delete Project"}
-            </button>
-          </div>
-        )}
-      </div>
+            </Button>
+          )}
+        </Paper>
+      </Container>
       <Dialog onClose={handleClose} open={open}>
         <DialogTitle>
           Are you sure you want to delete this proposal?
@@ -223,13 +208,13 @@ export default function EditProjectPage() {
             <input type="hidden" name="projectId" value={projectId} />
           </DialogContent>
           <DialogActions>
-            <Button className="primary" onClick={handleClose}>
+            <Button variant="contained" onClick={handleClose}>
               Cancel
             </Button>
             <Button
+              variant="contained"
               disabled={isButtonDisabled}
-              type="submit"
-              className="primary warning"
+              color="warning"
             >
               Yes, delete it
             </Button>

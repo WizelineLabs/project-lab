@@ -95,7 +95,7 @@ const JoinProjectModal = (props: IProps) => {
               </li>
             </ul>
             <p>&nbsp;</p>
-            <Button type="submit" className="primary large">
+            <Button type="submit" variant="contained">
               Join Project
             </Button>
           </CommitmentDivContainer>

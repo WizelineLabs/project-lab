@@ -1,7 +1,6 @@
 import type { PropsWithoutRef } from "react";
-import { Fragment, useState } from "react";
 
-import { CircularProgress, TextField, Autocomplete } from "@mui/material";
+import { TextField, Autocomplete } from "@mui/material";
 import { useField, useControlField } from "remix-validated-form";
 
 interface RelatedProjectsSelectProps {

@@ -1,5 +1,4 @@
-import styled from "@emotion/styled"
-import { Link } from '@remix-run/react'
+import styled from "@emotion/styled";
 
 export const ProposalCardWrap = styled.div`
   display: flex;
@@ -19,7 +18,6 @@ export const ProposalCardWrap = styled.div`
     border: 2px solid #111823;
     border-radius: 50%;
     font-weight: bold;
-    color: #111823;
     font-size: 16px;
   }
   .ProposalCard__head__icon img {
@@ -33,13 +31,11 @@ export const ProposalCardWrap = styled.div`
     width: calc(100% - 60px - 20px);
   }
   .ProposalCard__head__description--title {
-    color: #111823;
     font-weight: 700;
     font-size: 18px;
     line-height: 18px;
   }
   .ProposalCard__head__description--date {
-    color: #111823;
     font-weight: 700;
     font-size: 12px;
   }
@@ -51,36 +47,12 @@ export const ProposalCardWrap = styled.div`
   }
   .ProposalCard--description {
     height: 40px;
-    color: #727e8c;
     font-family: Poppins;
     font-size: 12px;
     letter-spacing: 0;
     line-height: 21px;
     margin-top: 10px;
     margin-bottom: 30px;
-  }
-  .ProposalCard__skills {
-    min-height: 29px;
-    width: 100%;
-    display: flex;
-    justify-content: flex-start;
-    flex-wrap: wrap;
-    margin-bottom: 10px;
-  }
-  .ProposalCard__skills--title {
-    margin-right: 5px;
-    margin-bottom: 5px;
-    background-color: #e94d44;
-    color: #fff;
-    padding: 5px 10px;
-    font-size: 12px;
-    border-radius: 11px;
-  }
-  hr {
-    height: 1px;
-    width: 100%;
-    background-color: #111823;
-    margin-bottom: 5px;
   }
   .ProposalCard__status {
     width: 100%;
@@ -101,8 +73,6 @@ export const ProposalCardWrap = styled.div`
   }
   .ProposalCard__status--display {
     height: 25px;
-    color: #111823;
-    font-size: 12px;
     font-weight: 700;
     line-height: 25px;
   }
@@ -111,7 +81,6 @@ export const ProposalCardWrap = styled.div`
     flex-direction: row;
     justify-content: center;
     color: #af2e33;
-    font-size: 14px;
     margin-right: 10px;
 
     & span {
@@ -122,8 +91,6 @@ export const ProposalCardWrap = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: center;
-    color: #000000;
-    font-size: 14px;
     margin-right: 10px;
 
     & span {
@@ -132,7 +99,6 @@ export const ProposalCardWrap = styled.div`
   }
   .ProposalCard__head__description--tier {
     font-weight: 700;
-    font-size: 12px;
     cursor: pointer;
   }
   .ProposalCard__tier {
@@ -142,13 +108,10 @@ export const ProposalCardWrap = styled.div`
   }
   .ProposalCard__head__description--tier--extra {
     font-weight: 700;
-    font-size: 12px;
     margin-left: 15px;
-    color: #000000;
   }
-`
-
-export const ProposalCardLink = styled(Link)`
-    text-decoration: none;
-`
-
+  hr {
+    width: 100%;
+    color: #ececec;
+  }
+`;

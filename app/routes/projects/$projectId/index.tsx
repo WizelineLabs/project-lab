@@ -1,26 +1,17 @@
 import { formatDistance } from "date-fns";
 import Markdown from "marked-react";
-import type {
-  ActionFunction,
-  LoaderFunction,
-  MetaFunction,
-} from "@remix-run/node";
-import { json } from "@remix-run/node";
-import {
-  Link,
-  useCatch,
-  useLoaderData,
-  useFetcher,
-  useTransition,
-} from "@remix-run/react";
+import type { ActionFunction, LoaderArgs } from "@remix-run/node";
+import { useCatch, useFetcher, useTransition } from "@remix-run/react";
+import { typedjson, useTypedLoaderData } from "remix-typedjson";
+import type { TypedMetaFunction } from "remix-typedjson";
 import invariant from "tiny-invariant";
 import { requireProfile, requireUser } from "~/session.server";
 import {
   getProjectTeamMember,
   isProjectTeamMember,
   getProject,
+  getProjects,
 } from "~/models/project.server";
-import type { ProjectComplete } from "~/models/project.server";
 
 import {
   Card,
@@ -32,17 +23,12 @@ import {
   Button,
   IconButton,
   Tooltip,
+  Container,
+  Paper,
+  Typography,
 } from "@mui/material";
 import { EditSharp, ThumbUpSharp, ThumbDownSharp } from "@mui/icons-material";
-import {
-  HeaderInfo,
-  DetailMoreHead,
-  Like,
-  LikeBox,
-  EditButton,
-} from "./$projectId.styles";
 import { adminRoleName } from "app/constants";
-import type { Profiles, ProjectMembers } from "@prisma/client";
 import ContributorPathReport from "../../../core/components/ContributorPathReport/index";
 import { useEffect, useState } from "react";
 import JoinProjectModal from "~/core/components/JoinProjectModal";
@@ -56,21 +42,14 @@ import Header from "~/core/layouts/Header";
 import { ArchiveProject } from "~/core/components/ArchiveProject";
 import { UnarchiveProject } from "~/core/components/UnarchiveProject";
 
-type LoaderData = {
-  isAdmin: boolean;
-  isTeamMember: boolean;
-  membership: ProjectMembers | undefined;
-  profile: Profiles;
-  project: ProjectComplete;
-  profileId: string;
-};
+import MembershipStatusModal from "~/core/components/MembershipStatusModal";
 
 type voteProject = {
   projectId: string;
   profileId: string;
 };
 
-export const loader: LoaderFunction = async ({ request, params }) => {
+export const loader = async ({ request, params }: LoaderArgs) => {
   invariant(params.projectId, "projectId not found");
 
   const project = await getProject({ id: params.projectId });
@@ -81,16 +60,18 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const user = await requireUser(request);
   const profile = await requireProfile(request);
   const isTeamMember = isProjectTeamMember(profile.id, project);
+  const projectsList = await getProjects({});
 
   const membership = getProjectTeamMember(profile.id, project);
   const isAdmin = user.role == adminRoleName;
   const profileId = profile.id;
-  return json<LoaderData>({
+  return typedjson({
     isAdmin,
     isTeamMember,
     membership,
     profile,
     project,
+    projectsList,
     profileId,
   });
 };
@@ -111,7 +92,7 @@ export const action: ActionFunction = async ({ request }) => {
         } else {
           await unvoteProject(projectId, profileId);
         }
-        return json({ error: "" }, { status: 200 });
+        return typedjson({ error: "" }, { status: 200 });
       default: {
         throw new Error("Something went wrong");
       }
@@ -121,7 +102,7 @@ export const action: ActionFunction = async ({ request }) => {
   }
 };
 
-export const meta: MetaFunction = ({ data, params }) => {
+export const meta: TypedMetaFunction<typeof loader> = ({ data, params }) => {
   if (!data) {
     return {
       title: "Missing Project",
@@ -129,7 +110,7 @@ export const meta: MetaFunction = ({ data, params }) => {
     };
   }
 
-  const { project } = data as LoaderData;
+  const { project } = data;
   return {
     title: `${project?.name} milkshake`,
     description: project?.description,
@@ -137,17 +118,18 @@ export const meta: MetaFunction = ({ data, params }) => {
 };
 
 export default function ProjectDetailsPage() {
-  const handleJoinProject = () => {
-    setShowJoinModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setShowJoinModal(false);
-  };
-
-  const { isAdmin, isTeamMember, profile, membership, project, profileId } =
-    useLoaderData() as LoaderData;
+  const {
+    isAdmin,
+    isTeamMember,
+    profile,
+    membership,
+    project,
+    projectsList,
+    profileId,
+  } = useTypedLoaderData<typeof loader>();
   const [showJoinModal, setShowJoinModal] = useState<boolean>(false);
+  const [showMembershipModal, setShowMembershipModal] =
+    useState<boolean>(false);
 
   invariant(project, "project not found");
 
@@ -174,62 +156,63 @@ export default function ProjectDetailsPage() {
   useEffect(() => {
     if (transition.type == "actionRedirect") {
       setShowJoinModal(false);
+      setShowMembershipModal(false);
     }
   }, [transition]);
+
+  const voteCount = project.votes?.filter(
+    (vote) => vote.profileId === profile.id
+  ).length;
 
   return (
     <>
       <Header title={project.name || ""} />
+      {project.isArchived && <Header title="(Archived)" />}
 
-      <div className="wrapper">
-        <HeaderInfo>
-          <Stack
-            direction="row"
-            justifyContent="flex-end"
-            alignItems="center"
-            spacing={1}
-          >
-            <div>
-              {(isTeamMember || isAdmin) && (
-                <Tooltip title="Edit project">
-                  <IconButton aria-label="Edit-project-button">
-                    <Link to={`/projects/${project.id}/edit`}>
-                      <EditSharp />
-                    </Link>
-                  </IconButton>
-                </Tooltip>
-              )}
-            </div>
-
-            <div>
-              {(isTeamMember || isAdmin) &&
-                (!project.isArchived ? (
-                  <ArchiveProject projectId={project.id} />
-                ) : (
-                  <UnarchiveProject projectId={project.id} />
-                ))}
-            </div>
-          </Stack>
+      <Container sx={{ marginBottom: 2 }}>
+        <Paper
+          sx={{
+            paddingLeft: 2,
+            paddingRight: 2,
+            paddingBottom: 2,
+          }}
+        >
           <Grid container justifyContent="space-between">
-            <Grid item xs={12} className="">
-              <div className="titleProposal">
-                <h1>{project.name}</h1>
-                {project.isArchived && <h2>(Archived)</h2>}
-              </div>
-              <div className="descriptionProposal">{project.description}</div>
-              <div className="lastUpdateProposal">
+            <Grid item>
+              <h1 style={{ marginBottom: 0 }}>{project.name}</h1>
+              <Typography color="text.secondary">
                 Last update:{" "}
                 {project.updatedAt &&
                   formatDistance(new Date(project.updatedAt), new Date(), {
                     addSuffix: true,
                   })}
-              </div>
+              </Typography>
+            </Grid>
+            <Grid item>
+              {(isTeamMember || isAdmin) && (
+                <Tooltip title="Edit project">
+                  <IconButton
+                    aria-label="Edit"
+                    href={`/projects/${project.id}/edit`}
+                  >
+                    <EditSharp />
+                  </IconButton>
+                </Tooltip>
+              )}
+
+              {(isTeamMember || isAdmin) &&
+                (!project?.isArchived ? (
+                  <ArchiveProject projectId={project.id} />
+                ) : (
+                  <UnarchiveProject projectId={project.id} />
+                ))}
             </Grid>
           </Grid>
-        </HeaderInfo>
-      </div>
-      <div className="wrapper">
-        <DetailMoreHead>
+          <p className="descriptionProposal">{project.description}</p>
+        </Paper>
+      </Container>
+      <Container sx={{ marginBottom: 2 }}>
+        <Paper sx={{ padding: 2 }}>
           <Grid container alignItems="flex-start" justifyContent="flex-start">
             <Grid
               item
@@ -296,12 +279,14 @@ export default function ProjectDetailsPage() {
                 <div className="itemHeadName">Labels:</div>
               </Grid>
               <Grid item>
-                <Stack direction="row" spacing={1}>
-                  {project.labels &&
-                    project.labels.map((item, index) => (
-                      <Chip key={index} label={item.name} />
-                    ))}
-                </Stack>
+                {project.labels &&
+                  project.labels.map((item, index) => (
+                    <Chip
+                      key={index}
+                      label={item.name}
+                      sx={{ marginRight: 1, marginBottom: 1 }}
+                    />
+                  ))}
               </Grid>
             </Grid>
 
@@ -331,44 +316,29 @@ export default function ProjectDetailsPage() {
               </Grid>
             </Grid>
           </Grid>
-        </DetailMoreHead>
-      </div>
+        </Paper>
+      </Container>
       {isTeamMember && (
         <div className="wrapper">
           {/* <Stages path={project.stages} project={project} /> */}
         </div>
       )}
-      <div className="wrapper">
+      <Container>
         <Grid container spacing={2} alignItems="stretch">
           <Grid item xs={12} md={8}>
-            <Card variant="outlined">
+            <Card>
               <CardContent>
-                <LikeBox>
-                  <Like>
-                    <div className="like-bubble">
-                      <span>{project?.votes?.length}</span>
-                    </div>
-                    <Button
-                      className="primary"
-                      onClick={() => handleVote(project.id || "")}
-                    >
-                      {project.votes &&
-                      project.votes.filter((vote) => {
-                        return vote.profileId === profile.id;
-                      }).length > 0 ? (
-                        <>
-                          {"Unlike"}&nbsp;
-                          <ThumbDownSharp />
-                        </>
-                      ) : (
-                        <>
-                          {"Like"}&nbsp;
-                          <ThumbUpSharp />
-                        </>
-                      )}
-                    </Button>
-                  </Like>
-                </LikeBox>
+                <Box sx={{ float: "right" }}>
+                  <Button variant="outlined">{project?.votes?.length}</Button>
+                  &nbsp;
+                  <Button
+                    variant="contained"
+                    onClick={() => handleVote(project.id || "")}
+                    endIcon={voteCount ? <ThumbDownSharp /> : <ThumbUpSharp />}
+                  >
+                    {voteCount ? "Unlike" : "Like"}
+                  </Button>
+                </Box>
                 <h2>Description</h2>
                 <div>
                   <Markdown>
@@ -381,7 +351,7 @@ export default function ProjectDetailsPage() {
           <Grid item xs={12} md={4}>
             <Stack direction="column" spacing={1}>
               {project.slackChannel && (
-                <Card variant="outlined">
+                <Card>
                   <CardContent>
                     <big>Slack Channel:</big>
                     <Stack direction="row" spacing={1}>
@@ -391,58 +361,55 @@ export default function ProjectDetailsPage() {
                 </Card>
               )}
               {project.repoUrls && (
-                <Card variant="outlined">
+                <Card>
                   <CardContent>
                     <big>Repos URLs:</big>
-                    <Box
-                      component="form"
-                      sx={{
-                        "& .MuiTextField-root": { width: "100%" },
-                      }}
-                      noValidate
-                      autoComplete="off"
-                    >
+                    <ul>
                       {project.repoUrls.map((item, index) => (
-                        <Stack spacing={2} key={index}>
+                        <li key={index}>
                           <a href={item.url} target="_blank" rel="noreferrer">
                             {item.url}
                           </a>
-                        </Stack>
+                        </li>
                       ))}
-                    </Box>
+                    </ul>
                   </CardContent>
                 </Card>
               )}
               {project.skills && project.skills.length > 0 && (
-                <Card variant="outlined">
+                <Card>
                   <CardContent>
                     <big>Skills:</big>
-                    <Stack direction="row" spacing={1}>
-                      {project.skills.map((item, index) => (
-                        <Chip key={index} label={item.name} />
-                      ))}
-                    </Stack>
+                    {project.skills.map((item, index) => (
+                      <Chip
+                        key={index}
+                        label={item.name}
+                        sx={{ marginRight: 1, marginBottom: 1 }}
+                      />
+                    ))}
                   </CardContent>
                 </Card>
               )}
               {project.disciplines && project.disciplines.length > 0 && (
-                <Card variant="outlined">
+                <Card>
                   <CardContent>
                     <big>Looking for:</big>
-                    <Stack direction="row" spacing={1}>
-                      {project.disciplines &&
-                        project.disciplines.map((item, index) => (
-                          <Chip key={index} label={item.name} />
-                        ))}
-                    </Stack>
+                    {project.disciplines &&
+                      project.disciplines.map((item, index) => (
+                        <Chip
+                          key={index}
+                          label={item.name}
+                          sx={{ marginRight: 1, marginBottom: 1 }}
+                        />
+                      ))}
                   </CardContent>
                 </Card>
               )}
               {isTeamMember ? (
                 <Button
-                  className="primary large"
-                  // disabled={joinProjectButton}
-                  // onClick={() => setShowModal(true)}
+                  variant="contained"
+                  disabled={showMembershipModal}
+                  onClick={() => setShowMembershipModal(true)}
                 >
                   {membership?.active
                     ? "Suspend my Membership"
@@ -450,7 +417,10 @@ export default function ProjectDetailsPage() {
                 </Button>
               ) : (
                 project.helpWanted && (
-                  <Button className="primary large" onClick={handleJoinProject}>
+                  <Button
+                    variant="contained"
+                    onClick={() => setShowJoinModal(true)}
+                  >
                     Want to Join?
                   </Button>
                 )
@@ -459,38 +429,42 @@ export default function ProjectDetailsPage() {
           </Grid>
           <Grid item xs={12}></Grid>
         </Grid>
-      </div>
-      <div className="wrapper">
+      </Container>
+      <Container>
+        <Paper sx={{ padding: 2, marginBottom: 2 }}>
+          <RelatedProjectsSection
+            allowEdit={isTeamMember || isAdmin}
+            relatedProjects={project.relatedProjects}
+            projectsList={projectsList}
+            projectId={project.id || ""}
+          />
+        </Paper>
+      </Container>
+      <Container>
         <ContributorPathReport
           project={project}
           isTeamMember={isTeamMember}
           isAdmin={isAdmin}
         />
-      </div>
+      </Container>
       <JoinProjectModal
         projectId={project.id || ""}
         open={showJoinModal}
-        handleCloseModal={handleCloseModal}
+        handleCloseModal={() => setShowJoinModal(false)}
       />
-      <div className="wrapper">
-        <RelatedProjectsSection relatedProjects={project.relatedProjects} />
-      </div>
-      {/*
-      <div className="wrapper">
+
+      {/* <div className="wrapper">
         <Comments projectId={project.id} />
-      </div>
-     
+      </div> */}
+
       {membership && (
-        <ProjectConfirmationModal
-          close={() => setShowModal(false)}
-          handleClose={() => setShowModal(false)}
-          label={"confirm"}
-          member={member}
-          onClick={updateProjectMemberHandle}
-          open={showModal}
+        <MembershipStatusModal
+          close={() => setShowMembershipModal(false)}
+          member={membership}
+          open={showMembershipModal}
           project={project}
         />
-      )} */}
+      )}
     </>
   );
 }
