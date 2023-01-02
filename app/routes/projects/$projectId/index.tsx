@@ -48,6 +48,7 @@ import {
 } from "~/models/votes.server";
 import RelatedProjectsSection from "~/core/components/RelatedProjectsSection";
 import Header from "~/core/layouts/Header";
+import MembershipStatusModal from "~/core/components/MembershipStatusModal";
 
 type LoaderData = {
   isAdmin: boolean;
@@ -133,14 +134,6 @@ export const meta: MetaFunction = ({ data, params }) => {
 };
 
 export default function ProjectDetailsPage() {
-  const handleJoinProject = () => {
-    setShowJoinModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setShowJoinModal(false);
-  };
-
   const {
     isAdmin,
     isTeamMember,
@@ -151,6 +144,8 @@ export default function ProjectDetailsPage() {
     profileId,
   } = useLoaderData() as LoaderData;
   const [showJoinModal, setShowJoinModal] = useState<boolean>(false);
+  const [showMembershipModal, setShowMembershipModal] =
+    useState<boolean>(false);
 
   invariant(project, "project not found");
 
@@ -177,6 +172,7 @@ export default function ProjectDetailsPage() {
   useEffect(() => {
     if (transition.type == "actionRedirect") {
       setShowJoinModal(false);
+      setShowMembershipModal(false);
     }
   }, [transition]);
 
@@ -418,8 +414,8 @@ export default function ProjectDetailsPage() {
               {isTeamMember ? (
                 <Button
                   variant="contained"
-                  // disabled={joinProjectButton}
-                  // onClick={() => setShowModal(true)}
+                  disabled={showMembershipModal}
+                  onClick={() => setShowMembershipModal(true)}
                 >
                   {membership?.active
                     ? "Suspend my Membership"
@@ -427,7 +423,10 @@ export default function ProjectDetailsPage() {
                 </Button>
               ) : (
                 project.helpWanted && (
-                  <Button variant="contained" onClick={handleJoinProject}>
+                  <Button
+                    variant="contained"
+                    onClick={() => setShowJoinModal(true)}
+                  >
                     Want to Join?
                   </Button>
                 )
@@ -457,24 +456,21 @@ export default function ProjectDetailsPage() {
       <JoinProjectModal
         projectId={project.id || ""}
         open={showJoinModal}
-        handleCloseModal={handleCloseModal}
+        handleCloseModal={() => setShowJoinModal(false)}
       />
-      {/*
-      <div className="wrapper">
+
+      {/* <div className="wrapper">
         <Comments projectId={project.id} />
-      </div>
-     
+      </div> */}
+
       {membership && (
-        <ProjectConfirmationModal
-          close={() => setShowModal(false)}
-          handleClose={() => setShowModal(false)}
-          label={"confirm"}
-          member={member}
-          onClick={updateProjectMemberHandle}
-          open={showModal}
+        <MembershipStatusModal
+          close={() => setShowMembershipModal(false)}
+          member={membership}
+          open={showMembershipModal}
           project={project}
         />
-      )} */}
+      )}
     </>
   );
 }

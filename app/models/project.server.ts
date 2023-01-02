@@ -305,6 +305,26 @@ export async function updateMembers(
   }
 }
 
+export async function updateMembership(
+  projectId: string,
+  projectMemberId: string,
+  data: {
+    active: boolean;
+    newOwner?: string | undefined;
+  }
+) {
+  if (data.newOwner) {
+    await db.projects.update({
+      where: { id: projectId },
+      data: { ownerId: data.newOwner },
+    });
+  }
+  await db.projectMembers.update({
+    where: { id: projectMemberId },
+    data: { active: data.active },
+  });
+}
+
 export async function joinProject(
   projectId: string,
   profileId: string,

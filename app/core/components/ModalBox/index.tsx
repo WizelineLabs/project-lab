@@ -24,7 +24,7 @@ export const Action = styled("div")`
 interface IProps {
   children: React.ReactNode;
   open: boolean;
-  handleClose: React.MouseEventHandler;
+  handleClose?: React.MouseEventHandler;
   close: Function;
   boxStyle?: React.CSSProperties;
 }

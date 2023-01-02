@@ -148,7 +148,7 @@ export function ProjectForm({
         </Stack>
       </Collapse>
       <Box textAlign="center">
-        <Button disabled={disabled} variant="contained">
+        <Button type="submit" disabled={disabled} variant="contained">
           {isSubmitting ? "Submitting..." : "Submit"}
         </Button>
       </Box>
