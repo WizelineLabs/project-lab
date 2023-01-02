@@ -488,7 +488,7 @@ export async function searchProjects({
   skip = 0,
   take = 50,
 }: SearchProjectsInput) {
-  let where = Prisma.sql`WHERE p.id IS NOT NULL`;
+  let where = Prisma.sql`WHERE p.id IS NOT NULL  AND p."isArchived" = false`;
   let having = Prisma.empty;
   if (search && search !== "") {
     search === "myProposals"
