@@ -49,7 +49,7 @@ export const validator = withZod(
           })
         )
         .optional(),
-      slackChannel: zfd.text().optional(),
+      slackChannel: zfd.text(z.string().optional()),
       skills: z
         .array(
           z.object({
