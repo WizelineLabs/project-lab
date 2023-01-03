@@ -167,7 +167,6 @@ export default function ProjectDetailsPage() {
   return (
     <>
       <Header title={project.name || ""} />
-      {project.isArchived && <Header title="(Archived)" />}
 
       <Container sx={{ marginBottom: 2 }}>
         <Paper
@@ -179,7 +178,10 @@ export default function ProjectDetailsPage() {
         >
           <Grid container justifyContent="space-between">
             <Grid item>
-              <h1 style={{ marginBottom: 0 }}>{project.name}</h1>
+              <h1 style={{ marginBottom: 0 }}>
+                {project.name} {project.isArchived && <>(Archived)</>}
+              </h1>
+
               <Typography color="text.secondary">
                 Last update:{" "}
                 {project.updatedAt &&

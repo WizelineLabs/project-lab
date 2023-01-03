@@ -37,6 +37,7 @@ interface SearchProjectsOutput {
   projectMembers: number;
   owner: string;
   tierName: string;
+  isArchived: boolean;
 }
 
 interface ProjectWhereInput {
@@ -645,6 +646,7 @@ export async function searchProjects({
       p."updatedAt",
       p."ownerId",
       p."tierName",
+      p."isArchived",
     COUNT(DISTINCT pm."profileId") as "projectMembers"
     FROM "Projects" p
     INNER JOIN "ProjectStatus" s on s.name = p.status

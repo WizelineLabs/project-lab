@@ -563,6 +563,7 @@ export default function Projects() {
                         description={item.description}
                         status={item.status}
                         color={item.color}
+                        isArchived={item.isArchived}
                         votesCount={Number(item.votesCount)}
                         skills={item.searchSkills
                           .trim()

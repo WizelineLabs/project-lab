@@ -1,6 +1,7 @@
 import { Unarchive } from "@mui/icons-material";
 import {
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -64,6 +65,17 @@ export const UnarchiveProject = ({ projectId }: { projectId?: string }) => {
             >
               Unarchive it
             </Button>
+            {isButtonDisabled && (
+              <CircularProgress
+                size={24}
+                sx={{
+                  position: "absolute",
+                  left: "85%",
+                  marginTop: "-1px",
+                  marginLeft: "-1px",
+                }}
+              />
+            )}
           </DialogActions>
         </Form>
       </Dialog>

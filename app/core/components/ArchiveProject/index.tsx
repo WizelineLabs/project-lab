@@ -1,6 +1,7 @@
 import { Archive } from "@mui/icons-material";
 import {
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -8,6 +9,7 @@ import {
   IconButton,
   Tooltip,
 } from "@mui/material";
+import { blue } from "@mui/material/colors";
 import { Form, useTransition } from "@remix-run/react";
 import { useEffect, useState } from "react";
 
@@ -57,6 +59,7 @@ export const ArchiveProject = ({ projectId }: { projectId?: string }) => {
             <Button className="primary" onClick={handleClose}>
               Cancel
             </Button>
+
             <Button
               disabled={isButtonDisabled}
               type="submit"
@@ -64,6 +67,17 @@ export const ArchiveProject = ({ projectId }: { projectId?: string }) => {
             >
               Yes,archive it
             </Button>
+            {isButtonDisabled && (
+              <CircularProgress
+                size={24}
+                sx={{
+                  position: "absolute",
+                  left: "80%",
+                  marginTop: "-1px",
+                  marginLeft: "-1px",
+                }}
+              />
+            )}
           </DialogActions>
         </Form>
       </Dialog>
