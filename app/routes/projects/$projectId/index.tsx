@@ -21,9 +21,10 @@ import {
   Grid,
   Box,
   Button,
+  IconButton,
+  Tooltip,
   Container,
   Paper,
-  IconButton,
   Typography,
 } from "@mui/material";
 import { EditSharp, ThumbUpSharp, ThumbDownSharp } from "@mui/icons-material";
@@ -38,6 +39,9 @@ import {
 } from "~/models/votes.server";
 import RelatedProjectsSection from "~/core/components/RelatedProjectsSection";
 import Header from "~/core/layouts/Header";
+import { ArchiveProject } from "~/core/components/ArchiveProject";
+import { UnarchiveProject } from "~/core/components/UnarchiveProject";
+
 import MembershipStatusModal from "~/core/components/MembershipStatusModal";
 
 type voteProject = {
@@ -174,7 +178,10 @@ export default function ProjectDetailsPage() {
         >
           <Grid container justifyContent="space-between">
             <Grid item>
-              <h1 style={{ marginBottom: 0 }}>{project.name}</h1>
+              <h1 style={{ marginBottom: 0 }}>
+                {project.name} {project.isArchived && <>(Archived)</>}
+              </h1>
+
               <Typography color="text.secondary">
                 Last update:{" "}
                 {project.updatedAt &&
@@ -185,13 +192,22 @@ export default function ProjectDetailsPage() {
             </Grid>
             <Grid item>
               {(isTeamMember || isAdmin) && (
-                <IconButton
-                  aria-label="Edit"
-                  href={`/projects/${project.id}/edit`}
-                >
-                  <EditSharp />
-                </IconButton>
+                <Tooltip title="Edit project">
+                  <IconButton
+                    aria-label="Edit"
+                    href={`/projects/${project.id}/edit`}
+                  >
+                    <EditSharp />
+                  </IconButton>
+                </Tooltip>
               )}
+
+              {(isTeamMember || isAdmin) &&
+                (!project?.isArchived ? (
+                  <ArchiveProject projectId={project.id} />
+                ) : (
+                  <UnarchiveProject projectId={project.id} />
+                ))}
             </Grid>
           </Grid>
           <p className="descriptionProposal">{project.description}</p>

@@ -19,6 +19,7 @@ interface IProps {
   votesCount?: number | null;
   skills?: { name: string }[];
   isOwner?: boolean;
+  isArchived?: boolean;
   tierName: String;
   projectMembers?: number | null;
 }
@@ -26,9 +27,10 @@ interface IProps {
 export const ProposalCard = (props: IProps) => {
   const stopEvent = (event: React.MouseEvent<HTMLElement>) =>
     event.stopPropagation();
+
   return (
     <>
-      <Card>
+      <Card variant={props?.isArchived ? "outlined" : "elevation"}>
         <CardActionArea sx={{ height: "100%" }} href={`/projects/${props.id}`}>
           <CardContent>
             <ProposalCardWrap>
@@ -48,6 +50,7 @@ export const ProposalCard = (props: IProps) => {
                 <div className="ProposalCard__head__description">
                   <div className="ProposalCard__head__description--title">
                     {props.title}
+                    {props.isArchived && <p>(Archived)</p>}
                   </div>
                   <div className="ProposalCard__head__description--date">
                     {props.date}

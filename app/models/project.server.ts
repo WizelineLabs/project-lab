@@ -1,8 +1,10 @@
+import { CompressOutlined } from "@mui/icons-material";
 import type { Profiles, Projects } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import { defaultStatus } from "~/constants";
 
 import { joinCondition, prisma as db } from "~/db.server";
+import { log } from "console";
 
 interface SearchProjectsInput {
   profileId: Profiles["id"];
@@ -36,6 +38,7 @@ interface SearchProjectsOutput {
   projectMembers: number;
   owner: string;
   tierName: string;
+  isArchived: boolean;
 }
 
 interface ProjectWhereInput {
@@ -520,13 +523,18 @@ export async function searchProjects({
   skip = 0,
   take = 50,
 }: SearchProjectsInput) {
-  let where = Prisma.sql`WHERE p.id IS NOT NULL`;
+  let where = Prisma.sql`WHERE p.id IS NOT NULL AND p."isArchived" = false`;
   let having = Prisma.empty;
   if (search && search !== "") {
-    search === "myProposals"
-      ? (where = Prisma.sql`WHERE pm."profileId" = ${profileId}`)
-      : (where = Prisma.sql`WHERE "tsColumn" @@ websearch_to_tsquery('english', ${search})`);
+    if (search === "myProposals") {
+      where = Prisma.sql`WHERE pm."profileId" = ${profileId}`;
+    } else if (search === "archivedProjects") {
+      where = Prisma.sql`WHERE p."isArchived" = true`;
+    } else {
+      where = Prisma.sql`WHERE "tsColumn" @@ websearch_to_tsquery('english', ${search})`;
+    }
   }
+  console.log(where);
 
   if (status.length > 0) {
     where = Prisma.sql`${where} AND p.status IN (${Prisma.join(status)})`;
@@ -644,6 +652,7 @@ export async function searchProjects({
       p."updatedAt",
       p."ownerId",
       p."tierName",
+      p."isArchived",
     COUNT(DISTINCT pm."profileId") as "projectMembers"
     FROM "Projects" p
     INNER JOIN "ProjectStatus" s on s.name = p.status
@@ -770,4 +779,87 @@ export async function deleteProject(projectId: string, isAdmin: boolean) {
     await db.projects.delete({ where: { id: projectId } });
   }
   return true;
+}
+
+export async function archiveProject(
+  projectId: string,
+  profileId: string,
+  isAdmin: boolean
+) {
+  const currentProject = await db.projects.findUniqueOrThrow({
+    where: { id: projectId },
+    select: {
+      ownerId: true,
+    },
+  });
+
+  const projectMembers = await db.projectMembers.findMany({
+    where: { projectId },
+    select: {
+      profileId: true,
+    },
+  });
+
+  if (!isAdmin)
+    validateIsTeamMember(profileId, projectMembers, currentProject.ownerId);
+
+  const project = await db.projects.update({
+    where: { id: projectId },
+    data: {
+      updatedAt: new Date(),
+      isArchived: true,
+    },
+    include: {
+      projectStatus: true,
+    },
+  });
+
+  return project;
+}
+
+export async function unarchiveProject(
+  projectId: string,
+  profileId: string,
+  isAdmin: boolean
+) {
+  const currentProject = await db.projects.findUniqueOrThrow({
+    where: { id: projectId },
+    select: {
+      ownerId: true,
+    },
+  });
+
+  const projectMembers = await db.projectMembers.findMany({
+    where: { projectId },
+    select: {
+      profileId: true,
+    },
+  });
+
+  if (!isAdmin)
+    validateIsTeamMember(profileId, projectMembers, currentProject.ownerId);
+
+  const project = await db.projects.update({
+    where: { id: projectId },
+    data: {
+      updatedAt: new Date(),
+      isArchived: false,
+    },
+    include: {
+      projectStatus: true,
+    },
+  });
+
+  return project;
+}
+
+export async function existArchivedProjects() {
+  const archiveProjects = await db.projects.findMany({
+    where: { isArchived: true },
+  });
+  if (archiveProjects.length > 0) {
+    return true;
+  } else {
+    return false;
+  }
 }
