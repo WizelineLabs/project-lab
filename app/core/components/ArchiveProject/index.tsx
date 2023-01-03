@@ -9,7 +9,6 @@ import {
   IconButton,
   Tooltip,
 } from "@mui/material";
-import { blue } from "@mui/material/colors";
 import { Form, useTransition } from "@remix-run/react";
 import { useEffect, useState } from "react";
 
@@ -65,7 +64,7 @@ export const ArchiveProject = ({ projectId }: { projectId?: string }) => {
               type="submit"
               className="primary warning"
             >
-              Yes,archive it
+              Yes, archive it
             </Button>
             {isButtonDisabled && (
               <CircularProgress

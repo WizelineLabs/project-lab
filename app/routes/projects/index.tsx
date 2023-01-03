@@ -23,17 +23,19 @@ import ExpandMore from "@mui/icons-material/ExpandMore";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import CloseIcon from "@mui/icons-material/Close";
 import { SortInput } from "app/core/components/SortInput";
-import { searchProjects } from "~/models/project.server";
-import { requireProfile } from "~/session.server";
+import { existArchivedProjects, searchProjects } from "~/models/project.server";
+import { requireProfile, requireUser } from "~/session.server";
 import type { ProjectStatus } from "~/models/status.server";
 import { getProjectStatuses } from "~/models/status.server";
-import { ongoingStage, ideaStage } from "~/constants";
+import { ongoingStage, ideaStage, adminRoleName } from "~/constants";
 import Link from "~/core/components/Link";
 
 type LoaderData = {
   data: Awaited<ReturnType<typeof searchProjects>>;
   ongoingStatuses: ProjectStatus[];
   ideaStatuses: ProjectStatus[];
+  existArchived: boolean;
+  isAdmin: boolean;
 };
 
 const ITEMS_PER_PAGE = 50;
@@ -57,6 +59,9 @@ interface Tab {
 export const loader: LoaderFunction = async ({ request }) => {
   const profile = await requireProfile(request);
   const url = new URL(request.url);
+  const existArchived = await existArchivedProjects();
+  const user = await requireUser(request);
+  const isAdmin = user.role == adminRoleName;
   const page = Number(url.searchParams.get("page") || 0);
   const search = url.searchParams.get("q") || "";
   const status = url.searchParams.getAll("status");
@@ -93,7 +98,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   // return json<LoaderData>({ data, ongoingStatuses, ideaStatuses });
   return new Response(
     JSON.stringify(
-      { data, ongoingStatuses, ideaStatuses },
+      { data, ongoingStatuses, ideaStatuses, existArchived, isAdmin },
       (key, value) => (typeof value === "bigint" ? value.toString() : value) // return everything else unchanged
     ),
     {
@@ -127,10 +132,13 @@ export default function Projects() {
     },
     ongoingStatuses,
     ideaStatuses,
+    existArchived,
+    isAdmin,
   } = useLoaderData() as LoaderData;
   const myPropQuery = "myProposals";
   const activeProjectsSearchParams = new URLSearchParams();
   const ideasSearchParams = new URLSearchParams();
+
   ongoingStatuses.forEach((status) => {
     activeProjectsSearchParams.append("status", status.name);
   });
@@ -152,8 +160,24 @@ export default function Projects() {
     title: "Ideas",
     searchParams: ideasSearchParams,
   };
-  const tabs: Array<Tab> = [myProposalsTab, activeProjectsTab, ideasTab];
 
+  const archivedTab = {
+    name: "archived",
+    title: "Archived Projects",
+    searchParams: new URLSearchParams({ q: "archivedProjects" }),
+  };
+
+  const tabs: Array<Tab> = [myProposalsTab, activeProjectsTab, ideasTab];
+  if (isAdmin) {
+    if (existArchived) {
+      tabs.push(archivedTab);
+    } else {
+      const index = tabs.indexOf(archivedTab);
+      if (index > -1) {
+        tabs.splice(index, 1);
+      }
+    }
+  }
   const goToPreviousPage = () => {
     searchParams.set("page", String(page - 1));
     setSearchParams(searchParams);

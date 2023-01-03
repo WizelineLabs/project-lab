@@ -4,6 +4,7 @@ import { Prisma } from "@prisma/client";
 import { defaultStatus } from "~/constants";
 
 import { joinCondition, prisma as db } from "~/db.server";
+import { log } from "console";
 
 interface SearchProjectsInput {
   profileId: Profiles["id"];
@@ -522,13 +523,18 @@ export async function searchProjects({
   skip = 0,
   take = 50,
 }: SearchProjectsInput) {
-  let where = Prisma.sql`WHERE p.id IS NOT NULL  AND p."isArchived" = false`;
+  let where = Prisma.sql`WHERE p.id IS NOT NULL AND p."isArchived" = false`;
   let having = Prisma.empty;
   if (search && search !== "") {
-    search === "myProposals"
-      ? (where = Prisma.sql`WHERE pm."profileId" = ${profileId}`)
-      : (where = Prisma.sql`WHERE "tsColumn" @@ websearch_to_tsquery('english', ${search})`);
+    if (search === "myProposals") {
+      where = Prisma.sql`WHERE pm."profileId" = ${profileId}`;
+    } else if (search === "archivedProjects") {
+      where = Prisma.sql`WHERE p."isArchived" = true`;
+    } else {
+      where = Prisma.sql`WHERE "tsColumn" @@ websearch_to_tsquery('english', ${search})`;
+    }
   }
+  console.log(where);
 
   if (status.length > 0) {
     where = Prisma.sql`${where} AND p.status IN (${Prisma.join(status)})`;
@@ -845,4 +851,15 @@ export async function unarchiveProject(
   });
 
   return project;
+}
+
+export async function existArchivedProjects() {
+  const archiveProjects = await db.projects.findMany({
+    where: { isArchived: true },
+  });
+  if (archiveProjects.length > 0) {
+    return true;
+  } else {
+    return false;
+  }
 }
