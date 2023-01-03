@@ -39,6 +39,18 @@ import {
 import RelatedProjectsSection from "~/core/components/RelatedProjectsSection";
 import Header from "~/core/layouts/Header";
 import MembershipStatusModal from "~/core/components/MembershipStatusModal";
+import { getComments } from "~/models/comment.server";
+import Comments from "~/core/components/Comments";
+
+import MDEditorStyles from "@uiw/react-md-editor/markdown-editor.css";
+import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
+
+export function links() {
+  return [
+    { rel: "stylesheet", href: MDEditorStyles },
+    { rel: "stylesheet", href: MarkdownStyles },
+  ];
+}
 
 type voteProject = {
   projectId: string;
@@ -61,6 +73,9 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   const membership = getProjectTeamMember(profile.id, project);
   const isAdmin = user.role == adminRoleName;
   const profileId = profile.id;
+
+  const comments = await getComments(params.projectId);
+
   return typedjson({
     isAdmin,
     isTeamMember,
@@ -69,6 +84,8 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     project,
     projectsList,
     profileId,
+    projectId: params.projectId,
+    comments,
   });
 };
 
@@ -122,6 +139,8 @@ export default function ProjectDetailsPage() {
     project,
     projectsList,
     profileId,
+    projectId,
+    comments,
   } = useTypedLoaderData<typeof loader>();
   const [showJoinModal, setShowJoinModal] = useState<boolean>(false);
   const [showMembershipModal, setShowMembershipModal] =
@@ -187,7 +206,7 @@ export default function ProjectDetailsPage() {
               {(isTeamMember || isAdmin) && (
                 <IconButton
                   aria-label="Edit"
-                  href={`/projects/${project.id}/edit`}
+                  href={`/projects/${projectId}/edit`}
                 >
                   <EditSharp />
                 </IconButton>
@@ -319,7 +338,7 @@ export default function ProjectDetailsPage() {
                   &nbsp;
                   <Button
                     variant="contained"
-                    onClick={() => handleVote(project.id || "")}
+                    onClick={() => handleVote(projectId)}
                     endIcon={voteCount ? <ThumbDownSharp /> : <ThumbUpSharp />}
                   >
                     {voteCount ? "Unlike" : "Like"}
@@ -422,7 +441,7 @@ export default function ProjectDetailsPage() {
             allowEdit={isTeamMember || isAdmin}
             relatedProjects={project.relatedProjects}
             projectsList={projectsList}
-            projectId={project.id || ""}
+            projectId={projectId}
           />
         </Paper>
       </Container>
@@ -434,14 +453,18 @@ export default function ProjectDetailsPage() {
         />
       </Container>
       <JoinProjectModal
-        projectId={project.id || ""}
+        projectId={projectId}
         open={showJoinModal}
         handleCloseModal={() => setShowJoinModal(false)}
       />
 
-      {/* <div className="wrapper">
-        <Comments projectId={project.id} />
-      </div> */}
+      <Container>
+        <Comments
+          comments={comments}
+          projectId={projectId}
+          profileId={profileId}
+        />
+      </Container>
 
       {membership && (
         <MembershipStatusModal
