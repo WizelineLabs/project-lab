@@ -5,9 +5,11 @@ import {
   Button,
   Box,
   Avatar,
-  Link,
   Paper,
+  IconButton,
 } from "@mui/material";
+import Edit from "@mui/icons-material/Edit";
+import Delete from "@mui/icons-material/Delete";
 import { z } from "zod";
 
 import type { getComments } from "~/models/comment.server";
@@ -108,26 +110,27 @@ function CommentItem({
             {comment.updatedAt.toLocaleString()}
           </Typography>
         </Grid>
+        {profileId === comment.authorId && (
+          <Grid item justifyContent="right">
+            <IconButton
+              color="warning"
+              aria-label="delete"
+              onClick={() => setOpenDeleteModal(true)}
+            >
+              <Delete />
+            </IconButton>
+            <IconButton
+              aria-label="edit"
+              color="primary"
+              onClick={() => setOpenEditComment(true)}
+            >
+              <Edit />
+            </IconButton>
+          </Grid>
+        )}
         <Grid item xs={12}>
           <Box>
             <Markdown>{comment.body}</Markdown>
-            {profileId === comment.authorId && (
-              <Box>
-                <Link
-                  component="button"
-                  onClick={() => setOpenEditComment(true)}
-                >
-                  Edit
-                </Link>
-                &nbsp;
-                <Link
-                  component="button"
-                  onClick={() => setOpenDeleteModal(true)}
-                >
-                  Delete
-                </Link>
-              </Box>
-            )}
           </Box>
           {comment.children &&
             comment.children.map((commentChild) => {
