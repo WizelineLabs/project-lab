@@ -3,8 +3,6 @@ import { Prisma } from "@prisma/client";
 
 import { prisma } from "~/db.server";
 
-export type { Profiles, User } from "@prisma/client";
-
 interface UserProfile extends Profiles {
   role: string;
   name: string;
