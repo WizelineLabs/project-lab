@@ -61,6 +61,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DATABASE_URL: postgresql://lab_user:lab_pass@localhost/lab_test
+      SESSION_SECRET: asdf_secret
     steps:
       - name: 🛑 Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.9.1
