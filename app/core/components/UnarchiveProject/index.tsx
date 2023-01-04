@@ -61,7 +61,8 @@ export const UnarchiveProject = ({ projectId }: { projectId?: string }) => {
             <Button
               disabled={isButtonDisabled}
               type="submit"
-              className="primary warning"
+              variant="contained"
+              color="warning"
             >
               Unarchive it
             </Button>

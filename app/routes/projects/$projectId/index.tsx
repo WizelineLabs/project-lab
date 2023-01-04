@@ -192,22 +192,29 @@ export default function ProjectDetailsPage() {
             </Grid>
             <Grid item>
               {(isTeamMember || isAdmin) && (
-                <Tooltip title="Edit project">
-                  <IconButton
-                    aria-label="Edit"
-                    href={`/projects/${project.id}/edit`}
-                  >
-                    <EditSharp />
-                  </IconButton>
-                </Tooltip>
+                <>
+                  {!project?.isArchived ? (
+                    <ArchiveProject projectId={project.id} />
+                  ) : (
+                    <UnarchiveProject projectId={project.id} />
+                  )}
+                  <Tooltip title="Edit project">
+                    <IconButton
+                      aria-label="Edit"
+                      href={`/projects/${project.id}/edit`}
+                    >
+                      <EditSharp />
+                    </IconButton>
+                  </Tooltip>
+                </>
               )}
 
-              {(isTeamMember || isAdmin) &&
+              {/* {(isTeamMember || isAdmin) &&
                 (!project?.isArchived ? (
                   <ArchiveProject projectId={project.id} />
                 ) : (
                   <UnarchiveProject projectId={project.id} />
-                ))}
+                ))} */}
             </Grid>
           </Grid>
           <p className="descriptionProposal">{project.description}</p>

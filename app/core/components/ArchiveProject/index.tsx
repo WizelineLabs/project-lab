@@ -62,7 +62,8 @@ export const ArchiveProject = ({ projectId }: { projectId?: string }) => {
             <Button
               disabled={isButtonDisabled}
               type="submit"
-              className="primary warning"
+              variant="contained"
+              color="warning"
             >
               Yes, archive it
             </Button>
