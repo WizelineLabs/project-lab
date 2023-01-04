@@ -52,7 +52,7 @@ const Header = ({ title }: IProps) => {
             padding={2}
           >
             <Grid item xs>
-              <Link to="/">
+              <Link to="/projects">
                 <Button
                   size="large"
                   startIcon={

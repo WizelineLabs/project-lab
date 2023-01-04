@@ -5,10 +5,12 @@
 // as that new user.
 
 import { installGlobals } from "@remix-run/node";
+import { faker } from "@faker-js/faker";
 import { parse } from "cookie";
 
 import { createUserSession } from "~/session.server";
 import { findOrCreate } from "~/models/user.server";
+import { createProfile } from "~/models/profile.server";
 
 installGlobals();
 
@@ -24,12 +26,18 @@ async function createAndLogin(email: string) {
     name: email.replace("@example.com", ""),
     email,
   });
+  // a profile is also needed on labs
+  await createProfile({
+    email,
+    firstName: faker.name.firstName(),
+    lastName: faker.name.lastName(),
+  });
 
   const response = await createUserSession({
     request: new Request("test://test"),
     userId: user.id,
     remember: false,
-    redirectTo: "/",
+    redirectTo: "/projects",
   });
 
   const cookieValue = response.headers.get("Set-Cookie");
