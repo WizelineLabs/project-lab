@@ -126,7 +126,7 @@ const NewProjectPage = () => {
             defaultValues={{
               name: "",
               description: "",
-              helpWanted: false,
+              helpWanted: true,
               skills: [],
               labels: [],
             }}
