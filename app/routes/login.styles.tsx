@@ -26,7 +26,7 @@ export const StyledLoginForm = styled.div`
 export const Button = styled.button`
   font-size: 0.9rem;
   background-color: #0a76db;
-  padding: .7rem 1.5rem;
+  padding: 0.7rem 1.5rem;
   color: #f4f4f4;
   margin-top: 1.5rem;
   border-radius: 3px;
@@ -39,9 +39,10 @@ export const Button = styled.button`
 `;
 
 export const Footer = styled.div`
-  height: 4rem;
+  min-height: 4rem;
   background-color: rgb(247, 249, 250);
   margin-top: 3.25rem;
+  padding: 1em;
   width: 25rem;
   border-radius: 0.5rem;
 `;

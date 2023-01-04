@@ -8,7 +8,7 @@ import {
 } from "./login.styles";
 
 import { useOptionalUser } from "~/utils";
-import { Container, Grid } from "@mui/material";
+import { Grid } from "@mui/material";
 
 export default function Index() {
   const user = useOptionalUser();
