@@ -23,7 +23,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     const comment = await getComment(id);
 
     if (!isAdmin || comment.authorId != profile.id) {
-      throw new Error("Edit comment not allowed");
+      throw new Error("Edit/Delete comment not allowed");
     }
 
     if (request.method == "DELETE") {
