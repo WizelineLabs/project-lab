@@ -4,8 +4,9 @@
 // and it will log out the cookie value you can use to interact with the server
 // as that new user.
 
+import { installGlobals } from "@remix-run/node";
 import { parse } from "cookie";
-import { installGlobals } from "@remix-run/node/globals";
+
 import { createUserSession } from "~/session.server";
 import { findOrCreate } from "~/models/user.server";
 
@@ -19,7 +20,10 @@ async function createAndLogin(email: string) {
     throw new Error("All test emails must end in @example.com");
   }
 
-  const user = await findOrCreate({ name: email.replace('@example.com', ''), email });
+  const user = await findOrCreate({
+    name: email.replace("@example.com", ""),
+    email,
+  });
 
   const response = await createUserSession({
     request: new Request("test://test"),
