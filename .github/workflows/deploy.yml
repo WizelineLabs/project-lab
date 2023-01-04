@@ -59,6 +59,8 @@ jobs:
   vitest:
     name: ⚡ Vitest
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://lab_user:lab_pass@localhost/lab_test
     steps:
       - name: 🛑 Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.9.1
@@ -75,6 +77,16 @@ jobs:
         uses: bahmutov/npm-install@v1
         with:
           useLockFile: false
+
+      - uses: harmon758/postgresql-action@v1
+        with:
+          postgresql version: "12"
+          postgresql db: lab_test
+          postgresql user: lab_user
+          postgresql password: lab_pass
+
+      - name: 🛠 Setup Database
+        run: npx prisma migrate reset --force
 
       - name: ⚡ Run vitest
         run: npm run test -- --coverage
@@ -96,7 +108,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
-      
+
       - uses: harmon758/postgresql-action@v1
         with:
           postgresql version: "12"
