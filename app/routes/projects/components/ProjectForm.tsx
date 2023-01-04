@@ -18,7 +18,8 @@ import ProjectOwnerField from "~/core/components/ProjectOwnerField";
 import { useControlField } from "remix-validated-form";
 import { Box } from "@mui/material";
 import { useFormContext, useIsSubmitting } from "remix-validated-form";
-import type { InnovationTiers, ProjectStatus } from "@prisma/client";
+import type { ProjectStatus } from "@prisma/client";
+import type { getInnovationTiers } from "~/models/innovationTier.server";
 
 export function ProjectForm({
   projectformType,
@@ -27,7 +28,7 @@ export function ProjectForm({
 }: {
   projectformType?: "create" | undefined;
   statuses?: ProjectStatus[];
-  tiers?: InnovationTiers[];
+  tiers?: Awaited<ReturnType<typeof getInnovationTiers>>;
 }) {
   const [displayFields, setDisplayFields] = useState(
     projectformType === "create" ? false : true

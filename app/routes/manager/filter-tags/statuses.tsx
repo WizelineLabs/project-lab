@@ -86,7 +86,7 @@ const ModalButtonsContainer = styled.div`
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
-  const status = url.searchParams.get("projectStatus");
+  const status = url.searchParams?.get("projectStatus");
   const statuses = await getProjectStatuses();
   const projects = await getProjects({ status });
   return json<LoaderData>({

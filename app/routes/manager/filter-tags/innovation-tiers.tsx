@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import { useFetcher, useCatch } from "@remix-run/react";
-import type { ActionFunction, LoaderArgs } from "@remix-run/node";
-import { typedjson, useTypedLoaderData } from "remix-typedjson";
+import { useFetcher, useCatch, useLoaderData } from "@remix-run/react";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import {
   ValidatedForm,
   validationError,
@@ -29,7 +28,6 @@ import {
   removeInnovationTier,
   updateInnovationTier,
 } from "~/models/innovationTier.server";
-import type { InnovationTiers } from "~/models/innovationTier.server";
 import { getProjects, updateManyProjects } from "~/models/project.server";
 
 declare module "@mui/material/Button" {
@@ -51,6 +49,15 @@ type gridEditToolbarProps = {
   setRows: React.Dispatch<React.SetStateAction<InnovationTierRecord[]>>;
   createButtonText: string;
 };
+
+type LoaderData = {
+  innovationTiers: Awaited<ReturnType<typeof getInnovationTiers>>;
+  projects: Awaited<ReturnType<typeof getProjects>>;
+};
+
+type InnovationTierItem = Awaited<
+  ReturnType<typeof getInnovationTiers>
+>[number];
 
 type newInnovationTier = {
   name: string;
@@ -82,12 +89,12 @@ const ModalButtonsContainer = styled.div`
   justify-content: flex-end;
 `;
 
-export const loader = async ({ request }: LoaderArgs) => {
+export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
-  const innovationTier = url.searchParams.get("innovationTier");
+  const innovationTier = url.searchParams?.get("innovationTier");
   const innovationTiers = await getInnovationTiers();
   const projects = await getProjects({ tierName: innovationTier });
-  return typedjson({
+  return json<LoaderData>({
     innovationTiers,
     projects,
   });
@@ -195,12 +202,12 @@ const GridEditToolbar = (props: gridEditToolbarProps) => {
 
 const InnovationTiersGrid = () => {
   const fetcher = useFetcher();
-  const { innovationTiers } = useTypedLoaderData<typeof loader>();
+  const { innovationTiers } = useLoaderData() as LoaderData;
   const createButtonText = "Create New Innovation Tier";
   const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [rows, setRows] = useState<InnovationTierRecord[]>(() =>
-    innovationTiers.map((item: InnovationTiers) => ({
+    innovationTiers.map((item: InnovationTierItem) => ({
       id: item.name,
       name: item.name,
       benefits: item.benefits,
@@ -234,7 +241,7 @@ const InnovationTiersGrid = () => {
   useEffect(() => {
     //It changes the rows shown based on admins
     setRows(
-      innovationTiers.map((item: InnovationTiers) => ({
+      innovationTiers.map((item: InnovationTierItem) => ({
         id: item.name,
         name: item.name,
         benefits: item.benefits,

@@ -47,7 +47,7 @@ describe("Labels test", () => {
       "http://localhost:3000/manager/filter-tags/labels"
     );
 
-    const response = await loader();
+    const response = await loader({ request, params: {}, context: {} });
 
     expect(response).toBeInstanceOf(Response);
   });
