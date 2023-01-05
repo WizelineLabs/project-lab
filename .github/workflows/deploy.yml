@@ -98,6 +98,9 @@ jobs:
   cypress:
     name: ⚫️ Cypress
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://lab_user:lab_pass@localhost/lab_test
+      SESSION_SECRET: asdf_secret
     steps:
       - name: 🛑 Cancel Previous Runs
         if: ${{ env.GITHUB_ACTOR != 'nektos/act' }}
@@ -120,9 +123,6 @@ jobs:
           postgresql db: lab_test
           postgresql user: lab_user
           postgresql password: lab_pass
-
-      - name: Set .env File
-        run: echo 'DATABASE_URL=postgresql://lab_user:lab_pass@localhost/lab_test' > .env
 
       - name: 📥 Download deps
         uses: bahmutov/npm-install@v1

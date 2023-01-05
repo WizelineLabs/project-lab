@@ -120,7 +120,7 @@ const NewProjectPage = () => {
           elevation={0}
           sx={{ paddingLeft: 2, paddingRight: 2, paddingBottom: 2 }}
         >
-          <GoBack title="Back to main page" href="/" />
+          <GoBack title="Back to main page" href="/projects" />
           <ValidatedForm
             validator={validator}
             defaultValues={{
