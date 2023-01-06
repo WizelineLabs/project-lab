@@ -186,6 +186,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             rm -rf ~/projectlab/tmp
+            mkdir -p ~/projectlab/tmp
 
       - name: Copy Files To Lightsail Instance
         uses: wlixcc/SFTP-Deploy-Action@v1.0
