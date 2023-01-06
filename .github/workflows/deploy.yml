@@ -223,7 +223,6 @@ jobs:
             echo AUTH0_DOMAIN="$AUTH0_DOMAIN" >> .env
             echo AUTH0_CLIENT_SECRET="$AUTH0_CLIENT_SECRET" >> .env
             echo GOOGLE_APPLICATION_CREDENTIALS="$GOOGLE_APPLICATION_CREDENTIALS" >> .env
-            echo PORT=80 >> .env
 
             npm ci # install
             npm run build
@@ -232,8 +231,7 @@ jobs:
             pg_dump --dbname $DB_URL --clean --if-exists > db.sql
             psql -d "$DATABASE_URL" < db.sql
             npx -y prisma migrate deploy # first npx with -y to avoid prompt to install
-            npx prisma db seed -f
-            npx prisma db seed -f prisma/seeds.prod.ts
+            npx prisma db seed
 
             pm2 start ecosystem.config.js
             pm2 save
