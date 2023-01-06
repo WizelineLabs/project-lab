@@ -224,15 +224,20 @@ jobs:
             echo AUTH0_CLIENT_SECRET="$AUTH0_CLIENT_SECRET" >> .env
             echo GOOGLE_APPLICATION_CREDENTIALS="$GOOGLE_APPLICATION_CREDENTIALS" >> .env
 
+            echo "*** Step: *** npm ci and build"
             npm ci # install
             npm run build
 
             echo "*** Step: *** Load prod database and run migrations and seeds"
             pg_dump --dbname $DB_URL --clean --if-exists > db.sql
+            sudo -u postgres psql -c "DROP DATABASE IF EXISTS projectlab;"
+            sudo -u postgres psql -c "CREATE DATABASE projectlab;"
+            sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE projectlab TO admin;"
             psql -d "$DATABASE_URL" < db.sql
             npx -y prisma migrate deploy # first npx with -y to avoid prompt to install
             npx prisma db seed
 
+            echo "*** Step: *** Start pm2 service"
             pm2 start ecosystem.config.js
             pm2 save
 
