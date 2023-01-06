@@ -140,72 +140,15 @@ jobs:
         env:
           PORT: "8811"
 
-  build:
-    name: 🐳 Build
-    # only build/deploy main branch on pushes
-    if: ${{ (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') && github.event_name == 'push' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: 🛑 Cancel Previous Runs
-        if: ${{ env.GITHUB_ACTOR != 'nektos/act' }}
-        uses: styfle/cancel-workflow-action@0.11.0
-
-      - name: ⬇️ Checkout repo
-        uses: actions/checkout@v3
-
-      - name: 👀 Read app name
-        uses: SebRollen/toml-action@v1.0.2
-        id: app_name
-        with:
-          file: "fly.toml"
-          field: "app"
-
-      - name: 🐳 Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      # Setup cache
-      - name: ⚡️ Cache Docker layers
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-
-      - name: 🔑 Fly Registry Auth
-        uses: docker/login-action@v2
-        with:
-          registry: registry.fly.io
-          username: x
-          password: ${{ secrets.FLY_API_TOKEN }}
-
-      - name: 🐳 Docker build
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          push: true
-          tags: registry.fly.io/${{ steps.app_name.outputs.value }}:${{ github.ref_name }}-${{ github.sha }}
-          build-args: |
-            COMMIT_SHA=${{ github.sha }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
-
-      # This ugly bit is necessary if you don't want your cache to grow forever
-      # till it hits GitHub's limit of 5GB.
-      # Temp fix
-      # https://github.com/docker/build-push-action/issues/252
-      # https://github.com/moby/buildkit/issues/1896
-      - name: 🚚 Move cache
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-
   deploy:
     name: 🚀 Deploy
     runs-on: ubuntu-latest
-    needs: [lint, typecheck, vitest, cypress, build]
+    needs: [lint, typecheck, vitest, cypress]
     # only build/deploy main branch on pushes
     if: ${{ (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') && github.event_name == 'push' }}
+
+    env:
+      NODE_ENV: production
 
     steps:
       - name: 🛑 Cancel Previous Runs
@@ -215,25 +158,76 @@ jobs:
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v3
 
-      - name: 👀 Read app name
-        uses: SebRollen/toml-action@v1.0.2
-        id: app_name
+      - name: 👀 Read app props
+        uses: Muchaszewski/read-json-action@1.0.0
+        id: app_props
         with:
-          file: "fly.toml"
-          field: "app"
+          path: "package.json"
+          properties: "[name, engines.node]"
 
-      - name: 🚀 Deploy Staging
-        if: ${{ github.ref == 'refs/heads/dev' }}
-        uses: superfly/flyctl-actions@1.3
+      - name: 🙊 Create .env file
+        uses: SpicyPizza/create-envfile@v1.3
         with:
-          args: "deploy --app ${{ steps.app_name.outputs.value }}-staging --image registry.fly.io/${{ steps.app_name.outputs.value }}:${{ github.ref_name }}-${{ github.sha }}"
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+          envkey_DATABASE_URL: postgresql://admin:password@localhost/projectlab
+          envkey_SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+          envkey_BASE_URL: ${{ secrets.BASE_URL }}
+          envkey_AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+          envkey_AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
+          envkey_AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
+          envkey_GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+          envkey_PORT: 80
 
-      - name: 🚀 Deploy Production
-        if: ${{ github.ref == 'refs/heads/main' }}
-        uses: superfly/flyctl-actions@1.3
+      - name: Prepare Server For Build
+        uses: appleboy/ssh-action@master
         with:
-          args: "deploy --image registry.fly.io/${{ steps.app_name.outputs.value }}:${{ github.ref_name }}-${{ github.sha }}"
+          host: ${{ secrets.LIGHTSAIL_IP }}
+          username: ${{ secrets.LIGHTSAIL_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            rm -rf ~/projectlab/tmp
+
+      - name: Copy Files To Lightsail Instance
+        uses: wlixcc/SFTP-Deploy-Action@v1.0
+        with:
+          username: ${{ secrets.LIGHTSAIL_USER }}
+          server: ${{ secrets.LIGHTSAIL_IP }}
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          local_path: "./*"
+          remote_path: "/home/admin/projectlab/tmp/"
+          args: "-o ConnectTimeout=60"
+
+      - name: Configure Server
+        uses: appleboy/ssh-action@master
         env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+          DB_URL: ${{ secrets.DB_URL }}
+        with:
+          timeout: 60s
+          command_timeout: 30m
+          envs: DB_URL
+          host: ${{ secrets.LIGHTSAIL_IP }}
+          username: ${{ secrets.LIGHTSAIL_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            pm2 stop all
+
+            echo "*** Step: *** Replace app folders"
+            rm -rf ~/projectlab/app
+            mkdir -p ~/projectlab/app
+            cp -R ~/projectlab/tmp/. ~/projectlab/app/
+            cd ~/projectlab/app
+
+            npm ci # install
+
+            echo "*** Step: *** Load prod database and run migrations and seeds"
+            pg_dump --dbname $DB_URL --clean --if-exists > db.sql
+            psql -d "postgresql://admin:password@localhost/projectlab" < db.sql
+            npx -y prisma migrate deploy # first npx with -y to avoid prompt to install
+            npx prisma db seed -f
+            npx prisma db seed -f prisma/seeds.prod.ts
+
+            pm2 start ecosystem.config.js
+            pm2 save
+
+            echo "*** Step: ** Cleanup"
+            rm -rf ~/projectlab/tmp
