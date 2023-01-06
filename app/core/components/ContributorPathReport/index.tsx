@@ -44,10 +44,10 @@ export const ContributorPathReport = ({
         </big>
         {(isTeamMember || isAdmin) && (
           <IconButton
-            aria-label="Edit"
+              aria-label="Edit"
             href={`/projects/${project.id}/members`}
           >
-            <EditSharp />
+    <EditSharp />
           </IconButton>
         )}
       </Grid>
