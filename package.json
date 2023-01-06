@@ -1,5 +1,5 @@
 {
-  "name": "remix-project-lab-3569",
+  "name": "remix_project_lab",
   "private": true,
   "sideEffects": false,
   "scripts": {
@@ -88,7 +88,7 @@
     "vitest": "^0.26.3"
   },
   "engines": {
-    "node": ">=14"
+    "node": "16"
   },
   "prisma": {
     "seed": "ts-node --require tsconfig-paths/register prisma/seed.ts"
