@@ -28,8 +28,6 @@ jobs:
 
       - name: 📥 Download deps
         uses: bahmutov/npm-install@v1
-        with:
-          useLockFile: false
 
       - name: 🔬 Lint
         run: npm run lint
@@ -52,8 +50,6 @@ jobs:
 
       - name: 📥 Download deps
         uses: bahmutov/npm-install@v1
-        with:
-          useLockFile: false
 
       - name: 🔎 Type check
         run: npm run typecheck --if-present
@@ -79,8 +75,6 @@ jobs:
 
       - name: 📥 Download deps
         uses: bahmutov/npm-install@v1
-        with:
-          useLockFile: false
 
       - uses: harmon758/postgresql-action@v1
         with:
@@ -130,8 +124,6 @@ jobs:
 
       - name: 📥 Download deps
         uses: bahmutov/npm-install@v1
-        with:
-          useLockFile: false
 
       - name: 🛠 Setup Database
         run: npx prisma migrate reset --force
