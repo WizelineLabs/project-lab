@@ -55,7 +55,7 @@ export const ContributorPathReport = ({
         <thead>
           <tr>
             <th>Active</th>
-            <th>Name</th>
+            <th>Name(s)</th>
             <th>Role(s)</th>
             <th>Skills</th>
             <th>
