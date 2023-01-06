@@ -1,28 +1,32 @@
 import { PrismaClient } from "@prisma/client";
-import { contributorPath } from "app/constants"
-import seedProd from "./seeds.prod"
+import { contributorPath } from "app/constants";
+import seedProd from "./seeds.prod";
 
 const db = new PrismaClient();
 
 async function seed() {
   seedProd();
-  let projectStages: any = []
+  if (process.env.NODE_ENV == "production") {
+    return;
+  }
+
+  let projectStages: any = [];
 
   for (let i = 0; i < contributorPath?.length; i++) {
     const data = {
       name: contributorPath[i]?.name || "Failed",
       criteria: contributorPath[i]?.criteria || "Failed",
       mission: contributorPath[i]?.mission || "Failed",
-    }
-    const tasks = contributorPath[i]?.tasks || []
-    const position = i + 1
-    let projectTasks: any = []
+    };
+    const tasks = contributorPath[i]?.tasks || [];
+    const position = i + 1;
+    let projectTasks: any = [];
 
     for (let j = 0; j < tasks.length; j++) {
       projectTasks.push({
         description: tasks[j]?.name,
         position: j + 1,
-      })
+      });
     }
 
     projectStages.push({
@@ -31,95 +35,95 @@ async function seed() {
       projectTasks: {
         create: projectTasks,
       },
-    })
+    });
   }
 
   await db.skills.upsert({
     where: { id: "b27f5e6c-4470-4f83-8fd6-dc097e127f44" },
     update: {},
     create: { name: "React", id: "b27f5e6c-4470-4f83-8fd6-dc097e127f44" },
-  })
+  });
   await db.skills.upsert({
     where: { id: "4b3d0d73-c3a6-457a-bd81-6b7b2be13373" },
     update: {},
     create: { name: "TypeScript", id: "4b3d0d73-c3a6-457a-bd81-6b7b2be13373" },
-  })
+  });
   await db.skills.upsert({
     where: { id: "b70ca72b-0a56-47f8-af2d-695c79673a68" },
     update: {},
     create: { name: "SQLite", id: "b70ca72b-0a56-47f8-af2d-695c79673a68" },
-  })
+  });
   await db.skills.upsert({
     where: { id: "6c859cfb-942c-40c8-b0b3-37de3e739c29" },
     update: {},
     create: { name: "AWS", id: "6c859cfb-942c-40c8-b0b3-37de3e739c29" },
-  })
+  });
   await db.skills.upsert({
     where: { id: "66fc5f5f-3be4-453f-8978-8cc3334adda1" },
     update: {},
     create: { name: "Ruby", id: "66fc5f5f-3be4-453f-8978-8cc3334adda1" },
-  })
+  });
   await db.skills.upsert({
     where: { id: "f88e6170-9382-4a89-87a4-b820e4b0ac33" },
     update: {},
     create: { name: "Java", id: "f88e6170-9382-4a89-87a4-b820e4b0ac33" },
-  })
+  });
   await db.skills.upsert({
     where: { id: "d7e95b76-6fc0-4e11-9674-61233cbe60ca" },
     update: {},
     create: { name: "PostgreSQL", id: "d7e95b76-6fc0-4e11-9674-61233cbe60ca" },
-  })
+  });
   await db.skills.upsert({
     where: { id: "f6d5b102-6cc4-41a8-8ca0-869aff695485" },
     update: {},
     create: { name: "MySQL", id: "f6d5b102-6cc4-41a8-8ca0-869aff695485" },
-  })
+  });
   await db.skills.upsert({
     where: { id: "8ea79390-240d-4b23-bd25-5eae45ac5132" },
     update: {},
     create: { name: "Go", id: "8ea79390-240d-4b23-bd25-5eae45ac5132" },
-  })
+  });
   await db.projectStatus.upsert({
     where: { name: "Idea Submitted" },
     update: {},
     create: { name: "Idea Submitted", color: "#fe6f18" },
-  })
+  });
   await db.projectStatus.upsert({
     where: { name: "Need SME Review" },
     update: {},
     create: { name: "Need SME Review", color: "#188bff" },
-  })
+  });
   await db.projectStatus.upsert({
     where: { name: "Idea in Progress" },
     update: {},
     create: { name: "Idea in Progress", color: "#7bc96b" },
-  })
+  });
   await db.projectStatus.upsert({
     where: { name: "Need Tier Review" },
     update: {},
     create: { name: "Need Tier Review" },
-  })
+  });
   await db.projectStatus.upsert({
     where: { name: "Closed" },
     update: {},
     create: { name: "Closed" },
-  })
+  });
   await db.projectStatus.upsert({
     where: { name: "Inactive" },
     update: {},
     create: { name: "Inactive" },
-  })
+  });
 
   await db.labels.upsert({
     where: { name: "Innovation Camp 2020" },
     update: {},
     create: { name: "Innovation Camp 2020" },
-  })
+  });
   await db.labels.upsert({
     where: { name: "Innovation Camp 2021" },
     update: {},
     create: { name: "Innovation Camp 2021" },
-  })
+  });
   const george = await db.profiles.upsert({
     where: { email: "george.wachira@wizeline.com" },
     update: {},
@@ -129,7 +133,7 @@ async function seed() {
       lastName: "Wachira",
       department: "Engineering",
     },
-  })
+  });
   await db.profiles.upsert({
     where: { email: "antonio.torres@wizeline.com" },
     update: {},
@@ -139,7 +143,7 @@ async function seed() {
       lastName: "Torres",
       department: "Engineering",
     },
-  })
+  });
   await db.profiles.upsert({
     where: { email: "fernanda.vargas@wizeline.com" },
     update: {},
@@ -149,7 +153,7 @@ async function seed() {
       lastName: "Vargas",
       department: "Engineering",
     },
-  })
+  });
   await db.profiles.upsert({
     where: { email: "miriam.cantero@wizeline.com" },
     update: {},
@@ -159,7 +163,7 @@ async function seed() {
       lastName: "Cantero",
       department: "Engineering",
     },
-  })
+  });
   await db.profiles.upsert({
     where: { email: "victor.cabrales@wizeline.com" },
     update: {},
@@ -169,7 +173,7 @@ async function seed() {
       lastName: "Cabrales",
       department: "Engineering",
     },
-  })
+  });
   const ev = await db.profiles.upsert({
     where: { email: "edgar.vazquez@wizeline.com" },
     update: {},
@@ -179,7 +183,7 @@ async function seed() {
       lastName: "Vazquez",
       department: "Engineering",
     },
-  })
+  });
   await db.profiles.upsert({
     where: { email: "damaris.contreras@wizeline.com" },
     update: {},
@@ -189,7 +193,7 @@ async function seed() {
       lastName: "Contreras",
       department: "Engineering",
     },
-  })
+  });
   const jbc = await db.profiles.upsert({
     where: { email: "joaquin.bravo@wizeline.com" },
     update: {},
@@ -199,7 +203,7 @@ async function seed() {
       lastName: "Bravo Contreras",
       department: "Engineering",
     },
-  })
+  });
   const tejeda = await db.profiles.upsert({
     where: { email: "luis.tejeda@wizeline.com" },
     update: {},
@@ -209,7 +213,7 @@ async function seed() {
       lastName: "Tejeda",
       department: "Engineering",
     },
-  })
+  });
   const jp = await db.profiles.upsert({
     where: { email: "joaquin.popoca@wizeline.com" },
     update: {},
@@ -219,7 +223,7 @@ async function seed() {
       lastName: "Popoca",
       department: "Engineering",
     },
-  })
+  });
   await db.profiles.upsert({
     where: { email: "sabino.arambula@wizeline.com" },
     update: {},
@@ -229,7 +233,7 @@ async function seed() {
       lastName: "Arambula",
       department: "Engineering",
     },
-  })
+  });
   await db.profiles.upsert({
     where: { email: "ruben.zavala@wizeline.com" },
     update: {},
@@ -239,7 +243,7 @@ async function seed() {
       lastName: "Zavala",
       department: "Engineering",
     },
-  })
+  });
   const b = await db.profiles.upsert({
     where: { email: "b.neha@wizeline.com" },
     update: {},
@@ -249,7 +253,7 @@ async function seed() {
       lastName: "Neha",
       department: "Delivery",
     },
-  })
+  });
   const enoc = await db.profiles.upsert({
     where: { email: "enoc.villa@wizeline.com" },
     update: {},
@@ -259,7 +263,7 @@ async function seed() {
       lastName: "Villa",
       department: "Delivery",
     },
-  })
+  });
   await db.profiles.upsert({
     where: { email: "gustavo.gonzalez@wizeline.com" },
     update: {},
@@ -269,7 +273,7 @@ async function seed() {
       lastName: "Gonzalez",
       department: "Delivery",
     },
-  })
+  });
   await db.profiles.upsert({
     where: { email: "martin.molinero@wizeline.com" },
     update: {},
@@ -279,7 +283,7 @@ async function seed() {
       lastName: "Molinero",
       department: "Engineering",
     },
-  })
+  });
   await db.profiles.upsert({
     where: { email: "anibal.abarca@wizeline.com" },
     update: {},
@@ -289,7 +293,7 @@ async function seed() {
       lastName: "Abarca",
       department: "Engineering",
     },
-  })
+  });
   await db.profiles.upsert({
     where: { email: "said.montiel@wizeline.com" },
     update: {},
@@ -299,7 +303,7 @@ async function seed() {
       lastName: "Montiel",
       department: "Engineering",
     },
-  })
+  });
 
   await db.profiles.upsert({
     where: { email: "cesar.romero@wizeline.com" },
@@ -310,7 +314,7 @@ async function seed() {
       lastName: "Romero",
       department: "Engineering",
     },
-  })
+  });
 
   await db.profiles.upsert({
     where: { email: "christian.morlotte@wizeline.com" },
@@ -321,7 +325,7 @@ async function seed() {
       lastName: "Morlotte",
       department: "Engineering",
     },
-  })
+  });
   await db.profiles.upsert({
     where: { email: "arzu.calderon@wizeline.com" },
     update: {},
@@ -331,7 +335,7 @@ async function seed() {
       lastName: "Calderón",
       department: "Engineering",
     },
-  })
+  });
   const jcorona = await db.profiles.upsert({
     where: { email: "jesus.corona@wizeline.com" },
     update: {},
@@ -341,7 +345,7 @@ async function seed() {
       lastName: "Corona",
       department: "Engineering",
     },
-  })
+  });
   await db.profiles.upsert({
     where: { email: "rodrigo.delatorre@wizeline.com" },
     update: {},
@@ -351,7 +355,7 @@ async function seed() {
       lastName: "Cervantes",
       department: "Engineering",
     },
-  })
+  });
   await db.profiles.upsert({
     where: { email: "test@wizeline.com" },
     update: {},
@@ -361,7 +365,7 @@ async function seed() {
       lastName: "Wizeline",
       department: "Engineering",
     },
-  })
+  });
   await db.profiles.upsert({
     where: { email: "diana.lopez@wizeline.com" },
     update: {},
@@ -371,7 +375,7 @@ async function seed() {
       lastName: "Lopez",
       department: "Engineering",
     },
-  })
+  });
   const jquiroz = await db.profiles.upsert({
     where: { email: "juan.quiroz@wizeline.com" },
     update: {},
@@ -381,7 +385,7 @@ async function seed() {
       lastName: "Quiroz",
       department: "Engineering",
     },
-  })
+  });
   await db.profiles.upsert({
     where: { email: "luis.lasso@wizeline.com" },
     update: {},
@@ -391,7 +395,7 @@ async function seed() {
       lastName: "Lasso",
       department: "Engineering",
     },
-  })
+  });
   await db.profiles.upsert({
     where: { email: "jorge.gc@wizeline.com" },
     update: {},
@@ -401,7 +405,7 @@ async function seed() {
       lastName: "Gonzalez",
       department: "Engineering",
     },
-  })
+  });
   await db.profiles.upsert({
     where: { email: "leonardo.hervert@wizeline.com" },
     update: {},
@@ -411,7 +415,7 @@ async function seed() {
       lastName: "Hervert",
       department: "Engineering",
     },
-  })
+  });
   await db.profiles.upsert({
     where: { email: "pascual.hernandez@wizeline.com" },
     update: {},
@@ -421,7 +425,7 @@ async function seed() {
       lastName: "Hernandez",
       department: "Engineering",
     },
-  })
+  });
   const jamj = await db.profiles.upsert({
     where: { email: "jesus.martinez@wizeline.com" },
     update: {},
@@ -431,7 +435,7 @@ async function seed() {
       lastName: "Martinez",
       department: "Engineering",
     },
-  })
+  });
   await db.profiles.upsert({
     where: { email: "edwin.valdez@wizeline.com" },
     update: {},
@@ -441,7 +445,7 @@ async function seed() {
       lastName: "Valdez",
       department: "Engineering",
     },
-  })
+  });
   await db.profiles.upsert({
     where: { email: "jorge.galindo@wizeline.com" },
     update: {},
@@ -451,7 +455,7 @@ async function seed() {
       lastName: "Galindo",
       department: "Engineering",
     },
-  })
+  });
   await db.profiles.upsert({
     where: { email: "martin.robledo@wizeline.com" },
     update: {},
@@ -461,7 +465,7 @@ async function seed() {
       lastName: "Robledo",
       department: "Engineering",
     },
-  })
+  });
   await db.profiles.upsert({
     where: { email: "andres.contreras@team.wizeline.com" },
     update: {},
@@ -471,7 +475,7 @@ async function seed() {
       lastName: "Contreras",
       department: "Engineering",
     },
-  })
+  });
   await db.profiles.upsert({
     where: { email: "diego.mojarro@team.wizeline.com" },
     update: {},
@@ -481,9 +485,9 @@ async function seed() {
       lastName: "Mojarro",
       department: "Engineering",
     },
-  })
+  });
 
-  console.info("Profiles created, starting projects upsert")
+  console.info("Profiles created, starting projects upsert");
 
   const pH = await db.projects.upsert({
     where: { name: "Proposal Hunt" },
@@ -519,8 +523,8 @@ async function seed() {
         create: projectStages,
       },
     },
-  })
-  console.info("Project created:", pH.id, pH.name)
+  });
+  console.info("Project created:", pH.id, pH.name);
   const pL = await db.projects.upsert({
     where: { name: "Project Lab" },
     update: {},
@@ -528,7 +532,8 @@ async function seed() {
       name: "Project Lab",
       owner: { connect: { id: jbc.id } },
       innovationTiers: { connect: { name: "Tier 1" } },
-      description: "Visibility of initiatives. Follow up of skills and work from Wizeliners",
+      description:
+        "Visibility of initiatives. Follow up of skills and work from Wizeliners",
       valueStatement: "New WCI board",
       target: "All wizeliners",
       projectStatus: { connect: { name: "Need SME Review" } },
@@ -541,9 +546,18 @@ async function seed() {
         ],
       },
       disciplines: {
-        connect: [{ name: "UX Designer" }, { name: "Backend" }, { name: "Frontend" }],
+        connect: [
+          { name: "UX Designer" },
+          { name: "Backend" },
+          { name: "Frontend" },
+        ],
       },
-      labels: { connect: [{ name: "Innovation Camp 2020" }, { name: "Innovation Camp 2021" }] },
+      labels: {
+        connect: [
+          { name: "Innovation Camp 2020" },
+          { name: "Innovation Camp 2021" },
+        ],
+      },
       projectMembers: {
         create: [
           {
@@ -600,8 +614,8 @@ async function seed() {
         create: projectStages,
       },
     },
-  })
-  console.info("Project created:", pL.id, pL.name)
+  });
+  console.info("Project created:", pL.id, pL.name);
 
   const wS = await db.projects.upsert({
     where: { name: "Wizepace" },
@@ -643,8 +657,8 @@ async function seed() {
         create: projectStages,
       },
     },
-  })
-  console.info("Project created:", wS.id, wS.name)
+  });
+  console.info("Project created:", wS.id, wS.name);
 
   const wR = await db.projects.upsert({
     where: { name: "WizeRunner" },
@@ -682,8 +696,8 @@ async function seed() {
         create: projectStages,
       },
     },
-  })
-  console.info("Project created:", wR.id, wR.name)
+  });
+  console.info("Project created:", wR.id, wR.name);
 
   const sC = await db.projects.upsert({
     where: { name: "Sorting Cat / Communities Platform" },
@@ -728,8 +742,8 @@ async function seed() {
         create: projectStages,
       },
     },
-  })
-  console.info("Project created:", sC.id, sC.name)
+  });
+  console.info("Project created:", sC.id, sC.name);
 
   console.log(`Database has been seeded. 🌱`);
 }
