@@ -29,7 +29,8 @@ export const LabeledTextField = ({
 }: LabeledTextFieldProps) => {
   const { error } = useField(name);
 
-  const [value, setValue] = useControlField<string>(name);
+  let [value, setValue] = useControlField<string>(name);
+  if (!value) value = "";
   return (
     <div {...outerProps}>
       <TextField

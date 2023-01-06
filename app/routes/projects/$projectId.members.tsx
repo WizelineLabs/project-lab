@@ -299,6 +299,7 @@ const EditMembersPage = () => {
               <Button
                 disabled={transition.state === "submitting"}
                 variant="contained"
+                type="submit"
               >
                 {transition.state === "submitting" ? "Submitting..." : "Submit"}
               </Button>
