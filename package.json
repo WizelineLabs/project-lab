@@ -97,7 +97,7 @@
     "seed": "ts-node --require tsconfig-paths/register prisma/seed.ts"
   },
   "lint-staged": {
-    "*.js": "eslint --fix",
-    "*.{js,css,md}": "prettier --cache --write"
+    "*.{js,jsx}": "eslint --fix",
+    "*.{js,jsx,css,md,html,json}": "prettier --cache --write"
   }
 }
