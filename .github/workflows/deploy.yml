@@ -201,7 +201,7 @@ jobs:
         with:
           timeout: 60s
           command_timeout: 30m
-          envs: DB_URL
+          envs: DB_URL,DATABASE_URL,SESSION_SECRET,BASE_URL,AUTH0_CLIENT_ID,AUTH0_DOMAIN,AUTH0_CLIENT_SECRET,GOOGLE_APPLICATION_CREDENTIALS,PORT
           host: ${{ secrets.LIGHTSAIL_IP }}
           username: ${{ secrets.LIGHTSAIL_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
