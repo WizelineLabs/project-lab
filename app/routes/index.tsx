@@ -43,14 +43,14 @@ export default function Index() {
                   href: "https//remix.run/",
                 },
                 {
-                  src: "https://user-images.githubusercontent.com/1500684/157764397-ccd8ea10-b8aa-4772-a99b-35de937319e1.svg",
-                  alt: "Fly.io",
-                  href: "https://fly.io",
+                  src: "https://d1.awsstatic.com/product-marketing/Lightsail/NotALogoHires1024t.bb64e1dae756b668764acf6ceb27ae987a90fd47.png",
+                  alt: "AWS Lightsail",
+                  href: "https://aws.amazon.com/lightsail/",
                 },
                 {
-                  src: "https://user-images.githubusercontent.com/1500684/157764395-137ec949-382c-43bd-a3c0-0cb8cb22e22d.svg",
-                  alt: "SQLite",
-                  href: "https://sqlite.org",
+                  src: "http://logonoid.com/images/postgresql-logo.png",
+                  alt: "Postgres",
+                  href: "https://www.postgresql.org/",
                 },
                 {
                   src: "https://user-images.githubusercontent.com/1500684/157764484-ad64a21a-d7fb-47e3-8669-ec046da20c1f.svg",
@@ -58,9 +58,9 @@ export default function Index() {
                   href: "https://prisma.io",
                 },
                 {
-                  src: "https://user-images.githubusercontent.com/1500684/157764276-a516a239-e377-4a20-b44a-0ac7b65c8c14.svg",
-                  alt: "Tailwind",
-                  href: "https://tailwindcss.com",
+                  src: "https://seeklogo.com/images/M/material-ui-logo-5BDCB9BA8F-seeklogo.com.png",
+                  alt: "Material UI",
+                  href: "https://mui.com/core/",
                 },
                 {
                   src: "https://user-images.githubusercontent.com/1500684/157764454-48ac8c71-a2a9-4b5e-b19c-edef8b8953d6.svg",
