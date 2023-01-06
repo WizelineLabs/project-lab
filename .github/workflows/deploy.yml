@@ -166,18 +166,6 @@ jobs:
           path: "package.json"
           properties: "[name, engines.node]"
 
-      - name: 🙊 Create .env file
-        uses: SpicyPizza/create-envfile@v1.3
-        with:
-          envkey_DATABASE_URL: postgresql://admin:password@localhost/projectlab
-          envkey_SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
-          envkey_BASE_URL: ${{ secrets.BASE_URL }}
-          envkey_AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
-          envkey_AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
-          envkey_AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
-          envkey_GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-          envkey_PORT: 80
-
       - name: Prepare Server For Build
         uses: appleboy/ssh-action@master
         with:
@@ -202,6 +190,14 @@ jobs:
         uses: appleboy/ssh-action@master
         env:
           DB_URL: ${{ secrets.DB_URL }}
+          DATABASE_URL: postgresql://admin:password@localhost/projectlab
+          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+          BASE_URL: ${{ secrets.BASE_URL }}
+          AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+          AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
+          AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+          PORT: 80
         with:
           timeout: 60s
           command_timeout: 30m
@@ -220,12 +216,22 @@ jobs:
             cp -R ~/projectlab/tmp/. ~/projectlab/app/
             cd ~/projectlab/app
 
+            echo "*** Step: *** Create .env file"
+            echo DATABASE_URL="$DATABASE_URL" >> .env
+            echo SESSION_SECRET="$SESSION_SECRET" >> .env
+            echo BASE_URL="$BASE_URL" >> .env
+            echo AUTH0_CLIENT_ID="$AUTH0_CLIENT_ID" >> .env
+            echo AUTH0_DOMAIN="$AUTH0_DOMAIN" >> .env
+            echo AUTH0_CLIENT_SECRET="$AUTH0_CLIENT_SECRET" >> .env
+            echo GOOGLE_APPLICATION_CREDENTIALS="$GOOGLE_APPLICATION_CREDENTIALS" >> .env
+            echo PORT="$PORT" >> .env
+
             npm ci # install
             npm run build
 
             echo "*** Step: *** Load prod database and run migrations and seeds"
             pg_dump --dbname $DB_URL --clean --if-exists > db.sql
-            psql -d "postgresql://admin:password@localhost/projectlab" < db.sql
+            psql -d "$DATABASE_URL" < db.sql
             npx -y prisma migrate deploy # first npx with -y to avoid prompt to install
             npx prisma db seed -f
             npx prisma db seed -f prisma/seeds.prod.ts
