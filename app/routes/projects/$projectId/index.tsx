@@ -54,7 +54,7 @@ export function links() {
 
 type voteProject = {
   projectId: string;
-  profileId: number;
+  profileId: string;
 };
 
 export const loader = async ({ request, params }: LoaderArgs) => {
