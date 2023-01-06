@@ -17,7 +17,9 @@ import type {
   ProjectTask,
   Stage,
 } from "~/core/interfaces/ContributorPathReport";
-import { Grid, IconButton } from "@mui/material";
+import { Box, Grid, IconButton, Paper } from "@mui/material";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { useEffect, useState } from "react";
 
 interface IProps {
   project: any;
@@ -25,13 +27,77 @@ interface IProps {
   isAdmin: boolean;
 }
 
+type ContributiorRecord = {
+  id: number;
+  active: string;
+  name: string;
+  role: [];
+  skills: [];
+  hpw: string;
+  intro: [];
+  setup: [];
+  quickwin: [];
+  majorcontributor: [];
+};
+
 export const ContributorPathReport = ({
   project,
   isTeamMember,
   isAdmin,
 }: IProps) => {
+  const [rows, setRows] = useState<ContributiorRecord[]>([]);
+
+  useEffect(() => {
+    const tableRows: ContributiorRecord[] = project.projectMembers?.map(
+      (member: ProjectMember, memberIndex: number) => {
+        return {
+          id: memberIndex,
+          active: member.active
+            ? "<CompleteIcon><CheckSharpIcon /> </CompleteIcon>"
+            : "Inactive",
+          name: member.profile?.firstName + " " + member.profile?.lastName,
+          role: member.role.map((role) => role.name),
+          skill: member.practicedSkills.map((skill) => skill.name),
+          hpw: member.hoursPerWeek,
+          intro: [],
+          setup: [],
+          quickwin: [],
+          majorcontributor: [],
+        };
+      }
+    );
+
+    setRows(tableRows);
+  }, [project]);
+
+  const columns: GridColDef[] = [
+    {
+      field: "active",
+      headerName: "Active",
+      width: 70,
+      renderCell: (cellValues: any) => {
+        return cellValues.value === "Inactive" ? (
+          <IncompleteIcon>
+            <ClearSharpIcon />
+          </IncompleteIcon>
+        ) : (
+          <CompleteIcon>
+            <CheckSharpIcon />
+          </CompleteIcon>
+        );
+      },
+    },
+    { field: "name", headerName: "Name", flex: 1 },
+    { field: "role", headerName: "Role(s)", flex: 1 },
+    { field: "skill", headerName: "Skills", flex: 1 },
+    { field: "hpw", headerName: "H.P.W", width: 80 },
+    { field: "intro", headerName: "Intro", flex: 1 },
+    { field: "setup", headerName: "Setup", flex: 1 },
+    { field: "quickwin", headerName: "Quicl Win", flex: 1 },
+    { field: "majorcontributor", headerName: "Major Contributor", flex: 1 },
+  ];
   return (
-    <>
+    <Paper sx={{ padding: 2, marginBottom: 2 }}>
       <Grid container justifyContent="space-between" alignItems="flext-start">
         <big>
           Contributors (
@@ -51,102 +117,17 @@ export const ContributorPathReport = ({
           </IconButton>
         )}
       </Grid>
-      <table width="100%" className="table-project-members">
-        <thead>
-          <tr>
-            <th>Active</th>
-            <th>Name</th>
-            <th>Role(s)</th>
-            <th>Skills</th>
-            <th>
-              H.P.W.
-              <br />
-              <HtmlTooltip title="Hours per Week">
-                <TipBubble>?</TipBubble>
-              </HtmlTooltip>
-            </th>
-            {project.stages?.map((stage: Stage, i: number) => (
-              <th key={i}>
-                {stage.name}
-                <br />
-                {stage.projectTasks?.map(
-                  (task: ProjectTask, taskIndex: number) => (
-                    <HtmlTooltip key={taskIndex} title={task.description}>
-                      <TipBubble>{taskIndex + 1}</TipBubble>
-                    </HtmlTooltip>
-                  )
-                )}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {project.projectMembers?.map(
-            (member: ProjectMember, memberIndex: number) => {
-              const projectTaskIds: any = member.contributorPath.map(
-                (cp: ContributorPath) => cp.projectTaskId
-              );
-
-              return (
-                <tr key={memberIndex}>
-                  <td align="center">
-                    {member.active ? (
-                      <CompleteIcon>
-                        <CheckSharpIcon />
-                      </CompleteIcon>
-                    ) : (
-                      <IncompleteIcon>
-                        <ClearSharpIcon />
-                      </IncompleteIcon>
-                    )}
-                  </td>
-
-                  <td>
-                    <a href={`mailto:${member.profile.email}`}>
-                      {member.profile?.firstName} {member.profile?.lastName}
-                    </a>
-                  </td>
-
-                  <td>{member.role?.map((skill) => skill.name).join(", ")}</td>
-
-                  <td>
-                    {member.practicedSkills
-                      ?.map((skill) => skill.name)
-                      .join(", ")}
-                  </td>
-
-                  <td align="center">{member.hoursPerWeek}</td>
-                  {project.stages?.map((stage: Stage, stageIndex: number) => (
-                    <td key={stageIndex}>
-                      <ul>
-                        {stage.projectTasks?.map(
-                          (task: ProjectTask, taskIndex: number) => (
-                            <li key={taskIndex}>
-                              {projectTaskIds.includes(task.id) ? (
-                                <CompleteIcon>
-                                  <CheckBoxSharpIcon />
-                                </CompleteIcon>
-                              ) : (
-                                <>
-                                  <IncompleteIcon>
-                                    <CheckBoxOutlineBlankSharpIcon />
-                                  </IncompleteIcon>
-                                  {""}
-                                </>
-                              )}
-                            </li>
-                          )
-                        )}
-                      </ul>
-                    </td>
-                  ))}
-                </tr>
-              );
-            }
-          )}
-        </tbody>
-      </table>
-    </>
+      <Box sx={{ height: 500, width: "100%" }}>
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          pageSize={10}
+          rowsPerPageOptions={[10]}
+          disableSelectionOnClick
+          experimentalFeatures={{ newEditingApi: true }}
+        />
+      </Box>
+    </Paper>
   );
 };
 
