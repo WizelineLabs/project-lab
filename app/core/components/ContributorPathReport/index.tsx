@@ -18,7 +18,12 @@ import type {
   Stage,
 } from "~/core/interfaces/ContributorPathReport";
 import { Box, Grid, IconButton, Paper } from "@mui/material";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import {
+  DataGrid,
+  gridClasses,
+  GridColDef,
+  GridRowHeightParams,
+} from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 
 interface IProps {
@@ -57,7 +62,7 @@ export const ContributorPathReport = ({
             : "Inactive",
           name: member.profile?.firstName + " " + member.profile?.lastName,
           role: member.role.map((role) => role.name),
-          skill: member.practicedSkills.map((skill) => skill.name),
+          skill: member.practicedSkills.map((skill) => " " + skill.name),
           hpw: member.hoursPerWeek,
           intro: [],
           setup: [],
@@ -117,7 +122,7 @@ export const ContributorPathReport = ({
           </IconButton>
         )}
       </Grid>
-      <Box sx={{ height: 500, width: "100%" }}>
+      <Box sx={{ height: 600, width: "100%" }}>
         <DataGrid
           rows={rows}
           columns={columns}
@@ -125,6 +130,18 @@ export const ContributorPathReport = ({
           rowsPerPageOptions={[10]}
           disableSelectionOnClick
           experimentalFeatures={{ newEditingApi: true }}
+          getRowHeight={() => "auto"}
+          sx={{
+            "&.MuiDataGrid-root--densityCompact .MuiDataGrid-cell": {
+              py: 1,
+            },
+            "&.MuiDataGrid-root--densityStandard .MuiDataGrid-cell": {
+              py: "15px",
+            },
+            "&.MuiDataGrid-root--densityComfortable .MuiDataGrid-cell": {
+              py: "22px",
+            },
+          }}
         />
       </Box>
     </Paper>
