@@ -197,11 +197,10 @@ jobs:
           AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
           AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-          PORT: 80
         with:
           timeout: 60s
           command_timeout: 30m
-          envs: DB_URL,DATABASE_URL,SESSION_SECRET,BASE_URL,AUTH0_CLIENT_ID,AUTH0_DOMAIN,AUTH0_CLIENT_SECRET,GOOGLE_APPLICATION_CREDENTIALS,PORT
+          envs: DB_URL,DATABASE_URL,SESSION_SECRET,BASE_URL,AUTH0_CLIENT_ID,AUTH0_DOMAIN,AUTH0_CLIENT_SECRET,GOOGLE_APPLICATION_CREDENTIALS
           host: ${{ secrets.LIGHTSAIL_IP }}
           username: ${{ secrets.LIGHTSAIL_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -224,7 +223,7 @@ jobs:
             echo AUTH0_DOMAIN="$AUTH0_DOMAIN" >> .env
             echo AUTH0_CLIENT_SECRET="$AUTH0_CLIENT_SECRET" >> .env
             echo GOOGLE_APPLICATION_CREDENTIALS="$GOOGLE_APPLICATION_CREDENTIALS" >> .env
-            echo PORT="$PORT" >> .env
+            echo PORT=80 >> .env
 
             npm ci # install
             npm run build
