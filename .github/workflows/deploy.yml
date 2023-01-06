@@ -211,7 +211,8 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script_stop: true
           script: |
-            pm2 stop all
+            # ignore failure on pm2 stop (first time?)
+            pm2 stop all || true
 
             echo "*** Step: *** Replace app folders"
             rm -rf ~/projectlab/app
@@ -220,6 +221,7 @@ jobs:
             cd ~/projectlab/app
 
             npm ci # install
+            npm run build
 
             echo "*** Step: *** Load prod database and run migrations and seeds"
             pg_dump --dbname $DB_URL --clean --if-exists > db.sql
