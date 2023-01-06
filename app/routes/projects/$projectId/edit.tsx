@@ -38,7 +38,7 @@ import { getInnovationTiers } from "~/models/innovationTier.server";
 
 import MDEditorStyles from "@uiw/react-md-editor/markdown-editor.css";
 import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
-import { validateHasPermissions } from "~/utils";
+import { isProjectMemberOrOwner } from "~/utils";
 
 export function links() {
   return [
@@ -90,7 +90,7 @@ export const action: ActionFunction = async ({ request, params }) => {
       projectMembers: currentMembers = [],
       ownerId: currentOwnerId = null
     } = currentProject;
-    validateHasPermissions(profile.id, currentMembers, currentOwnerId);
+    isProjectMemberOrOwner(profile.id, currentMembers, currentOwnerId);
   }
   
   const result = await validator.validate(await request.formData());

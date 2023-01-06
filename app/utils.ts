@@ -66,7 +66,7 @@ export function useUser(): User {
   return maybeUser;
 }
 
-export const validateHasPermissions = (
+export const isProjectMemberOrOwner = (
   profileId: string,
   projectMembers: { profileId: string }[],
   ownerId: string | null

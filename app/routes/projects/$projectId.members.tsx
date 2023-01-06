@@ -39,7 +39,7 @@ import invariant from "tiny-invariant";
 import { adminRoleName } from "~/constants";
 import LabeledTextField from "~/core/components/LabeledTextField";
 import { LabeledCheckbox } from "~/core/components/LabeledCheckbox";
-import { validateHasPermissions } from "~/utils";
+import { isProjectMemberOrOwner } from "~/utils";
 
 type ProfileValue = {
   id: string;
@@ -89,7 +89,7 @@ export const action: ActionFunction = async ({ request, params }) => {
       projectMembers: currentMembers = [],
       ownerId: currentOwnerId = null
     } = currentProject;
-    validateHasPermissions(profile.id, currentMembers, currentOwnerId);
+    isProjectMemberOrOwner(profile.id, currentMembers, currentOwnerId);
   }
   
   const result = await validator.validate(await request.formData());
