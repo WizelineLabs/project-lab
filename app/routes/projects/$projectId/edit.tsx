@@ -38,6 +38,7 @@ import { getInnovationTiers } from "~/models/innovationTier.server";
 
 import MDEditorStyles from "@uiw/react-md-editor/markdown-editor.css";
 import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
+import { isProjectMemberOrOwner } from "~/utils";
 
 export function links() {
   return [
@@ -78,11 +79,23 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 export const action: ActionFunction = async ({ request, params }) => {
   invariant(params.projectId, "projectId could not be found");
   const projectId = params.projectId;
+
+  // Validate permissions
   const user = await requireUser(request);
   const isAdmin = user.role == adminRoleName;
+  if (!isAdmin) {
+    const profile = await requireProfile(request);
+    const currentProject = await getProject({ id: projectId });
+    const {
+      projectMembers: currentMembers = [],
+      ownerId: currentOwnerId = null
+    } = currentProject;
+    isProjectMemberOrOwner(profile.id, currentMembers, currentOwnerId);
+  }
+  
   const result = await validator.validate(await request.formData());
   if (result.error) return validationError(result.error);
-  const project = await updateProjects(projectId, isAdmin, result.data);
+  const project = await updateProjects(projectId, result.data);
   return redirect(`/projects/${project.id}`);
 };
 
