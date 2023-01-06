@@ -65,3 +65,19 @@ export function useUser(): User {
   }
   return maybeUser;
 }
+
+export const validateHasPermissions = (
+  profileId: string,
+  projectMembers: { profileId: string }[],
+  ownerId: string | null
+) => {
+  // Validate if the user have permissions (team member or owner of the project)
+  const isProjectMember = projectMembers.some(
+    (member) => member.profileId === profileId
+  );
+  const isProjectOwner = profileId === ownerId;
+
+  if (!isProjectMember && !isProjectOwner) {
+    throw new Error("You don't have permission to perform this operation");
+  }
+};

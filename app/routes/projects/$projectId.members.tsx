@@ -34,11 +34,12 @@ import type { SubmitOptions } from "@remix-run/react";
 import { json, redirect } from "@remix-run/node";
 import { useTransition, useLoaderData, useFetcher } from "@remix-run/react";
 import { requireProfile, requireUser } from "~/session.server";
-import { getProjectTeamMembers, updateMembers } from "~/models/project.server";
+import { getProject, getProjectTeamMembers, updateMembers } from "~/models/project.server";
 import invariant from "tiny-invariant";
 import { adminRoleName } from "~/constants";
 import LabeledTextField from "~/core/components/LabeledTextField";
 import { LabeledCheckbox } from "~/core/components/LabeledCheckbox";
+import { validateHasPermissions } from "~/utils";
 
 type ProfileValue = {
   id: string;
@@ -75,19 +76,27 @@ export const validator = withZod(
 );
 
 export const action: ActionFunction = async ({ request, params }) => {
-  invariant(params.projectId, "projectId could not be found");
   const projectId = params.projectId;
-  const profile = await requireProfile(request);
-  const user = await requireUser(request);
-  const result = await validator.validate(await request.formData());
-  const isAdmin = user.role == adminRoleName;
+  invariant(projectId, "projectId could not be found");
 
+  // Validate permissions
+  const user = await requireUser(request);
+  const isAdmin = user.role == adminRoleName;
+  if (!isAdmin) {
+    const profile = await requireProfile(request);
+    const currentProject = await getProject({ id: projectId });
+    const {
+      projectMembers: currentMembers = [],
+      ownerId: currentOwnerId = null
+    } = currentProject;
+    validateHasPermissions(profile.id, currentMembers, currentOwnerId);
+  }
+  
+  const result = await validator.validate(await request.formData());
   if (result.error != undefined) return validationError(result.error);
 
   try {
     await updateMembers(
-      profile.id,
-      isAdmin,
       projectId,
       result.data.projectMembers
     );

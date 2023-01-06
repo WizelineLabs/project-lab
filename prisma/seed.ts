@@ -482,6 +482,16 @@ async function seed() {
       department: "Engineering",
     },
   })
+  await db.profiles.upsert({
+    where: { email: "mauricio.barragan@wizeline.com" },
+    update: {},
+    create: {
+      email: "mauricio.barragan@wizeline.com",
+      firstName: "Mauricio",
+      lastName: "Barragan",
+      department: "Engineering",
+    },
+  })
 
   console.info("Profiles created, starting projects upsert")
 
