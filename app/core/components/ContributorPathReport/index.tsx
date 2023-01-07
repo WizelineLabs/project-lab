@@ -4,12 +4,7 @@ import CheckBoxSharpIcon from "@mui/icons-material/CheckBoxSharp";
 import CheckBoxOutlineBlankSharpIcon from "@mui/icons-material/CheckBoxOutlineBlankSharp";
 import EditSharp from "@mui/icons-material/EditSharp";
 
-import {
-  CompleteIcon,
-  IncompleteIcon,
-  TipBubble,
-  HtmlTooltip,
-} from "./ContributorPathReport.styles";
+import { CompleteIcon, IncompleteIcon } from "./ContributorPathReport.styles";
 
 import type {
   ContributorPath,
@@ -18,13 +13,9 @@ import type {
   Stage,
 } from "~/core/interfaces/ContributorPathReport";
 import { Box, Grid, IconButton, Paper } from "@mui/material";
-import {
-  DataGrid,
-  gridClasses,
-  GridColDef,
-  GridRowHeightParams,
-} from "@mui/x-data-grid";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
+import { log } from "console";
 
 interface IProps {
   project: any;
@@ -60,7 +51,12 @@ export const ContributorPathReport = ({
           active: member.active
             ? "<CompleteIcon><CheckSharpIcon /> </CompleteIcon>"
             : "Inactive",
-          name: member.profile?.firstName + " " + member.profile?.lastName,
+          name: [
+            {
+              name: member.profile?.firstName + " " + member.profile?.lastName,
+              email: member.profile?.email,
+            },
+          ],
           role: member.role.map((role) => role.name),
           skill: member.practicedSkills.map((skill) => " " + skill.name),
           hpw: member.hoursPerWeek,
@@ -92,7 +88,20 @@ export const ContributorPathReport = ({
         );
       },
     },
-    { field: "name", headerName: "Name", flex: 1 },
+    {
+      field: "name",
+      headerName: "Name",
+      flex: 1,
+      renderCell: (cellValues: any) => {
+        console.log(cellValues.value[0]);
+
+        return (
+          <a href={`mailto:${cellValues.value[0]?.email}`}>
+            {cellValues.value[0]?.name}
+          </a>
+        );
+      },
+    },
     { field: "role", headerName: "Role(s)", flex: 1 },
     { field: "skill", headerName: "Skills", flex: 1 },
     { field: "hpw", headerName: "H.P.W", width: 80 },
