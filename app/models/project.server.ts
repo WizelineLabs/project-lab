@@ -233,7 +233,7 @@ export async function updateMembers(
   projectMembers: {
     id?: string;
     profileId: string;
-    hoursPerWeek?: number;
+    hoursPerWeek?: number | null;
     role?: { id: string }[];
     practicedSkills?: { id: string }[];
     active: boolean;

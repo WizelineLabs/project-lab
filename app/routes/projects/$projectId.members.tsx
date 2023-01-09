@@ -62,13 +62,17 @@ export const validator = withZod(
             name: z.string().optional(),
           })
         ),
-        practicedSkills: z.array(
-          z.object({
-            id: z.string(),
-            name: z.string().optional(),
-          })
-        ),
-        hoursPerWeek: zfd.numeric(z.number().optional()),
+        practicedSkills: z
+          .array(
+            z.object({
+              id: z.string(),
+              name: z.string().optional(),
+            })
+          )
+          .optional(),
+        hoursPerWeek: zfd
+          .numeric(z.number().nullish())
+          .transform((v) => (v === undefined ? null : v)),
         active: zfd.checkbox(),
       })
     ),
