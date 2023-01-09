@@ -12,7 +12,7 @@ import type {
   ProjectTask,
   Stage,
 } from "~/core/interfaces/ContributorPathReport";
-import { Box, Grid, IconButton, Paper } from "@mui/material";
+import { Box, Grid, IconButton, Link, Paper } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 import { log } from "console";
@@ -96,9 +96,9 @@ export const ContributorPathReport = ({
         console.log(cellValues.value[0]);
 
         return (
-          <a href={`mailto:${cellValues.value[0]?.email}`}>
+          <Link href={`mailto:${cellValues.value[0]?.email}`}>
             {cellValues.value[0]?.name}
-          </a>
+          </Link>
         );
       },
     },
