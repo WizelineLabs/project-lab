@@ -99,7 +99,7 @@ export const ContributorPathReport = ({
   const [rows, setRows] = useState<ContributiorRecord[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(15);
-  const [orderBy, setOrderBy] = useState<keyof ContributiorRecord>();
+  const [orderBy, setOrderBy] = useState<keyof ContributiorRecord>("status");
   const [order, setOrder] = useState<Order>("asc");
 
   const handleChangePage = (event: unknown, newPage: number) => {
