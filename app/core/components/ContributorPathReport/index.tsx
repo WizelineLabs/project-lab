@@ -12,10 +12,25 @@ import type {
   ProjectTask,
   Stage,
 } from "~/core/interfaces/ContributorPathReport";
-import { Box, Grid, IconButton, Link, Paper } from "@mui/material";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import {
+  Box,
+  Grid,
+  IconButton,
+  Link,
+  ListItem,
+  Paper,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableFooter,
+  TableHead,
+  TablePagination,
+  TableRow,
+  TableSortLabel,
+} from "@mui/material";
 import { useEffect, useState } from "react";
-import { log } from "console";
 
 interface IProps {
   project: any;
@@ -25,8 +40,9 @@ interface IProps {
 
 type ContributiorRecord = {
   id: number;
-  active: string;
+  status: boolean;
   name: string;
+  email: string;
   role: [];
   skills: [];
   hpw: string;
@@ -36,29 +52,70 @@ type ContributiorRecord = {
   majorcontributor: [];
 };
 
+function stableSort<T>(
+  array: readonly T[],
+  comparator: (a: T, b: T) => number
+) {
+  const stabilizedThis = array.map((el, index) => [el, index] as [T, number]);
+  stabilizedThis.sort((a, b) => {
+    const order = comparator(a[0], b[0]);
+    if (order !== 0) {
+      return order;
+    }
+    return a[1] - b[1];
+  });
+  return stabilizedThis.map((el) => el[0]);
+}
+
+function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
+  if (b[orderBy] < a[orderBy]) {
+    return -1;
+  }
+  if (b[orderBy] > a[orderBy]) {
+    return 1;
+  }
+  return 0;
+}
+
+type Order = "asc" | "desc";
+
+function getComparator<Key extends keyof any>(
+  order: Order,
+  orderBy: Key
+): (
+  a: { [key in Key]: number | string | [] | boolean },
+  b: { [key in Key]: number | string | [] | boolean }
+) => number {
+  return order === "desc"
+    ? (a, b) => descendingComparator(a, b, orderBy)
+    : (a, b) => -descendingComparator(a, b, orderBy);
+}
+
 export const ContributorPathReport = ({
   project,
   isTeamMember,
   isAdmin,
 }: IProps) => {
   const [rows, setRows] = useState<ContributiorRecord[]>([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(15);
+  const [orderBy, setOrderBy] = useState<keyof ContributiorRecord>();
+  const [order, setOrder] = useState<Order>("asc");
+
+  const handleChangePage = (event: unknown, newPage: number) => {
+    setPage(newPage);
+  };
 
   useEffect(() => {
     const tableRows: ContributiorRecord[] = project.projectMembers?.map(
       (member: ProjectMember, memberIndex: number) => {
         return {
           id: memberIndex,
-          active: member.active
-            ? "<CompleteIcon><CheckSharpIcon /> </CompleteIcon>"
-            : "Inactive",
-          name: [
-            {
-              name: member.profile?.firstName + " " + member.profile?.lastName,
-              email: member.profile?.email,
-            },
-          ],
+          status: member.active,
+          name: member.profile?.firstName + " " + member.profile?.lastName,
+          email: member.profile?.email,
           role: member.role.map((role) => role.name),
-          skill: member.practicedSkills.map((skill) => " " + skill.name),
+          skills: member.practicedSkills.map((skill) => " " + skill.name),
           hpw: member.hoursPerWeek,
           intro: [],
           setup: [],
@@ -71,88 +128,162 @@ export const ContributorPathReport = ({
     setRows(tableRows);
   }, [project]);
 
-  const columns: GridColDef[] = [
-    {
-      field: "active",
-      headerName: "Active",
-      width: 70,
-      renderCell: (cellValues: any) => {
-        return cellValues.value === "Inactive" ? (
-          <IncompleteIcon>
-            <ClearSharpIcon />
-          </IncompleteIcon>
-        ) : (
-          <CompleteIcon>
-            <CheckSharpIcon />
-          </CompleteIcon>
-        );
-      },
-    },
-    {
-      field: "name",
-      headerName: "Name",
-      flex: 1,
-      renderCell: (cellValues: any) => {
-        console.log(cellValues.value[0]);
+  interface HeadContributorData {
+    id: keyof ContributiorRecord;
+    label: string;
+    numeric: boolean;
+  }
 
-        return (
-          <Link href={`mailto:${cellValues.value[0]?.email}`}>
-            {cellValues.value[0]?.name}
-          </Link>
-        );
-      },
+  const headCells: HeadContributorData[] = [
+    {
+      id: "status",
+      numeric: false,
+      label: "Active",
     },
-    { field: "role", headerName: "Role(s)", flex: 1 },
-    { field: "skill", headerName: "Skills", flex: 1 },
-    { field: "hpw", headerName: "H.P.W", width: 80 },
-    { field: "intro", headerName: "Intro", flex: 1 },
-    { field: "setup", headerName: "Setup", flex: 1 },
-    { field: "quickwin", headerName: "Quicl Win", flex: 1 },
-    { field: "majorcontributor", headerName: "Major Contributor", flex: 1 },
+    {
+      id: "name",
+      numeric: false,
+      label: "Name",
+    },
+    {
+      id: "role",
+      numeric: false,
+      label: "Role(s)",
+    },
+    {
+      id: "skills",
+      numeric: false,
+      label: "Skills",
+    },
+    {
+      id: "hpw",
+      numeric: true,
+      label: "H.P.W.",
+    },
+    {
+      id: "intro",
+      numeric: false,
+      label: "Intro",
+    },
+    {
+      id: "setup",
+      numeric: false,
+      label: "Setup",
+    },
+    {
+      id: "quickwin",
+      numeric: false,
+      label: "Quick Win",
+    },
+    {
+      id: "majorcontributor",
+      numeric: false,
+      label: "Major Contributor",
+    },
   ];
+
+  const emptyRows =
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+
+  const createSortHandler =
+    (property: keyof ContributiorRecord) =>
+    (event: React.MouseEvent<unknown>) => {
+      const isAsc = orderBy === property && order === "asc";
+      setOrder(isAsc ? "desc" : "asc");
+      setOrderBy(property);
+    };
+
   return (
-    <Paper sx={{ padding: 2, marginBottom: 2 }}>
-      <Grid container justifyContent="space-between" alignItems="flext-start">
-        <big>
-          Contributors (
-          {
-            project.projectMembers?.filter((member: ProjectMember) => {
-              return member.active;
-            }).length
-          }{" "}
-          active)
-        </big>
-        {(isTeamMember || isAdmin) && (
-          <IconButton
-            aria-label="Edit"
-            href={`/projects/${project.id}/members`}
-          >
-            <EditSharp />
-          </IconButton>
-        )}
-      </Grid>
-      <Box sx={{ height: 600, width: "100%" }}>
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          pageSize={10}
-          rowsPerPageOptions={[10]}
-          disableSelectionOnClick
-          experimentalFeatures={{ newEditingApi: true }}
-          getRowHeight={() => "auto"}
-          sx={{
-            "&.MuiDataGrid-root--densityCompact .MuiDataGrid-cell": {
-              py: 1,
-            },
-            "&.MuiDataGrid-root--densityStandard .MuiDataGrid-cell": {
-              py: "15px",
-            },
-            "&.MuiDataGrid-root--densityComfortable .MuiDataGrid-cell": {
-              py: "22px",
-            },
-          }}
-        />
-      </Box>
+    <Paper sx={{ padding: 2, marginBottom: 2, width: "100%" }}>
+      <TableContainer>
+        <Table>
+          <TableHead>
+            <TableRow>
+              {headCells.map((cell) => (
+                <TableCell key={cell.id} align="center" padding="normal">
+                  <TableSortLabel
+                    active={orderBy === cell.id}
+                    direction={orderBy === cell.id ? order : "asc"}
+                    onClick={createSortHandler(cell.id)}
+                  >
+                    {cell.label}
+                  </TableSortLabel>
+                </TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {stableSort(rows, getComparator(order, orderBy))
+              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              .map((row, index) => {
+                const labelId = `enhanced-table-checkbox-${index}`;
+
+                return (
+                  <TableRow hover tabIndex={0} key={index}>
+                    <TableCell
+                      component="th"
+                      id={labelId}
+                      scope="row"
+                      padding="none"
+                      align="center"
+                    >
+                      {row.status ? (
+                        <CompleteIcon>
+                          <CheckSharpIcon />
+                        </CompleteIcon>
+                      ) : (
+                        <IncompleteIcon>
+                          <ClearSharpIcon />
+                        </IncompleteIcon>
+                      )}
+                    </TableCell>
+                    <TableCell align="center">
+                      <Link href={`mailto:${row.email}`}>{row.name}</Link>
+                    </TableCell>
+                    <TableCell align="center">{row.role}</TableCell>
+                    <TableCell align="center">
+                      <Grid
+                        container
+                        spacing={1}
+                        rowSpacing={1}
+                        columnSpacing={2}
+                      >
+                        {row.skills?.map((skill, id) => {
+                          return (
+                            <Grid item xs={12} md={6} key={id}>
+                              {skill}
+                            </Grid>
+                          );
+                        })}
+                      </Grid>
+                    </TableCell>
+                    <TableCell align="center">{row.hpw}</TableCell>
+                    <TableCell align="center">{row.intro}</TableCell>
+                    <TableCell align="center">{row.setup}</TableCell>
+                    <TableCell align="center">{row.quickwin}</TableCell>
+                    <TableCell align="center">{row.majorcontributor}</TableCell>
+                  </TableRow>
+                );
+              })}
+            {emptyRows > 0 && (
+              <TableRow>
+                <TableCell colSpan={6} />
+              </TableRow>
+            )}
+          </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TablePagination
+                count={rows.length}
+                page={page}
+                rowsPerPage={rowsPerPage}
+                onPageChange={handleChangePage}
+                rowsPerPageOptions={[]}
+              />
+            </TableRow>
+          </TableFooter>
+        </Table>
+      </TableContainer>
     </Paper>
   );
 };
