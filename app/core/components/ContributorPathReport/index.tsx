@@ -1,32 +1,18 @@
 import CheckSharpIcon from "@mui/icons-material/CheckSharp";
 import ClearSharpIcon from "@mui/icons-material/ClearSharp";
-import CheckBoxSharpIcon from "@mui/icons-material/CheckBoxSharp";
-import CheckBoxOutlineBlankSharpIcon from "@mui/icons-material/CheckBoxOutlineBlankSharp";
-import EditSharp from "@mui/icons-material/EditSharp";
 
 import { CompleteIcon, IncompleteIcon } from "./ContributorPathReport.styles";
 
-import type {
-  ContributorPath,
-  ProjectMember,
-  ProjectTask,
-  Stage,
-} from "~/core/interfaces/ContributorPathReport";
+import type { ProjectMember } from "~/core/interfaces/ContributorPathReport";
 import {
-  Box,
   Grid,
-  IconButton,
   Link,
-  ListItem,
   Paper,
-  Stack,
   Table,
   TableBody,
   TableCell,
   TableContainer,
-  TableFooter,
   TableHead,
-  TablePagination,
   TableRow,
   TableSortLabel,
 } from "@mui/material";
@@ -91,20 +77,12 @@ function getComparator<Key extends keyof any>(
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
-export const ContributorPathReport = ({
-  project,
-  isTeamMember,
-  isAdmin,
-}: IProps) => {
+export const ContributorPathReport = ({ project }: IProps) => {
   const [rows, setRows] = useState<ContributiorRecord[]>([]);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(15);
+  const page: number = 0;
+  const rowsPerPage: number = 25;
   const [orderBy, setOrderBy] = useState<keyof ContributiorRecord>("status");
   const [order, setOrder] = useState<Order>("asc");
-
-  const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage);
-  };
 
   useEffect(() => {
     const tableRows: ContributiorRecord[] = project.projectMembers?.map(
@@ -271,17 +249,6 @@ export const ContributorPathReport = ({
               </TableRow>
             )}
           </TableBody>
-          <TableFooter>
-            <TableRow>
-              <TablePagination
-                count={rows.length}
-                page={page}
-                rowsPerPage={rowsPerPage}
-                onPageChange={handleChangePage}
-                rowsPerPageOptions={[]}
-              />
-            </TableRow>
-          </TableFooter>
         </Table>
       </TableContainer>
     </Paper>
