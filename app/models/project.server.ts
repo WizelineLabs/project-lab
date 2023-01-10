@@ -229,28 +229,16 @@ export const validateIsTeamMember = (
 };
 
 export async function updateMembers(
-  profileId: string,
-  isAdmin: boolean,
   projectId: string,
   projectMembers: {
     id?: string;
     profileId: string;
-    hoursPerWeek?: number;
+    hoursPerWeek?: number | null;
     role?: { id: string }[];
     practicedSkills?: { id: string }[];
     active: boolean;
   }[]
 ) {
-  //validate if the user have permissions (team member or owner of the project)
-  const project = await db.projects.findUniqueOrThrow({
-    where: { id: projectId },
-    select: {
-      ownerId: true,
-    },
-  });
-  if (!isAdmin)
-    validateIsTeamMember(profileId, projectMembers, project.ownerId);
-
   const previousMembers = await db.projectMembers.findMany({
     where: { projectId },
     select: { id: true, profileId: true },
@@ -348,7 +336,6 @@ export async function joinProject(
 
 export async function updateProjects(
   id: string,
-  isAdmin: boolean,
   data: {
     name: string;
     slackChannel?: string;
@@ -364,22 +351,6 @@ export async function updateProjects(
     innovationTiers?: { name: string };
   }
 ) {
-  //validate if the user have permissions (team member or owner of the project)
-  const currentProject = await db.projects.findUniqueOrThrow({
-    where: { id },
-    select: {
-      ownerId: true,
-    },
-  });
-  const projectMembers = await db.projectMembers.findMany({
-    where: { projectId: id },
-    select: {
-      profileId: true,
-    },
-  });
-  if (!isAdmin)
-    validateIsTeamMember(id, projectMembers, currentProject.ownerId);
-
   // Unlink repos before linking again
   await db.repos.deleteMany({ where: { projectId: id } });
 
