@@ -36,7 +36,7 @@ export const LabeledTextField = ({
         id={name}
         name={name}
         label={label}
-        value={value}
+        value={value || ""}
         onChange={(e) => setValue(e.target.value)}
         type={type}
         size={size}

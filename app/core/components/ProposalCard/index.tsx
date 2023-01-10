@@ -1,11 +1,10 @@
-import { CardActionArea, CardContent, Card, Chip } from "@mui/material";
+import { CardActionArea, CardContent, Card, Chip, Link } from "@mui/material";
 import EllipsisText from "app/core/components/EllipsisText";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import PersonIcon from "@mui/icons-material/Person";
 import HelpIcon from "@mui/icons-material/Help";
 
 import { ProposalCardWrap } from "./ProposalCard.styles";
-import Link from "../Link";
 
 interface IProps {
   id: string | number;
@@ -79,10 +78,11 @@ export const ProposalCard = (props: IProps) => {
                     </span>
                     <div className="ProposalCard__tier">
                       <Link
-                        to="https://wizeline.atlassian.net/wiki/spaces/wiki/pages/3075342381/Innovation+Tiers"
+                        href="https://wizeline.atlassian.net/wiki/spaces/wiki/pages/3075342381/Innovation+Tiers"
                         target="_blank"
                         rel="noreferrer"
                         onClick={stopEvent}
+                        underline="hover"
                       >
                         <label className="ProposalCard__head__description--tier">
                           {props.tierName}
