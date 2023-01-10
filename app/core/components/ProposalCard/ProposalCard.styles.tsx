@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-import { styled as muiStyled } from "@mui/material";
 
 export const ProposalCardWrap = styled.div`
   display: flex;
@@ -116,6 +115,3 @@ export const ProposalCardWrap = styled.div`
     color: #ececec;
   }
 `;
-export const StyledLink = muiStyled("a")(({ theme }) => ({
-  color: theme.palette.primary.main,
-}));
