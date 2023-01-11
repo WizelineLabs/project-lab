@@ -25,6 +25,7 @@ import {
   Paper,
   IconButton,
   Typography,
+  CardHeader,
 } from "@mui/material";
 import { EditSharp, ThumbUpSharp, ThumbDownSharp } from "@mui/icons-material";
 import { adminRoleName } from "app/constants";
@@ -332,19 +333,25 @@ export default function ProjectDetailsPage() {
         <Grid container spacing={2} alignItems="stretch">
           <Grid item xs={12} md={8}>
             <Card>
+              <CardHeader
+                title="Description"
+                action={
+                  <Box sx={{ float: "right" }}>
+                    <Button variant="outlined">{project?.votes?.length}</Button>
+                    &nbsp;
+                    <Button
+                      variant="contained"
+                      onClick={() => handleVote(projectId)}
+                      endIcon={
+                        voteCount ? <ThumbDownSharp /> : <ThumbUpSharp />
+                      }
+                    >
+                      {voteCount ? "Unlike" : "Like"}
+                    </Button>
+                  </Box>
+                }
+              />
               <CardContent>
-                <Box sx={{ float: "right" }}>
-                  <Button variant="outlined">{project?.votes?.length}</Button>
-                  &nbsp;
-                  <Button
-                    variant="contained"
-                    onClick={() => handleVote(projectId)}
-                    endIcon={voteCount ? <ThumbDownSharp /> : <ThumbUpSharp />}
-                  >
-                    {voteCount ? "Unlike" : "Like"}
-                  </Button>
-                </Box>
-                <h2>Description</h2>
                 <div>
                   <Markdown>
                     {project.valueStatement ? project.valueStatement : ""}
@@ -357,8 +364,8 @@ export default function ProjectDetailsPage() {
             <Stack direction="column" spacing={1}>
               {project.slackChannel && (
                 <Card>
+                  <CardHeader title="Slack Channel:" />
                   <CardContent>
-                    <big>Slack Channel:</big>
                     <Stack direction="row" spacing={1}>
                       {project.slackChannel}
                     </Stack>
@@ -367,8 +374,8 @@ export default function ProjectDetailsPage() {
               )}
               {project.repoUrls && (
                 <Card>
+                  <CardHeader title="Repos URLs:" />
                   <CardContent>
-                    <big>Repos URLs:</big>
                     <ul>
                       {project.repoUrls.map((item, index) => (
                         <li key={index}>
@@ -383,8 +390,8 @@ export default function ProjectDetailsPage() {
               )}
               {project.skills && project.skills.length > 0 && (
                 <Card>
+                  <CardHeader title="Skills:" />
                   <CardContent>
-                    <big>Skills:</big>
                     {project.skills.map((item, index) => (
                       <Chip
                         key={index}
@@ -397,8 +404,8 @@ export default function ProjectDetailsPage() {
               )}
               {project.disciplines && project.disciplines.length > 0 && (
                 <Card>
+                  <CardHeader title="Looking for:" />
                   <CardContent>
-                    <big>Looking for:</big>
                     {project.disciplines &&
                       project.disciplines.map((item, index) => (
                         <Chip
@@ -436,14 +443,12 @@ export default function ProjectDetailsPage() {
         </Grid>
       </Container>
       <Container>
-        <Paper sx={{ padding: 2, marginBottom: 2 }}>
-          <RelatedProjectsSection
-            allowEdit={isTeamMember || isAdmin}
-            relatedProjects={project.relatedProjects}
-            projectsList={projectsList}
-            projectId={projectId}
-          />
-        </Paper>
+        <RelatedProjectsSection
+          allowEdit={isTeamMember || isAdmin}
+          relatedProjects={project.relatedProjects}
+          projectsList={projectsList}
+          projectId={projectId}
+        />
       </Container>
       <Container>
         <ContributorPathReport
