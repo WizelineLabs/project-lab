@@ -37,16 +37,6 @@ type LoaderData = {
   ideaStatuses: ProjectStatus[];
 };
 
-interface Tab {
-  name: string;
-  title: string;
-  searchParams: URLSearchParams;
-}
-
-interface Tabs {
-  [key: string]: Tab;
-}
-
 const ITEMS_PER_PAGE = 50;
 const FACETS = [
   "status",
@@ -58,6 +48,16 @@ const FACETS = [
   "role",
   "missing",
 ];
+
+interface Tab {
+  name: string;
+  title: string;
+  searchParams: URLSearchParams;
+}
+
+interface Tabs {
+  [key: string]: Tab;
+}
 
 export const loader: LoaderFunction = async ({ request }) => {
   const profile = await requireProfile(request);
@@ -224,7 +224,6 @@ export default function Projects() {
 
   const handleTabChange = (selectedTab: string) => {
     let params = tabs[selectedTab]?.searchParams;
-    console.log(params);
     if (params) {
       setSearchParams(params);
     }
