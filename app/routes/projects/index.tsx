@@ -22,6 +22,7 @@ import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import CloseIcon from "@mui/icons-material/Close";
+import { styled } from "@mui/material";
 import { SortInput } from "app/core/components/SortInput";
 import { searchProjects } from "~/models/project.server";
 import { requireProfile } from "~/session.server";
@@ -36,6 +37,16 @@ type LoaderData = {
   ideaStatuses: ProjectStatus[];
 };
 
+interface Tab {
+  name: string;
+  title: string;
+  searchParams: URLSearchParams;
+}
+
+interface Tabs {
+  [key: string]: Tab;
+}
+
 const ITEMS_PER_PAGE = 50;
 const FACETS = [
   "status",
@@ -47,12 +58,6 @@ const FACETS = [
   "role",
   "missing",
 ];
-
-interface Tab {
-  name: string;
-  title: string;
-  searchParams: URLSearchParams;
-}
 
 export const loader: LoaderFunction = async ({ request }) => {
   const profile = await requireProfile(request);
@@ -137,22 +142,27 @@ export default function Projects() {
   ideaStatuses.forEach((status) => {
     ideasSearchParams.append("status", status.name);
   });
+
   const activeProjectsTab: Tab = {
     name: "activeProjects",
     title: "Active Projects",
     searchParams: activeProjectsSearchParams,
   };
-  const myProposalsTab = {
+  const myProposalsTab: Tab = {
     name: "myProposals",
     title: "My Proposals",
     searchParams: new URLSearchParams({ q: myPropQuery }),
   };
-  const ideasTab = {
+  const ideasTab: Tab = {
     name: "ideas",
     title: "Ideas",
     searchParams: ideasSearchParams,
   };
-  const tabs: Array<Tab> = [myProposalsTab, activeProjectsTab, ideasTab];
+  const tabs: Tabs = {
+    "myProposals" : myProposalsTab,
+    "activeProjects": activeProjectsTab,
+    "ideas": ideasTab
+  }
 
   const goToPreviousPage = () => {
     searchParams.set("page", String(page - 1));
@@ -213,7 +223,8 @@ export default function Projects() {
   };
 
   const handleTabChange = (selectedTab: string) => {
-    let params = tabs.find((tab) => tab.name === selectedTab)?.searchParams;
+    let params = tabs[selectedTab]?.searchParams;
+    console.log(params);
     if (params) {
       setSearchParams(params);
     }
@@ -228,6 +239,11 @@ export default function Projects() {
   const theme = useTheme();
   const lessThanMd = useMediaQuery(theme.breakpoints.down("md"));
 
+  const StyledTabButton = styled(Button)(({ theme }) => ({
+    fontWeight: 'bold',
+    color: theme.palette.mode === 'dark' ? '#fff' : theme.palette.primary.main,
+  }));
+
   return (
     <>
       <Header title="Projects" />
@@ -238,14 +254,18 @@ export default function Projects() {
       <Container sx={{ marginBottom: 2 }}>
         <Paper elevation={0} sx={{ padding: 2 }}>
           <Stack direction="row">
-            {tabs.map((tab) => (
-              <Button
-                color={isTabActive(tab.name) ? "secondary" : "primary"}
+            {Object.values(tabs).map((tab) => (
+              <StyledTabButton
+                color="primary"
+                size="small"
+                disableElevation
+                variant={isTabActive(tab.name) ? 'contained' : 'text'}
                 onClick={() => handleTabChange(tab.name)}
                 key={tab.name}
+                sx={{ color: isTabActive(tab.name) ? '#fff' : null }}
               >
                 {tab.title}
-              </Button>
+              </StyledTabButton>
             ))}
           </Stack>
         </Paper>
