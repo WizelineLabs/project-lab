@@ -6,7 +6,7 @@ DROP INDEX "projects_ts_column_idx";
 
 -- AlterTable
 ALTER TABLE "Projects" ADD COLUMN     "projectBoard" TEXT,
-ALTER COLUMN "tsColumn" DROP EXPRESSION;
+ALTER COLUMN "tsColumn" DROP DEFAULT;
 
 -- CreateIndex
 CREATE INDEX "profiles_search_col_idx" ON "Profiles"("searchCol");
