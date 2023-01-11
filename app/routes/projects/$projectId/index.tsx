@@ -372,6 +372,16 @@ export default function ProjectDetailsPage() {
                   </CardContent>
                 </Card>
               )}
+              {project.projectBoard && (
+                <Card>
+                  <CardHeader title="Project Board:" />
+                  <CardContent>
+                    <Stack direction="row" spacing={1}>
+                      {project.projectBoard}
+                    </Stack>
+                  </CardContent>
+                </Card>
+              )}
               {project.repoUrls && (
                 <Card>
                   <CardHeader title="Repos URLs:" />

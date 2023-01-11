@@ -164,6 +164,7 @@ model Projects {
   disciplines            Disciplines[]
   labels                 Labels[]
   skills                 Skills[]
+  projectBoard           String?
 
   // here also the change of name for map
   @@index([ownerId], map: "projects_owner_id_idx")

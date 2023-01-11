@@ -66,6 +66,7 @@ export const validator = withZod(
           })
         )
         .optional(),
+      projectBoard: zfd.text(z.string().optional()),
       // relatedProjectsA: zfd.repeatable(z.array(z.string()).optional()),
     })
     .transform((val) => {
