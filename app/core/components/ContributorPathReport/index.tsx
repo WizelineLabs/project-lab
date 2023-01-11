@@ -1,6 +1,6 @@
 import CheckSharpIcon from "@mui/icons-material/CheckSharp";
 import ClearSharpIcon from "@mui/icons-material/ClearSharp";
-
+import EditSharp from "@mui/icons-material/EditSharp";
 import { CompleteIcon, IncompleteIcon } from "./ContributorPathReport.styles";
 
 import type { ProjectMember } from "~/core/interfaces/ContributorPathReport";
@@ -9,6 +9,7 @@ import {
   CardContent,
   CardHeader,
   Grid,
+  IconButton,
   Link,
   Table,
   TableBody,
@@ -79,7 +80,11 @@ function getComparator<Key extends keyof any>(
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
-export const ContributorPathReport = ({ project }: IProps) => {
+export const ContributorPathReport = ({
+  project,
+  isTeamMember,
+  isAdmin,
+}: IProps) => {
   const [rows, setRows] = useState<ContributiorRecord[]>([]);
   const page: number = 0;
   const rowsPerPage: number = 25;
@@ -175,7 +180,19 @@ export const ContributorPathReport = ({ project }: IProps) => {
 
   return (
     <Card>
-      <CardHeader title="Contributors" />
+      <CardHeader
+        title="Contributors"
+        action={
+          (isTeamMember || isAdmin) && (
+            <IconButton
+              aria-label="Edit"
+              href={`/projects/${project.id}/members`}
+            >
+              <EditSharp />
+            </IconButton>
+          )
+        }
+      />
       <CardContent>
         <TableContainer>
           <Table>
