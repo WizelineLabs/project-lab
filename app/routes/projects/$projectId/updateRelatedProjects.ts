@@ -38,7 +38,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     });
     return redirect(`/projects/${projectId}`);
   } catch (e) {
-    console.log(e);
+    // console.log(e);
     return validationError({
       fieldErrors: {
         formError: "Server failed",

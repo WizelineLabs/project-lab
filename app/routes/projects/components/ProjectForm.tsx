@@ -38,8 +38,8 @@ export function ProjectForm({
   const { isValid, fieldErrors, getValues } = useFormContext();
   const disabled = isSubmitting;
   if (!isValid) {
-    console.log(fieldErrors);
-    console.log(getValues());
+    // console.log(fieldErrors);
+    // console.log(getValues());
   }
 
   return (

@@ -47,7 +47,7 @@ export async function removeInnovationTier({ name }: { name: string }) {
 }
 
 export async function updateInnovationTier(data: newInnovationTier) {
-  console.log(data);
+  // console.log(data);
   if (data.id) {
     const { id, ...rest } = data;
     await validateInnovationTier(id);

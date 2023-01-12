@@ -54,7 +54,7 @@ let auth0Strategy = new Auth0Strategy(
           // - Assignment to start
         });
       } catch (e) {
-        console.log(e);
+        // console.log(e);
         throw e;
       }
     }

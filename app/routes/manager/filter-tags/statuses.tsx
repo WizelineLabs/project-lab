@@ -142,7 +142,7 @@ export const action: ActionFunction = async ({ request }) => {
       case "UPDATE-PROJECTS":
         const result = await validatorBack.validate(formData);
         if (result.error) return validationError(result.error);
-        console.log(result);
+        // console.log(result);
         const ids = result.data.ids as string[];
         const projectStatus = result.data.status?.name;
         invariant(projectStatus, "Project status is required");

@@ -33,7 +33,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     await updateMembership(projectId, membership.id, result.data);
     return redirect(`/projects/${projectId}`);
   } catch (e) {
-    console.log(e);
+    // console.log(e);
     return validationError({
       fieldErrors: {
         formError: "Server failed",
