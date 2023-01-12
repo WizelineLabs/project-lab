@@ -26,6 +26,7 @@ import {
   IconButton,
   Typography,
   CardHeader,
+  Link,
 } from "@mui/material";
 import { EditSharp, ThumbUpSharp, ThumbDownSharp } from "@mui/icons-material";
 import { adminRoleName } from "app/constants";
@@ -310,15 +311,13 @@ export default function ProjectDetailsPage() {
                 <div className="itemHeadName">Innovation Tier:</div>
               </Grid>
               <Grid item>
-                <a
-                  href="https://wizeline.atlassian.net/wiki/spaces/wiki/pages/3075342381/Innovation+Tiers"
+                <Link
                   target="_blank"
                   rel="noreferrer"
+                  href="https://wizeline.atlassian.net/wiki/spaces/wiki/pages/3075342381/Innovation+Tiers"
                 >
-                  <div className="itemHeadValue innovationTier">
-                    {project.tierName}
-                  </div>
-                </a>
+                  {project.tierName}
+                </Link>
               </Grid>
             </Grid>
           </Grid>
@@ -377,7 +376,9 @@ export default function ProjectDetailsPage() {
                   <CardHeader title="Project Board:" />
                   <CardContent>
                     <Stack direction="row" spacing={1}>
-                      {project.projectBoard}
+                      <Link target="_blank" href={project.projectBoard}>
+                        {project.projectBoard}
+                      </Link>
                     </Stack>
                   </CardContent>
                 </Card>
@@ -389,9 +390,9 @@ export default function ProjectDetailsPage() {
                     <ul>
                       {project.repoUrls.map((item, index) => (
                         <li key={index}>
-                          <a href={item.url} target="_blank" rel="noreferrer">
+                          <Link target="_blank" href={item.url}>
                             {item.url}
-                          </a>
+                          </Link>
                         </li>
                       ))}
                     </ul>
