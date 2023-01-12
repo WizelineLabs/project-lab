@@ -1,1 +1,1 @@
-ALTER TABLE "Projects" ADD COLUMN "projectBoard" TEXT,
+ALTER TABLE "Projects" ADD COLUMN "projectBoard" TEXT;
