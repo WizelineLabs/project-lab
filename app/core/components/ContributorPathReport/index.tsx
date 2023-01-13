@@ -1,13 +1,16 @@
 import CheckSharpIcon from "@mui/icons-material/CheckSharp";
 import ClearSharpIcon from "@mui/icons-material/ClearSharp";
-
+import EditSharp from "@mui/icons-material/EditSharp";
 import { CompleteIcon, IncompleteIcon } from "./ContributorPathReport.styles";
 
 import type { ProjectMember } from "~/core/interfaces/ContributorPathReport";
 import {
+  Card,
+  CardContent,
+  CardHeader,
   Grid,
+  IconButton,
   Link,
-  Paper,
   Table,
   TableBody,
   TableCell,
@@ -77,7 +80,11 @@ function getComparator<Key extends keyof any>(
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
-export const ContributorPathReport = ({ project }: IProps) => {
+export const ContributorPathReport = ({
+  project,
+  isTeamMember,
+  isAdmin,
+}: IProps) => {
   const [rows, setRows] = useState<ContributiorRecord[]>([]);
   const page: number = 0;
   const rowsPerPage: number = 25;
@@ -172,86 +179,103 @@ export const ContributorPathReport = ({ project }: IProps) => {
     };
 
   return (
-    <Paper sx={{ padding: 2, marginBottom: 2, width: "100%" }}>
-      <TableContainer>
-        <Table>
-          <TableHead>
-            <TableRow>
-              {headCells.map((cell) => (
-                <TableCell key={cell.id} align="center" padding="normal">
-                  <TableSortLabel
-                    active={orderBy === cell.id}
-                    direction={orderBy === cell.id ? order : "asc"}
-                    onClick={createSortHandler(cell.id)}
-                  >
-                    {cell.label}
-                  </TableSortLabel>
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {stableSort(rows, getComparator(order, orderBy))
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row, index) => {
-                const labelId = `enhanced-table-checkbox-${index}`;
-
-                return (
-                  <TableRow hover tabIndex={0} key={index}>
-                    <TableCell
-                      component="th"
-                      id={labelId}
-                      scope="row"
-                      padding="none"
-                      align="center"
-                    >
-                      {row.status ? (
-                        <CompleteIcon>
-                          <CheckSharpIcon />
-                        </CompleteIcon>
-                      ) : (
-                        <IncompleteIcon>
-                          <ClearSharpIcon />
-                        </IncompleteIcon>
-                      )}
-                    </TableCell>
-                    <TableCell align="center">
-                      <Link href={`mailto:${row.email}`}>{row.name}</Link>
-                    </TableCell>
-                    <TableCell align="center">{row.role}</TableCell>
-                    <TableCell align="center">
-                      <Grid
-                        container
-                        spacing={1}
-                        rowSpacing={1}
-                        columnSpacing={2}
-                      >
-                        {row.skills?.map((skill, id) => {
-                          return (
-                            <Grid item xs={12} md={6} key={id}>
-                              {skill}
-                            </Grid>
-                          );
-                        })}
-                      </Grid>
-                    </TableCell>
-                    <TableCell align="center">{row.hpw}</TableCell>
-                    <TableCell align="center">{row.intro}</TableCell>
-                    <TableCell align="center">{row.setup}</TableCell>
-                    <TableCell align="center">{row.quickwin}</TableCell>
-                    <TableCell align="center">{row.majorcontributor}</TableCell>
-                  </TableRow>
-                );
-              })}
-            {emptyRows > 0 && (
+    <Card>
+      <CardHeader
+        title="Contributors"
+        action={
+          (isTeamMember || isAdmin) && (
+            <IconButton
+              aria-label="Edit"
+              href={`/projects/${project.id}/members`}
+            >
+              <EditSharp />
+            </IconButton>
+          )
+        }
+      />
+      <CardContent>
+        <TableContainer>
+          <Table>
+            <TableHead>
               <TableRow>
-                <TableCell colSpan={6} />
+                {headCells.map((cell) => (
+                  <TableCell key={cell.id} align="center" padding="normal">
+                    <TableSortLabel
+                      active={orderBy === cell.id}
+                      direction={orderBy === cell.id ? order : "asc"}
+                      onClick={createSortHandler(cell.id)}
+                    >
+                      {cell.label}
+                    </TableSortLabel>
+                  </TableCell>
+                ))}
               </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Paper>
+            </TableHead>
+            <TableBody>
+              {stableSort(rows, getComparator(order, orderBy))
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((row, index) => {
+                  const labelId = `enhanced-table-checkbox-${index}`;
+
+                  return (
+                    <TableRow hover tabIndex={0} key={index}>
+                      <TableCell
+                        component="th"
+                        id={labelId}
+                        scope="row"
+                        padding="none"
+                        align="center"
+                      >
+                        {row.status ? (
+                          <CompleteIcon>
+                            <CheckSharpIcon />
+                          </CompleteIcon>
+                        ) : (
+                          <IncompleteIcon>
+                            <ClearSharpIcon />
+                          </IncompleteIcon>
+                        )}
+                      </TableCell>
+                      <TableCell align="center">
+                        <Link href={`mailto:${row.email}`}>{row.name}</Link>
+                      </TableCell>
+                      <TableCell align="center">{row.role}</TableCell>
+                      <TableCell align="center">
+                        <Grid
+                          container
+                          spacing={1}
+                          rowSpacing={1}
+                          columnSpacing={2}
+                        >
+                          {row.skills?.map((skill, id) => {
+                            return (
+                              <Grid item xs={12} md={6} key={id}>
+                                {skill}
+                              </Grid>
+                            );
+                          })}
+                        </Grid>
+                      </TableCell>
+                      <TableCell align="center">{row.hpw}</TableCell>
+                      <TableCell align="center">{row.intro}</TableCell>
+                      <TableCell align="center">{row.setup}</TableCell>
+                      <TableCell align="center">{row.quickwin}</TableCell>
+                      <TableCell align="center">
+                        {row.majorcontributor}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              {emptyRows > 0 && (
+                <TableRow>
+                  <TableCell colSpan={6} />
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </CardContent>
+    </Card>
   );
 };
 
