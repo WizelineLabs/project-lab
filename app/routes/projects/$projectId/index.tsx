@@ -45,6 +45,7 @@ import Comments from "~/core/components/Comments";
 
 import MDEditorStyles from "@uiw/react-md-editor/markdown-editor.css";
 import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
+import Resources from "../components/resources";
 
 export function links() {
   return [
@@ -77,6 +78,28 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 
   const comments = await getComments(params.projectId);
 
+  // Resources data
+  const projectResources = [
+    { id: 1, type: "Cloud Account", provider: "AWS", name: "Some AWS account" },
+    { id: 2, type: "Hardware", provider: "Nintendo", name: "Nintendo Switch" },
+  ];
+  const resourceData = {
+    types: [
+      "New type",
+      "Uncommon type"
+    ],
+    providers: [
+      "Meta",
+      "Oracle",
+      "IBM"
+    ],
+    names: [
+      "Some resource coming from DB",
+      "Some other resource coming from DB",
+      "Yet another resource coming from DB",
+    ]
+  }
+
   return typedjson({
     isAdmin,
     isTeamMember,
@@ -87,6 +110,8 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     profileId,
     projectId: params.projectId,
     comments,
+    projectResources,
+    resourceData
   });
 };
 
@@ -142,6 +167,8 @@ export default function ProjectDetailsPage() {
     profileId,
     projectId,
     comments,
+    projectResources,
+    resourceData
   } = useTypedLoaderData<typeof loader>();
   const [showJoinModal, setShowJoinModal] = useState<boolean>(false);
   const [showMembershipModal, setShowMembershipModal] =
@@ -442,7 +469,7 @@ export default function ProjectDetailsPage() {
           <Grid item xs={12}></Grid>
         </Grid>
       </Container>
-      <Container>
+      <Container sx={{ marginBottom: 2 }}>
         <RelatedProjectsSection
           allowEdit={isTeamMember || isAdmin}
           relatedProjects={project.relatedProjects}
@@ -450,7 +477,7 @@ export default function ProjectDetailsPage() {
           projectId={projectId}
         />
       </Container>
-      <Container>
+      <Container sx={{ marginBottom: 2 }}>
         <ContributorPathReport
           project={project}
           isTeamMember={isTeamMember}
@@ -462,6 +489,10 @@ export default function ProjectDetailsPage() {
         open={showJoinModal}
         handleCloseModal={() => setShowJoinModal(false)}
       />
+
+      <Container sx={{ marginBottom: 2 }}>
+        <Resources allowEdit={isTeamMember || isAdmin} projectResources={projectResources} resourceData={resourceData}  />
+      </Container>
 
       <Container>
         <Comments
