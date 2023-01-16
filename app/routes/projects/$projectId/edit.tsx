@@ -88,11 +88,11 @@ export const action: ActionFunction = async ({ request, params }) => {
     const currentProject = await getProject({ id: projectId });
     const {
       projectMembers: currentMembers = [],
-      ownerId: currentOwnerId = null
+      ownerId: currentOwnerId = null,
     } = currentProject;
     isProjectMemberOrOwner(profile.id, currentMembers, currentOwnerId);
   }
-  
+
   const result = await validator.validate(await request.formData());
   if (result.error) return validationError(result.error);
   const project = await updateProjects(projectId, result.data);
@@ -182,6 +182,7 @@ export default function EditProjectPage() {
                   slackChannel: project.slackChannel || "",
                   skills: project.skills,
                   labels: project.labels,
+                  projectBoard: project.projectBoard || "",
                   //projectMembers: project.projectMembers,
                 }}
                 method="post"
