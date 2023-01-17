@@ -51,3 +51,30 @@ export async function findProfileData(email: string) {
     throw new Error("Profile not found on lake");
   }
 }
+
+export async function getActiveProfiles() {
+  const query = `SELECT contact__wizeos_profile_id, contact__employee_number, contact__email,
+   contact__first_name, contact__preferred_name, contact__last_name,
+   contact__photo__url,
+   contact__location, contact__country,
+   contact__status, contact__department,
+   contact__wizeos__level, contact__title, contact__role
+ FROM \`wizelake-prod.wizelabs_wzlk.contact\`
+ WHERE contact__status != "Terminated"`;
+
+  const options = {
+    query: query,
+    location: "US",
+    params: {},
+  };
+
+  // Wait for the query to finish
+  const [rows] = await client.query(options);
+
+  // Print the results
+  if (rows.length > 0) {
+    return rows;
+  } else {
+    throw new Error("Profile not found on lake");
+  }
+}
