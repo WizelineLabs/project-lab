@@ -313,8 +313,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script_stop: true
           script: |
-            # ignore failure on pm2 stop (first time?)
-            pm2 stop all || true
+            # ignore failure on pm2 delete (first time?)
+            # use delete to also reload .env variables
+            pm2 delete projectlab || true
 
             echo "*** Step: *** Replace app folders"
             rm -rf ~/projectlab/app
