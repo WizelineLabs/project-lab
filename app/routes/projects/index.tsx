@@ -439,7 +439,7 @@ export default function Projects() {
                     aria-controls="panel2a-controls"
                     id="panel2a-header"
                   >
-                    <strong>Roles</strong>
+                    <strong>Has Roles</strong>
                   </AccordionSummary>
                   <AccordionDetails>
                     <ul>
@@ -465,7 +465,7 @@ export default function Projects() {
                     aria-controls="panel2a-controls"
                     id="panel2a-header"
                   >
-                    <strong>Missing Roles</strong>
+                    <strong>Does not have Roles</strong>
                   </AccordionSummary>
                   <AccordionDetails>
                     <ul>
