@@ -42,7 +42,7 @@ const FACETS = [
   "status",
   "skill",
   "label",
-  "disciplines",
+  "discipline",
   "location",
   "tier",
   "role",

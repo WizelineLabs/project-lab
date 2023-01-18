@@ -434,6 +434,9 @@ export default function ProjectDetailsPage() {
                       project.disciplines.map((item, index) => (
                         <Chip
                           key={index}
+                          component="a"
+                          href={`/projects?discipline=${item.name}`}
+                          clickable
                           label={item.name}
                           sx={{ marginRight: 1, marginBottom: 1 }}
                         />
