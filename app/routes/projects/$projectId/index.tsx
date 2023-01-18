@@ -28,7 +28,10 @@ import {
   CardHeader,
   Link,
 } from "@mui/material";
-import { EditSharp, ThumbUpSharp, ThumbDownSharp } from "@mui/icons-material";
+import EditSharp from "@mui/icons-material/EditSharp";
+import ThumbUpSharp from "@mui/icons-material/ThumbUpSharp";
+import ThumbDownSharp from "@mui/icons-material/ThumbDownSharp";
+import OpenInNew from "@mui/icons-material/OpenInNew";
 import { adminRoleName } from "app/constants";
 import ContributorPathReport from "../../../core/components/ContributorPathReport/index";
 import { useEffect, useState } from "react";
@@ -46,6 +49,7 @@ import Comments from "~/core/components/Comments";
 
 import MDEditorStyles from "@uiw/react-md-editor/markdown-editor.css";
 import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
+import RemixLink from "~/core/components/Link";
 
 export function links() {
   return [
@@ -252,7 +256,12 @@ export default function ProjectDetailsPage() {
                 <div className="itemHeadName">Status:</div>{" "}
               </Grid>
               <Grid item>
-                <div className="itemHeadValue">{project.status}</div>
+                <RemixLink
+                  className="itemHeadValue"
+                  to={`/projects?status=${project.status}`}
+                >
+                  {project.status}
+                </RemixLink>
               </Grid>
             </Grid>
             <Grid
@@ -261,15 +270,31 @@ export default function ProjectDetailsPage() {
               sm={6}
               xs={12}
               spacing={1}
-              alignItems="center"
+              alignItems="end"
               justifyContent="flex-start"
               direction={{ xs: "column", md: "row" }}
             >
               <Grid item>
-                <div className="itemHeadName">Tier:</div>{" "}
+                <Link
+                  className="itemHeadName"
+                  target="_blank"
+                  rel="noreferrer"
+                  href="https://wizeline.atlassian.net/wiki/spaces/wiki/pages/3075342381/Innovation+Tiers"
+                >
+                  <b>Innovation Tier</b>
+                  <sup>
+                    <OpenInNew style={{ fontSize: 10 }} />
+                  </sup>
+                </Link>{" "}
+                :
               </Grid>
               <Grid item>
-                <div className="itemHeadValue">{project.tierName}</div>
+                <RemixLink
+                  className="itemHeadValue"
+                  to={`/projects?tier=${project.tierName}`}
+                >
+                  {project.tierName}
+                </RemixLink>
               </Grid>
             </Grid>
             <Grid
@@ -290,34 +315,13 @@ export default function ProjectDetailsPage() {
                   project.labels.map((item, index) => (
                     <Chip
                       key={index}
+                      component="a"
+                      href={`/projects?label=${item.name}`}
+                      clickable
                       label={item.name}
                       sx={{ marginRight: 1, marginBottom: 1 }}
                     />
                   ))}
-              </Grid>
-            </Grid>
-
-            <Grid
-              item
-              container
-              sm={6}
-              xs={12}
-              spacing={1}
-              alignItems="center"
-              justifyContent="flex-start"
-              direction={{ xs: "column", md: "row" }}
-            >
-              <Grid item>
-                <div className="itemHeadName">Innovation Tier:</div>
-              </Grid>
-              <Grid item>
-                <Link
-                  target="_blank"
-                  rel="noreferrer"
-                  href="https://wizeline.atlassian.net/wiki/spaces/wiki/pages/3075342381/Innovation+Tiers"
-                >
-                  {project.tierName}
-                </Link>
               </Grid>
             </Grid>
           </Grid>
@@ -365,9 +369,15 @@ export default function ProjectDetailsPage() {
                 <Card>
                   <CardHeader title="Slack Channel:" />
                   <CardContent>
-                    <Stack direction="row" spacing={1}>
+                    <Link
+                      target="_blank"
+                      href={`https://wizeline.slack.com/channels/${project.slackChannel.replace(
+                        "#",
+                        ""
+                      )}`}
+                    >
                       {project.slackChannel}
-                    </Stack>
+                    </Link>
                   </CardContent>
                 </Card>
               )}
@@ -406,6 +416,9 @@ export default function ProjectDetailsPage() {
                     {project.skills.map((item, index) => (
                       <Chip
                         key={index}
+                        component="a"
+                        href={`/projects?skill=${item.name}`}
+                        clickable
                         label={item.name}
                         sx={{ marginRight: 1, marginBottom: 1 }}
                       />
@@ -421,6 +434,9 @@ export default function ProjectDetailsPage() {
                       project.disciplines.map((item, index) => (
                         <Chip
                           key={index}
+                          component="a"
+                          href={`/projects?discipline=${item.name}`}
+                          clickable
                           label={item.name}
                           sx={{ marginRight: 1, marginBottom: 1 }}
                         />
