@@ -159,10 +159,10 @@ export default function Projects() {
     searchParams: ideasSearchParams,
   };
   const tabs: Tabs = {
-    "myProposals" : myProposalsTab,
-    "activeProjects": activeProjectsTab,
-    "ideas": ideasTab
-  }
+    myProposals: myProposalsTab,
+    activeProjects: activeProjectsTab,
+    ideas: ideasTab,
+  };
 
   const goToPreviousPage = () => {
     searchParams.set("page", String(page - 1));
@@ -239,8 +239,8 @@ export default function Projects() {
   const lessThanMd = useMediaQuery(theme.breakpoints.down("md"));
 
   const StyledTabButton = styled(Button)(({ theme }) => ({
-    fontWeight: 'bold',
-    color: theme.palette.mode === 'dark' ? '#fff' : theme.palette.primary.main,
+    fontWeight: "bold",
+    color: theme.palette.mode === "dark" ? "#fff" : theme.palette.primary.main,
   }));
 
   return (
@@ -258,10 +258,10 @@ export default function Projects() {
                 color="primary"
                 size="small"
                 disableElevation
-                variant={isTabActive(tab.name) ? 'contained' : 'text'}
+                variant={isTabActive(tab.name) ? "contained" : "text"}
                 onClick={() => handleTabChange(tab.name)}
                 key={tab.name}
-                sx={{ color: isTabActive(tab.name) ? '#fff' : null }}
+                sx={{ color: isTabActive(tab.name) ? "#fff" : null }}
               >
                 {tab.title}
               </StyledTabButton>
