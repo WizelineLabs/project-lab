@@ -13,6 +13,8 @@ import {
   TableRow,
 } from "@mui/material";
 import type { Repos } from "@prisma/client";
+import { useMemo, useState } from "react";
+import { getCommits } from "~/routes/api/github/get-commits";
 
 type CommitListRecord = {
   id: number;
@@ -34,14 +36,6 @@ interface HeadTable {
   label: string;
 }
 
-function cleanUrlRepo(repoInfo: Repos[]): string {
-  if (repoInfo[0].url) {
-    return repoInfo[0].url.substring(repoInfo[0].url.lastIndexOf("/") + 1);
-  } else {
-    return "";
-  }
-}
-
 function formatDate(dateString: string) {
   return new Date(dateString).toLocaleDateString([], {
     year: "numeric",
@@ -50,7 +44,9 @@ function formatDate(dateString: string) {
   });
 }
 
-export default function GitHubCommits(commitsList) {
+export default function GitHubCommits({ repoName }: { repoName: string }) {
+  const [commitListMemo, setcommitListMemo] = useState<any[]>();
+
   const header: HeadTable[] = [
     {
       id: "author",
@@ -70,6 +66,18 @@ export default function GitHubCommits(commitsList) {
     },
   ];
 
+  useMemo(
+    () =>
+      getCommits(repoName)
+        .then((data) => {
+          const commitData = data.data;
+          console.log(data);
+          commitData ? setcommitListMemo(commitData) : setcommitListMemo([]);
+        })
+        .catch((error) => console.log(error)),
+    [repoName]
+  );
+
   return (
     <>
       <Card>
@@ -87,76 +95,76 @@ export default function GitHubCommits(commitsList) {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {commitsList &&
-                  commitsList?.map((row: CommitListRecord, index) => {
-                    const labelId = `enhanced-table-checkbox-${index}`;
-                    return (
-                      <TableRow hover tabIndex={0} key={index}>
-                        <TableCell
-                          component="th"
-                          id={labelId}
-                          scope="row"
-                          padding="none"
-                          align="center"
+                {commitListMemo?.map((row, index) => {
+                  const labelId = `enhanced-table-checkbox-${index}`;
+                  return (
+                    <TableRow hover tabIndex={0} key={index}>
+                      <TableCell
+                        component="th"
+                        id={labelId}
+                        scope="row"
+                        padding="none"
+                        align="center"
+                      >
+                        <Link
+                          rel="noreferrer"
+                          target="_blank"
+                          href={row.author?.html_url}
                         >
-                          <Link
-                            rel="noreferrer"
-                            target="_blank"
-                            href={row.author.html_url}
+                          <Stack
+                            direction={"row"}
+                            spacing={1}
+                            alignItems="center"
+                            justifyContent="space-evenly"
                           >
-                            <Stack
-                              direction={"row"}
-                              spacing={1}
-                              alignItems="center"
-                              justifyContent="space-evenly"
-                            >
-                              <Avatar
-                                alt={row.commit.author.name}
-                                src={row.author.avatar_url}
-                              />
-                              {row.commit.author.name}
-                            </Stack>
-                          </Link>
-                        </TableCell>
+                            <Avatar
+                              alt={row.commit.author?.name}
+                              src={row.author?.avatar_url}
+                            />
+                            {row.commit.author?.name}
+                          </Stack>
+                        </Link>
+                      </TableCell>
 
-                        <TableCell
-                          component="th"
-                          id={labelId}
-                          scope="row"
-                          padding="none"
-                          align="center"
-                        >
-                          {formatDate(row.commit.author.date)}
-                        </TableCell>
+                      <TableCell
+                        component="th"
+                        id={labelId}
+                        scope="row"
+                        padding="none"
+                        align="center"
+                      >
+                        {row.commit?.author?.date &&
+                          formatDate(row.commit.author.date)}
+                      </TableCell>
 
-                        <TableCell
-                          component="th"
-                          id={labelId}
-                          scope="row"
-                          padding="none"
-                          align="center"
-                        >
-                          {row.commit.message}
-                        </TableCell>
+                      <TableCell
+                        component="th"
+                        id={labelId}
+                        scope="row"
+                        padding="none"
+                        align="center"
+                      >
+                        {row.commit?.message}
+                      </TableCell>
 
-                        <TableCell
-                          component="th"
-                          id={labelId}
-                          scope="row"
-                          padding="none"
-                          align="center"
+                      <TableCell
+                        component="th"
+                        id={labelId}
+                        scope="row"
+                        padding="none"
+                        align="center"
+                      >
+                        <Link
+                          rel="noreferrer"
+                          target="_blank"
+                          href={row.html_url}
                         >
-                          <Link
-                            rel="noreferrer"
-                            target="_blank"
-                            href={row.html_url}
-                          >
-                            Commit
-                          </Link>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
+                          Commit
+                        </Link>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </TableContainer>

@@ -6,7 +6,7 @@ export const getCommits = async (repoUrl: string) => {
   const owner = "wizeline",
     repo = repoUrl,
     perPage = 10;
-  return octokit.request(`GET /repos/{owner}/{repo}/commits`, {
+  return await octokit.request(`GET /repos/{owner}/{repo}/commits`, {
     owner,
     repo,
     per_page: perPage,

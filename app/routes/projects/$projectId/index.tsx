@@ -30,12 +30,7 @@ import {
   Tab,
   Link,
 } from "@mui/material";
-import {
-  EditSharp,
-  ThumbUpSharp,
-  ThumbDownSharp,
-  Outlet,
-} from "@mui/icons-material";
+import { EditSharp, ThumbUpSharp, ThumbDownSharp } from "@mui/icons-material";
 import { adminRoleName } from "app/constants";
 import ContributorPathReport from "../../../core/components/ContributorPathReport/index";
 import { useEffect, useState } from "react";
@@ -91,8 +86,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   if (project.repoUrls) {
     repoUrl = cleanUrlRepo(project.repoUrls);
   }
-  const { data: commitList } = await getCommits(repoUrl);
-
+  const commitList: never[] = [];
   const user = await requireUser(request);
   const profile = await requireProfile(request);
   const isTeamMember = isProjectTeamMember(profile.id, project);
@@ -114,7 +108,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     profileId,
     projectId: params.projectId,
     comments,
-    commitList,
+    repoUrl,
   });
 };
 
@@ -170,7 +164,7 @@ export default function ProjectDetailsPage() {
     profileId,
     projectId,
     comments,
-    commitList,
+    repoUrl,
   } = useTypedLoaderData<typeof loader>();
   const [tab, setTab] = useState(0);
   const [showJoinModal, setShowJoinModal] = useState<boolean>(false);
@@ -178,7 +172,6 @@ export default function ProjectDetailsPage() {
     useState<boolean>(false);
 
   invariant(project, "project not found");
-  console.log(commitList);
 
   const handleVote = async (id: string) => {
     const payload = { projectId: id, profileId: profileId };
@@ -531,7 +524,7 @@ export default function ProjectDetailsPage() {
         )}
       </TabPanel>
       <TabPanel value={tab} index={1}>
-        <GitHubCommits {...commitList}></GitHubCommits>
+        <GitHubCommits repoName={repoUrl} />
       </TabPanel>
     </>
   );
