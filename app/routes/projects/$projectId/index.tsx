@@ -49,11 +49,12 @@ import Comments from "~/core/components/Comments";
 import MDEditorStyles from "@uiw/react-md-editor/markdown-editor.css";
 import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
 import { getCommits } from "~/routes/api/github/get-commits";
-import GitHubCommits from "~/core/components/github";
+import GitHubCommits from "~/core/components/GitHub/GithubCommits";
 import type { Repos } from "@prisma/client";
 import DisplaySettingsIcon from "@mui/icons-material/DisplaySettings";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import TabPanel from "~/core/components/TabPanel";
+import GitHubSection from "~/core/components/GitHub";
 
 export function links() {
   return [
@@ -524,7 +525,7 @@ export default function ProjectDetailsPage() {
         )}
       </TabPanel>
       <TabPanel value={tab} index={1}>
-        <GitHubCommits repoName={repoUrl} />
+        <GitHubSection repoName={repoUrl} />
       </TabPanel>
     </>
   );
