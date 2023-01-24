@@ -18,7 +18,7 @@ async function getMappedProfiles(): Promise<Prisma.ProfilesCreateInput[]>{
         avatarUrl: lakeProfile.contact__photo__url,
         location: lakeProfile.contact__location,
         country: lakeProfile.contact__country,
-        status: lakeProfile.contact__status
+        status: lakeProfile.contact__employee_status
       }
     });
     return mappedProfiles;

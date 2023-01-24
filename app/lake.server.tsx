@@ -58,9 +58,9 @@ export async function getActiveProfiles() {
    contact__photo__url,
    contact__location, contact__country,
    contact__status, contact__department,
-   contact__wizeos__level, contact__title, contact__role
+   contact__wizeos__level, contact__title, contact__role, contact__employee_status
  FROM \`wizelake-prod.wizelabs_wzlk.contact\`
- WHERE contact__status != "Terminated"`;
+ WHERE contact__employee_status != "Terminated" AND NOT contact__email IS NULL`;
 
   const options = {
     query: query,
