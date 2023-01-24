@@ -1,6 +1,7 @@
 import { formatDistance } from "date-fns";
 import Markdown from "marked-react";
-import type { ActionFunction, LoaderArgs } from "@remix-run/node";
+import type { ActionFunction, LoaderArgs} from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import { useCatch, useFetcher, useTransition } from "@remix-run/react";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import type { TypedMetaFunction } from "remix-typedjson";
@@ -11,7 +12,9 @@ import {
   isProjectTeamMember,
   getProject,
   getProjects,
+  getProjectResources,
 } from "~/models/project.server";
+import { getDistinctResources } from "~/models/resource.server";
 
 import {
   Card,
@@ -46,6 +49,9 @@ import Comments from "~/core/components/Comments";
 import MDEditorStyles from "@uiw/react-md-editor/markdown-editor.css";
 import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
 import Resources from "../components/resources";
+import { validationError } from "remix-validated-form";
+import { validator } from "~/routes/projects/components/resources";
+import { updateProjectResources } from "~/models/project.server";
 
 export function links() {
   return [
@@ -79,26 +85,28 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   const comments = await getComments(params.projectId);
 
   // Resources data
-  const projectResources = [
-    { id: 1, type: "Cloud Account", provider: "AWS", name: "Some AWS account" },
-    { id: 2, type: "Hardware", provider: "Nintendo", name: "Nintendo Switch" },
-  ];
-  const resourceData = {
-    types: [
-      "New type",
-      "Uncommon type"
-    ],
-    providers: [
-      "Meta",
-      "Oracle",
-      "IBM"
-    ],
-    names: [
-      "Some resource coming from DB",
-      "Some other resource coming from DB",
-      "Yet another resource coming from DB",
-    ]
-  }
+  const projectResources = await getProjectResources(params.projectId);
+  // const projectResources = [
+  //   { type: "Cloud Account", provider: "AWS", name: "Some AWS account" },
+  //   { type: "Hardware (cellphone, console)", provider: "Nintendo", name: "Nintendo Switch" },
+  // ];
+  const resourceData = await getDistinctResources();
+  // const resourceData = {
+  //   types: [
+  //     "New type",
+  //     "Uncommon type"
+  //   ],
+  //   providers: [
+  //     "Meta",
+  //     "Oracle",
+  //     "IBM"
+  //   ],
+  //   names: [
+  //     "Some resource coming from DB",
+  //     "Some other resource coming from DB",
+  //     "Yet another resource coming from DB",
+  //   ]
+  // }
 
   return typedjson({
     isAdmin,
@@ -115,13 +123,14 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   });
 };
 
-export const action: ActionFunction = async ({ request }) => {
+export const action: ActionFunction = async ({ request, params }) => {
   const form = await request.formData();
-  const action = form.get("action");
+  const subaction = form.get("subaction");
   try {
-    switch (action) {
+    invariant(params.projectId, "projectId could not be found");
+    const projectId = params.projectId;
+    switch (subaction) {
       case "POST_VOTE":
-        const projectId = form.get("projectId") as string;
         const profileId = form.get("profileId") as string;
         const isVote = await checkUserVote(projectId, profileId);
 
@@ -132,6 +141,36 @@ export const action: ActionFunction = async ({ request }) => {
           await unvoteProject(projectId, profileId);
         }
         return typedjson({ error: "" }, { status: 200 });
+      case "UPDATE_RESOURCES":
+        console.log('params: ', params);
+        const profile = await requireProfile(request);
+        const user = await requireUser(request);
+        const project = await getProject({ id: params.projectId });
+        const isAdmin = user.role == adminRoleName;
+        const isTeamMember = isProjectTeamMember(profile.id, project);
+
+        if (!isAdmin && !isTeamMember) {
+          return validationError({
+            fieldErrors: {
+              formError: "Operation not allowed",
+            },
+          });
+        }
+
+        const result = await validator.validate(form);
+        if (result.error != undefined) return validationError(result.error);
+
+        try {
+          await updateProjectResources(projectId, result.data.resources);
+          return redirect(`/projects/${projectId}`);
+        } catch (e) {
+          console.log(e);
+          return validationError({
+            fieldErrors: {
+              formError: "Server failed",
+            },
+          });
+        }
       default: {
         throw new Error("Something went wrong");
       }
@@ -187,7 +226,7 @@ export default function ProjectDetailsPage() {
     try {
       const body = {
         ...values,
-        action: "POST_VOTE",
+        subaction: "POST_VOTE",
       };
       await fetcher.submit(body, { method: "post" });
     } catch (error: any) {

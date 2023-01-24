@@ -1,15 +1,20 @@
 import {
-  Autocomplete,
+  Box,
+  Button,
   Card,
   CardContent,
   CardHeader,
   IconButton,
-  TextField,
 } from "@mui/material";
 import { EditSharp, Close, Delete } from "@mui/icons-material";
 import { useState } from "react";
 import { ResourceRow } from "./styles";
-
+import { useSubmit, useTransition } from "@remix-run/react";
+import { zfd } from "zod-form-data";
+import { withZod } from "@remix-validated-form/with-zod";
+import { z } from "zod";
+import SimpleAutocompleteField from "~/core/components/SimpleAutocompleteField";
+import { ValidatedForm } from "remix-validated-form";
 
 const RESOURCE_TYPES = [
   "Cloud Account",
@@ -22,21 +27,52 @@ const RESOURCE_TYPES = [
 const RESOURCE_PROVIDERS = ["AWS", "GCP", "Azure"];
 const RESOURCE_NAMES: string[] = [];
 
-interface IResource { id: number; type: string, provider: string, name: string };
+interface IResource {
+  type: string;
+  provider: string;
+  name: string;
+}
 
 interface IProps {
   allowEdit: Boolean;
   projectResources: IResource[];
-  resourceData: { types: string[], providers: string[], names: string[] };
+  resourceData: { types: string[]; providers: string[]; names: string[] };
 }
 
-export default function Resources({ allowEdit = false, projectResources, resourceData }: IProps) {
+export const validator = withZod(
+  zfd.formData({
+    resources: z.array(
+      z.object({
+        type: zfd.text(),
+        provider: zfd.text(),
+        name: zfd.text(),
+      })
+    ),
+  })
+);
+
+export default function Resources({
+  allowEdit = false,
+  projectResources,
+  resourceData,
+}: IProps) {
+  const transition = useTransition();
   const [isEditActive, setIsEditActive] = useState(false);
   const toggleChangeEditView = () => setIsEditActive((prevValue) => !prevValue);
-  
+  const [resources, setResources] = useState(projectResources)
+
   const resourceTypes = [...new Set(RESOURCE_TYPES.concat(resourceData.types))];
   const resourceProviders = [...new Set(RESOURCE_PROVIDERS.concat(resourceData.providers))];
-  const resourceNames = [...new Set(RESOURCE_NAMES.concat(resourceData.names))]
+  const resourceNames = [...new Set(RESOURCE_NAMES.concat(resourceData.names))];
+
+  const handleDelete = (indexToDelete: number) => {
+    console.log(indexToDelete);
+    const filteredResources = [...resources];
+    filteredResources.splice(indexToDelete, 1);
+    console.log(filteredResources);
+    setResources(filteredResources);
+  }
+
   return (
     <Card>
       <CardHeader
@@ -50,47 +86,67 @@ export default function Resources({ allowEdit = false, projectResources, resourc
         }
       />
       <CardContent>
-        {projectResources.map((resource: IResource) => (
-          <ResourceRow
-            key={resource.id}
-          >
-            <Autocomplete
-              disablePortal
-              options={resourceTypes}
-              sx={{ width: 300 }}
-              renderInput={(params) => <TextField {...params} label="Type" />}
-              readOnly={!isEditActive}
-              value={resource.type}
-            />
-            <Autocomplete
-              disablePortal
-              options={resourceProviders}
-              sx={{ width: 300 }}
-              renderInput={(params) => (
-                <TextField {...params} label="Provider/Brand" />
+        <ValidatedForm
+          method="post"
+          id="projectResourcesForm"
+          validator={validator}
+          subaction="UPDATE_RESOURCES"
+          defaultValues={{resources}}
+        >
+          {isEditActive && (
+            <Button
+              disabled={transition.state === "submitting"}
+              variant="contained"
+              type="button"
+              sx={{
+                position: "absolute",
+                marginTop: "-67px",
+                marginLeft: "150px",
+              }}
+              onClick={() => { setResources([...resources, { type: resourceTypes[0], provider: "", name: ""}]); }}
+            >
+              Add new resource
+            </Button>
+          )}
+          {resources.map((resource, index) => (
+            <ResourceRow key={index}>
+              <SimpleAutocompleteField
+                name={`resources[${index}].type`}
+                label="Type"
+                options={resourceTypes}
+                readOnly={!isEditActive}
+              />
+              <SimpleAutocompleteField
+                name={`resources[${index}].provider`}
+                label="Provider/Brand"
+                options={resourceProviders}
+                readOnly={!isEditActive}
+                freeSolo
+              />
+              <SimpleAutocompleteField
+                name={`resources[${index}].name`}
+                label="Name/Description"
+                options={resourceNames}
+                readOnly={!isEditActive}
+                freeSolo
+              />
+              {isEditActive && (
+                <IconButton onClick={() => { handleDelete(index) }}>
+                  <Delete>Delete</Delete>
+                </IconButton>
               )}
-              readOnly={!isEditActive}
-              value={resource.provider}
-              freeSolo
-            />
-            <Autocomplete
-              disablePortal
-              options={resourceNames}
-              sx={{ width: 300 }}
-              renderInput={(params) => (
-                <TextField {...params} label="Name/Description" />
-              )}
-              readOnly={!isEditActive}
-              value={resource.name}
-              freeSolo
-            />
-            {isEditActive && (
-              <IconButton>
-                <Delete>Delete</Delete>
-              </IconButton>
-            )}
-          </ResourceRow>
-        ))}
+            </ResourceRow>
+          ))}
+          <Box textAlign="center">
+            <Button
+              disabled={!isEditActive || transition.state === "submitting"}
+              variant="contained"
+              type="submit"
+            >
+              {transition.state === "submitting" ? "Submitting..." : "Submit"}
+            </Button>
+          </Box>
+        </ValidatedForm>
       </CardContent>
     </Card>
   );

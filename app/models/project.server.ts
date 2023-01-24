@@ -742,3 +742,19 @@ export async function deleteProject(projectId: string, isAdmin: boolean) {
   }
   return true;
 }
+
+export async function getProjectResources(projectId: string) {
+  return db.resource.findMany({ where: { projectId }});
+}
+
+interface IProjectResource {
+  type: string;
+  provider: string;
+  name: string;
+}
+
+export async function updateProjectResources(projectId: string, resources: Array<IProjectResource>) {
+  await db.resource.deleteMany({ where: { projectId }});
+  const data = resources.map(resource => ({ ...resource, projectId }))
+  return db.resource.createMany({ data })
+}
