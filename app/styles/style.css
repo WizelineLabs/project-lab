@@ -69,6 +69,10 @@ span.status.active {
   background-color: rgba(0, 0, 0, 0.12);
 }
 
+.no_decoration {
+  text-decoration: none;
+}
+
 @media (max-width: 768px) {
   table.table-project-members {
     display: block;

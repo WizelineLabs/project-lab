@@ -10,7 +10,7 @@ export function createTheme({ prefersDarkMode }: CreateThemeOptions) {
     palette: {
       mode: prefersDarkMode ? "dark" : "light",
       primary: {
-        main: prefersDarkMode ? "hsl(213, 100%, 73%)" : "hsl(213, 100%, 52%)",
+        main: prefersDarkMode ? "#3B72A4" : "#4E90B9",
       },
       background: {
         default: prefersDarkMode ? "#333" : "#f2f4f4",
