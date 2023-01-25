@@ -59,15 +59,8 @@ export default function Resources({
   const transition = useTransition();
   const [isEditActive, setIsEditActive] = useState(false);
   const toggleChangeEditView = () => setIsEditActive((prevValue) => !prevValue);
-  const [
-    resources,
-    {
-      push: addResource,
-      remove: removeResource,
-      replace: replaceResource,
-      pop: popResource,
-    },
-  ] = useFieldArray("resources", { formId: "projectResourcesForm" });
+  const [resources, { push: addResource, remove: removeResource }] =
+    useFieldArray("resources", { formId: "projectResourcesForm" });
 
   const resourceTypes = [...new Set(RESOURCE_TYPES.concat(resourceData.types))];
   const resourceProviders = [
@@ -75,49 +68,31 @@ export default function Resources({
   ];
   const resourceNames = [...new Set(RESOURCE_NAMES.concat(resourceData.names))];
 
-  const handleCancel = () => {
-    // Reset to the original values
-    const diff = projectResources.length - resources.length;
-    if (diff > 0) {
-      for (let i = 0; i < diff; i++) {
-        addResource({ type: resourceTypes[0], provider: "", name: "" });
-      }
-    } else if (diff < 0) {
-      for (let i = 0; i > diff; i--) {
-        popResource();
-      }
-    }
-    for (let i = 0; i < projectResources.length; i++) {
-      replaceResource(i, projectResources[i]);
-    }
-    toggleChangeEditView();
-  };
-
   return (
     <Card>
-      <CardHeader
-        title="Resources:"
-        action={
-          allowEdit &&
-          (isEditActive ? (
-              <IconButton onClick={() => handleCancel()}>
+      <ValidatedForm
+        method="post"
+        id="projectResourcesForm"
+        validator={validator}
+        subaction="UPDATE_RESOURCES"
+        defaultValues={{ resources: projectResources }}
+      >
+        <CardHeader
+          title="Resources:"
+          action={
+            allowEdit &&
+            (isEditActive ? (
+              <IconButton type="reset">
                 <Close>Cancel</Close>
               </IconButton>
-          ) : (
-            <IconButton onClick={() => toggleChangeEditView()}>
-              <EditSharp></EditSharp>
-            </IconButton>
-          ))
-        }
-      />
-      <CardContent>
-        <ValidatedForm
-          method="post"
-          id="projectResourcesForm"
-          validator={validator}
-          subaction="UPDATE_RESOURCES"
-          defaultValues={{ resources: projectResources }}
-        >
+            ) : (
+              <IconButton onClick={() => toggleChangeEditView()}>
+                <EditSharp></EditSharp>
+              </IconButton>
+            ))
+          }
+        />
+        <CardContent>
           {isEditActive && (
             <Button
               disabled={transition.state === "submitting"}
@@ -177,8 +152,8 @@ export default function Resources({
               {transition.state === "submitting" ? "Submitting..." : "Submit"}
             </Button>
           </Box>
-        </ValidatedForm>
-      </CardContent>
+        </CardContent>
+      </ValidatedForm>
     </Card>
   );
 }
