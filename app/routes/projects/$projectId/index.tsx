@@ -86,27 +86,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 
   // Resources data
   const projectResources = await getProjectResources(params.projectId);
-  // const projectResources = [
-  //   { type: "Cloud Account", provider: "AWS", name: "Some AWS account" },
-  //   { type: "Hardware (cellphone, console)", provider: "Nintendo", name: "Nintendo Switch" },
-  // ];
   const resourceData = await getDistinctResources();
-  // const resourceData = {
-  //   types: [
-  //     "New type",
-  //     "Uncommon type"
-  //   ],
-  //   providers: [
-  //     "Meta",
-  //     "Oracle",
-  //     "IBM"
-  //   ],
-  //   names: [
-  //     "Some resource coming from DB",
-  //     "Some other resource coming from DB",
-  //     "Yet another resource coming from DB",
-  //   ]
-  // }
 
   return typedjson({
     isAdmin,
@@ -142,7 +122,6 @@ export const action: ActionFunction = async ({ request, params }) => {
         }
         return typedjson({ error: "" }, { status: 200 });
       case "UPDATE_RESOURCES":
-        console.log('params: ', params);
         const profile = await requireProfile(request);
         const user = await requireUser(request);
         const project = await getProject({ id: params.projectId });

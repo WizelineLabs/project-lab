@@ -9,12 +9,12 @@ import {
 import { EditSharp, Close, Delete } from "@mui/icons-material";
 import { useState } from "react";
 import { ResourceRow } from "./styles";
-import { useSubmit, useTransition } from "@remix-run/react";
+import { useTransition } from "@remix-run/react";
 import { zfd } from "zod-form-data";
 import { withZod } from "@remix-validated-form/with-zod";
 import { z } from "zod";
 import SimpleAutocompleteField from "~/core/components/SimpleAutocompleteField";
-import { ValidatedForm } from "remix-validated-form";
+import { useFieldArray, ValidatedForm } from "remix-validated-form";
 
 const RESOURCE_TYPES = [
   "Cloud Account",
@@ -59,30 +59,55 @@ export default function Resources({
   const transition = useTransition();
   const [isEditActive, setIsEditActive] = useState(false);
   const toggleChangeEditView = () => setIsEditActive((prevValue) => !prevValue);
-  const [resources, setResources] = useState(projectResources)
+  const [
+    resources,
+    {
+      push: addResource,
+      remove: removeResource,
+      replace: replaceResource,
+      pop: popResource,
+    },
+  ] = useFieldArray("resources", { formId: "projectResourcesForm" });
 
   const resourceTypes = [...new Set(RESOURCE_TYPES.concat(resourceData.types))];
-  const resourceProviders = [...new Set(RESOURCE_PROVIDERS.concat(resourceData.providers))];
+  const resourceProviders = [
+    ...new Set(RESOURCE_PROVIDERS.concat(resourceData.providers)),
+  ];
   const resourceNames = [...new Set(RESOURCE_NAMES.concat(resourceData.names))];
 
-  const handleDelete = (indexToDelete: number) => {
-    console.log(indexToDelete);
-    const filteredResources = [...resources];
-    filteredResources.splice(indexToDelete, 1);
-    console.log(filteredResources);
-    setResources(filteredResources);
-  }
+  const handleCancel = () => {
+    // Reset to the original values
+    const diff = projectResources.length - resources.length;
+    if (diff > 0) {
+      for (let i = 0; i < diff; i++) {
+        addResource({ type: resourceTypes[0], provider: "", name: "" });
+      }
+    } else if (diff < 0) {
+      for (let i = 0; i > diff; i--) {
+        popResource();
+      }
+    }
+    for (let i = 0; i < projectResources.length; i++) {
+      replaceResource(i, projectResources[i]);
+    }
+    toggleChangeEditView();
+  };
 
   return (
     <Card>
       <CardHeader
         title="Resources:"
         action={
-          allowEdit && (
+          allowEdit &&
+          (isEditActive ? (
+              <IconButton onClick={() => handleCancel()}>
+                <Close>Cancel</Close>
+              </IconButton>
+          ) : (
             <IconButton onClick={() => toggleChangeEditView()}>
-              {isEditActive ? <Close>Cancel</Close> : <EditSharp></EditSharp>}
+              <EditSharp></EditSharp>
             </IconButton>
-          )
+          ))
         }
       />
       <CardContent>
@@ -91,7 +116,7 @@ export default function Resources({
           id="projectResourcesForm"
           validator={validator}
           subaction="UPDATE_RESOURCES"
-          defaultValues={{resources}}
+          defaultValues={{ resources: projectResources }}
         >
           {isEditActive && (
             <Button
@@ -103,7 +128,9 @@ export default function Resources({
                 marginTop: "-67px",
                 marginLeft: "150px",
               }}
-              onClick={() => { setResources([...resources, { type: resourceTypes[0], provider: "", name: ""}]); }}
+              onClick={() => {
+                addResource({ type: resourceTypes[0], provider: "", name: "" });
+              }}
             >
               Add new resource
             </Button>
@@ -131,7 +158,11 @@ export default function Resources({
                 freeSolo
               />
               {isEditActive && (
-                <IconButton onClick={() => { handleDelete(index) }}>
+                <IconButton
+                  onClick={() => {
+                    removeResource(index);
+                  }}
+                >
                   <Delete>Delete</Delete>
                 </IconButton>
               )}
