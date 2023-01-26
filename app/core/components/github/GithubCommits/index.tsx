@@ -15,20 +15,29 @@ import {
 import type { Repos } from "@prisma/client";
 import { useMemo, useState } from "react";
 import { getCommits } from "~/routes/api/github/get-commits";
+import { getComparator, stableSort } from "~/utils/filtering";
+import type { Order } from "~/utils/filtering";
 
-type CommitListRecord = {
-  id: number;
-  author: { login: string; avatar_url: string; html_url: string };
-  date: string;
+export type CommitListRecord = {
+  url: string;
+  sha: string;
+  node_id: string;
+  html_url: string;
+  comments_url: string;
   commit: {
+    url: string;
     author: {
       name: string;
+      email: string;
       date: string;
     };
     message: string;
-    url: string;
   };
-  html_url: string;
+  author: {
+    avatar_url: string;
+    url: string;
+    html_url: string;
+  };
 };
 
 interface HeadTable {
@@ -45,7 +54,16 @@ function formatDate(dateString: string) {
 }
 
 export default function GitHubCommits({ repoName }: { repoName: string }) {
-  const [commitListMemo, setcommitListMemo] = useState<any[]>();
+  const page: number = 0;
+  const rowsPerPage: number = 30;
+  const [commitListMemo, setcommitListMemo] = useState<CommitListRecord[]>([]);
+  const [orderBy, setOrderBy] = useState<keyof CommitListRecord>("author");
+  const [order, setOrder] = useState<Order>("asc");
+
+  const emptyRows =
+    page > 0
+      ? Math.max(0, (1 + page) * rowsPerPage - commitListMemo?.length)
+      : 0;
 
   const header: HeadTable[] = [
     {
@@ -53,7 +71,7 @@ export default function GitHubCommits({ repoName }: { repoName: string }) {
       label: "Author",
     },
     {
-      id: "date",
+      id: "commit",
       label: "Date",
     },
     {
@@ -70,9 +88,9 @@ export default function GitHubCommits({ repoName }: { repoName: string }) {
     () =>
       getCommits(repoName)
         .then((data) => {
-          const commitData = data.data;
           console.log(data);
-          commitData ? setcommitListMemo(commitData) : setcommitListMemo([]);
+
+          setcommitListMemo(data);
         })
         .catch((error) => console.log(error)),
     [repoName]
@@ -81,7 +99,7 @@ export default function GitHubCommits({ repoName }: { repoName: string }) {
   return (
     <>
       <Card>
-        <CardHeader title="GitHub commits" />
+        <CardHeader title="List of Commits" />
         <CardContent>
           <TableContainer>
             <Table>
@@ -95,76 +113,83 @@ export default function GitHubCommits({ repoName }: { repoName: string }) {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {commitListMemo?.map((row, index) => {
-                  const labelId = `enhanced-table-checkbox-${index}`;
-                  return (
-                    <TableRow hover tabIndex={0} key={index}>
-                      <TableCell
-                        component="th"
-                        id={labelId}
-                        scope="row"
-                        padding="none"
-                        align="center"
-                      >
-                        <Link
-                          rel="noreferrer"
-                          target="_blank"
-                          href={row.author?.html_url}
-                        >
-                          <Stack
-                            direction={"row"}
-                            spacing={1}
-                            alignItems="center"
-                            justifyContent="space-evenly"
+                {commitListMemo &&
+                  stableSort(commitListMemo, getComparator(order, orderBy))
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((row, index) => {
+                      const labelId = `enhanced-table-checkbox-${index}`;
+                      return (
+                        <TableRow hover tabIndex={0} key={index}>
+                          <TableCell
+                            component="th"
+                            id={labelId}
+                            scope="row"
+                            padding="none"
+                            align="center"
                           >
-                            <Avatar
-                              alt={row.commit.author?.name}
-                              src={row.author?.avatar_url}
-                            />
-                            {row.commit.author?.name}
-                          </Stack>
-                        </Link>
-                      </TableCell>
+                            <Link
+                              rel="noreferrer"
+                              target="_blank"
+                              href={row.author.html_url ?? "#"}
+                            >
+                              <Stack
+                                direction={"row"}
+                                spacing={1}
+                                alignItems="center"
+                                justifyContent="space-evenly"
+                              >
+                                <Avatar
+                                  alt={row.commit.author.name}
+                                  src={row.author.avatar_url}
+                                />
+                                {row.commit.author.name}
+                              </Stack>
+                            </Link>
+                          </TableCell>
 
-                      <TableCell
-                        component="th"
-                        id={labelId}
-                        scope="row"
-                        padding="none"
-                        align="center"
-                      >
-                        {row.commit?.author?.date &&
-                          formatDate(row.commit.author.date)}
-                      </TableCell>
+                          <TableCell
+                            component="th"
+                            id={labelId}
+                            scope="row"
+                            padding="none"
+                            align="center"
+                          >
+                            {formatDate(row.commit.author.date as string)}
+                          </TableCell>
 
-                      <TableCell
-                        component="th"
-                        id={labelId}
-                        scope="row"
-                        padding="none"
-                        align="center"
-                      >
-                        {row.commit?.message}
-                      </TableCell>
+                          <TableCell
+                            component="th"
+                            id={labelId}
+                            scope="row"
+                            padding="none"
+                            align="center"
+                          >
+                            {row.commit ? row.commit?.message : ""}
+                          </TableCell>
 
-                      <TableCell
-                        component="th"
-                        id={labelId}
-                        scope="row"
-                        padding="none"
-                        align="center"
-                      >
-                        <Link
-                          rel="noreferrer"
-                          target="_blank"
-                          href={row.html_url}
-                        >
-                          Commit
-                        </Link>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                          <TableCell
+                            component="th"
+                            id={labelId}
+                            scope="row"
+                            padding="none"
+                            align="center"
+                          >
+                            <Link
+                              rel="noreferrer"
+                              target="_blank"
+                              href={row.html_url as string}
+                            >
+                              Commit
+                            </Link>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                {emptyRows > 0 && (
+                  <TableRow>
+                    <TableCell colSpan={6} />
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </TableContainer>

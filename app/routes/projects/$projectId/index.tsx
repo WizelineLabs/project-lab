@@ -28,7 +28,6 @@ import {
   CardHeader,
   Tabs,
   Tab,
-  Link,
 } from "@mui/material";
 import { EditSharp, ThumbUpSharp, ThumbDownSharp } from "@mui/icons-material";
 import { adminRoleName } from "app/constants";
@@ -48,8 +47,6 @@ import Comments from "~/core/components/Comments";
 
 import MDEditorStyles from "@uiw/react-md-editor/markdown-editor.css";
 import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
-import { getCommits } from "~/routes/api/github/get-commits";
-import GitHubCommits from "~/core/components/GitHub/GithubCommits";
 import type { Repos } from "@prisma/client";
 import DisplaySettingsIcon from "@mui/icons-material/DisplaySettings";
 import GitHubIcon from "@mui/icons-material/GitHub";
@@ -87,7 +84,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   if (project.repoUrls) {
     repoUrl = cleanUrlRepo(project.repoUrls);
   }
-  const commitList: never[] = [];
+
   const user = await requireUser(request);
   const profile = await requireProfile(request);
   const isTeamMember = isProjectTeamMember(profile.id, project);
