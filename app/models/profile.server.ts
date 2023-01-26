@@ -34,6 +34,10 @@ export async function consolidateProfilesByEmail(
   data: Prisma.ProfilesCreateInput[],
   db: PrismaClient
 ) {
+  // don't do anything if we have no data (avoid Terminating users)
+  if (data.length == 0) {
+    return;
+  }
   const profileMails = data.map((profile) => {
     return profile.email;
   });
@@ -51,10 +55,10 @@ export async function consolidateProfilesByEmail(
     });
   });
 
-  console.info(`Starting delete profiles from DB`);
+  console.info(`Terminate users not found on data lake from DB`);
   await db.$transaction([
-    db.$queryRaw`UPDATE "Profiles" SET deleted=TRUE WHERE email NOT IN (${profileMails.join(
-      ","
+    db.$queryRaw`UPDATE "Profiles" SET "employeeStatus"='Terminated' WHERE email NOT IN (${Prisma.join(
+      profileMails
     )})`,
     ...profilesUpsert,
   ]);

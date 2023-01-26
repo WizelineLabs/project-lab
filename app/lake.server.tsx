@@ -27,7 +27,8 @@ export async function findProfileData(email: string) {
       contact__first_name, contact__preferred_name, contact__last_name,
       contact__photo__url,
       contact__location, contact__country,
-      contact__status, contact__department,
+      contact__status, contact__department, contact__business_unit,
+      contact__employee_status,
       contact__wizeos__level, contact__title, contact__role
     FROM \`wizelake-prod.wizelabs_wzlk.contact\`
     WHERE contact__email = @email
@@ -54,13 +55,14 @@ export async function findProfileData(email: string) {
 
 export async function getActiveProfiles() {
   const query = `SELECT contact__wizeos_profile_id, contact__employee_number, contact__email,
-   contact__first_name, contact__preferred_name, contact__last_name,
-   contact__photo__url,
-   contact__location, contact__country,
-   contact__status, contact__department,
-   contact__wizeos__level, contact__title, contact__role, contact__employee_status
- FROM \`wizelake-prod.wizelabs_wzlk.contact\`
- WHERE contact__employee_status != "Terminated" AND NOT contact__email IS NULL`;
+    contact__first_name, contact__preferred_name, contact__last_name,
+    contact__photo__url,
+    contact__location, contact__country,
+    contact__status, contact__department, contact__business_unit,
+    contact__employee_status,
+    contact__wizeos__level, contact__title, contact__role
+  FROM \`wizelake-prod.wizelabs_wzlk.contact\`
+  WHERE contact__employee_status != "Terminated" AND NOT contact__email IS NULL`;
 
   const options = {
     query: query,
