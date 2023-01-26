@@ -1,4 +1,4 @@
-import type { User, Profiles , PrismaClient } from "@prisma/client";
+import type { User, Profiles, PrismaClient } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 
 import { prisma } from "../db.server";
@@ -30,10 +30,13 @@ export async function createProfile(data: Prisma.ProfilesCreateInput) {
   return prisma.profiles.create({ data });
 }
 
-export async function consolidateProfilesByEmail(data: Prisma.ProfilesCreateInput[], db: PrismaClient) {
+export async function consolidateProfilesByEmail(
+  data: Prisma.ProfilesCreateInput[],
+  db: PrismaClient
+) {
   const profileMails = data.map((profile) => {
-    return profile.email
-  })
+    return profile.email;
+  });
   console.info(`Starting upsert profiles to DB`);
 
   const profilesUpsert = data.map((profile) => {
@@ -45,12 +48,14 @@ export async function consolidateProfilesByEmail(data: Prisma.ProfilesCreateInpu
       create: {
         ...profile,
       },
-    })
+    });
   });
 
   console.info(`Starting delete profiles from DB`);
   await db.$transaction([
-    db.$queryRaw`UPDATE "Profiles" SET deleted=TRUE WHERE email NOT IN (${profileMails.join(",")})`,
+    db.$queryRaw`UPDATE "Profiles" SET deleted=TRUE WHERE email NOT IN (${profileMails.join(
+      ","
+    )})`,
     ...profilesUpsert,
   ]);
 }
