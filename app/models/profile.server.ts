@@ -1,7 +1,7 @@
-import type { User, Profiles } from "@prisma/client";
+import type { User, Profiles, PrismaClient } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 
-import { prisma } from "~/db.server";
+import { prisma } from "../db.server";
 
 interface UserProfile extends Profiles {
   role: string;
@@ -28,6 +28,40 @@ export async function getProfileByEmail(email: Profiles["email"]) {
 
 export async function createProfile(data: Prisma.ProfilesCreateInput) {
   return prisma.profiles.create({ data });
+}
+
+export async function consolidateProfilesByEmail(
+  data: Prisma.ProfilesCreateInput[],
+  db: PrismaClient
+) {
+  // don't do anything if we have no data (avoid Terminating users)
+  if (data.length == 0) {
+    return;
+  }
+  const profileMails = data.map((profile) => {
+    return profile.email;
+  });
+  console.info(`Starting upsert profiles to DB`);
+
+  const profilesUpsert = data.map((profile) => {
+    return db.profiles.upsert({
+      where: { email: profile.email },
+      update: {
+        ...profile,
+      },
+      create: {
+        ...profile,
+      },
+    });
+  });
+
+  console.info(`Terminate users not found on data lake from DB`);
+  await db.$transaction([
+    db.$queryRaw`UPDATE "Profiles" SET "employeeStatus"='Terminated' WHERE email NOT IN (${Prisma.join(
+      profileMails
+    )})`,
+    ...profilesUpsert,
+  ]);
 }
 
 export async function searchProfiles(searchTerm: string) {

@@ -57,13 +57,35 @@ model Profiles {
   jobLevelTier           String?
   jobLevelTitle          String?
   department             String?
+  businessUnit           String?
+  // - null
+  // - Horizontal
+  // - Innovation
+  // - The Engine Room
+  // - The Q Branch
+  // - Bench
+  // - Natural Drive
+  // - Quantum
   location               String?
   country                String?
-  status                 String?
+  employeeStatus         String?
+  // - null
+  // - Terminated
+  // - Full Time
+  // - Contractor
+  // - Intern/Trainee
+  // - Part Time
+  // - Leave of Absence
+  benchStatus            String?
+  // - NULL
+  // - Bench
+  // - Assigned
+  // - Terminated
+  // - Active Hold
+  // - Proposed
+  // - Assignment to start
   createdAt              DateTime                 @default(now())
   updatedAt              DateTime                 @default(now())
-  terminatedAt           DateTime?
-  deleted                Boolean                  @default(false)
   jobTitles              JobTitles?               @relation(fields: [jobTitleId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   locations              Locations?               @relation(fields: [locationId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   comments               Comments[]
@@ -80,7 +102,8 @@ model Profiles {
   @@index([searchCol], map: "profiles_search_col_idx")
   @@index([location], map: "profiles_location_idx")
   @@index([country], map: "profiles_country_idx")
-  @@index([status], map: "profiles_status_idx")
+  @@index([employeeStatus], map: "profiles_employee_status_idx")
+  @@index([benchStatus], map: "profiles_bench_status_idx")
 }
 
 model ProjectMembers {
