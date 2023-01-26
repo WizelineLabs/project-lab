@@ -31,16 +31,14 @@ const SimpleAutocompleteField = ({
         options={options}
         value={value || ""}
         filterSelectedOptions
-        renderInput={(params) => <TextField {...params} label={label} helperText={error || helperText} />}
+        renderInput={(params) => <TextField {...params} label={label} helperText={error || helperText} error={!!error} />}
         disablePortal
         sx={{ width: 300 }}
         readOnly={readOnly}
         freeSolo={freeSolo}
         autoSelect
         onChange={(_, newValue) => {
-          if (newValue) {
-            setValue(newValue);
-          }
+          setValue(newValue || "");
         }}
       />
     </>
