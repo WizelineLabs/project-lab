@@ -44,14 +44,9 @@ let auth0Strategy = new Auth0Strategy(
           avatarUrl: lakeProfile.contact__photo__url,
           location: lakeProfile.contact__location,
           country: lakeProfile.contact__country,
-          status: lakeProfile.contact__status,
-          // - NULL
-          // - Bench
-          // - Assigned
-          // - Terminated
-          // - Active Hold
-          // - Proposed
-          // - Assignment to start
+          employeeStatus: lakeProfile.contact__employee_status,
+          businessUnit: lakeProfile.contact__business_unit,
+          benchStatus: lakeProfile.contact__status,
         });
       }
       // Get the user data from your DB or API using the tokens and profile
