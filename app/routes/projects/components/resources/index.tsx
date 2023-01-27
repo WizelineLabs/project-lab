@@ -4,17 +4,18 @@ import {
   Card,
   CardContent,
   CardHeader,
+  Grid,
   IconButton,
 } from "@mui/material";
 import { EditSharp, Close, Delete } from "@mui/icons-material";
 import { useState } from "react";
-import { ResourceRow } from "./styles";
-import { useTransition } from "@remix-run/react";
+import { useSubmit, useTransition } from "@remix-run/react";
 import { zfd } from "zod-form-data";
 import { withZod } from "@remix-validated-form/with-zod";
 import { z } from "zod";
 import SimpleAutocompleteField from "~/core/components/SimpleAutocompleteField";
 import { useFieldArray, ValidatedForm } from "remix-validated-form";
+import type { Prisma } from "@prisma/client";
 
 const RESOURCE_TYPES = [
   "Cloud Account",
@@ -27,15 +28,15 @@ const RESOURCE_TYPES = [
 const RESOURCE_PROVIDERS = ["AWS", "GCP", "Azure"];
 const RESOURCE_NAMES: string[] = [];
 
-interface IResource {
-  type: string;
-  provider: string;
-  name: string;
-}
+// interface IResource {
+//   type: string;
+//   provider: string;
+//   name: string;
+// }
 
 interface IProps {
   allowEdit: Boolean;
-  projectResources: IResource[];
+  projectResources: Prisma.ResourceCreateInput[];
   resourceData: { types: string[]; providers: string[]; names: string[] };
 }
 
@@ -57,6 +58,7 @@ export default function Resources({
   resourceData,
 }: IProps) {
   const transition = useTransition();
+  const submit = useSubmit();
   const [isEditActive, setIsEditActive] = useState(false);
   const toggleChangeEditView = () => setIsEditActive((prevValue) => !prevValue);
   const [resources, { push: addResource, remove: removeResource }] =
@@ -67,6 +69,14 @@ export default function Resources({
     ...new Set(RESOURCE_PROVIDERS.concat(resourceData.providers)),
   ];
   const resourceNames = [...new Set(RESOURCE_NAMES.concat(resourceData.names))];
+
+  const handleSubmit = () => {
+    toggleChangeEditView();
+    const form = document.getElementById(
+      "projectResourcesForm"
+    ) as HTMLFormElement;
+    submit(form);
+  }
 
   return (
     <Card>
@@ -82,7 +92,16 @@ export default function Resources({
           action={
             allowEdit &&
             (isEditActive ? (
-              <IconButton type="reset">
+              <IconButton
+                type="reset"
+                onClick={(event) => {
+                  const form = document.getElementById(
+                    "projectResourcesForm"
+                  ) as HTMLFormElement;
+                  form.reset();
+                  toggleChangeEditView();
+                }}
+              >
                 <Close>Cancel</Close>
               </IconButton>
             ) : (
@@ -110,48 +129,60 @@ export default function Resources({
               Add new resource
             </Button>
           )}
+
           {resources.map((resource, index) => (
-            <ResourceRow key={index}>
-              <SimpleAutocompleteField
-                name={`resources[${index}].type`}
-                label="Type"
-                options={resourceTypes}
-                readOnly={!isEditActive}
-              />
-              <SimpleAutocompleteField
-                name={`resources[${index}].provider`}
-                label="Provider/Brand"
-                options={resourceProviders}
-                readOnly={!isEditActive}
-                freeSolo
-              />
-              <SimpleAutocompleteField
-                name={`resources[${index}].name`}
-                label="Name/Description"
-                options={resourceNames}
-                readOnly={!isEditActive}
-                freeSolo
-              />
-              {isEditActive && (
-                <IconButton
-                  onClick={() => {
-                    removeResource(index);
-                  }}
-                >
-                  <Delete>Delete</Delete>
-                </IconButton>
-              )}
-            </ResourceRow>
+            <Grid key={index} container spacing={2} sx={{ marginBottom: '12px' }}>
+              <Grid item xs={4}>
+                <SimpleAutocompleteField
+                  name={`resources[${index}].type`}
+                  label="Type"
+                  options={resourceTypes}
+                  readOnly={!isEditActive}
+                />
+              </Grid>
+              <Grid item xs={3}>
+                <SimpleAutocompleteField
+                  name={`resources[${index}].provider`}
+                  label="Provider/Brand"
+                  options={resourceProviders}
+                  readOnly={!isEditActive}
+                  freeSolo
+                />
+              </Grid>
+              <Grid item xs={4}>
+                <SimpleAutocompleteField
+                  name={`resources[${index}].name`}
+                  label="Name/Description"
+                  options={resourceNames}
+                  readOnly={!isEditActive}
+                  freeSolo
+                />
+              </Grid>
+              <Grid item xs={1}>
+                {isEditActive && (
+                  <IconButton
+                    onClick={() => {
+                      removeResource(index);
+                    }}
+                  >
+                    <Delete>Delete</Delete>
+                  </IconButton>
+                )}
+              </Grid>
+            </Grid>
           ))}
-          <Box textAlign="center">
-            <Button
-              disabled={!isEditActive || transition.state === "submitting"}
-              variant="contained"
-              type="submit"
-            >
-              {transition.state === "submitting" ? "Submitting..." : "Submit"}
-            </Button>
-          </Box>
+          {isEditActive && (
+            <Box textAlign="center">
+              <Button
+                disabled={!isEditActive || transition.state === "submitting"}
+                variant="contained"
+                type="submit"
+                onClick={() => handleSubmit()}
+              >
+                {transition.state === "submitting" ? "Submitting..." : "Submit"}
+              </Button>
+            </Box>
+          )}
         </CardContent>
       </ValidatedForm>
     </Card>

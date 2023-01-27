@@ -33,7 +33,7 @@ const SimpleAutocompleteField = ({
         filterSelectedOptions
         renderInput={(params) => <TextField {...params} label={label} helperText={error || helperText} error={!!error} />}
         disablePortal
-        sx={{ width: 300 }}
+        sx={{ width: '100%' }}
         readOnly={readOnly}
         freeSolo={freeSolo}
         autoSelect
