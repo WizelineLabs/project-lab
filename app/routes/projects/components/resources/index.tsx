@@ -15,7 +15,6 @@ import { withZod } from "@remix-validated-form/with-zod";
 import { z } from "zod";
 import SimpleAutocompleteField from "~/core/components/SimpleAutocompleteField";
 import { useFieldArray, ValidatedForm } from "remix-validated-form";
-import type { Prisma } from "@prisma/client";
 
 const RESOURCE_TYPES = [
   "Cloud Account",
@@ -28,9 +27,15 @@ const RESOURCE_TYPES = [
 const RESOURCE_PROVIDERS = ["AWS", "GCP", "Azure"];
 const RESOURCE_NAMES: string[] = [];
 
+interface IResource {
+  type: string;
+  provider: string;
+  name: string;
+}
+
 interface IProps {
   allowEdit: Boolean;
-  projectResources: Prisma.ResourceCreateInput[];
+  projectResources: IResource[];
   resourceData: { types: string[]; providers: string[]; names: string[] };
 }
 
