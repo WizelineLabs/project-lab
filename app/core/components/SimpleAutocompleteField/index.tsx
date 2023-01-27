@@ -1,7 +1,4 @@
-import {
-  TextField,
-  Autocomplete,
-} from "@mui/material";
+import { TextField, Autocomplete } from "@mui/material";
 import { useControlField, useField } from "remix-validated-form";
 
 interface SimpleAutocompleteFieldProps {
@@ -21,8 +18,11 @@ const SimpleAutocompleteField = ({
   helperText,
   freeSolo,
 }: SimpleAutocompleteFieldProps) => {
-  const { error } = useField(name, { formId: 'projectResourcesForm' });
-  const [value, setValue] = useControlField<string>(name, 'projectResourcesForm');
+  const { error } = useField(name, { formId: "projectResourcesForm" });
+  const [value, setValue] = useControlField<string>(
+    name,
+    "projectResourcesForm"
+  );
 
   return (
     <>
@@ -31,9 +31,16 @@ const SimpleAutocompleteField = ({
         options={options}
         value={value || ""}
         filterSelectedOptions
-        renderInput={(params) => <TextField {...params} label={label} helperText={error || helperText} error={!!error} />}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label={label}
+            helperText={error || helperText}
+            error={!!error}
+          />
+        )}
         disablePortal
-        sx={{ width: '100%' }}
+        sx={{ width: "100%" }}
         readOnly={readOnly}
         freeSolo={freeSolo}
         autoSelect

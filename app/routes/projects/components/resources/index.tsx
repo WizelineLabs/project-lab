@@ -28,12 +28,6 @@ const RESOURCE_TYPES = [
 const RESOURCE_PROVIDERS = ["AWS", "GCP", "Azure"];
 const RESOURCE_NAMES: string[] = [];
 
-// interface IResource {
-//   type: string;
-//   provider: string;
-//   name: string;
-// }
-
 interface IProps {
   allowEdit: Boolean;
   projectResources: Prisma.ResourceCreateInput[];
@@ -76,7 +70,7 @@ export default function Resources({
       "projectResourcesForm"
     ) as HTMLFormElement;
     submit(form);
-  }
+  };
 
   return (
     <Card>
@@ -131,7 +125,12 @@ export default function Resources({
           )}
 
           {resources.map((resource, index) => (
-            <Grid key={index} container spacing={2} sx={{ marginBottom: '12px' }}>
+            <Grid
+              key={index}
+              container
+              spacing={2}
+              sx={{ marginBottom: "12px" }}
+            >
               <Grid item xs={4}>
                 <SimpleAutocompleteField
                   name={`resources[${index}].type`}
