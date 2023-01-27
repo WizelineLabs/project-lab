@@ -540,7 +540,6 @@ export default function ProjectDetailsPage() {
           allowEdit={isTeamMember || isAdmin}
           projectResources={projectResources}
           resourceData={resourceData}
-          projectId={projectId}
         />
       </Container>
 

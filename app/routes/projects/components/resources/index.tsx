@@ -37,9 +37,6 @@ interface IProps {
   allowEdit: Boolean;
   projectResources: IResource[];
   resourceData: { types: string[]; providers: string[]; names: string[] };
-  projectId: string;
-  editable: boolean;
-  setEditable: Function;
 }
 
 export const validator = withZod(
@@ -58,7 +55,6 @@ export default function Resources({
   allowEdit = false,
   projectResources,
   resourceData,
-  projectId,
 }: IProps) {
   const transition = useTransition();
   const submit = useSubmit();
