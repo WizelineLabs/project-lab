@@ -1,6 +1,6 @@
 import { formatDistance } from "date-fns";
 import Markdown from "marked-react";
-import type { ActionFunction, LoaderArgs} from "@remix-run/node";
+import type { ActionFunction, LoaderArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import { useCatch, useFetcher, useTransition } from "@remix-run/react";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
@@ -104,7 +104,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     projectId: params.projectId,
     comments,
     projectResources,
-    resourceData
+    resourceData,
   });
 };
 
@@ -191,7 +191,7 @@ export default function ProjectDetailsPage() {
     projectId,
     comments,
     projectResources,
-    resourceData
+    resourceData,
   } = useTypedLoaderData<typeof loader>();
   const [showJoinModal, setShowJoinModal] = useState<boolean>(false);
   const [showMembershipModal, setShowMembershipModal] =
@@ -536,7 +536,12 @@ export default function ProjectDetailsPage() {
       />
 
       <Container sx={{ marginBottom: 2 }}>
-        <Resources allowEdit={isTeamMember || isAdmin} projectResources={projectResources} resourceData={resourceData}  />
+        <Resources
+          allowEdit={isTeamMember || isAdmin}
+          projectResources={projectResources}
+          resourceData={resourceData}
+          projectId={projectId}
+        />
       </Container>
 
       <Container>

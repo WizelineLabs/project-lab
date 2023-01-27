@@ -14,7 +14,7 @@ import { zfd } from "zod-form-data";
 import { withZod } from "@remix-validated-form/with-zod";
 import { z } from "zod";
 import SimpleAutocompleteField from "~/core/components/SimpleAutocompleteField";
-import { useFieldArray, ValidatedForm } from "remix-validated-form";
+import { useFieldArray, ValidatedForm, validationError } from "remix-validated-form";
 
 const RESOURCE_TYPES = [
   "Cloud Account",
@@ -37,6 +37,9 @@ interface IProps {
   allowEdit: Boolean;
   projectResources: IResource[];
   resourceData: { types: string[]; providers: string[]; names: string[] };
+  projectId: string;
+  editable: boolean;
+  setEditable: Function;
 }
 
 export const validator = withZod(
@@ -55,11 +58,11 @@ export default function Resources({
   allowEdit = false,
   projectResources,
   resourceData,
+  projectId,
 }: IProps) {
   const transition = useTransition();
   const submit = useSubmit();
   const [isEditActive, setIsEditActive] = useState(false);
-  const toggleChangeEditView = () => setIsEditActive((prevValue) => !prevValue);
   const [resources, { push: addResource, remove: removeResource }] =
     useFieldArray("resources", { formId: "projectResourcesForm" });
 
@@ -69,11 +72,15 @@ export default function Resources({
   ];
   const resourceNames = [...new Set(RESOURCE_NAMES.concat(resourceData.names))];
 
-  const handleSubmit = () => {
-    toggleChangeEditView();
+  const handleSubmit = async () => {
     const form = document.getElementById(
       "projectResourcesForm"
     ) as HTMLFormElement;
+    const result = await validator.validate(form);
+    if (result.error != undefined) {
+      setIsEditActive(true);
+      return validationError(result.error);
+    }
     submit(form);
   };
 
@@ -98,13 +105,13 @@ export default function Resources({
                     "projectResourcesForm"
                   ) as HTMLFormElement;
                   form.reset();
-                  toggleChangeEditView();
+                  setIsEditActive(false);
                 }}
               >
                 <Close>Cancel</Close>
               </IconButton>
             ) : (
-              <IconButton onClick={() => toggleChangeEditView()}>
+              <IconButton onClick={() => setIsEditActive(true)}>
                 <EditSharp></EditSharp>
               </IconButton>
             ))
