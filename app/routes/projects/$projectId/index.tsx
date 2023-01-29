@@ -131,7 +131,7 @@ export const meta: TypedMetaFunction<typeof loader> = ({ data, params }) => {
 
   const { project } = data;
   return {
-    title: `${project?.name} milkshake`,
+    title: project?.name,
     description: project?.description,
   };
 };
@@ -234,9 +234,10 @@ export default function ProjectDetailsPage() {
               alignItems="center"
               justifyContent="flex-start"
               direction={{ xs: "column", md: "row" }}
+              sx={{ minHeight: 48 }}
             >
               <Grid item>
-                <div className="itemHeadName">Owner:</div>{" "}
+                <div className="itemHeadName">Owner:</div>
               </Grid>
               <Grid item>
                 <div className="itemHeadValue">{`${project.owner?.firstName} ${project.owner?.lastName}`}</div>
@@ -251,9 +252,10 @@ export default function ProjectDetailsPage() {
               alignItems="center"
               justifyContent="flex-start"
               direction={{ xs: "column", md: "row" }}
+              sx={{ minHeight: 48 }}
             >
               <Grid item>
-                <div className="itemHeadName">Status:</div>{" "}
+                <div className="itemHeadName">Status:</div>
               </Grid>
               <Grid item>
                 <RemixLink
@@ -270,9 +272,10 @@ export default function ProjectDetailsPage() {
               sm={6}
               xs={12}
               spacing={1}
-              alignItems="end"
+              alignItems="center"
               justifyContent="flex-start"
               direction={{ xs: "column", md: "row" }}
+              sx={{ minHeight: 48 }}
             >
               <Grid item>
                 <Link
@@ -285,16 +288,19 @@ export default function ProjectDetailsPage() {
                   <sup>
                     <OpenInNew style={{ fontSize: 10 }} />
                   </sup>
-                </Link>{" "}
+                </Link>
                 :
               </Grid>
               <Grid item>
-                <RemixLink
-                  className="itemHeadValue"
-                  to={`/projects?tier=${project.tierName}`}
+                <a
+                  href="https://wizeline.atlassian.net/wiki/spaces/wiki/pages/3075342381/Innovation+Tiers"
+                  target="_blank"
+                  rel="noreferrer"
                 >
-                  {project.tierName}
-                </RemixLink>
+                  <div className="itemHeadValue innovationTier">
+                    {project.tierName}
+                  </div>
+                </a>
               </Grid>
             </Grid>
             <Grid
@@ -306,6 +312,7 @@ export default function ProjectDetailsPage() {
               alignItems="center"
               justifyContent="flex-start"
               direction={{ xs: "column", md: "row" }}
+              sx={{ minHeight: 48 }}
             >
               <Grid item>
                 <div className="itemHeadName">Labels:</div>
@@ -324,6 +331,56 @@ export default function ProjectDetailsPage() {
                   ))}
               </Grid>
             </Grid>
+            {project.slackChannel && (
+              <Grid
+                item
+                container
+                sm={6}
+                xs={12}
+                spacing={1}
+                alignItems="center"
+                justifyContent="flex-start"
+                direction={{ xs: "column", md: "row" }}
+                sx={{ minHeight: 48 }}
+              >
+                <Grid item>
+                  <div className="itemHeadName">Slack Channel:</div>
+                </Grid>
+                <Grid item>
+                  <Link
+                    target="_blank"
+                    href={`https://wizeline.slack.com/channels/${project.slackChannel.replace(
+                      "#",
+                      ""
+                    )}`}
+                  >
+                    {project.slackChannel}
+                  </Link>
+                </Grid>
+              </Grid>
+            )}
+            {project.projectBoard && (
+              <Grid
+                item
+                container
+                sm={6}
+                xs={12}
+                spacing={1}
+                alignItems="center"
+                justifyContent="flex-start"
+                direction={{ xs: "column", md: "row" }}
+                sx={{ minHeight: 48 }}
+              >
+                <Grid item>
+                  <div className="itemHeadName">Project Board:</div>
+                </Grid>
+                <Grid item>
+                  <Link target="_blank" href={project.projectBoard}>
+                    {project.projectBoard}
+                  </Link>
+                </Grid>
+              </Grid>
+            )}
           </Grid>
         </Paper>
       </Container>
@@ -365,31 +422,18 @@ export default function ProjectDetailsPage() {
           </Grid>
           <Grid item xs={12} md={4}>
             <Stack direction="column" spacing={1}>
-              {project.slackChannel && (
+              {project.disciplines && project.disciplines.length > 0 && (
                 <Card>
-                  <CardHeader title="Slack Channel:" />
+                  <CardHeader title="Looking for:" />
                   <CardContent>
-                    <Link
-                      target="_blank"
-                      href={`https://wizeline.slack.com/channels/${project.slackChannel.replace(
-                        "#",
-                        ""
-                      )}`}
-                    >
-                      {project.slackChannel}
-                    </Link>
-                  </CardContent>
-                </Card>
-              )}
-              {project.projectBoard && (
-                <Card>
-                  <CardHeader title="Project Board:" />
-                  <CardContent>
-                    <Stack direction="row" spacing={1}>
-                      <Link target="_blank" href={project.projectBoard}>
-                        {project.projectBoard}
-                      </Link>
-                    </Stack>
+                    {project.disciplines &&
+                      project.disciplines.map((item, index) => (
+                        <Chip
+                          key={index}
+                          label={item.name}
+                          sx={{ marginRight: 1, marginBottom: 1 }}
+                        />
+                      ))}
                   </CardContent>
                 </Card>
               )}
@@ -406,41 +450,6 @@ export default function ProjectDetailsPage() {
                         </li>
                       ))}
                     </ul>
-                  </CardContent>
-                </Card>
-              )}
-              {project.skills && project.skills.length > 0 && (
-                <Card>
-                  <CardHeader title="Skills:" />
-                  <CardContent>
-                    {project.skills.map((item, index) => (
-                      <Chip
-                        key={index}
-                        component="a"
-                        href={`/projects?skill=${item.name}`}
-                        clickable
-                        label={item.name}
-                        sx={{ marginRight: 1, marginBottom: 1 }}
-                      />
-                    ))}
-                  </CardContent>
-                </Card>
-              )}
-              {project.disciplines && project.disciplines.length > 0 && (
-                <Card>
-                  <CardHeader title="Looking for:" />
-                  <CardContent>
-                    {project.disciplines &&
-                      project.disciplines.map((item, index) => (
-                        <Chip
-                          key={index}
-                          component="a"
-                          href={`/projects?discipline=${item.name}`}
-                          clickable
-                          label={item.name}
-                          sx={{ marginRight: 1, marginBottom: 1 }}
-                        />
-                      ))}
                   </CardContent>
                 </Card>
               )}
@@ -469,7 +478,23 @@ export default function ProjectDetailsPage() {
           <Grid item xs={12}></Grid>
         </Grid>
       </Container>
-      <Container>
+      {project.skills && project.skills.length > 0 && (
+        <Container sx={{ marginBottom: 2 }}>
+          <Card>
+            <CardHeader title="Skills:" />
+            <CardContent>
+              {project.skills.map((item, index) => (
+                <Chip
+                  key={index}
+                  label={item.name}
+                  sx={{ marginRight: 1, marginBottom: 1 }}
+                />
+              ))}
+            </CardContent>
+          </Card>
+        </Container>
+      )}
+      <Container sx={{ marginBottom: 2 }}>
         <RelatedProjectsSection
           allowEdit={isTeamMember || isAdmin}
           relatedProjects={project.relatedProjects}
