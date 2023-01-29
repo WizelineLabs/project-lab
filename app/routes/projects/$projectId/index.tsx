@@ -547,6 +547,15 @@ export default function ProjectDetailsPage() {
           projectId={projectId}
         />
       </Container>
+
+      <Container sx={{ marginBottom: 2 }}>
+        <Resources
+          allowEdit={isTeamMember || isAdmin}
+          projectResources={projectResources}
+          resourceData={resourceData}
+        />
+      </Container>
+
       <Container sx={{ marginBottom: 2 }}>
         <ContributorPathReport
           project={project}
@@ -559,14 +568,6 @@ export default function ProjectDetailsPage() {
         open={showJoinModal}
         handleCloseModal={() => setShowJoinModal(false)}
       />
-
-      <Container sx={{ marginBottom: 2 }}>
-        <Resources
-          allowEdit={isTeamMember || isAdmin}
-          projectResources={projectResources}
-          resourceData={resourceData}
-        />
-      </Container>
 
       <Container>
         <Comments
