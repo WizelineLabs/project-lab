@@ -153,6 +153,18 @@ model ProjectStatus {
   projectsVersions ProjectsVersions[]
 }
 
+model Resource {
+  id        Int      @id @default(autoincrement())
+  projectId String
+  type      String
+  provider  String
+  name      String
+  project   Projects @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([type], map: "resource_types")
+  @@index([provider], map: "resource_providers")
+}
+
 model Projects {
   id                     String                   @id @default(uuid())
   ownerId                String?
@@ -187,6 +199,7 @@ model Projects {
   disciplines            Disciplines[]
   labels                 Labels[]
   skills                 Skills[]
+  resources              Resource[]
   projectBoard           String?
 
   // here also the change of name for map
