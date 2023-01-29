@@ -4,7 +4,7 @@ import { useControlField, useField } from "remix-validated-form";
 interface SimpleAutocompleteFieldProps {
   name: string;
   label: string;
-  readOnly: boolean;
+  readOnly?: boolean;
   options: string[];
   helperText?: string;
   freeSolo?: boolean;
