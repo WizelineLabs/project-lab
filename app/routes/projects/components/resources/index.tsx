@@ -14,7 +14,12 @@ import { zfd } from "zod-form-data";
 import { withZod } from "@remix-validated-form/with-zod";
 import { z } from "zod";
 import SimpleAutocompleteField from "~/core/components/SimpleAutocompleteField";
-import { useFieldArray, ValidatedForm, validationError } from "remix-validated-form";
+import {
+  useFieldArray,
+  ValidatedForm,
+  validationError,
+} from "remix-validated-form";
+import { Prisma } from "@prisma/client";
 
 const RESOURCE_TYPES = [
   "Cloud Account",
@@ -60,7 +65,9 @@ export default function Resources({
   const submit = useSubmit();
   const [isEditActive, setIsEditActive] = useState(false);
   const [resources, { push: addResource, remove: removeResource }] =
-    useFieldArray("resources", { formId: "projectResourcesForm" });
+    useFieldArray<Prisma.ResourceCreateInput>("resources", {
+      formId: "projectResourcesForm",
+    });
 
   const resourceTypes = [...new Set(RESOURCE_TYPES.concat(resourceData.types))];
   const resourceProviders = [
@@ -132,52 +139,71 @@ export default function Resources({
             </Button>
           )}
 
-          {resources.map((resource, index) => (
-            <Grid
-              key={index}
-              container
-              spacing={2}
-              sx={{ marginBottom: "12px" }}
-            >
-              <Grid item xs={4}>
-                <SimpleAutocompleteField
-                  name={`resources[${index}].type`}
-                  label="Type"
-                  options={resourceTypes}
-                  readOnly={!isEditActive}
-                />
-              </Grid>
-              <Grid item xs={3}>
-                <SimpleAutocompleteField
-                  name={`resources[${index}].provider`}
-                  label="Provider/Brand"
-                  options={resourceProviders}
-                  readOnly={!isEditActive}
-                  freeSolo
-                />
-              </Grid>
-              <Grid item xs={4}>
-                <SimpleAutocompleteField
-                  name={`resources[${index}].name`}
-                  label="Name/Description"
-                  options={resourceNames}
-                  readOnly={!isEditActive}
-                  freeSolo
-                />
-              </Grid>
-              <Grid item xs={1}>
-                {isEditActive && (
-                  <IconButton
-                    onClick={() => {
-                      removeResource(index);
-                    }}
-                  >
-                    <Delete>Delete</Delete>
-                  </IconButton>
-                )}
-              </Grid>
-            </Grid>
-          ))}
+          <Grid container spacing={2} sx={{ marginBottom: "12px" }}>
+            {!isEditActive && (
+              <>
+                <Grid item xs={3}>
+                  <b>Type</b>
+                </Grid>
+                <Grid item xs={3}>
+                  <b>Provider/Brand</b>
+                </Grid>
+                <Grid item xs={5}>
+                  <b>Name/Description</b>
+                </Grid>
+              </>
+            )}
+            {resources.map((resource, index) => (
+              <>
+                <Grid item xs={3}>
+                  {isEditActive ? (
+                    <SimpleAutocompleteField
+                      name={`resources[${index}].type`}
+                      label="Type"
+                      options={resourceTypes}
+                    />
+                  ) : (
+                    resource.type
+                  )}
+                </Grid>
+                <Grid item xs={3}>
+                  {isEditActive ? (
+                    <SimpleAutocompleteField
+                      name={`resources[${index}].provider`}
+                      label="Provider/Brand"
+                      options={resourceProviders}
+                      freeSolo
+                    />
+                  ) : (
+                    resource.provider
+                  )}
+                </Grid>
+                <Grid item xs={5}>
+                  {isEditActive ? (
+                    <SimpleAutocompleteField
+                      name={`resources[${index}].name`}
+                      label="Name/Description"
+                      options={resourceNames}
+                      freeSolo
+                    />
+                  ) : (
+                    resource.name
+                  )}
+                </Grid>
+                <Grid item xs={1}>
+                  {isEditActive && (
+                    <IconButton
+                      onClick={() => {
+                        removeResource(index);
+                      }}
+                    >
+                      <Delete>Delete</Delete>
+                    </IconButton>
+                  )}
+                </Grid>
+              </>
+            ))}
+          </Grid>
           {isEditActive && (
             <Box textAlign="center">
               <Button
