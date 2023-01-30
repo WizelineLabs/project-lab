@@ -8,6 +8,7 @@ interface SimpleAutocompleteFieldProps {
   options: string[];
   helperText?: string;
   freeSolo?: boolean;
+  filterSelectedOptions?: boolean;
 }
 
 const SimpleAutocompleteField = ({
@@ -17,6 +18,7 @@ const SimpleAutocompleteField = ({
   readOnly,
   helperText,
   freeSolo,
+  filterSelectedOptions,
 }: SimpleAutocompleteFieldProps) => {
   const { error } = useField(name, { formId: "projectResourcesForm" });
   const [value, setValue] = useControlField<string>(
@@ -30,7 +32,7 @@ const SimpleAutocompleteField = ({
       <Autocomplete
         options={options}
         value={value || ""}
-        filterSelectedOptions
+        filterSelectedOptions={filterSelectedOptions}
         renderInput={(params) => (
           <TextField
             {...params}

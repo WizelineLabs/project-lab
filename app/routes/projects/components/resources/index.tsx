@@ -19,7 +19,7 @@ import {
   ValidatedForm,
   validationError,
 } from "remix-validated-form";
-import { Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 
 const RESOURCE_TYPES = [
   "Cloud Account",
