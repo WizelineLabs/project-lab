@@ -56,7 +56,6 @@ import Resources from "../components/resources";
 import { validationError } from "remix-validated-form";
 import { validator } from "~/routes/projects/components/resources";
 import { updateProjectResources } from "~/models/project.server";
-import RemixLink from "~/core/components/Link";
 
 export function links() {
   return [
@@ -303,12 +302,13 @@ export default function ProjectDetailsPage() {
                 <div className="itemHeadName">Status:</div>
               </Grid>
               <Grid item>
-                <RemixLink
+                <Chip
                   className="itemHeadValue"
-                  to={`/projects?status=${project.status}`}
-                >
-                  {project.status}
-                </RemixLink>
+                  component="a"
+                  href={`/projects?status=${project.status}`}
+                  clickable
+                  label={project.status}
+                />
               </Grid>
             </Grid>
             <Grid
@@ -337,15 +337,13 @@ export default function ProjectDetailsPage() {
                 :
               </Grid>
               <Grid item>
-                <a
-                  href="https://wizeline.atlassian.net/wiki/spaces/wiki/pages/3075342381/Innovation+Tiers"
-                  target="_blank"
+                <Chip
+                  component="a"
+                  href={`/projects?tier=${project.tierName}`}
+                  clickable
                   rel="noreferrer"
-                >
-                  <div className="itemHeadValue innovationTier">
-                    {project.tierName}
-                  </div>
-                </a>
+                  label={project.tierName}
+                />
               </Grid>
             </Grid>
             <Grid
@@ -475,6 +473,9 @@ export default function ProjectDetailsPage() {
                       project.disciplines.map((item, index) => (
                         <Chip
                           key={index}
+                          component="a"
+                          href={`/projects?discipline=${item.name}`}
+                          clickable
                           label={item.name}
                           sx={{ marginRight: 1, marginBottom: 1 }}
                         />
@@ -531,6 +532,9 @@ export default function ProjectDetailsPage() {
               {project.skills.map((item, index) => (
                 <Chip
                   key={index}
+                  component="a"
+                  href={`/projects?skill=${item.name}`}
+                  clickable
                   label={item.name}
                   sx={{ marginRight: 1, marginBottom: 1 }}
                 />
