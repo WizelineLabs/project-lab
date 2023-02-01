@@ -97,7 +97,7 @@ export const ContributorPathReport = ({
         return {
           id: memberIndex,
           status: member.active,
-          name: member.profile?.firstName + " " + member.profile?.lastName,
+          name: member.profile?.preferredName + " " + member.profile?.lastName,
           email: member.profile?.email,
           role: member.role.map((role) => role.name),
           skills: member.practicedSkills.map((skill) => " " + skill.name),

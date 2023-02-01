@@ -278,7 +278,7 @@ export default function ProjectDetailsPage() {
                 <div className="itemHeadName">Owner:</div>
               </Grid>
               <Grid item>
-                <div className="itemHeadValue">{`${project.owner?.firstName} ${project.owner?.lastName}`}</div>
+                <div className="itemHeadValue">{`${project.owner?.preferredName} ${project.owner?.lastName}`}</div>
               </Grid>
             </Grid>
             <Grid

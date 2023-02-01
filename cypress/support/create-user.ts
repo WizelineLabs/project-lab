@@ -30,6 +30,7 @@ async function createAndLogin(email: string) {
   await createProfile({
     email,
     firstName: faker.name.firstName(),
+    preferredName: faker.name.firstName(),
     lastName: faker.name.lastName(),
   });
 
