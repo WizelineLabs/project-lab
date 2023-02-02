@@ -17,6 +17,7 @@ import { useMemo, useState } from "react";
 import { getCommits } from "~/routes/api/github/get-commits";
 import { getComparator, stableSort } from "~/utils/filtering";
 import type { Order } from "~/utils/filtering";
+import { getUserInfo } from "~/routes/api/github/git-getUserInfo";
 
 export type CommitListRecord = {
   url: string;
@@ -86,14 +87,12 @@ export default function GitHubCommits({ repoName }: { repoName: string }) {
 
   useMemo(
     () =>
-      getCommits(repoName)
+      getUserInfo("martin.robledo@wizeline.com")
         .then((data) => {
           console.log(data);
-
-          setcommitListMemo(data);
         })
         .catch((error) => console.log(error)),
-    [repoName]
+    []
   );
 
   return (
