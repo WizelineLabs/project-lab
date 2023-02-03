@@ -41,6 +41,7 @@ export async function consolidateProfilesByEmail(
   const profileMails = data.map((profile) => {
     return profile.email;
   });
+  // eslint-disable-next-line no-console
   console.info(`Starting upsert profiles to DB`);
 
   const profilesUpsert = data.map((profile) => {
@@ -54,7 +55,7 @@ export async function consolidateProfilesByEmail(
       },
     });
   });
-
+  // eslint-disable-next-line no-console
   console.info(`Terminate users not found on data lake from DB`);
   await db.$transaction([
     db.$queryRaw`UPDATE "Profiles" SET "employeeStatus"='Terminated' WHERE email NOT IN (${Prisma.join(

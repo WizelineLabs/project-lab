@@ -147,7 +147,6 @@ export const action: ActionFunction = async ({ request, params }) => {
           await updateProjectResources(projectId, result.data.resources);
           return redirect(`/projects/${projectId}`);
         } catch (e) {
-          console.log(e);
           return validationError({
             fieldErrors: {
               formError: "Server failed",
