@@ -2,7 +2,7 @@ import { useSubmit } from "@remix-run/react";
 import { useUser } from "~/utils";
 import DropDownButton from "../components/DropDownButton";
 import Search from "../components/Search";
-import { Button, Container, Grid, Paper } from "@mui/material";
+import { Button, Container, Grid, Paper, styled } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import Link from "../components/Link";
 
@@ -15,6 +15,10 @@ export interface MenuItemArgs {
   onClick?: () => void;
   to: string;
 }
+
+const StyledHeaderButton = styled(Button)(({ theme }) => ({
+  color: theme.palette.mode === 'dark' ? '#fff' : '#000',
+}));
 
 const Header = ({ title }: IProps) => {
   const currentUser = useUser();
@@ -52,8 +56,8 @@ const Header = ({ title }: IProps) => {
             padding={2}
           >
             <Grid item xs>
-              <Link to="/projects">
-                <Button
+              <Link to="/projects" className="no_decoration">
+                <StyledHeaderButton
                   size="large"
                   startIcon={
                     <img
@@ -63,9 +67,14 @@ const Header = ({ title }: IProps) => {
                       width={50}
                     />
                   }
+                  className="header_button_link"
+                  sx={{
+                    fontWeight:'bolder',
+                    fontSize: '1.5em',
+                  }}
                 >
                   Wizelabs
-                </Button>
+                </StyledHeaderButton>
               </Link>
             </Grid>
             <Grid item sx={{ order: { md: 3 } }}>
@@ -76,8 +85,8 @@ const Header = ({ title }: IProps) => {
             <Grid item sx={{ marginRight: 2 }}>
               <Search />
               &nbsp;
-              <Link to="/projects/create">
-                <Button startIcon={<AddIcon />}>New Proposal</Button>
+              <Link to="/projects/create" className="no_decoration">
+                <Button variant="contained" color="primary" startIcon={<AddIcon />} sx={{ fontWeight:'bolder', color: '#fff' }}>New Proposal</Button>
               </Link>
             </Grid>
           </Grid>

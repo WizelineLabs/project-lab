@@ -121,6 +121,13 @@ export function ProjectForm({
             placeholder="#project-name"
           />
 
+          <LabeledTextField
+            fullWidth
+            name="projectBoard"
+            label="Project Board"
+            placeholder="Type the link to your board to add it to your project."
+          />
+
           <SkillsSelect //this still uses constant values instead of values taken from the db
             name="skills"
             label="Skills"

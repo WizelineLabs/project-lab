@@ -1,6 +1,7 @@
 import { formatDistance } from "date-fns";
 import Markdown from "marked-react";
 import type { ActionFunction, LoaderArgs } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import { useCatch, useFetcher, useTransition } from "@remix-run/react";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import type { TypedMetaFunction } from "remix-typedjson";
@@ -11,7 +12,9 @@ import {
   isProjectTeamMember,
   getProject,
   getProjects,
+  getProjectResources,
 } from "~/models/project.server";
+import { getDistinctResources } from "~/models/resource.server";
 
 import {
   Card,
@@ -26,8 +29,12 @@ import {
   IconButton,
   Typography,
   CardHeader,
+  Link,
 } from "@mui/material";
-import { EditSharp, ThumbUpSharp, ThumbDownSharp } from "@mui/icons-material";
+import EditSharp from "@mui/icons-material/EditSharp";
+import ThumbUpSharp from "@mui/icons-material/ThumbUpSharp";
+import ThumbDownSharp from "@mui/icons-material/ThumbDownSharp";
+import OpenInNew from "@mui/icons-material/OpenInNew";
 import { adminRoleName } from "app/constants";
 import ContributorPathReport from "../../../core/components/ContributorPathReport/index";
 import { useEffect, useState } from "react";
@@ -45,6 +52,10 @@ import Comments from "~/core/components/Comments";
 
 import MDEditorStyles from "@uiw/react-md-editor/markdown-editor.css";
 import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
+import Resources from "../components/resources";
+import { validationError } from "remix-validated-form";
+import { validator } from "~/routes/projects/components/resources";
+import { updateProjectResources } from "~/models/project.server";
 
 export function links() {
   return [
@@ -77,6 +88,10 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 
   const comments = await getComments(params.projectId);
 
+  // Resources data
+  const projectResources = await getProjectResources(params.projectId);
+  const resourceData = await getDistinctResources();
+
   return typedjson({
     isAdmin,
     isTeamMember,
@@ -87,16 +102,19 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     profileId,
     projectId: params.projectId,
     comments,
+    projectResources,
+    resourceData,
   });
 };
 
-export const action: ActionFunction = async ({ request }) => {
+export const action: ActionFunction = async ({ request, params }) => {
   const form = await request.formData();
-  const action = form.get("action");
+  const subaction = form.get("subaction");
   try {
-    switch (action) {
+    invariant(params.projectId, "projectId could not be found");
+    const projectId = params.projectId;
+    switch (subaction) {
       case "POST_VOTE":
-        const projectId = form.get("projectId") as string;
         const profileId = form.get("profileId") as string;
         const isVote = await checkUserVote(projectId, profileId);
 
@@ -107,6 +125,35 @@ export const action: ActionFunction = async ({ request }) => {
           await unvoteProject(projectId, profileId);
         }
         return typedjson({ error: "" }, { status: 200 });
+      case "UPDATE_RESOURCES":
+        const profile = await requireProfile(request);
+        const user = await requireUser(request);
+        const project = await getProject({ id: params.projectId });
+        const isAdmin = user.role == adminRoleName;
+        const isTeamMember = isProjectTeamMember(profile.id, project);
+
+        if (!isAdmin && !isTeamMember) {
+          return validationError({
+            fieldErrors: {
+              formError: "Operation not allowed",
+            },
+          });
+        }
+
+        const result = await validator.validate(form);
+        if (result.error != undefined) return validationError(result.error);
+
+        try {
+          await updateProjectResources(projectId, result.data.resources);
+          return redirect(`/projects/${projectId}`);
+        } catch (e) {
+          console.log(e);
+          return validationError({
+            fieldErrors: {
+              formError: "Server failed",
+            },
+          });
+        }
       default: {
         throw new Error("Something went wrong");
       }
@@ -126,7 +173,7 @@ export const meta: TypedMetaFunction<typeof loader> = ({ data, params }) => {
 
   const { project } = data;
   return {
-    title: `${project?.name} milkshake`,
+    title: project?.name,
     description: project?.description,
   };
 };
@@ -142,6 +189,8 @@ export default function ProjectDetailsPage() {
     profileId,
     projectId,
     comments,
+    projectResources,
+    resourceData,
   } = useTypedLoaderData<typeof loader>();
   const [showJoinModal, setShowJoinModal] = useState<boolean>(false);
   const [showMembershipModal, setShowMembershipModal] =
@@ -160,7 +209,7 @@ export default function ProjectDetailsPage() {
     try {
       const body = {
         ...values,
-        action: "POST_VOTE",
+        subaction: "POST_VOTE",
       };
       await fetcher.submit(body, { method: "post" });
     } catch (error: any) {
@@ -229,9 +278,10 @@ export default function ProjectDetailsPage() {
               alignItems="center"
               justifyContent="flex-start"
               direction={{ xs: "column", md: "row" }}
+              sx={{ minHeight: 48 }}
             >
               <Grid item>
-                <div className="itemHeadName">Owner:</div>{" "}
+                <div className="itemHeadName">Owner:</div>
               </Grid>
               <Grid item>
                 <div className="itemHeadValue">{`${project.owner?.firstName} ${project.owner?.lastName}`}</div>
@@ -246,12 +296,19 @@ export default function ProjectDetailsPage() {
               alignItems="center"
               justifyContent="flex-start"
               direction={{ xs: "column", md: "row" }}
+              sx={{ minHeight: 48 }}
             >
               <Grid item>
-                <div className="itemHeadName">Status:</div>{" "}
+                <div className="itemHeadName">Status:</div>
               </Grid>
               <Grid item>
-                <div className="itemHeadValue">{project.status}</div>
+                <Chip
+                  className="itemHeadValue"
+                  component="a"
+                  href={`/projects?status=${project.status}`}
+                  clickable
+                  label={project.status}
+                />
               </Grid>
             </Grid>
             <Grid
@@ -263,12 +320,30 @@ export default function ProjectDetailsPage() {
               alignItems="center"
               justifyContent="flex-start"
               direction={{ xs: "column", md: "row" }}
+              sx={{ minHeight: 48 }}
             >
               <Grid item>
-                <div className="itemHeadName">Tier:</div>{" "}
+                <Link
+                  className="itemHeadName"
+                  target="_blank"
+                  rel="noreferrer"
+                  href="https://wizeline.atlassian.net/wiki/spaces/wiki/pages/3075342381/Innovation+Tiers"
+                >
+                  <b>Innovation Tier</b>
+                  <sup>
+                    <OpenInNew style={{ fontSize: 10 }} />
+                  </sup>
+                </Link>
+                :
               </Grid>
               <Grid item>
-                <div className="itemHeadValue">{project.tierName}</div>
+                <Chip
+                  component="a"
+                  href={`/projects?tier=${project.tierName}`}
+                  clickable
+                  rel="noreferrer"
+                  label={project.tierName}
+                />
               </Grid>
             </Grid>
             <Grid
@@ -280,6 +355,7 @@ export default function ProjectDetailsPage() {
               alignItems="center"
               justifyContent="flex-start"
               direction={{ xs: "column", md: "row" }}
+              sx={{ minHeight: 48 }}
             >
               <Grid item>
                 <div className="itemHeadName">Labels:</div>
@@ -289,38 +365,65 @@ export default function ProjectDetailsPage() {
                   project.labels.map((item, index) => (
                     <Chip
                       key={index}
+                      component="a"
+                      href={`/projects?label=${item.name}`}
+                      clickable
                       label={item.name}
                       sx={{ marginRight: 1, marginBottom: 1 }}
                     />
                   ))}
               </Grid>
             </Grid>
-
-            <Grid
-              item
-              container
-              sm={6}
-              xs={12}
-              spacing={1}
-              alignItems="center"
-              justifyContent="flex-start"
-              direction={{ xs: "column", md: "row" }}
-            >
-              <Grid item>
-                <div className="itemHeadName">Innovation Tier:</div>
+            {project.slackChannel && (
+              <Grid
+                item
+                container
+                sm={6}
+                xs={12}
+                spacing={1}
+                alignItems="center"
+                justifyContent="flex-start"
+                direction={{ xs: "column", md: "row" }}
+                sx={{ minHeight: 48 }}
+              >
+                <Grid item>
+                  <div className="itemHeadName">Slack Channel:</div>
+                </Grid>
+                <Grid item>
+                  <Link
+                    target="_blank"
+                    href={`https://wizeline.slack.com/channels/${project.slackChannel.replace(
+                      "#",
+                      ""
+                    )}`}
+                  >
+                    {project.slackChannel}
+                  </Link>
+                </Grid>
               </Grid>
-              <Grid item>
-                <a
-                  href="https://wizeline.atlassian.net/wiki/spaces/wiki/pages/3075342381/Innovation+Tiers"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <div className="itemHeadValue innovationTier">
-                    {project.tierName}
-                  </div>
-                </a>
+            )}
+            {project.projectBoard && (
+              <Grid
+                item
+                container
+                sm={6}
+                xs={12}
+                spacing={1}
+                alignItems="center"
+                justifyContent="flex-start"
+                direction={{ xs: "column", md: "row" }}
+                sx={{ minHeight: 48 }}
+              >
+                <Grid item>
+                  <div className="itemHeadName">Project Board:</div>
+                </Grid>
+                <Grid item>
+                  <Link target="_blank" href={project.projectBoard}>
+                    {project.projectBoard}
+                  </Link>
+                </Grid>
               </Grid>
-            </Grid>
+            )}
           </Grid>
         </Paper>
       </Container>
@@ -362,13 +465,21 @@ export default function ProjectDetailsPage() {
           </Grid>
           <Grid item xs={12} md={4}>
             <Stack direction="column" spacing={1}>
-              {project.slackChannel && (
+              {project.disciplines && project.disciplines.length > 0 && (
                 <Card>
-                  <CardHeader title="Slack Channel:" />
+                  <CardHeader title="Looking for:" />
                   <CardContent>
-                    <Stack direction="row" spacing={1}>
-                      {project.slackChannel}
-                    </Stack>
+                    {project.disciplines &&
+                      project.disciplines.map((item, index) => (
+                        <Chip
+                          key={index}
+                          component="a"
+                          href={`/projects?discipline=${item.name}`}
+                          clickable
+                          label={item.name}
+                          sx={{ marginRight: 1, marginBottom: 1 }}
+                        />
+                      ))}
                   </CardContent>
                 </Card>
               )}
@@ -379,41 +490,12 @@ export default function ProjectDetailsPage() {
                     <ul>
                       {project.repoUrls.map((item, index) => (
                         <li key={index}>
-                          <a href={item.url} target="_blank" rel="noreferrer">
+                          <Link target="_blank" href={item.url}>
                             {item.url}
-                          </a>
+                          </Link>
                         </li>
                       ))}
                     </ul>
-                  </CardContent>
-                </Card>
-              )}
-              {project.skills && project.skills.length > 0 && (
-                <Card>
-                  <CardHeader title="Skills:" />
-                  <CardContent>
-                    {project.skills.map((item, index) => (
-                      <Chip
-                        key={index}
-                        label={item.name}
-                        sx={{ marginRight: 1, marginBottom: 1 }}
-                      />
-                    ))}
-                  </CardContent>
-                </Card>
-              )}
-              {project.disciplines && project.disciplines.length > 0 && (
-                <Card>
-                  <CardHeader title="Looking for:" />
-                  <CardContent>
-                    {project.disciplines &&
-                      project.disciplines.map((item, index) => (
-                        <Chip
-                          key={index}
-                          label={item.name}
-                          sx={{ marginRight: 1, marginBottom: 1 }}
-                        />
-                      ))}
                   </CardContent>
                 </Card>
               )}
@@ -442,7 +524,26 @@ export default function ProjectDetailsPage() {
           <Grid item xs={12}></Grid>
         </Grid>
       </Container>
-      <Container>
+      {project.skills && project.skills.length > 0 && (
+        <Container sx={{ marginBottom: 2 }}>
+          <Card>
+            <CardHeader title="Skills:" />
+            <CardContent>
+              {project.skills.map((item, index) => (
+                <Chip
+                  key={index}
+                  component="a"
+                  href={`/projects?skill=${item.name}`}
+                  clickable
+                  label={item.name}
+                  sx={{ marginRight: 1, marginBottom: 1 }}
+                />
+              ))}
+            </CardContent>
+          </Card>
+        </Container>
+      )}
+      <Container sx={{ marginBottom: 2 }}>
         <RelatedProjectsSection
           allowEdit={isTeamMember || isAdmin}
           relatedProjects={project.relatedProjects}
@@ -450,7 +551,16 @@ export default function ProjectDetailsPage() {
           projectId={projectId}
         />
       </Container>
-      <Container>
+
+      <Container sx={{ marginBottom: 2 }}>
+        <Resources
+          allowEdit={isTeamMember || isAdmin}
+          projectResources={projectResources}
+          resourceData={resourceData}
+        />
+      </Container>
+
+      <Container sx={{ marginBottom: 2 }}>
         <ContributorPathReport
           project={project}
           isTeamMember={isTeamMember}

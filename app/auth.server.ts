@@ -23,14 +23,14 @@ let auth0Strategy = new Auth0Strategy(
     domain: process.env.AUTH0_DOMAIN,
   },
   async ({ accessToken, refreshToken, extraParams, profile }) => {
-    if (profile.emails == undefined || !profile.emails[0]) {
-      throw new Error("we need an email to login");
-    }
-    // search profile in our DB or get from data lake
-    const email = profile.emails[0].value;
-    const userProfile = await getProfileByEmail(email);
-    if (!userProfile) {
-      try {
+    try {
+      if (profile.emails == undefined || !profile.emails[0]) {
+        throw new Error("we need an email to login");
+      }
+      // search profile in our DB or get from data lake
+      const email = profile.emails[0].value;
+      const userProfile = await getProfileByEmail(email);
+      if (!userProfile) {
         const lakeProfile = await findProfileData(email);
         createProfile({
           id: String(lakeProfile.contact__employee_number),
@@ -44,25 +44,20 @@ let auth0Strategy = new Auth0Strategy(
           avatarUrl: lakeProfile.contact__photo__url,
           location: lakeProfile.contact__location,
           country: lakeProfile.contact__country,
-          status: lakeProfile.contact__status,
-          // - NULL
-          // - Bench
-          // - Assigned
-          // - Terminated
-          // - Active Hold
-          // - Proposed
-          // - Assignment to start
+          employeeStatus: lakeProfile.contact__employee_status,
+          businessUnit: lakeProfile.contact__business_unit,
+          benchStatus: lakeProfile.contact__status,
         });
-      } catch (e) {
-        // console.log(e);
-        throw e;
       }
+      // Get the user data from your DB or API using the tokens and profile
+      return findOrCreate({
+        email: profile.emails[0].value,
+        name: profile.displayName || "Unnamed",
+      });
+    } catch (e) {
+      console.log(e);
+      throw e;
     }
-    // Get the user data from your DB or API using the tokens and profile
-    return findOrCreate({
-      email: profile.emails[0].value,
-      name: profile.displayName || "Unnamed",
-    });
   }
 );
 
