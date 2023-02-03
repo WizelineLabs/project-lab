@@ -94,6 +94,7 @@ model Profiles {
   projects               Projects[]
   projectsVersions       ProjectsVersions[]
   votes                  Vote[]
+  githuUser              String?
 
   // here "name" was changed for "map"
   @@index([email], map: "profiles_email_idx")
