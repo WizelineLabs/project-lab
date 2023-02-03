@@ -110,7 +110,6 @@ export const action: ActionFunction = async ({ request, params }) => {
       e instanceof PrismaClientKnownRequestError ||
       e instanceof PrismaClientValidationError
     ) {
-      // console.log(e.message);
       return validationError({
         fieldErrors: {
           formError: "Server failed",

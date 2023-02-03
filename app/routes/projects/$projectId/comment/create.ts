@@ -22,7 +22,6 @@ export const action: ActionFunction = async ({ request, params }) => {
       result.data.parentId
     );
   } catch (e) {
-    // console.log(e);
     const session = await getSession(request);
     session.flash("warning", "Error while saving comment");
   }

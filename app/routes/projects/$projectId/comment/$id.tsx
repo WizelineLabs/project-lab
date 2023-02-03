@@ -32,14 +32,12 @@ export const action: ActionFunction = async ({ request, params }) => {
       const result = await validator.validate(await request.formData());
 
       if (result.error != undefined) {
-        // console.log(result.error.fieldErrors);
         throw new Error("Validation error");
       }
 
       await updateComment(id, result.data.body);
     }
   } catch (e) {
-    // console.log(e);
     const session = await getSession(request);
     session.flash("warning", "Error while updating comment");
   }

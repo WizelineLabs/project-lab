@@ -55,7 +55,6 @@ let auth0Strategy = new Auth0Strategy(
         name: profile.displayName || "Unnamed",
       });
     } catch (e) {
-      console.log(e);
       throw e;
     }
   }
