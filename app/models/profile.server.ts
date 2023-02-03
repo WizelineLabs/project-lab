@@ -30,6 +30,13 @@ export async function createProfile(data: Prisma.ProfilesCreateInput) {
   return prisma.profiles.create({ data });
 }
 
+export async function updateProfile(
+  data: Prisma.ProfilesUpdateInput,
+  id: string
+) {
+  return prisma.profiles.update({ where: { id }, data: data });
+}
+
 export async function consolidateProfilesByEmail(
   data: Prisma.ProfilesCreateInput[],
   db: PrismaClient
