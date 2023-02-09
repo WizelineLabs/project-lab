@@ -113,9 +113,6 @@ export default function Projects() {
   const [searchParams, setSearchParams] = useSearchParams();
   const page = Number(searchParams.get("page") || 0);
 
-  //sorting variables
-  // const [, setSortQuery] = useState({ field: "name", order: "desc" });
-
   let {
     data: {
       projects,
