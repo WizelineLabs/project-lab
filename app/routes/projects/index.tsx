@@ -30,6 +30,7 @@ import type { ProjectStatus } from "~/models/status.server";
 import { getProjectStatuses } from "~/models/status.server";
 import { ongoingStage, ideaStage } from "~/constants";
 import Link from "~/core/components/Link";
+import MembershipModal from "~/membership/components/membershipModal";
 
 type LoaderData = {
   data: Awaited<ReturnType<typeof searchProjects>>;
@@ -133,6 +134,7 @@ export default function Projects() {
     ongoingStatuses,
     ideaStatuses,
   } = useLoaderData() as LoaderData;
+  const [showJoinModal, setShowJoinModal] = useState<boolean>(false);
   const myPropQuery = "myProposals";
   const activeProjectsSearchParams = new URLSearchParams();
   const ideasSearchParams = new URLSearchParams();
@@ -615,6 +617,10 @@ export default function Projects() {
           </Grid>
         </Grid>
       </Container>
+      <MembershipModal
+        open={true}
+        handleCloseModal={() => setShowJoinModal(false)}
+      />
     </>
   );
 }
