@@ -113,9 +113,6 @@ export default function Projects() {
   const [searchParams, setSearchParams] = useSearchParams();
   const page = Number(searchParams.get("page") || 0);
 
-  //sorting variables
-  const [, setSortQuery] = useState({ field: "name", order: "desc" });
-
   let {
     data: {
       projects,
@@ -171,6 +168,12 @@ export default function Projects() {
 
   const goToNextPage = () => {
     searchParams.set("page", String(page + 1));
+    setSearchParams(searchParams);
+  };
+
+  const setSortQuery = ({ field, order }: { field: string; order: string }) => {
+    searchParams.set("field", field);
+    searchParams.set("order", order);
     setSearchParams(searchParams);
   };
 
@@ -550,7 +553,10 @@ export default function Projects() {
                 {getTitle() + ` (${count || 0})`}
               </h2>
               <div>
-                <SortInput setSortQuery={setSortQuery} sortBy={""} />
+                <SortInput
+                  setSortQuery={setSortQuery}
+                  sortBy={searchParams.get("field") || ""}
+                />
                 &nbsp;
                 <Button
                   variant="contained"
