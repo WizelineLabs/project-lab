@@ -7,8 +7,7 @@ import SkillsSelect from "~/core/components/SkillsSelect";
 import { withZod } from "@remix-validated-form/with-zod";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
-import { Title } from "@mui/icons-material";
-import { ProjectName, FlexContainer, CenterItems} from "./MemberModal.styles";
+import { ProjectName, FlexContainer, CenterItems, SubmitButton, ModalText} from "./MemberModal.styles";
 
 interface IProps {
   open: boolean;
@@ -46,18 +45,16 @@ const MembershipModal = (props: IProps) => {
       boxStyle={{ width: "800px" }}
     >
       <ValidatedForm method="post" validator={validator}>
-        <Title>
+        <ModalText>
           Hey!, it seems like you haven't been involved in these projects in a
           while. Are you still working on it?
-        </Title>
+        </ModalText>
         <ProjectName>Wizelabs</ProjectName>
         <FlexContainer>
           <LabeledTextField
             name="hoursPerWeek"
-            fullWidth
             label="Hours per Week"
             type="number"
-            style={{ fontSize: "12px" }}
           />
           <DisciplinesSelect name="role" label="Role(s)" />
           <SkillsSelect name="practicedSkills" label="Skills" />
@@ -66,9 +63,11 @@ const MembershipModal = (props: IProps) => {
             Active
           </CenterItems>
         </FlexContainer>
-        <Button type="submit" variant="contained">
-          Save
-        </Button>
+        <SubmitButton>
+          <Button type="submit" variant="contained">
+            Save
+          </Button>
+        </SubmitButton>
       </ValidatedForm>
     </ModalBox>
   );

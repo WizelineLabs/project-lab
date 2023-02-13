@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 
-export const Title = styled.div`
+export const ModalText = styled.div`
   text-align: center;
   margin-top: 30px;
   font-size: 20px;
@@ -23,5 +23,10 @@ export const CenterItems = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+`;
+
+export const SubmitButton = styled.div`
+  margin-top: 20px;
+  margin-left: 90%;
 `;
 
