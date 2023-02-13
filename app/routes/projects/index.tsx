@@ -30,7 +30,7 @@ import type { ProjectStatus } from "~/models/status.server";
 import { getProjectStatuses } from "~/models/status.server";
 import { ongoingStage, ideaStage } from "~/constants";
 import Link from "~/core/components/Link";
-import MembershipModal from "~/membership/components/membershipModal";
+import MembershipModal from "~/core/components/MembershipModal/index";
 
 type LoaderData = {
   data: Awaited<ReturnType<typeof searchProjects>>;
