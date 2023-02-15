@@ -35,7 +35,7 @@ let auth0Strategy = new Auth0Strategy(
       // search profile in our DB or get from data lake
       const email = profile.emails[0].value;
       const userProfile = await getProfileByEmail(email);
-      if (userProfile?.githubUser === null) {
+      if (userProfile?.githubUser === '' || userProfile?.githubUser === null) {
         const { data } = await getUserInfo(email);
         if (data.total_count > 0) {
           const gitHubUser = data.items[0].login;
