@@ -14,6 +14,11 @@ interface SortOption {
 export const SortInput = ({ setSortQuery, sortBy }: iProps) => {
   //sorting options
   const sortOptions: { [key: string]: SortOption } = {
+    hotness: {
+      label: "Hotness",
+      value: "hotness",
+      order: "desc",
+    },
     mostRecent: {
       label: "Most recent",
       value: "mostRecent",
