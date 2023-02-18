@@ -23,10 +23,10 @@ export const CenterItems = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-right: 1%;
 `;
 
 export const SubmitButton = styled.div`
   margin-top: 20px;
   margin-left: 90%;
 `;
-

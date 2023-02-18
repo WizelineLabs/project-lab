@@ -35,7 +35,7 @@ export const validator = withZod( //this is the same of join project
       .optional(),
   })
 );
-// put all the css in another file
+
 const MembershipModal = (props: IProps) => {
   return (
     <ModalBox
@@ -44,20 +44,22 @@ const MembershipModal = (props: IProps) => {
       handleClose={() => {}}
       boxStyle={{ width: "800px" }}
     >
-      <ValidatedForm method="post" validator={validator}>
+      <ValidatedForm validator={validator}
+        defaultValues={{}}>
         <ModalText>
           Hey!, it seems like you haven't been involved in these projects in a
           while. Are you still working on it?
         </ModalText>
         <ProjectName>Wizelabs</ProjectName>
         <FlexContainer>
-          <LabeledTextField
-            name="hoursPerWeek"
-            label="Hours per Week"
-            type="number"
-          />
-          <DisciplinesSelect name="role" label="Role(s)" />
-          <SkillsSelect name="practicedSkills" label="Skills" />
+            <LabeledTextField
+              name="hoursPerWeek"
+              label="Hours per Week"
+              fullWidth
+              type="number"
+            />
+            <DisciplinesSelect name="role" label="Role(s)" />
+            <SkillsSelect name="practicedSkills" label="Skills" />
           <CenterItems>
             <Checkbox checked={true} />
             Active
