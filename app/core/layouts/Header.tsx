@@ -17,7 +17,13 @@ export interface MenuItemArgs {
 }
 
 const StyledHeaderButton = styled(Button)(({ theme }) => ({
-  color: theme.palette.mode === 'dark' ? '#fff' : '#000',
+  color: theme.palette.mode === "dark" ? "#fff" : "#000",
+  background:
+    theme.palette.mode === "dark" ? "#121212" : theme.palette.common.white,
+  "&:hover": {
+    background:
+      theme.palette.mode === "dark" ? "#121212" : theme.palette.common.white,
+  },
 }));
 
 const Header = ({ title }: IProps) => {
@@ -69,8 +75,8 @@ const Header = ({ title }: IProps) => {
                   }
                   className="header_button_link"
                   sx={{
-                    fontWeight:'bolder',
-                    fontSize: '1.5em',
+                    fontWeight: "bolder",
+                    fontSize: "1.5em",
                   }}
                 >
                   Wizelabs
@@ -86,7 +92,14 @@ const Header = ({ title }: IProps) => {
               <Search />
               &nbsp;
               <Link to="/projects/create" className="no_decoration">
-                <Button variant="contained" color="primary" startIcon={<AddIcon />} sx={{ fontWeight:'bolder', color: '#fff' }}>New Proposal</Button>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  startIcon={<AddIcon />}
+                  sx={{ fontWeight: "bolder", color: "#fff" }}
+                >
+                  New Proposal
+                </Button>
               </Link>
             </Grid>
           </Grid>
