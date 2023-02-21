@@ -28,6 +28,7 @@ async function getMappedProfiles(): Promise<Prisma.ProfilesCreateInput[]> {
 
 export async function migrateProfiles(db: PrismaClient) {
   const mappedProfiles = await getMappedProfiles();
+  // eslint-disable-next-line no-console
   console.info(`Migrating ${mappedProfiles.length} profiles`);
   consolidateProfilesByEmail(mappedProfiles, db);
 }

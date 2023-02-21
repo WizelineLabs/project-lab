@@ -4,8 +4,13 @@ import { Auth0Strategy } from "remix-auth-auth0";
 import { sessionStorage } from "~/session.server";
 import type { User } from "~/models/user.server";
 import { findOrCreate } from "~/models/user.server";
-import { createProfile, getProfileByEmail } from "./models/profile.server";
+import {
+  createProfile,
+  getProfileByEmail,
+  updateProfile,
+} from "./models/profile.server";
 import { findProfileData } from "./lake.server";
+import { getUserInfo } from "./routes/api/github/get-getUserInfo";
 
 invariant(process.env.AUTH0_CLIENT_ID, "AUTH0_CLIENT_ID must be set");
 invariant(process.env.AUTH0_CLIENT_SECRET, "AUTH0_CLIENT_SECRET must be set");
@@ -30,6 +35,14 @@ let auth0Strategy = new Auth0Strategy(
       // search profile in our DB or get from data lake
       const email = profile.emails[0].value;
       const userProfile = await getProfileByEmail(email);
+      if (userProfile?.githubUser === '' || userProfile?.githubUser === null) {
+        const { data } = await getUserInfo(email);
+        if (data.total_count > 0) {
+          const gitHubUser = data.items[0].login;
+          userProfile.githubUser = gitHubUser;
+          updateProfile(userProfile, userProfile.id);
+        }
+      }
       if (!userProfile) {
         const lakeProfile = await findProfileData(email);
         createProfile({
@@ -55,7 +68,6 @@ let auth0Strategy = new Auth0Strategy(
         name: profile.displayName || "Unnamed",
       });
     } catch (e) {
-      console.log(e);
       throw e;
     }
   }

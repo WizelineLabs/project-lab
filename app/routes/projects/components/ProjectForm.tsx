@@ -35,11 +35,11 @@ export function ProjectForm({
   );
   const [helpWanted, setHelpWanted] = useControlField<boolean>("helpWanted");
   const isSubmitting = useIsSubmitting();
-  const { isValid, fieldErrors, getValues } = useFormContext();
+  const { isValid } = useFormContext();
   const disabled = isSubmitting;
   if (!isValid) {
-    console.log(fieldErrors);
-    console.log(getValues());
+    // console.log(fieldErrors);
+    // console.log(getValues());
   }
 
   return (

@@ -67,6 +67,7 @@ AUTH0_CLIENT_ID=
 AUTH0_DOMAIN=
 AUTH0_CLIENT_SECRET=
 BASE_URL: 
+GOOGLE_APPLICATION_CREDENTIALS=
 ```
 
 If you set a password in the installation of postgres, you should use this format for the DATABASE_URL:
@@ -75,8 +76,10 @@ If you set a password in the installation of postgres, you should use this forma
 DATABASE_URL=postgresql://[username]:[password]@localhost:5432/[database]?schema=public
 ```
 
-2. Ask in `#team-projectlab` channel on _Slack_
-   for the environment values for `.env`.
+2. Ask in `#team-wizelabs-io` channel on _Slack_
+   for the environment values for `.env` and access to the keybase team.
+
+For the `GOOGLE_APPLICATION_CREDENTIALS=` there will be a file named `wizelake-prod-wizelabs.json` in the files of the keybase team, you need to save it and use it's route as your `GOOGLE_APPLICATION_CREDENTIALS=`. There's a example of it in `.env.example`.
 
 3. Edit `prisma/seeds.ts` file and add your user at the very bottom, make sure to replace with your data:
 

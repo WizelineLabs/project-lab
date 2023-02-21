@@ -18,7 +18,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     await joinProject(projectId, profile.id, result.data);
     return redirect(`/projects/${projectId}`);
   } catch (e) {
-    console.log(e);
+    // console.log(e);
     return validationError({
       fieldErrors: {
         formError: "Server failed",
