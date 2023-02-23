@@ -243,7 +243,12 @@ export default function Projects() {
 
   const StyledTabButton = styled(Button)(({ theme }) => ({
     fontWeight: "bold",
-    color: theme.palette.mode === "dark" ? "#fff" : theme.palette.primary.main,
+    color: theme.palette.mode === "dark" ? "#AF2E33" : "#701D21",
+    background:
+      theme.palette.mode === "dark" ? "#121212" : theme.palette.common.white,
+    "&:hover": {
+      background: theme.palette.mode === "dark" ? "#202020" : "#F5F5F5",
+    },
   }));
 
   return (
