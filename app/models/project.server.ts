@@ -566,7 +566,7 @@ export async function searchProjects({
     )`;
   }
 
-  let orderQuery = Prisma.sql`ORDER BY "tierName" ASC`;
+  let orderQuery;
   if (orderBy.field == "updatedAt") {
     orderQuery = Prisma.sql`ORDER BY p."updatedAt" DESC`;
   } else if (orderBy.field == "votesCount") {
@@ -575,6 +575,8 @@ export async function searchProjects({
     orderQuery = Prisma.sql`ORDER BY "projectMembers" DESC`;
   } else if (orderBy.field == "mostRecent") {
     orderQuery = Prisma.sql`ORDER BY p."createdAt" DESC`;
+  } else {
+    orderQuery = Prisma.sql`ORDER BY "hotness" DESC`
   }
 
   if (having != Prisma.empty) {
@@ -611,7 +613,8 @@ export async function searchProjects({
 
   const projects = await db.$queryRaw<SearchProjectsOutput[]>`
     SELECT p.id, p.name, p.description, p."searchSkills", pr."firstName", pr."lastName", pr."avatarUrl", p.status, count(distinct v."profileId") AS "votesCount", s.color,
-      p."createdAt",
+    LOG10(count(distinct v."profileId") + 1) * 287015 + extract(epoch from p."updatedAt") AS "hotness",  
+    p."createdAt",
       p."updatedAt",
       p."ownerId",
       p."tierName",
