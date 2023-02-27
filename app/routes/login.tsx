@@ -9,7 +9,6 @@ import {
   Footer,
   LoginPageContainer,
 } from "./login.styles";
-
 import { getUserId } from "~/session.server";
 
 export const loader: LoaderFunction = async ({ request }) => {

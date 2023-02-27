@@ -1,6 +1,5 @@
 import type { User, Profiles, PrismaClient } from "@prisma/client";
 import { Prisma } from "@prisma/client";
-
 import { prisma } from "../db.server";
 
 interface UserProfile extends Profiles {

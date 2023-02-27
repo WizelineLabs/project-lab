@@ -11,7 +11,6 @@ import { requireProfile } from "~/session.server";
 import { createProject } from "~/models/project.server";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 import { Container, Paper } from "@mui/material";
-
 import MDEditorStyles from "@uiw/react-md-editor/markdown-editor.css";
 import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
 
@@ -67,10 +66,8 @@ export const validator = withZod(
         )
         .optional(),
       projectBoard: zfd.text(z.string().url().optional()),
-      // relatedProjectsA: zfd.repeatable(z.array(z.string()).optional()),
     })
     .transform((val) => {
-      // val.relatedProjectsA = val.relatedProjectsA?.filter((el) => el != "");
       return val;
     })
 );

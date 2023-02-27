@@ -11,9 +11,7 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
-
 import StylesheetUrl from "./styles/style.css";
-
 import { getUser } from "./session.server";
 import { CssBaseline, useMediaQuery } from "@mui/material";
 import { createTheme } from "./theme";
@@ -53,7 +51,6 @@ export default function App() {
     [prefersDarkMode]
   );
 
-  // TODO: https://mui.com/material-ui/customization/dark-mode/#dark-mode-by-default
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />

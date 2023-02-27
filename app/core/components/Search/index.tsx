@@ -12,7 +12,6 @@ export const Search = () => {
       : "";
   const [searchValue, setSearchValue] = useState(searchQuery);
   const projectsSearch = "/projects";
-
   const handleEnterKeyPress = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === "Enter") {
       navigate(`${projectsSearch}?q=${searchValue}`);

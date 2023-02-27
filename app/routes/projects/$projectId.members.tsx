@@ -28,7 +28,6 @@ import {
   PrismaClientKnownRequestError,
   PrismaClientValidationError,
 } from "@prisma/client/runtime";
-
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import type { SubmitOptions } from "@remix-run/react";
 import { json, redirect } from "@remix-run/node";

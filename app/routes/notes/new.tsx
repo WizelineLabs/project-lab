@@ -2,7 +2,6 @@ import type { ActionFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 import * as React from "react";
-
 import { createNote } from "~/models/note.server";
 import { requireUserId } from "~/session.server";
 

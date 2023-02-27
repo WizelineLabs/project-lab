@@ -10,7 +10,6 @@ import EllipsisText from "app/core/components/EllipsisText";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import PersonIcon from "@mui/icons-material/Person";
 import HelpIcon from "@mui/icons-material/Help";
-
 import { ProposalCardWrap } from "./ProposalCard.styles";
 
 interface IProps {

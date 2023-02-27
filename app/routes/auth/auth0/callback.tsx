@@ -1,6 +1,5 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { createUserSession } from "~/session.server";
-
 import { authenticator } from "~/auth.server";
 
 export let loader: LoaderFunction = async ({ request }) => {

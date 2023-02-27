@@ -37,10 +37,6 @@ export function ProjectForm({
   const isSubmitting = useIsSubmitting();
   const { isValid } = useFormContext();
   const disabled = isSubmitting;
-  if (!isValid) {
-    // console.log(fieldErrors);
-    // console.log(getValues());
-  }
 
   return (
     <Stack spacing={2}>
@@ -59,7 +55,7 @@ export function ProjectForm({
         placeholder={"Explain us your proposal..."}
       />
 
-      <LabelsSelect //this still uses constant values instead of values taken from the db
+      <LabelsSelect
         name="labels"
         label="Labels"
       />
@@ -79,7 +75,7 @@ export function ProjectForm({
         />
       )}
 
-      {projectformType !== "create" && ( //this still uses constant values instead of values taken from the db
+      {projectformType !== "create" && ( 
         <InputSelect
           valuesList={statuses || []}
           name="projectStatus"
@@ -87,7 +83,7 @@ export function ProjectForm({
         />
       )}
 
-      {projectformType !== "create" && ( //this still uses constant values instead of values taken from the db
+      {projectformType !== "create" && ( 
         <InputSelect
           valuesList={tiers || []}
           name="innovationTiers"
@@ -128,7 +124,7 @@ export function ProjectForm({
             placeholder="Type the link to your board to add it to your project."
           />
 
-          <SkillsSelect //this still uses constant values instead of values taken from the db
+          <SkillsSelect 
             name="skills"
             label="Skills"
           />
@@ -148,7 +144,7 @@ export function ProjectForm({
           />
 
           <Collapse in={helpWanted}>
-            <DisciplinesSelect //this still uses constant values instead of values taken from the db
+            <DisciplinesSelect 
               name="disciplines"
               label="Looking for..."
             />
