@@ -17,7 +17,7 @@ import LabelsSelect from "~/core/components/LabelsSelect";
 import ProjectOwnerField from "~/core/components/ProjectOwnerField";
 import { useControlField } from "remix-validated-form";
 import { Box } from "@mui/material";
-import { useFormContext, useIsSubmitting } from "remix-validated-form";
+import { useIsSubmitting } from "remix-validated-form";
 import type { ProjectStatus } from "@prisma/client";
 import type { getInnovationTiers } from "~/models/innovationTier.server";
 
@@ -35,7 +35,6 @@ export function ProjectForm({
   );
   const [helpWanted, setHelpWanted] = useControlField<boolean>("helpWanted");
   const isSubmitting = useIsSubmitting();
-  const { isValid } = useFormContext();
   const disabled = isSubmitting;
 
   return (
