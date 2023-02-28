@@ -1,41 +1,52 @@
-import { MenuItem, TextField } from "@mui/material"
+import { MenuItem, TextField } from "@mui/material";
 
 interface iProps {
-  setSortQuery: (query: { field: string; order: string }) => void
-  sortBy: string
+  setSortQuery: (query: { field: string; order: string }) => void;
+  sortBy: string;
+}
+
+interface SortOption {
+  label: string;
+  value: string;
+  order: string;
 }
 
 export const SortInput = ({ setSortQuery, sortBy }: iProps) => {
   //sorting options
-  const sortOptions = [
-    {
+  const sortOptions: { [key: string]: SortOption } = {
+    hotness: {
+      label: "Hotness",
+      value: "hotness",
+      order: "desc",
+    },
+    mostRecent: {
       label: "Most recent",
       value: "mostRecent",
       order: "desc",
     },
-    {
+    votesCount: {
       label: "Most voted",
       value: "votesCount",
       order: "desc",
     },
-    {
+    projectMembers: {
       label: "Project Members",
       value: "projectMembers",
       order: "desc",
     },
-    {
+    updatedAt: {
       label: "Last Updated",
       value: "updatedAt",
       order: "desc",
     },
-  ]
+  };
 
   const handleSortByChange = (e: any) => {
     setSortQuery({
       field: e.target.value,
-      order: sortOptions.find((option) => option.value === e.target.value)?.order || "",
-    })
-  }
+      order: sortOptions[e.target.value]?.order || "",
+    });
+  };
 
   return (
     <TextField
@@ -49,11 +60,11 @@ export const SortInput = ({ setSortQuery, sortBy }: iProps) => {
       size="small"
       InputProps={{ style: { fontSize: "13px" } }}
     >
-      {sortOptions.map((option) => (
+      {Object.values(sortOptions).map((option) => (
         <MenuItem key={option.value} value={option.value}>
           {option.label}
         </MenuItem>
       ))}
     </TextField>
-  )
-}
+  );
+};

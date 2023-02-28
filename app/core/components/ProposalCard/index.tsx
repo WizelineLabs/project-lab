@@ -1,4 +1,11 @@
-import { CardActionArea, CardContent, Card, Chip, Link } from "@mui/material";
+import {
+  CardActionArea,
+  CardContent,
+  Card,
+  Chip,
+  Link,
+  useMediaQuery,
+} from "@mui/material";
 import EllipsisText from "app/core/components/EllipsisText";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import PersonIcon from "@mui/icons-material/Person";
@@ -25,6 +32,9 @@ interface IProps {
 export const ProposalCard = (props: IProps) => {
   const stopEvent = (event: React.MouseEvent<HTMLElement>) =>
     event.stopPropagation();
+
+  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+
   return (
     <>
       <Card>
@@ -98,9 +108,15 @@ export const ProposalCard = (props: IProps) => {
                   </div>
                   <div>
                     <div className="ProposalCard__status--like">
-                      <span>{props.votesCount} </span>
+                      <span
+                        style={{ color: prefersDarkMode ? "#FFFF" : "#111823" }}
+                      >
+                        {props.votesCount}{" "}
+                      </span>
                       <span>
-                        <ThumbUpIcon />
+                        <ThumbUpIcon
+                          sx={{ color: prefersDarkMode ? "#FFFF" : "#111823" }}
+                        />
                       </span>
                     </div>
                     <div className="ProposalCard__status--members">

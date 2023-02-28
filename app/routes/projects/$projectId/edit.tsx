@@ -229,6 +229,7 @@ export default function EditProjectPage() {
               variant="contained"
               disabled={isButtonDisabled}
               color="warning"
+              type="submit"
             >
               Yes, delete it
             </Button>

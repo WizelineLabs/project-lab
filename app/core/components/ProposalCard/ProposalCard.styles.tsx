@@ -80,7 +80,7 @@ export const ProposalCardWrap = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: center;
-    color: #af2e33;
+    color: #e94d44;
     margin-right: 10px;
 
     & span {
