@@ -1,7 +1,6 @@
 import type { Profiles, Projects } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import { defaultStatus } from "~/constants";
-
 import { joinCondition, prisma as db } from "~/db.server";
 
 interface SearchProjectsInput {

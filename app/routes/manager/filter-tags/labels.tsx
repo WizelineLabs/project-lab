@@ -11,7 +11,6 @@ import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Close";
 import invariant from "tiny-invariant";
-
 import ConfirmationModal from "../../../core/components/ConfirmationModal";
 import {
   getLabels,

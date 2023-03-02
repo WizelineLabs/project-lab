@@ -8,7 +8,6 @@ import {
   MenuList,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-
 import { DropdownPlaceholderContainer } from "./DropDownButton.styles";
 import Link from "../Link";
 
@@ -54,7 +53,6 @@ export const DropDownButton = ({
     }
   }
 
-  // return focus to the button when we transitioned from !openActionsUser -> openActionsUser
   const prevOpen = useRef(openActionsUser);
   useEffect(() => {
     if (prevOpen.current === true && openActionsUser === false) {

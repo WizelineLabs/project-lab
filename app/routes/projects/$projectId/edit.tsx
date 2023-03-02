@@ -11,7 +11,6 @@ import {
   updateProjects,
 } from "~/models/project.server";
 import { adminRoleName } from "app/constants";
-
 import {
   Box,
   Button,
@@ -35,7 +34,6 @@ import { TabStyles } from "../components/Styles/TabStyles.component";
 import TabPanel from "~/core/components/TabPanel";
 import { getProjectStatuses } from "~/models/status.server";
 import { getInnovationTiers } from "~/models/innovationTier.server";
-
 import MDEditorStyles from "@uiw/react-md-editor/markdown-editor.css";
 import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
 import { isProjectMemberOrOwner } from "~/utils";
@@ -57,13 +55,12 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 
   const statuses = await getProjectStatuses();
   const tiers = await getInnovationTiers();
-
   const user = await requireUser(request);
   const profile = await requireProfile(request);
   const isTeamMember = isProjectTeamMember(profile.id, project);
-
   const isAdmin = user.role == adminRoleName;
   const profileId = profile.id;
+
   return typedjson({
     isAdmin,
     isTeamMember,
@@ -79,7 +76,6 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 export const action: ActionFunction = async ({ request, params }) => {
   invariant(params.projectId, "projectId could not be found");
   const projectId = params.projectId;
-
   // Validate permissions
   const user = await requireUser(request);
   const isAdmin = user.role == adminRoleName;
@@ -92,7 +88,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     } = currentProject;
     isProjectMemberOrOwner(profile.id, currentMembers, currentOwnerId);
   }
-
+  
   const result = await validator.validate(await request.formData());
   if (result.error) return validationError(result.error);
   const project = await updateProjects(projectId, result.data);
@@ -183,7 +179,6 @@ export default function EditProjectPage() {
                   skills: project.skills,
                   labels: project.labels,
                   projectBoard: project.projectBoard || "",
-                  //projectMembers: project.projectMembers,
                 }}
                 method="post"
               >

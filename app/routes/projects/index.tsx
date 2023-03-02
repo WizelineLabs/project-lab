@@ -95,7 +95,6 @@ export const loader: LoaderFunction = async ({ request }) => {
     skip: ITEMS_PER_PAGE * page,
     take: ITEMS_PER_PAGE,
   });
-  // return json<LoaderData>({ data, ongoingStatuses, ideaStatuses });
   return new Response(
     JSON.stringify(
       { data, ongoingStatuses, ideaStatuses },

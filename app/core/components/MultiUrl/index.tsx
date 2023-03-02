@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Chip, Grid, TextField } from "@mui/material";
 import styled from "@emotion/styled";
 import { useField, FieldArray, useFormContext } from "remix-validated-form";

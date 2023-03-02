@@ -29,7 +29,6 @@ const StyledHeaderButton = styled(Button)(({ theme }) => ({
 const Header = ({ title }: IProps) => {
   const currentUser = useUser();
   const submit = useSubmit();
-
   const options: MenuItemArgs[] = [
     {
       onClick: async () => {
