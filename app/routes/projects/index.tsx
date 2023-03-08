@@ -24,13 +24,14 @@ import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import CloseIcon from "@mui/icons-material/Close";
 import { styled } from "@mui/material";
 import { SortInput } from "app/core/components/SortInput";
-import { searchProjects } from "~/models/project.server";
+import { getProjectMembership, searchProjects } from "~/models/project.server";
 import { requireProfile } from "~/session.server";
 import type { ProjectStatus } from "~/models/status.server";
 import { getProjectStatuses } from "~/models/status.server";
 import { ongoingStage, ideaStage } from "~/constants";
 import Link from "~/core/components/Link";
 import MembershipModal from "~/core/components/MembershipModal/index";
+import { log } from "console";
 
 type LoaderData = {
   data: Awaited<ReturnType<typeof searchProjects>>;
@@ -76,6 +77,10 @@ export const loader: LoaderFunction = async ({ request }) => {
   const field = url.searchParams.get("field") || "";
   const order = url.searchParams.get("order") || "";
   const statuses = await getProjectStatuses();
+  const projectMembership = await getProjectMembership(profile.id);
+  // eslint-disable-next-line no-console
+  console.log(projectMembership);
+  
   const ongoingStatuses = statuses.filter(
     (status) => status.stage === ongoingStage
   );

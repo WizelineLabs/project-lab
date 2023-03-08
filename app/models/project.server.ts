@@ -1,5 +1,6 @@
 import type { Profiles, Projects } from "@prisma/client";
 import { Prisma } from "@prisma/client";
+import { log } from "console";
 import { defaultStatus } from "~/constants";
 
 import { joinCondition, prisma as db } from "~/db.server";
@@ -18,6 +19,11 @@ interface SearchProjectsInput {
   skip: number;
   take: number;
   orderBy: { field: string; order: string };
+}
+
+interface membershipOutput {
+  updatedAt: string;
+  name: string
 }
 
 interface SearchProjectsOutput {
@@ -474,6 +480,36 @@ export async function updateRelatedProjects({
     });
     return { createResponse, deleteResponse };
   });
+}
+
+export async function getProjectMembership(
+  
+    profileId:string
+  
+) {
+
+  function dateDiffInDays(dateOne:any, dateTwo:any) {
+    const _MS_PER_DAY = 1000 * 60 * 60 * 24
+    const utc1 = Date.UTC(dateOne.getFullYear(), dateOne.getMonth(), dateOne.getDate())
+    const utc2 = Date.UTC(dateTwo.getFullYear(), dateTwo.getMonth(), dateTwo.getDate())
+
+    return Math.floor((utc2 - utc1) / _MS_PER_DAY)
+  }
+
+  let result 
+  const today = new Date()
+
+  if (profileId) {
+    let queryMembership = await db.$queryRaw<membershipOutput[]>  `SELECT "ProjectMembers"."updatedAt", "Projects"."name" from "ProjectMembers" INNER JOIN "Projects" ON "Projects"."id" = "ProjectMembers"."projectId" where "profileId" = ${profileId}`
+    let updatedAt = new Date(queryMembership[0]?.updatedAt);
+    // eslint-disable-next-line no-console
+    console.log(queryMembership);
+    
+    result = dateDiffInDays(updatedAt, today)
+  } else {
+    return null
+  }
+  return result
 }
 
 export async function searchProjects({
