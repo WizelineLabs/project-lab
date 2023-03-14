@@ -17,13 +17,13 @@ import {
   useMediaQuery,
   useTheme,
   AppBar,
-  Toolbar
+  Toolbar,
+  styled
 } from "@mui/material";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import CloseIcon from "@mui/icons-material/Close";
-import { styled } from "@mui/material";
 import { SortInput } from "app/core/components/SortInput";
 import { searchProjects } from "~/models/project.server";
 import { requireProfile } from "~/session.server";
