@@ -500,7 +500,14 @@ export async function getProjectMembership(
   const today = new Date()
 
   if (profileId) {
-    let queryMembership = await db.$queryRaw<membershipOutput[]>  `SELECT "ProjectMembers"."updatedAt", "Projects"."name" from "ProjectMembers" INNER JOIN "Projects" ON "Projects"."id" = "ProjectMembers"."projectId" where "profileId" = ${profileId}`
+    let queryMembership = await db.$queryRaw<
+      membershipOutput[]
+    >`SELECT "ProjectMembers"."updatedAt", "Projects"."name", "ProjectMembers"."hoursPerWeek", "Disciplines"."name", "Skills"."name", "ProjectMembers"."active"
+      FROM "ProjectMembers"
+      INNER JOIN "Projects" ON "Projects"."id" = "ProjectMembers"."projectId"
+      INNER JOIN "Disciplines" ON "Disciplines"."id" = "ProjectMembers"."profileId"
+      INNER JOIN "Skills" ON "Skills"."id" = "ProjectMembers"."profileId"
+      WHERE "profileId" = ${profileId}`;
     let updatedAt = new Date(queryMembership[0]?.updatedAt);
     // eslint-disable-next-line no-console
     console.log(queryMembership);
