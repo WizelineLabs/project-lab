@@ -31,19 +31,6 @@ import type { ProjectStatus } from "~/models/status.server";
 import { getProjectStatuses } from "~/models/status.server";
 import { ongoingStage, ideaStage } from "~/constants";
 import Link from "~/core/components/Link";
-import { createTheme } from '@mui/material/styles';
-
-const theme = createTheme({
-  breakpoints: {
-    values: {
-      xs: 0,
-      sm: 535,
-      md: 900,
-      lg: 1200,
-      xl: 1536,
-    },
-  },
-});
 
 type LoaderData = {
   data: Awaited<ReturnType<typeof searchProjects>>;
