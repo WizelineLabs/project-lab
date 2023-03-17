@@ -1,20 +1,13 @@
-# Remix Indie Stack
+# Project Lab (WizeLabs)
 
-![The Remix Indie Stack](https://repository-images.githubusercontent.com/465928257/a241fa49-bd4d-485a-a2a5-5cb8e4ee0abf)
-
-Learn more about [Remix Stacks](https://remix.run/stacks).
-
-```
-npx create-remix --template remix-run/indie-stack
-```
+Based on the [The Remix Indie Stack](https://remix.run/stacks).
 
 ## What's in the stack
 
-- [Fly app deployment](https://fly.io) with [Docker](https://www.docker.com/)
-- Production-ready [SQLite Database](https://sqlite.org)
-- Healthcheck endpoint for [Fly backups region fallbacks](https://fly.io/docs/reference/configuration/#services-http_checks)
+- [Lightsail app deployment](https://aws.amazon.com/lightsail/)
+- Production-ready [Postgres Database](https://postgresql.org)
 - [GitHub Actions](https://github.com/features/actions) for deploy on merge to production and staging environments
-- Email/Password Authentication with [cookie-based sessions](https://remix.run/docs/en/v1/api/remix#createcookiesessionstorage)
+- Auth0 Authentication with [cookie-based sessions](https://remix.run/docs/en/v1/api/remix#createcookiesessionstorage)
 - Database ORM with [Prisma](https://prisma.io)
 - End-to-end testing with [Cypress](https://cypress.io)
 - Local third party request mocking with [MSW](https://mswjs.io)
@@ -23,17 +16,9 @@ npx create-remix --template remix-run/indie-stack
 - Linting with [ESLint](https://eslint.org)
 - Static Types with [TypeScript](https://typescriptlang.org)
 
-Not a fan of bits of the stack? Fork it, change it, and use `npx create-remix --template your/repo`! Make it your own.
-
-## Quickstart
-
-Click this button to create a [Gitpod](https://gitpod.io) workspace with the project set up and Fly pre-installed
-
-[![Gitpod Ready-to-Code](https://img.shields.io/badge/Gitpod-Ready--to--Code-blue?logo=gitpod)](https://gitpod.io/from-referrer/)
-
 ## Requirements
 
-First you should install postgres on your computer. For MacOS an easy method is to use [Postgres.app](https://postgresapp.com/downloads.html). If you have an M1 chip, the lastest version has support for it without Rossetta. As documented in their [page](https://postgresapp.com/documentation/cli-tools.html), you can add postgresql tools to your path using:
+First you should install postgres **14** on your computer. For MacOS an easy method is to use [Postgres.app](https://postgresapp.com/downloads.html). If you have an M1 chip, the lastest version has support for it without Rossetta. As documented in their [page](https://postgresapp.com/documentation/cli-tools.html), you can add postgresql tools to your path using:
 
 ```
 sudo mkdir -p /etc/paths.d &&
@@ -53,6 +38,7 @@ Then open the SQL Shell and write this commands for creating a DB:
 ```
 CREATE DATABASE projectlabR;
 ```
+
 ## Getting Started
 
 ### Environment Variables
@@ -66,7 +52,7 @@ SESSION_SECRET=
 AUTH0_CLIENT_ID=
 AUTH0_DOMAIN=
 AUTH0_CLIENT_SECRET=
-BASE_URL: 
+BASE_URL:
 GOOGLE_APPLICATION_CREDENTIALS=
 ```
 
@@ -104,10 +90,10 @@ nvm use
 
 ## Development
 
-- Initial setup: _If you just generated this project, this step has been done for you._
+- Initial database setup:
 
   ```sh
-  npm run setup
+  npx prisma migrate reset
   ```
 
 - Start dev server:
@@ -118,18 +104,15 @@ nvm use
 
 This starts your app in development mode, rebuilding assets on file changes.
 
-The database seed script creates a new user with some data you can use to get started:
-
-- Email: `rachel@remix.run`
-- Password: `racheliscool`
+The database seed script creates a new user with some data you can use to get started, now you can login with your gmail user from wizeline that you added on the seeds file.
 
 ### Relevant code:
 
-This is a pretty simple note-taking app, but it's a good example of how you can build a full stack app with Prisma and Remix. The main functionality is creating users, logging in and out, and creating and deleting notes.
+This is a pretty simple note-taking app, but it's a good example of how you can build a full stack app with Prisma and Remix. The main functionality is creating projects, logging in and out.
 
 - creating users, and logging in and out [./app/models/user.server.ts](./app/models/user.server.ts)
 - user sessions, and verifying them [./app/session.server.ts](./app/session.server.ts)
-- creating, and deleting notes [./app/models/note.server.ts](./app/models/note.server.ts)
+- creating, and deleting projects [./app/models/project.server.ts](./app/models/project.server.ts)
 
 ## Deployment
 
