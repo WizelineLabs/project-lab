@@ -26,7 +26,7 @@ UPDATE "Profiles" SET "searchCol" = lower(unaccent("firstName" || ' (' || "prefe
 CREATE OR REPLACE FUNCTION profiles_search_col_fn() RETURNS TRIGGER
   LANGUAGE plpgsql AS $body$
 BEGIN
-  NEW."searchCol" := lower(unaccent(NEW."firstName" || ' (' || "preferredName" || ') ' || NEW."lastName") || ' ' || NEW."email");
+  NEW."searchCol" := lower(unaccent(NEW."firstName" || ' (' || NEW."preferredName" || ') ' || NEW."lastName") || ' ' || NEW."email");
   RETURN NEW;
 END;
 $body$;
