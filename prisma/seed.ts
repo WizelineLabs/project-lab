@@ -130,6 +130,7 @@ async function seed() {
     create: {
       email: "george.wachira@wizeline.com",
       firstName: "George",
+      preferredName: "George",
       lastName: "Wachira",
       department: "Engineering",
     },
@@ -140,6 +141,7 @@ async function seed() {
     create: {
       email: "antonio.torres@wizeline.com",
       firstName: "Antonio",
+      preferredName: "Tony",
       lastName: "Torres",
       department: "Engineering",
     },
@@ -150,6 +152,7 @@ async function seed() {
     create: {
       email: "fernanda.vargas@wizeline.com",
       firstName: "Fernanda",
+      preferredName: "Fer",
       lastName: "Vargas",
       department: "Engineering",
     },
@@ -160,6 +163,7 @@ async function seed() {
     create: {
       email: "miriam.cantero@wizeline.com",
       firstName: "Miriam",
+      preferredName: "Miriam",
       lastName: "Cantero",
       department: "Engineering",
     },
@@ -170,6 +174,7 @@ async function seed() {
     create: {
       email: "victor.cabrales@wizeline.com",
       firstName: "Victor",
+      preferredName: "Cabrales",
       lastName: "Cabrales",
       department: "Engineering",
     },
@@ -180,6 +185,7 @@ async function seed() {
     create: {
       email: "edgar.vazquez@wizeline.com",
       firstName: "Edgar",
+      preferredName: "Edgar",
       lastName: "Vazquez",
       department: "Engineering",
     },
@@ -190,6 +196,7 @@ async function seed() {
     create: {
       email: "damaris.contreras@wizeline.com",
       firstName: "Dámaris",
+      preferredName: "Dámaris",
       lastName: "Contreras",
       department: "Engineering",
     },
@@ -200,6 +207,7 @@ async function seed() {
     create: {
       email: "joaquin.bravo@wizeline.com",
       firstName: "Joaquín",
+      preferredName: "jackbravo",
       lastName: "Bravo Contreras",
       department: "Engineering",
     },
@@ -210,6 +218,7 @@ async function seed() {
     create: {
       email: "luis.tejeda@wizeline.com",
       firstName: "Luis",
+      preferredName: "Tejeda",
       lastName: "Tejeda",
       department: "Engineering",
     },
@@ -220,6 +229,7 @@ async function seed() {
     create: {
       email: "joaquin.popoca@wizeline.com",
       firstName: "Joaquin",
+      preferredName: "Joaquin",
       lastName: "Popoca",
       department: "Engineering",
     },
@@ -230,6 +240,7 @@ async function seed() {
     create: {
       email: "sabino.arambula@wizeline.com",
       firstName: "Sabino",
+      preferredName: "Sabino",
       lastName: "Arambula",
       department: "Engineering",
     },
@@ -240,6 +251,7 @@ async function seed() {
     create: {
       email: "ruben.zavala@wizeline.com",
       firstName: "Rubén",
+      preferredName: "Rubén",
       lastName: "Zavala",
       department: "Engineering",
     },
@@ -250,6 +262,7 @@ async function seed() {
     create: {
       email: "b.neha@wizeline.com",
       firstName: "B",
+      preferredName: "B",
       lastName: "Neha",
       department: "Delivery",
     },
@@ -260,6 +273,7 @@ async function seed() {
     create: {
       email: "enoc.villa@wizeline.com",
       firstName: "Enoc",
+      preferredName: "Enoc",
       lastName: "Villa",
       department: "Delivery",
     },
@@ -270,6 +284,7 @@ async function seed() {
     create: {
       email: "gustavo.gonzalez@wizeline.com",
       firstName: "Gustavo",
+      preferredName: "Gustavo",
       lastName: "Gonzalez",
       department: "Delivery",
     },
@@ -280,6 +295,7 @@ async function seed() {
     create: {
       email: "martin.molinero@wizeline.com",
       firstName: "Martin",
+      preferredName: "Martin",
       lastName: "Molinero",
       department: "Engineering",
     },
@@ -290,6 +306,7 @@ async function seed() {
     create: {
       email: "anibal.abarca@wizeline.com",
       firstName: "Aníbal",
+      preferredName: "Aníbal",
       lastName: "Abarca",
       department: "Engineering",
     },
@@ -300,6 +317,7 @@ async function seed() {
     create: {
       email: "said.montiel@wizeline.com",
       firstName: "Said",
+      preferredName: "Said",
       lastName: "Montiel",
       department: "Engineering",
     },
@@ -311,6 +329,7 @@ async function seed() {
     create: {
       email: "cesar.romero@wizeline.com",
       firstName: "Cesar",
+      preferredName: "Cesar",
       lastName: "Romero",
       department: "Engineering",
     },
@@ -322,6 +341,7 @@ async function seed() {
     create: {
       email: "christian.morlotte@wizeline.com",
       firstName: "Christian",
+      preferredName: "Christian",
       lastName: "Morlotte",
       department: "Engineering",
     },
@@ -332,6 +352,7 @@ async function seed() {
     create: {
       email: "arzu.calderon@wizeline.com",
       firstName: "Shamed",
+      preferredName: "Shamed",
       lastName: "Calderón",
       department: "Engineering",
     },
@@ -342,6 +363,7 @@ async function seed() {
     create: {
       email: "jesus.corona@wizeline.com",
       firstName: "Jesus",
+      preferredName: "Chucho",
       lastName: "Corona",
       department: "Engineering",
     },
@@ -352,6 +374,7 @@ async function seed() {
     create: {
       email: "rodrigo.delatorre@wizeline.com",
       firstName: "Rodrigo",
+      preferredName: "Rodrigo",
       lastName: "Cervantes",
       department: "Engineering",
     },
@@ -362,6 +385,7 @@ async function seed() {
     create: {
       email: "test@wizeline.com",
       firstName: "Test",
+      preferredName: "Test",
       lastName: "Wizeline",
       department: "Engineering",
     },
@@ -372,6 +396,7 @@ async function seed() {
     create: {
       email: "diana.lopez@wizeline.com",
       firstName: "Diana",
+      preferredName: "Diana",
       lastName: "Lopez",
       department: "Engineering",
     },
@@ -382,6 +407,7 @@ async function seed() {
     create: {
       email: "juan.quiroz@wizeline.com",
       firstName: "Juan",
+      preferredName: "Juan",
       lastName: "Quiroz",
       department: "Engineering",
     },
@@ -392,6 +418,7 @@ async function seed() {
     create: {
       email: "luis.lasso@wizeline.com",
       firstName: "Luis",
+      preferredName: "Luis",
       lastName: "Lasso",
       department: "Engineering",
     },
@@ -402,6 +429,7 @@ async function seed() {
     create: {
       email: "jorge.gc@wizeline.com",
       firstName: "Jorge",
+      preferredName: "Jorge",
       lastName: "Gonzalez",
       department: "Engineering",
     },
@@ -412,6 +440,7 @@ async function seed() {
     create: {
       email: "leonardo.hervert@wizeline.com",
       firstName: "Leonardo",
+      preferredName: "Leonardo",
       lastName: "Hervert",
       department: "Engineering",
     },
@@ -422,6 +451,7 @@ async function seed() {
     create: {
       email: "pascual.hernandez@wizeline.com",
       firstName: "Pascual",
+      preferredName: "Pascual",
       lastName: "Hernandez",
       department: "Engineering",
     },
@@ -432,6 +462,7 @@ async function seed() {
     create: {
       email: "jesus.martinez@wizeline.com",
       firstName: "Jesus",
+      preferredName: "Jesus",
       lastName: "Martinez",
       department: "Engineering",
     },
@@ -442,6 +473,7 @@ async function seed() {
     create: {
       email: "edwin.valdez@wizeline.com",
       firstName: "Edwin",
+      preferredName: "Edwin",
       lastName: "Valdez",
       department: "Engineering",
     },
@@ -452,6 +484,7 @@ async function seed() {
     create: {
       email: "jorge.galindo@wizeline.com",
       firstName: "Jorge",
+      preferredName: "Jorge",
       lastName: "Galindo",
       department: "Engineering",
     },
@@ -462,6 +495,7 @@ async function seed() {
     create: {
       email: "martin.robledo@wizeline.com",
       firstName: "Martin",
+      preferredName: "Martin",
       lastName: "Robledo",
       department: "Engineering",
     },
@@ -472,6 +506,7 @@ async function seed() {
     create: {
       email: "andres.contreras@team.wizeline.com",
       firstName: "Andres",
+      preferredName: "Andres",
       lastName: "Contreras",
       department: "Engineering",
     },
@@ -482,6 +517,7 @@ async function seed() {
     create: {
       email: "diego.mojarro@team.wizeline.com",
       firstName: "Diego",
+      preferredName: "Mojarro",
       lastName: "Mojarro",
       department: "Engineering",
     },
@@ -492,6 +528,7 @@ async function seed() {
     create: {
       email: "mauricio.barragan@wizeline.com",
       firstName: "Mauricio",
+      preferredName: "Mauricio",
       lastName: "Barragan",
       department: "Engineering",
     },
@@ -502,6 +539,7 @@ async function seed() {
     create: {
       email: "leslye.patino@wizeline.com",
       firstName: "Leslye",
+      preferredName: "Leslye",
       lastName: "Patiño",
       department: "Engineering",
     },

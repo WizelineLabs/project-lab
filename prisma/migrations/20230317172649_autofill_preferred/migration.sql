@@ -1,38 +1,25 @@
--- Autofill values for Profiles.preferredName
-DROP TRIGGER IF EXISTS profiles_preferred_name_trigger ON "Profiles";
+-- fill values for Profiles.preferredName
+-- new ones will be inserted by our data lake import script
 UPDATE "Profiles" SET "preferredName" = "firstName" WHERE "preferredName" IS NULL;
-
--- Trigger for Profiles.searchCol
-CREATE OR REPLACE FUNCTION profiles_search_col_fn() RETURNS TRIGGER
-  LANGUAGE plpgsql AS $body$
-BEGIN
-  NEW."preferredName" := coalesce(NEW."preferredName", NEW."firstName");
-  RETURN NEW;
-END;
-$body$;
-
-CREATE TRIGGER profiles_preferred_name_trigger
-  BEFORE INSERT OR UPDATE
-  ON "Profiles"
-  FOR EACH ROW
-  EXECUTE FUNCTION profiles_search_col_fn();
+ALTER TABLE "Profiles" ALTER COLUMN "preferredName" SET NOT NULL;
 
 -- Fill values for Profiles.searchCol adding preferred name
 DROP TRIGGER IF EXISTS profiles_search_col_trigger ON "Profiles";
-UPDATE "Profiles" SET "searchCol" = lower(unaccent("firstName" || ' (' || "preferredName" || ') ' || "lastName") || ' ' || "email");
 
--- Trigger for Profiles.searchCol
--- Couldn't use a generated column because unaccent is not inmutable.
-CREATE OR REPLACE FUNCTION profiles_search_col_fn() RETURNS TRIGGER
-  LANGUAGE plpgsql AS $body$
-BEGIN
-  NEW."searchCol" := lower(unaccent(NEW."firstName" || ' (' || NEW."preferredName" || ') ' || NEW."lastName") || ' ' || NEW."email");
-  RETURN NEW;
-END;
-$body$;
+-- create inmutable unaccent function
+-- https://dba.stackexchange.com/questions/177020/creating-a-case-insensitive-and-accent-diacritics-insensitive-search-on-a-field
+-- https://stackoverflow.com/questions/11005036/does-postgresql-support-accent-insensitive-collations/11007216#11007216
+CREATE OR REPLACE FUNCTION f_unaccent(text)
+  RETURNS text AS
+$func$
+SELECT public.unaccent('public.unaccent', $1)  -- schema-qualify function and dictionary
+$func$
+LANGUAGE sql
+IMMUTABLE;
 
-CREATE TRIGGER profiles_search_col_trigger
-  BEFORE INSERT OR UPDATE
-  ON "Profiles"
-  FOR EACH ROW
-  EXECUTE FUNCTION profiles_search_col_fn();
+ALTER TABLE "Profiles" DROP COLUMN "searchCol";
+ALTER TABLE "Profiles" ADD COLUMN "searchCol" text
+  GENERATED ALWAYS AS
+  (
+    lower(f_unaccent("firstName" || ' ' || "preferredName" || ' ' || "lastName") || ' ' || "email")
+  ) STORED;
