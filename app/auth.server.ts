@@ -40,7 +40,11 @@ let auth0Strategy = new Auth0Strategy(
         if (data.total_count > 0) {
           const gitHubUser = data.items[0].login;
           userProfile.githubUser = gitHubUser;
-          updateProfile(userProfile, userProfile.id);
+          try{
+            updateProfile(userProfile, userProfile.id);
+          }catch{
+            throw('error');
+          }
         }
       }
       if (!userProfile) {
