@@ -70,7 +70,7 @@ const MembershipStatusModal = ({ close, member, open, project }: IProps) => {
                 .map((member, index) => {
                   return (
                     <MenuItem key={index} value={member.profileId}>
-                      {member.profile.firstName} {member.profile.lastName} (
+                      {member.profile.preferredName} {member.profile.lastName} (
                       {member.profile.email})
                     </MenuItem>
                   );

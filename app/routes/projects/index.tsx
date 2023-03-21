@@ -180,8 +180,8 @@ export default function Projects() {
     setSearchParams(searchParams);
   };
 
-  const initials = (firstName: string, lastName: string) => {
-    return firstName.substring(0, 1) + lastName.substring(0, 1);
+  const initials = (preferredName: string, lastName: string) => {
+    return preferredName.substring(0, 1) + lastName.substring(0, 1);
   };
 
   const deleteFilterUrl = (filter: string, value: string | null) => {
@@ -606,7 +606,7 @@ export default function Projects() {
                         id={item.id}
                         title={item.name}
                         picture={item.avatarUrl}
-                        initials={initials(item.firstName, item.lastName)}
+                        initials={initials(item.preferredName, item.lastName)}
                         date={new Intl.DateTimeFormat([], {
                           year: "numeric",
                           month: "long",

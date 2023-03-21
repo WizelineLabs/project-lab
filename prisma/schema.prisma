@@ -48,7 +48,7 @@ model Profiles {
   id                     String                   @id @default(uuid())
   email                  String                   @unique
   firstName              String
-  preferredName          String?
+  preferredName          String
   lastName               String
   searchCol              String?
   avatarUrl              String?

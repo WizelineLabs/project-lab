@@ -12,7 +12,7 @@ import { useFetcher } from "@remix-run/react";
 type ProfileValue = {
   id: string;
   name?: string;
-  firstName?: string;
+  preferredName?: string;
   lastName?: string;
 };
 
@@ -54,7 +54,7 @@ export const ProjectOwnerField = ({
         value={value}
         isOptionEqualToValue={(option, value) => option.name === value.name}
         getOptionLabel={(option) =>
-          option.name || `${option.firstName} ${option.lastName}`
+          option.name || `${option.preferredName} ${option.lastName}`
         }
         onInputChange={(_, value) => searchValuesDebounced(value)}
         onChange={(_e, newValue) => {

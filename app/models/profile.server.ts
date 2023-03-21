@@ -73,11 +73,11 @@ export async function consolidateProfilesByEmail(
 
 export async function searchProfiles(searchTerm: string) {
   const select = Prisma.sql`
-    SELECT id, "firstName" || ' ' || "lastName" || ' <' || "email" || '>' as name
+    SELECT id, "preferredName" || ' ' || "lastName" || ' <' || "email" || '>' as name
     FROM "Profiles"
   `;
   const orderBy = Prisma.sql`
-    ORDER BY "firstName", "lastName"
+    ORDER BY "preferredName", "lastName"
     LIMIT 50;
   `;
   let result;
