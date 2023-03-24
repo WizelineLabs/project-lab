@@ -482,41 +482,33 @@ export async function updateRelatedProjects({
   });
 }
 
-export async function getProjectMembership(
-  
-    profileId:string
-  
-) {
-
-  function dateDiffInDays(dateOne:any, dateTwo:any) {
-    const _MS_PER_DAY = 1000 * 60 * 60 * 24
-    const utc1 = Date.UTC(dateOne.getFullYear(), dateOne.getMonth(), dateOne.getDate())
-    const utc2 = Date.UTC(dateTwo.getFullYear(), dateTwo.getMonth(), dateTwo.getDate())
-
-    return Math.floor((utc2 - utc1) / _MS_PER_DAY)
-  }
-
-  let result 
-  const today = new Date()
+export async function getProjectMembership(profileId: string) {
+  let specificDays = 1; 
 
   if (profileId) {
-    let queryMembership = await db.$queryRaw<
-      membershipOutput[]
-    >`SELECT "ProjectMembers"."updatedAt", "Projects"."name", "ProjectMembers"."hoursPerWeek", "Disciplines"."name", "Skills"."name", "ProjectMembers"."active"
+    let queryMembership = await db.$queryRaw<membershipOutput[]>
+     `SELECT "ProjectMembers"."updatedAt", "Projects"."name", "ProjectMembers"."hoursPerWeek", "Disciplines"."name", "Skills"."name", "ProjectMembers"."active"
       FROM "ProjectMembers"
       INNER JOIN "Projects" ON "Projects"."id" = "ProjectMembers"."projectId"
       INNER JOIN "Disciplines" ON "Disciplines"."id" = "ProjectMembers"."profileId"
       INNER JOIN "Skills" ON "Skills"."id" = "ProjectMembers"."profileId"
-      WHERE "profileId" = ${profileId}`;
-    let updatedAt = new Date(queryMembership[0]?.updatedAt);
+      WHERE "profileId" = ${profileId}
+      AND EXISTS (
+        SELECT 1
+        FROM "ProjectMembers" AS "SubqueryMembers"
+        WHERE "SubqueryMembers"."profileId" = ${profileId}
+        AND ${specificDays} = (
+          SELECT FLOOR(EXTRACT(EPOCH FROM (CURRENT_DATE - "SubqueryMembers"."updatedAt")) / 86400)
+        )
+      )`;
+
     // eslint-disable-next-line no-console
     console.log(queryMembership);
-    
-    result = dateDiffInDays(updatedAt, today)
+
+    return queryMembership;
   } else {
-    return null
+    return null;
   }
-  return result
 }
 
 export async function searchProjects({
