@@ -116,8 +116,7 @@ export default function Projects() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const page = Number(searchParams.get("page") || 0);
-
+  
   let {
     data: {
       projects,
