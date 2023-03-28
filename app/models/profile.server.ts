@@ -33,6 +33,35 @@ export async function updateProfile(
   data: Prisma.ProfilesUpdateInput,
   id: string
 ) {
+
+  data = {
+    id: data.id,
+    email: data.email,
+    firstName: data.firstName,
+    preferredName: data.preferredName,
+    lastName: data.lastName,
+    avatarUrl: data.avatarUrl,
+    jobLevelTier: data.jobLevelTier,
+    jobLevelTitle: data.jobLevelTitle,
+    department: data.department,
+    businessUnit: data.businessUnit,
+    location: data.location,
+    country: data.country,
+    employeeStatus: data.employeeStatus,
+    benchStatus: data.benchStatus,
+    createdAt: data.createdAt,
+    updatedAt: data.updatedAt,
+    jobTitles: data.jobTitles,
+    locations: data.locations,
+    comments: data.comments,
+    projectMembers: data.projectMembers,
+    projectMembersVersions: data.projectMembersVersions,
+    projects: data.projects,
+    projectsVersions: data.projectsVersions,
+    votes: data.votes,
+    githubUser: data.githubUser
+  }
+  
   return prisma.profiles.update({ where: { id }, data: data });
 }
 
