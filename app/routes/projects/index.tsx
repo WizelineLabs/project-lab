@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { useState } from "react";
 import type { LoaderFunction } from "@remix-run/node";
 import { useLoaderData, useSearchParams } from "@remix-run/react";
@@ -18,7 +19,8 @@ import {
   useTheme,
   AppBar,
   Toolbar,
-  styled
+  styled,
+  Pagination
 } from "@mui/material";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import ExpandMore from "@mui/icons-material/ExpandMore";
@@ -171,6 +173,14 @@ export default function Projects() {
 
   const goToNextPage = () => {
     searchParams.set("page", String(page + 1));
+    setSearchParams(searchParams);
+  };
+
+  const [page2, setPage2] = React.useState(1);
+
+  const handlePaginationChange = (event: React.ChangeEvent<unknown>, value: number) => {
+    searchParams.set("page", String(value-1));
+    setPage2(value);
     setSearchParams(searchParams);
   };
 
@@ -627,23 +637,7 @@ export default function Projects() {
                   );
                 })}
               </Grid>
-              <div>
-                <Button
-                  variant="contained"
-                  disabled={page === 0}
-                  onClick={goToPreviousPage}
-                >
-                  Previous
-                </Button>
-                &nbsp;
-                <Button
-                  variant="contained"
-                  disabled={!hasMore}
-                  onClick={goToNextPage}
-                >
-                  Next
-                </Button>
-              </div>
+              <Pagination count={count % ITEMS_PER_PAGE === 0 ? count / ITEMS_PER_PAGE : Math.trunc(count/ITEMS_PER_PAGE) + 1} shape="rounded" sx={{pt: "15px"}} page={page2} onChange={handlePaginationChange}/>
             </Paper>
           </Grid>
         </Grid>
