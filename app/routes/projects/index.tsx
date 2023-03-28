@@ -121,7 +121,6 @@ export default function Projects() {
   let {
     data: {
       projects,
-      hasMore,
       statusFacets,
       skillFacets,
       disciplineFacets,
@@ -165,17 +164,7 @@ export default function Projects() {
     activeProjects: activeProjectsTab,
     ideas: ideasTab,
   };
-
-  const goToPreviousPage = () => {
-    searchParams.set("page", String(page - 1));
-    setSearchParams(searchParams);
-  };
-
-  const goToNextPage = () => {
-    searchParams.set("page", String(page + 1));
-    setSearchParams(searchParams);
-  };
-
+  
   const [page2, setPage2] = React.useState(1);
 
   const handlePaginationChange = (event: React.ChangeEvent<unknown>, value: number) => {
