@@ -164,12 +164,9 @@ export default function Projects() {
     activeProjects: activeProjectsTab,
     ideas: ideasTab,
   };
-  
-  const [page2, setPage2] = React.useState(1);
 
   const handlePaginationChange = (event: React.ChangeEvent<unknown>, value: number) => {
     searchParams.set("page", String(value-1));
-    setPage2(value);
     setSearchParams(searchParams);
   };
 
@@ -626,7 +623,7 @@ export default function Projects() {
                   );
                 })}
               </Grid>
-              <Pagination count={count % ITEMS_PER_PAGE === 0 ? count / ITEMS_PER_PAGE : Math.trunc(count/ITEMS_PER_PAGE) + 1} shape="rounded" sx={{pt: "15px"}} page={page2} onChange={handlePaginationChange}/>
+              <Pagination count={count % ITEMS_PER_PAGE === 0 ? count / ITEMS_PER_PAGE : Math.trunc(count/ITEMS_PER_PAGE) + 1} shape="rounded" sx={{pt: "15px"}}  onChange={handlePaginationChange}/>
             </Paper>
           </Grid>
         </Grid>
