@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { useState } from "react";
 import type { LoaderFunction } from "@remix-run/node";
 import { useLoaderData, useSearchParams } from "@remix-run/react";
@@ -14,15 +15,17 @@ import {
   Grid,
   IconButton,
   Paper,
-  Stack,
   useMediaQuery,
   useTheme,
+  AppBar,
+  Toolbar,
+  styled,
+  Pagination
 } from "@mui/material";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import CloseIcon from "@mui/icons-material/Close";
-import { styled } from "@mui/material";
 import { SortInput } from "app/core/components/SortInput";
 import { searchProjects } from "~/models/project.server";
 import { requireProfile } from "~/session.server";
@@ -95,6 +98,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     skip: ITEMS_PER_PAGE * page,
     take: ITEMS_PER_PAGE,
   });
+  // return json<LoaderData>({ data, ongoingStatuses, ideaStatuses });
   return new Response(
     JSON.stringify(
       { data, ongoingStatuses, ideaStatuses },
@@ -109,13 +113,13 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export default function Projects() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const page = Number(searchParams.get("page") || 0);
+  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
 
+  const [searchParams, setSearchParams] = useSearchParams();
+  
   let {
     data: {
       projects,
-      hasMore,
       statusFacets,
       skillFacets,
       disciplineFacets,
@@ -160,13 +164,8 @@ export default function Projects() {
     ideas: ideasTab,
   };
 
-  const goToPreviousPage = () => {
-    searchParams.set("page", String(page - 1));
-    setSearchParams(searchParams);
-  };
-
-  const goToNextPage = () => {
-    searchParams.set("page", String(page + 1));
+  const handlePaginationChange = (event: React.ChangeEvent<unknown>, value: number) => {
+    searchParams.set("page", String(value-1));
     setSearchParams(searchParams);
   };
 
@@ -176,8 +175,8 @@ export default function Projects() {
     setSearchParams(searchParams);
   };
 
-  const initials = (firstName: string, lastName: string) => {
-    return firstName.substring(0, 1) + lastName.substring(0, 1);
+  const initials = (preferredName: string, lastName: string) => {
+    return preferredName.substring(0, 1) + lastName.substring(0, 1);
   };
 
   const deleteFilterUrl = (filter: string, value: string | null) => {
@@ -240,6 +239,24 @@ export default function Projects() {
   const theme = useTheme();
   const lessThanMd = useMediaQuery(theme.breakpoints.down("md"));
 
+  const StyledBox = styled(Box)(({ theme }) => ({
+    [theme.breakpoints.down('sm')]: {
+      padding: '0 16px',
+    },
+  }));
+  
+  const StyledAppBar = styled(AppBar)(({ theme }) => ({
+    fontWeight: "bold",
+    color: theme.palette.mode === "dark" ? "#AF2E33" : "#701D21",
+    background:
+      theme.palette.mode === "dark" ? "#121212" : theme.palette.common.white,
+  }));
+
+  const StyledToolbar = styled(Toolbar)(({ theme }) => ({
+    padding: '0 !important',
+    minHeight: '30.75px !important',
+  }));
+
   const StyledTabButton = styled(Button)(({ theme }) => ({
     fontWeight: "bold",
     color: theme.palette.mode === "dark" ? "#AF2E33" : "#701D21",
@@ -249,7 +266,7 @@ export default function Projects() {
       background: theme.palette.mode === "dark" ? "#202020" : "#F5F5F5",
     },
   }));
-
+   
   return (
     <>
       <Header title="Projects" />
@@ -257,25 +274,26 @@ export default function Projects() {
         Disable Gutters based on:
         https://stackoverflow.com/questions/70038913/materialui-show-and-hide-the-containers-gutters-based-on-breakpoints
       */}
-      <Container sx={{ marginBottom: 2 }}>
-        <Paper elevation={0} sx={{ padding: 2 }}>
-          <Stack direction="row">
-            {Object.values(tabs).map((tab) => (
-              <StyledTabButton
-                color="primary"
-                size="small"
-                disableElevation
-                variant={isTabActive(tab.name) ? "contained" : "text"}
-                onClick={() => handleTabChange(tab.name)}
-                key={tab.name}
-                sx={{ color: isTabActive(tab.name) ? "#fff" : null }}
-              >
-                {tab.title}
-              </StyledTabButton>
-            ))}
-          </Stack>
-        </Paper>
-      </Container>
+      <StyledBox sx={{maxWidth: '1200px', height:'62.75px', margin: '0 auto', mb:2, px:3}}>
+        <StyledAppBar position="static" sx={{ p:2, display:'block', borderRadius: '4px', boxShadow: 'none'}}>
+          <StyledToolbar sx={{position:'static', pl:0, height:'30.75px!important'}}>
+          {Object.values(tabs).map((tab) => (
+                <StyledTabButton
+                  size="small"
+                  disableElevation
+                  variant={isTabActive(tab.name) ? "contained" : "text"}
+                  onClick={() => handleTabChange(tab.name)}
+                  key={tab.name}
+                  sx={{
+                    color: isTabActive(tab.name) ? prefersDarkMode ? "#fff" : "#000000": null, 
+                  }}
+                >
+                  {tab.title}
+                </StyledTabButton>
+              ))}
+          </StyledToolbar>
+        </StyledAppBar>
+      </StyledBox>
       <Container>
         <Grid container spacing={2} alignItems="flex-start">
           <Grid
@@ -583,7 +601,7 @@ export default function Projects() {
                         id={item.id}
                         title={item.name}
                         picture={item.avatarUrl}
-                        initials={initials(item.firstName, item.lastName)}
+                        initials={initials(item.preferredName, item.lastName)}
                         date={new Intl.DateTimeFormat([], {
                           year: "numeric",
                           month: "long",
@@ -604,23 +622,7 @@ export default function Projects() {
                   );
                 })}
               </Grid>
-              <div>
-                <Button
-                  variant="contained"
-                  disabled={page === 0}
-                  onClick={goToPreviousPage}
-                >
-                  Previous
-                </Button>
-                &nbsp;
-                <Button
-                  variant="contained"
-                  disabled={!hasMore}
-                  onClick={goToNextPage}
-                >
-                  Next
-                </Button>
-              </div>
+              <Pagination count={count % ITEMS_PER_PAGE === 0 ? count / ITEMS_PER_PAGE : Math.trunc(count/ITEMS_PER_PAGE) + 1} shape="rounded" sx={{pt: "15px"}}  onChange={handlePaginationChange}/>
             </Paper>
           </Grid>
         </Grid>

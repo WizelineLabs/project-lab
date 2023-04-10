@@ -33,6 +33,35 @@ export async function updateProfile(
   data: Prisma.ProfilesUpdateInput,
   id: string
 ) {
+
+  data = {
+    id: data.id,
+    email: data.email,
+    firstName: data.firstName,
+    preferredName: data.preferredName,
+    lastName: data.lastName,
+    avatarUrl: data.avatarUrl,
+    jobLevelTier: data.jobLevelTier,
+    jobLevelTitle: data.jobLevelTitle,
+    department: data.department,
+    businessUnit: data.businessUnit,
+    location: data.location,
+    country: data.country,
+    employeeStatus: data.employeeStatus,
+    benchStatus: data.benchStatus,
+    createdAt: data.createdAt,
+    updatedAt: data.updatedAt,
+    jobTitles: data.jobTitles,
+    locations: data.locations,
+    comments: data.comments,
+    projectMembers: data.projectMembers,
+    projectMembersVersions: data.projectMembersVersions,
+    projects: data.projects,
+    projectsVersions: data.projectsVersions,
+    votes: data.votes,
+    githubUser: data.githubUser
+  }
+  
   return prisma.profiles.update({ where: { id }, data: data });
 }
 
@@ -73,11 +102,11 @@ export async function consolidateProfilesByEmail(
 
 export async function searchProfiles(searchTerm: string) {
   const select = Prisma.sql`
-    SELECT id, "firstName" || ' ' || "lastName" || ' <' || "email" || '>' as name
+    SELECT id, "preferredName" || ' ' || "lastName" || ' <' || "email" || '>' as name
     FROM "Profiles"
   `;
   const orderBy = Prisma.sql`
-    ORDER BY "firstName", "lastName"
+    ORDER BY "preferredName", "lastName"
     LIMIT 50;
   `;
   let result;

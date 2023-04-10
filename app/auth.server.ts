@@ -40,7 +40,11 @@ let auth0Strategy = new Auth0Strategy(
         if (data.total_count > 0) {
           const gitHubUser = data.items[0].login;
           userProfile.githubUser = gitHubUser;
-          updateProfile(userProfile, userProfile.id);
+          try{
+            updateProfile(userProfile, userProfile.id);
+          }catch{
+            throw('error');
+          }
         }
       }
       if (!userProfile) {
@@ -49,7 +53,9 @@ let auth0Strategy = new Auth0Strategy(
           id: String(lakeProfile.contact__employee_number),
           email: lakeProfile.contact__email,
           firstName: lakeProfile.contact__first_name,
-          preferredName: lakeProfile.contact__preferred_name,
+          preferredName:
+            lakeProfile.contact__preferred_name ||
+            lakeProfile.contact__first_name,
           lastName: lakeProfile.contact__last_name,
           department: lakeProfile.contact__department,
           jobLevelTier: lakeProfile.contact__wizeos__level,
