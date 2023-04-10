@@ -26,6 +26,7 @@ import GoBack from "~/core/components/GoBack";
 import type { SyntheticEvent } from "react";
 import { useState } from "react";
 import { ProjectForm } from "../components/ProjectForm";
+import ProjectContributorsPathForm from "../components/ProjectContributorsPathForm";
 import { ValidatedForm, validationError } from "remix-validated-form";
 import { validator } from "../create";
 import Header from "~/core/layouts/Header";
@@ -185,16 +186,37 @@ export default function EditProjectPage() {
                 <ProjectForm statuses={statuses} tiers={tiers} />
               </ValidatedForm>
             </TabPanel>
-            {/*<TabPanel value={tabIndex} index={1}>
+            <TabPanel value={tabIndex} index={1}>
+            <ValidatedForm
+                validator={validator} // Validateor for paths
+                defaultValues={{
+                  // stageName: "Some name"|| "",
+                  // projectStatus: project.projectStatus || undefined,
+                  // innovationTiers: project.innovationTiers || undefined,
+                  // description: project.description || "",
+                  // valueStatement: project.valueStatement || "",
+                  // helpWanted: project.helpWanted,
+                  // disciplines: project.disciplines,
+                  // owner: project.owner || undefined,
+                  // target: project.target || "",
+                  // repoUrls: project.repoUrls || [],
+                  // slackChannel: project.slackChannel || "",
+                  // skills: project.skills,
+                  // labels: project.labels,
+                  // projectBoard: project.projectBoard || "",
+                }}
+                method="post"
+              >
              <ProjectContributorsPathForm
-              submitText="Update Stages "
-              schema={ContributorPath}
-              initialValues={project.stages}
-              onSubmit={handleSubmitContributorPath}
-              projectId={project.id}
-              retrieveProjectInfo={retrieveProjectInfo}
+              // submitText="Update Stages "
+              // schema={ContributorPath}
+              // initialValues={project.stages}
+              // onSubmit={handleSubmitContributorPath}
+              // projectId={project.id}
+              // retrieveProjectInfo={retrieveProjectInfo}
             />
-          </TabPanel> */}
+            </ValidatedForm>
+          </TabPanel> 
           </EditPanelsStyles>
           {isAdmin && (
             <Button
