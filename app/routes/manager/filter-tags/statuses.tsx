@@ -286,7 +286,6 @@ export default function ProjectStatusDataGrid() {
 
   return (
     <>
-      <h2>Statuses</h2>
       <Container sx={{ marginBottom: 2 }}>
         <Card>
         <CardHeader
