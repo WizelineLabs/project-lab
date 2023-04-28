@@ -55,7 +55,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   });
 };
 
-export const action: ActionFunction = async ({ request, params }) => {
+export const action: ActionFunction = async ({ request }) => {
   
   const result = await validator.validate(await request.formData());
   const id = result.data?.id;
