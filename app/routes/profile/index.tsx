@@ -28,7 +28,6 @@ export const Loader: LoaderFunction = async ({ request }) => {
 
 export const ProfileInfo = () => {
   const currentUser = useUser();
-  const email = currentUser.email;
   const { data } = useLoaderData() as LoaderData;
   let username = data?.username;
 
