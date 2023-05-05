@@ -13,22 +13,23 @@ import CardContent from '@mui/material/CardContent';
 import { getGitHubProfileByEmail } from "../../models/profile.server";
 import { useUser } from "~/utils";
 import {  useLoaderData } from "@remix-run/react";
-import type { LoaderFunction } from "@remix-run/node";
+import { LoaderFunction } from "@remix-run/node";
+import { requireUser } from "~/session.server";
 
 type LoaderData = {
   data: Awaited<ReturnType<typeof getGitHubProfileByEmail>>;
 };
 
-export const Loader: LoaderFunction = async ({ request }) => {
-  const currentUser = useUser();
-  const email = currentUser.email;
-  const githubProfileData = await getGitHubProfileByEmail( email );
-  return { data: githubProfileData };
+export const loader: LoaderFunction = async ({ request }) => {
+  const user = await requireUser(request);
+  const userEmail = user.email;
+  const githubProfileData = await getGitHubProfileByEmail( userEmail );
+  return { data: {githubProfileData} };
 };
 
 export const ProfileInfo = () => {
   const currentUser = useUser();
-  const { data } = useLoaderData() as LoaderData;
+  const {data}  = useLoaderData() as LoaderData;
   let username = data?.username;
 
   const theme = useTheme();
