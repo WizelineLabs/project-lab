@@ -19,14 +19,14 @@ type LoaderData = {
   data: Awaited<ReturnType<typeof getGitHubProfileByEmail>>;
 };
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const Loader: LoaderFunction = async ({ request }) => {
   const currentUser = useUser();
   const email = currentUser.email;
   const githubProfileData = await getGitHubProfileByEmail( email );
   return { data: githubProfileData };
 };
 
-export const profileInfo = () => {
+export const ProfileInfo = () => {
   const currentUser = useUser();
   const email = currentUser.email;
   const { data } = useLoaderData() as LoaderData;
@@ -134,4 +134,4 @@ export const profileInfo = () => {
   );
 };
 
-export default profileInfo;
+export default ProfileInfo;
