@@ -1,4 +1,4 @@
-import type { User, Profiles, PrismaClient } from "@prisma/client";
+import type { User, Profiles, GitHubProfile, PrismaClient } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../db.server";
 
@@ -21,6 +21,12 @@ export async function getProfileByUserId(id: User["id"]) {
 
 export async function getProfileByEmail(email: Profiles["email"]) {
   return prisma.profiles.findUnique({
+    where: { email },
+  });
+}
+
+export async function getGitHubProfileByEmail(email: GitHubProfile["email"]) {
+  return prisma.gitHubProfile.findUnique({
     where: { email },
   });
 }
@@ -63,6 +69,22 @@ export async function updateProfile(
   }
   
   return prisma.profiles.update({ where: { id }, data: data });
+}
+
+export async function createGitHubProfile(
+  email: string,
+  username: string,
+  avatarUrl: string,
+  reposUrl: string
+) {
+  return prisma.gitHubProfile.create({  
+    data: {
+      email: email,
+      username: username, 
+      avatarUrl: avatarUrl,
+      reposUrl: reposUrl,
+    },
+  })
 }
 
 export async function consolidateProfilesByEmail(

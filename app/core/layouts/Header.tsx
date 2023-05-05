@@ -5,6 +5,7 @@ import Search from "../components/Search";
 import { Button, Container, Grid, Paper, styled } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import Link from "../components/Link";
+import { redirect } from "@remix-run/node";
 
 interface IProps {
   title: String;
@@ -30,6 +31,13 @@ const Header = ({ title }: IProps) => {
   const currentUser = useUser();
   const submit = useSubmit();
   const options: MenuItemArgs[] = [
+    {
+      onClick: async () => {
+        submit(null, { method: "get", action: "/profile" });
+      },
+      to: "/",
+      text: "Profile",
+    },
     {
       onClick: async () => {
         submit(null, { method: "post", action: "/logout" });

@@ -7,7 +7,9 @@ import { findOrCreate } from "~/models/user.server";
 import {
   createProfile,
   getProfileByEmail,
+  getGitHubProfileByEmail,
   updateProfile,
+  createGitHubProfile,
 } from "./models/profile.server";
 import { findProfileData } from "./lake.server";
 import { getUserInfo } from "./routes/api/github/get-getUserInfo";
@@ -68,7 +70,12 @@ let auth0Strategy = new Auth0Strategy(
           benchStatus: lakeProfile.contact__status,
         });
       }
-      // Get the user data from your DB or API using the tokens and profile
+      const userGitHubProfile = await getGitHubProfileByEmail(email);
+      if (userGitHubProfile?.email === '' || userGitHubProfile?.email === null || userGitHubProfile?.email === undefined)  {
+        const { data } = await getUserInfo(email);
+       createGitHubProfile(email, data.items[0].login, data.items[0].avatar_url, data.items[0].repos_url);
+     }
+      // Get the user data from your DB or API using the tokens and profile     
       return findOrCreate({
         email: profile.emails[0].value,
         name: profile.displayName || "Unnamed",
