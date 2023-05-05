@@ -180,13 +180,10 @@ export default function ProjectStatusDataGrid() {
     }
   }, [transition]);
 
-  
-
   const handleAddClick = () => {
     setOpenCreateModal(true)
   };
   
-
   useEffect(() => {
     //It handles the fetcher error from the response
     if (fetcher.state === "idle" && fetcher.data) {
