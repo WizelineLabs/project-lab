@@ -13,7 +13,7 @@ import CardContent from '@mui/material/CardContent';
 import { getGitHubProfileByEmail } from "../../models/profile.server";
 import { useUser } from "~/utils";
 import {  useLoaderData } from "@remix-run/react";
-import { LoaderFunction } from "@remix-run/node";
+import type { LoaderFunction } from "@remix-run/node";
 import { requireUser } from "~/session.server";
 
 type LoaderData = {
