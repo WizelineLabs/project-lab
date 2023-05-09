@@ -222,11 +222,15 @@ export default function ProjectStatusDataGrid() {
   // Delete project status
   const deleteConfirmationHandler = async () => {
     setOpenDeleteModal(false);
+    // eslint-disable-next-line no-console
+    console.log('delete');
     try {
       const body = {
         name: selectedRowID,
         action: "DELETE",
       };
+      // eslint-disable-next-line no-console
+      console.log(body);
       await fetcher.submit(body, { method: "delete" });
     } catch (error: any) {
       console.error(error);
@@ -239,7 +243,7 @@ export default function ProjectStatusDataGrid() {
       projectStatus: id,
     };
     await fetcher.submit(body, { method: "get" });
-    setSelectedRowID(() => id);
+    setSelectedRowID(id);
     setOpenDeleteModal(() => true);
   };
 

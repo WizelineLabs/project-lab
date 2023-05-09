@@ -11,13 +11,9 @@ import { zfd } from "zod-form-data";
 import { z } from "zod";
 import { json } from "@remix-run/node";
 import styled from "@emotion/styled";
-import { DataGrid, GridToolbarContainer } from "@mui/x-data-grid";
-import type { GridRenderCellParams } from "@mui/x-data-grid";
 import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
-import SaveIcon from "@mui/icons-material/Save";
-import CancelIcon from "@mui/icons-material/Close";
 import EastIcon from "@mui/icons-material/East";
 import invariant from "tiny-invariant";
 import { InputSelect } from "app/core/components/InputSelect";
@@ -31,7 +27,6 @@ import {
 import { getProjects, updateManyProjects } from "~/models/project.server";
 import { Card, CardContent, CardHeader, Container, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel } from "@mui/material";
 import LabeledTextField from "~/core/components/LabeledTextField";
-import { log } from "console";
 
 declare module "@mui/material/Button" {
   interface ButtonPropsColorOverrides {
@@ -47,11 +42,6 @@ type InnovationTierRecord = {
   goals?: string;
 };
 
-type gridEditToolbarProps = {
-  setRows: React.Dispatch<React.SetStateAction<InnovationTierRecord[]>>;
-  createButtonText: string;
-};
-
 type LoaderData = {
   innovationTiers: Awaited<ReturnType<typeof getInnovationTiers>>;
   projects: Awaited<ReturnType<typeof getProjects>>;
@@ -60,13 +50,6 @@ type LoaderData = {
 type InnovationTierItem = Awaited<
   ReturnType<typeof getInnovationTiers>
 >[number];
-
-type newInnovationTier = {
-  name: string;
-  benefits: string;
-  requisites: string;
-  goals: string;
-};
 
 type ProjectRecord = {
   id: number | string;
@@ -82,6 +65,7 @@ const validatorFront = withZod(
     requisites: z.string(),
   })
 );
+
 
 const validatorBack = withZod(
   zfd.formData({
@@ -108,8 +92,6 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export const action: ActionFunction = async ({ request }) => {
   let result = await validatorFront.validate(await request.formData());
-  // eslint-disable-next-line no-console
-  console.log(result)
   let action = result.submittedData.action;
   let response;
   let name, benefits, requisites, goals, id;
@@ -123,8 +105,6 @@ export const action: ActionFunction = async ({ request }) => {
         benefits = data?.benefits;
         requisites = data?.requisites;
         goals = data?.goals;
-        // eslint-disable-next-line no-console
-        console.log(name, benefits, requisites, goals);
         invariant(name, "Invalid innovation tier name");
         invariant(benefits, "Invalid innovation tier benefits");
         invariant(requisites, "Invalid innovation tier requisites");
@@ -138,9 +118,8 @@ export const action: ActionFunction = async ({ request }) => {
         return json(response, { status: 201 });
 
       case "DELETE":
-        name = data?.name;
-        invariant(name, "Innovation Tier name is required");
-        await removeInnovationTier({ name });
+        id = data?.id as string;
+        await removeInnovationTier({ name: id });
         return json({ error: "" }, { status: 200 });
 
       case "UPDATE":
@@ -247,7 +226,11 @@ const InnovationTiersGrid = () => {
     try {
       const body = {
         name: selectedRowID,
+        id: selectedRowID,
         action: "DELETE",
+        benefits: '',
+        goals: '',
+        requisites: '',
       };
       await fetcher.submit(body, { method: "delete" });
     } catch (error: any) {
@@ -265,11 +248,7 @@ const InnovationTiersGrid = () => {
   };
 
   const handleEditClick = (id: string) => {
-    setSelectedRowID(() => id);
-    // eslint-disable-next-line no-console
-    console.log(id)
-    // eslint-disable-next-line no-console
-    console.log(rows.filter( row => row.name = selectedRowID))
+    setSelectedRowID(id);
     setEditMode(true);
     setOpenCreateModal(true)
   }
@@ -288,23 +267,6 @@ const InnovationTiersGrid = () => {
 
     await deleteConfirmationHandler();
   };
-
-  // Edit Innovation Tier
-  const editTierInfo = async (id: string, values: newInnovationTier) => {
-    try {
-      const body = {
-        id,
-        data: JSON.stringify({
-          ...values,
-        }),
-        action: "UPDATE",
-      };
-      await fetcher.submit(body, { method: "put" });
-    } catch (error: any) {
-      console.error(error);
-    }
-  };
-
   interface HeadTiersData {
     id: keyof InnovationTierRecord;
     label: string;
@@ -475,7 +437,7 @@ const InnovationTiersGrid = () => {
         <br />
         <div>
           <ValidatedForm
-            validator={validatorFront}
+            validator={validatorBack}
             onSubmit={async () => {
               await handleSubmit({
                 projectsIds: projects.map((project) => project.id),
@@ -538,12 +500,14 @@ const InnovationTiersGrid = () => {
       <ModalBox open={openCreateModal} close={() => setOpenCreateModal(false)}>
         <h2 data-testid="editStatusLabel">
           {
-            editMode ? "Edit Innovation Tier" : "Add a new innovation tier"
+            editMode ? "Edit Innovation Tier" + selectedRowID : "Add a new innovation tier"
           }
         </h2>
-        <ValidatedForm action='./' method="post" subaction="ADD" validator={validatorFront}
-           defaultValues={ rows.find( row => row.name = selectedRowID)}
+        <ValidatedForm action='./' method="post" subaction={ editMode ? "UPDATE" : "ADD" } validator={validatorFront}
+           defaultValues={  editMode ?  rows.find( row => row.name == selectedRowID) : undefined}
         >
+          <input type="hidden" name="id" value={selectedRowID} />
+
           <Stack spacing={2}>
           <LabeledTextField fullWidth name="name" label="Name" placeholder="Name" />
 
@@ -560,7 +524,7 @@ const InnovationTiersGrid = () => {
             </Button>
               &nbsp;
             <Button type="submit" variant="contained" color="warning">
-              Create
+              { editMode ? "Update" : "Create"}
             </Button>
           </div>
           </Stack>
