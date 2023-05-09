@@ -14,3 +14,14 @@ export const getUserInfo = async (email: string) => {
     };
   }
 };
+
+export const getUserRepos = async (username: string) => {
+  try {
+    return await octokit.request(`GET /users/${username}/repos`);
+  } catch (e) {
+    console.log(`Unable to get user repos`);
+    return {
+      data: null
+    };
+  }
+};

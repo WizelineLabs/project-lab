@@ -10,9 +10,10 @@ import {
   getGitHubProfileByEmail,
   updateProfile,
   createGitHubProfile,
+  createGitHubProject,
 } from "./models/profile.server";
 import { findProfileData } from "./lake.server";
-import { getUserInfo } from "./routes/api/github/get-getUserInfo";
+import { getUserInfo, getUserRepos } from "./routes/api/github/get-getUserInfo";
 
 invariant(process.env.AUTH0_CLIENT_ID, "AUTH0_CLIENT_ID must be set");
 invariant(process.env.AUTH0_CLIENT_SECRET, "AUTH0_CLIENT_SECRET must be set");
@@ -72,8 +73,19 @@ let auth0Strategy = new Auth0Strategy(
       }
       const userGitHubProfile = await getGitHubProfileByEmail(email);
       if (userGitHubProfile?.email === '' || userGitHubProfile?.email === null || userGitHubProfile?.email === undefined)  {
-        const { data } = await getUserInfo(email);
-       createGitHubProfile(email, data.items[0].login, data.items[0].avatar_url, data.items[0].repos_url);
+        const { data: userInfo } = await getUserInfo(email);
+        const { data: repos } = await getUserRepos(userInfo.items[0].login)
+        createGitHubProfile(email, userInfo.items[0].login, userInfo.items[0].avatar_url, userInfo.items[0].repos_url);
+        
+
+        for (const repo of repos) {
+          const date = new Date(repo.updated_at);
+          const formattedDate = date.toLocaleString();
+          const name = repo.name ? repo.name : "No name available";
+          const description = repo.description ? repo.description : "No description available";
+  
+          await createGitHubProject(email, name, description, formattedDate);
+        }
      }
       // Get the user data from your DB or API using the tokens and profile     
       return findOrCreate({
