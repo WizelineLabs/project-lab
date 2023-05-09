@@ -116,7 +116,9 @@ export async function getProject({ id }: Pick<Projects, "id">) {
       },
       stages: {
         include: {
-          projectTasks: true,
+          projectTasks: {
+            orderBy: [{ position: "asc" }],
+          },
         },
         orderBy: [{ position: "asc" }],
       },

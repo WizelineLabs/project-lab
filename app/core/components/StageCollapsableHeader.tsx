@@ -15,7 +15,7 @@ function StageCollapsableHeader({ name, openedStage, position, setOpenedStage }:
   return (
     <CollapsableHeader onClick={() => setOpenedStage(position === openedStage ? 0 : position)}>
       <h2>
-        Stage {position} - {name}
+        Stage {position+1} - {name}
       </h2>
       <IconButton
         aria-label="expand row"
@@ -36,10 +36,13 @@ export const CollapsableHeader = styled.div`
   align-items: center;
   background-color: #347ab7;
   border-radius: 4px;
-  color: red;
-  cursor: grab;
-  padding: 10px 16px;
+  color: white;
+  cursor: pointer;
+  padding: .4em .8em;
   & > h2,
+  h2 {
+    margin: .5em 0;
+  },
   button {
     color: white;
   }

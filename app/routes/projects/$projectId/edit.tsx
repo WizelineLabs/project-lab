@@ -21,12 +21,13 @@ import {
   DialogTitle,
   Paper,
   Tabs,
+  Tab,
 } from "@mui/material";
 import GoBack from "~/core/components/GoBack";
 import type { SyntheticEvent } from "react";
 import { useState } from "react";
 import { ProjectForm } from "../components/ProjectForm";
-import ProjectContributorsPathForm from "../components/ProjectContributorsPathForm";
+// import ProjectContributorsPathForm from "../components/ProjectContributorsPathForm";
 import { ValidatedForm, validationError } from "remix-validated-form";
 import { validator } from "../create";
 import Header from "~/core/layouts/Header";
@@ -38,6 +39,7 @@ import { getInnovationTiers } from "~/models/innovationTier.server";
 import MDEditorStyles from "@uiw/react-md-editor/markdown-editor.css";
 import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
 import { isProjectMemberOrOwner } from "~/utils";
+import { Link } from "@remix-run/react";
 
 export function links() {
   return [
@@ -89,7 +91,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     } = currentProject;
     isProjectMemberOrOwner(profile.id, currentMembers, currentOwnerId);
   }
-  
+
   const result = await validator.validate(await request.formData());
   if (result.error) return validationError(result.error);
   const project = await updateProjects(projectId, result.data);
@@ -157,8 +159,18 @@ export default function EditProjectPage() {
                 onChange={handleTabChange}
                 aria-label="Edit project"
               >
-                <TabStyles label="Project Details" />
-                <TabStyles label="Contributor's Path" />
+                {/* <TabStyles label="Project Details" />
+                <TabStyles label="Contributor's Path" /> */}
+                <Tab
+                  component={Link}
+                  label="Project Details"
+                  to={`/projects/${projectId}/edit`}
+                />
+                <Tab
+                  component={Link}
+                  label="Contributor's Path"
+                  to={`/projects/${projectId}/editContributorsPath`}
+                />
               </Tabs>
             </Box>
 
@@ -186,37 +198,7 @@ export default function EditProjectPage() {
                 <ProjectForm statuses={statuses} tiers={tiers} />
               </ValidatedForm>
             </TabPanel>
-            <TabPanel value={tabIndex} index={1}>
-            <ValidatedForm
-                validator={validator} // Validateor for paths
-                defaultValues={{
-                  // stageName: "Some name"|| "",
-                  // projectStatus: project.projectStatus || undefined,
-                  // innovationTiers: project.innovationTiers || undefined,
-                  // description: project.description || "",
-                  // valueStatement: project.valueStatement || "",
-                  // helpWanted: project.helpWanted,
-                  // disciplines: project.disciplines,
-                  // owner: project.owner || undefined,
-                  // target: project.target || "",
-                  // repoUrls: project.repoUrls || [],
-                  // slackChannel: project.slackChannel || "",
-                  // skills: project.skills,
-                  // labels: project.labels,
-                  // projectBoard: project.projectBoard || "",
-                }}
-                method="post"
-              >
-             <ProjectContributorsPathForm
-              // submitText="Update Stages "
-              // schema={ContributorPath}
-              // initialValues={project.stages}
-              // onSubmit={handleSubmitContributorPath}
-              // projectId={project.id}
-              // retrieveProjectInfo={retrieveProjectInfo}
-            />
-            </ValidatedForm>
-          </TabPanel> 
+            <TabPanel value={tabIndex} index={1}></TabPanel>
           </EditPanelsStyles>
           {isAdmin && (
             <Button
