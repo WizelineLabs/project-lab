@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { useState } from "react";
 import type { LoaderFunction } from "@remix-run/node";
 import { useLoaderData, useSearchParams } from "@remix-run/react";
@@ -18,7 +19,8 @@ import {
   useTheme,
   AppBar,
   Toolbar,
-  styled
+  styled,
+  Pagination
 } from "@mui/material";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import ExpandMore from "@mui/icons-material/ExpandMore";
@@ -114,12 +116,10 @@ export default function Projects() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const page = Number(searchParams.get("page") || 0);
-
+  
   let {
     data: {
       projects,
-      hasMore,
       statusFacets,
       skillFacets,
       disciplineFacets,
@@ -164,13 +164,8 @@ export default function Projects() {
     ideas: ideasTab,
   };
 
-  const goToPreviousPage = () => {
-    searchParams.set("page", String(page - 1));
-    setSearchParams(searchParams);
-  };
-
-  const goToNextPage = () => {
-    searchParams.set("page", String(page + 1));
+  const handlePaginationChange = (event: React.ChangeEvent<unknown>, value: number) => {
+    searchParams.set("page", String(value-1));
     setSearchParams(searchParams);
   };
 
@@ -627,23 +622,7 @@ export default function Projects() {
                   );
                 })}
               </Grid>
-              <div>
-                <Button
-                  variant="contained"
-                  disabled={page === 0}
-                  onClick={goToPreviousPage}
-                >
-                  Previous
-                </Button>
-                &nbsp;
-                <Button
-                  variant="contained"
-                  disabled={!hasMore}
-                  onClick={goToNextPage}
-                >
-                  Next
-                </Button>
-              </div>
+              <Pagination count={count % ITEMS_PER_PAGE === 0 ? count / ITEMS_PER_PAGE : Math.trunc(count/ITEMS_PER_PAGE) + 1} shape="rounded" sx={{pt: "15px"}}  onChange={handlePaginationChange}/>
             </Paper>
           </Grid>
         </Grid>
