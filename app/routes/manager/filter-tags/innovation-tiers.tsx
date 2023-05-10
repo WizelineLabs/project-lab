@@ -66,11 +66,10 @@ const validatorFront = withZod(
   })
 );
 
-
-const validatorBack = withZod(
+const validatorForm = withZod(
   zfd.formData({
     name: z.object({ name: z.string() }).optional(),
-    ids: z.array(z.union([z.string(), z.number()])),
+    
   })
 );
 
@@ -133,16 +132,6 @@ export const action: ActionFunction = async ({ request }) => {
         invariant(requisites, "Invalid innovation tier requisites");
         invariant(goals, "Invalid innovation tier goals");
         await updateInnovationTier({ id, name, benefits, requisites, goals });
-        return json({ error: "" }, { status: 200 });
-
-      case "UPDATE-PROJECTS":
-        const result = await validatorBack.validate(await request.formData());
-        if (result.error) return validationError(result.error);
-
-        const ids = result.data.ids as string[];
-        const tierName = result.data.name?.name;
-        invariant(tierName, "Innovation tier name is required");
-        await updateManyProjects({ ids, data: { tierName } });
         return json({ error: "" }, { status: 200 });
 
       default: {
@@ -228,9 +217,9 @@ const InnovationTiersGrid = () => {
         name: selectedRowID,
         id: selectedRowID,
         action: "DELETE",
-        benefits: '',
-        goals: '',
-        requisites: '',
+        benefits: "",
+        requisites: "",
+        goals: "",
       };
       await fetcher.submit(body, { method: "delete" });
     } catch (error: any) {
@@ -437,16 +426,18 @@ const InnovationTiersGrid = () => {
         <br />
         <div>
           <ValidatedForm
-            validator={validatorBack}
+            validator={validatorForm}
             onSubmit={async () => {
               await handleSubmit({
                 projectsIds: projects.map((project) => project.id),
               });
             }}
-            method="put"
-            subaction="UPDATE-PROJECTS"
+            method="post"
+            action="../merge/tiers"
             id="delete-tier-form"
           >
+          <input type="hidden" name="id" value={selectedRowID} />
+
             {isMergeAction && (
               <InputSelect
                 valuesList={innovationTiers.filter(
@@ -537,7 +528,6 @@ export default InnovationTiersGrid;
 
 export function ErrorBoundary({ error }: { error: Error }) {
   console.error(error);
-
   return <div>An unexpected error occurred: {error.message}</div>;
 }
 

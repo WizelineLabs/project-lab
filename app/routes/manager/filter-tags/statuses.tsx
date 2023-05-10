@@ -72,13 +72,6 @@ const validatorFront = withZod(
   })
 );
 
-const validatorBack = withZod(
-  zfd.formData({
-    status: z.object({ name: z.string() }).optional(),
-    ids: z.array(z.union([z.string(), z.number()])),
-  })
-);
-
 const ModalButtonsContainer = styled.div`
   display: flex;
   justify-content: flex-end;
@@ -125,15 +118,6 @@ export const action: ActionFunction = async ({ request }) => {
           | null;
         invariant(name, "Invalid project status name");
         await updateProjectStatus({id, name, stage});
-        return json({ error: "" }, { status: 200 });
-
-      case "UPDATE-PROJECTS":
-        let updateResult = await validatorBack.validate(await request.formData());
-        if (updateResult.error) return validationError(updateResult.error);
-        const ids = updateResult.data.ids as string[];
-        const projectStatus = updateResult.data.status?.name;
-        invariant(projectStatus, "Project status is required");
-        await updateManyProjects({ ids, data: { status: projectStatus } });
         return json({ error: "" }, { status: 200 });
 
       default: {
@@ -222,15 +206,11 @@ export default function ProjectStatusDataGrid() {
   // Delete project status
   const deleteConfirmationHandler = async () => {
     setOpenDeleteModal(false);
-    // eslint-disable-next-line no-console
-    console.log('delete');
     try {
       const body = {
         name: selectedRowID,
         action: "DELETE",
       };
-      // eslint-disable-next-line no-console
-      console.log(body);
       await fetcher.submit(body, { method: "delete" });
     } catch (error: any) {
       console.error(error);
