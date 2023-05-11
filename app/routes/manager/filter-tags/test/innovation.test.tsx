@@ -1,10 +1,11 @@
 /* eslint-disable jest-dom/prefer-in-document */
-import { describe, test, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import InnovationTiers from "../innovation-tiers";
-import { loader } from "../innovation-tiers";
-import type { DataGridProps } from "@mui/x-data-grid";
+import { describe } from "vitest";
+// import { describe, test, vi } from "vitest";
+// import { render, screen, waitFor } from "@testing-library/react";
+// import userEvent from "@testing-library/user-event";
+// import InnovationTiers from "../innovation-tiers";
+// import { loader } from "../innovation-tiers";
+// import type { DataGridProps } from "@mui/x-data-grid";
 import "@testing-library/jest-dom";
 
 describe("Innovation Tiers test", () => {

@@ -1,11 +1,12 @@
 /* eslint-disable jest-dom/prefer-in-document */
-import { describe, test, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import FilterTags from "../filter-tags";
-import { loader } from "../filter-tags";
+import { describe } from "vitest";
+// import { describe, test, vi } from "vitest";
+// import { render, screen } from "@testing-library/react";
+// import userEvent from "@testing-library/user-event";
+// import FilterTags from "../filter-tags";
+// import { loader } from "../filter-tags";
+// import { RemixStub } from "test/utils";
 import "@testing-library/jest-dom";
-import { RemixStub } from "test/utils";
 
 describe("Filter Tags test", () => {
   // // mocking remix module to handle Loaders
