@@ -3,7 +3,6 @@ import { useFetcher, useCatch, useLoaderData, useTransition } from "@remix-run/r
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import {
   ValidatedForm,
-  validationError,
   useFieldArray,
 } from "remix-validated-form";
 import { withZod } from "@remix-validated-form/with-zod";
@@ -24,7 +23,7 @@ import {
   removeInnovationTier,
   updateInnovationTier,
 } from "~/models/innovationTier.server";
-import { getProjects, updateManyProjects } from "~/models/project.server";
+import { getProjects } from "~/models/project.server";
 import { Card, CardContent, CardHeader, Container, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel } from "@mui/material";
 import LabeledTextField from "~/core/components/LabeledTextField";
 
