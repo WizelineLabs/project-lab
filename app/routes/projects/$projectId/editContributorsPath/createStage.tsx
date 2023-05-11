@@ -100,7 +100,7 @@ export default function EditStagePage() {
                 </Grid>
                 <Grid item>
                   <Button type="submit" variant="contained" disabled={disabled}>
-                    {isSubmitting ? "Submitting..." : "Submit"}
+                    {isSubmitting ? "Saving..." : "Save"}
                   </Button>
                 </Grid>
               </Grid>

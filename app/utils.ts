@@ -80,3 +80,11 @@ export const isProjectMemberOrOwner = (
     throw new Error("You don't have permission to perform this operation");
   }
 };
+
+export const generateRandomNumberString = () => {
+  let result = "";
+  for (let i = 0; i < 6; i++) {
+    result += Math.floor(Math.random() * 10);
+  }
+  return result;
+};

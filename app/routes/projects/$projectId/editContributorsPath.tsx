@@ -184,6 +184,7 @@ export default function EditContributorsPathPage() {
                 justifyContent="flex-end"
                 alignItems="center"
                 spacing={2}
+                mb={4}
               >
                 <Grid item>
                   <Link to={`createStage`}>
@@ -208,9 +209,7 @@ export default function EditContributorsPathPage() {
                     alignItems="center"
                   >
                     <Grid item>
-                      <h2>
-                        {stage.name}
-                      </h2>
+                      <h2>{stage.name}</h2>
                     </Grid>
                     <Grid item>
                       <Grid
@@ -312,7 +311,7 @@ export default function EditContributorsPathPage() {
                               </ValidatedForm>
                             </>
                           ) : (
-                              <Markdown>{task.description}</Markdown>
+                            <Markdown>{task.description}</Markdown>
                           )}
                         </Grid>
                         <Grid item>
@@ -341,8 +340,8 @@ export default function EditContributorsPathPage() {
                                     disabled={taskIsSubmitting}
                                   >
                                     {taskIsSubmitting
-                                      ? "Submitting..."
-                                      : "Submit"}
+                                      ? "Saving..."
+                                      : "Save"}
                                   </Button>
                                 </Grid>
                                 <Grid item>
@@ -370,55 +369,74 @@ export default function EditContributorsPathPage() {
                     </Stack>
                   ))}
                   <Stack>
-                    <Grid>
+                    <Grid
+                      container
+                      justifyContent="space-between"
+                      alignItems="flex-start"
+                    >
                       {createTask === stage.id ? (
                         <>
-                          <ValidatedForm
-                            id="taskForm"
-                            validator={taskValidator}
-                            defaultValues={{
-                              id: "",
-                              description: "",
-                              position: stage.projectTasks.length + 1,
-                              projectStageId: stage.id,
-                            }}
-                            method="post"
-                            action="./editTask"
-                          >
-                            <input type="hidden" name="id" value="" />
-                            <input
-                              type="hidden"
-                              name="position"
-                              value={stage.projectTasks.length + 1}
-                            />
-                            <input
-                              type="hidden"
-                              name="projectStageId"
-                              value={stage.id}
-                            />
-                            <TextEditor
-                              name={`description`}
-                              label="Description"
-                              placeholder={"Describe the task..."}
-                            />
-                          </ValidatedForm>
-                          <Grid item>
-                            <Button
-                              type="submit"
-                              form="taskForm"
-                              variant="contained"
-                              disabled={taskIsSubmitting}
+                          <Grid item style={{ minWidth: "70%" }}>
+                            <ValidatedForm
+                              id="taskForm"
+                              validator={taskValidator}
+                              defaultValues={{
+                                id: "",
+                                description: "",
+                                position: stage.projectTasks.length + 1,
+                                projectStageId: stage.id,
+                              }}
+                              method="post"
+                              action="./editTask"
                             >
-                              {taskIsSubmitting ? "Submitting..." : "Submit"}
-                            </Button>
+                              <input type="hidden" name="id" value="" />
+                              <input
+                                type="hidden"
+                                name="position"
+                                value={stage.projectTasks.length + 1}
+                              />
+                              <input
+                                type="hidden"
+                                name="projectStageId"
+                                value={stage.id}
+                              />
+                              <TextEditor
+                                name={`description`}
+                                label="Description"
+                                placeholder={"Describe the task..."}
+                              />
+                            </ValidatedForm>
                           </Grid>
                           <Grid item>
-                            <Button
-                              variant="contained"
-                              onClick={() => handleEditTask("")}
+                            <Grid
+                              container
+                              justifyContent="flex-end"
+                              alignItems="center"
+                              spacing={2}
+                              mt={1}
+                              mb={2}
                             >
-                              CANCEL
-                            </Button>
+                              <Grid item>
+                                <Button
+                                  type="submit"
+                                  form="taskForm"
+                                  variant="contained"
+                                  disabled={taskIsSubmitting}
+                                >
+                                  {taskIsSubmitting
+                                    ? "Saving..."
+                                    : "Save"}
+                                </Button>
+                              </Grid>
+                              <Grid item>
+                                <Button
+                                  variant="contained"
+                                  onClick={() => handleEditTask("")}
+                                >
+                                  CANCEL
+                                </Button>
+                              </Grid>
+                            </Grid>
                           </Grid>
                         </>
                       ) : (
@@ -426,6 +444,7 @@ export default function EditContributorsPathPage() {
                           container
                           justifyContent="center"
                           alignItems="cente"
+                          mt={4}
                         >
                           <Grid item>
                             <Button onClick={() => handleCreateTask(stage.id)}>

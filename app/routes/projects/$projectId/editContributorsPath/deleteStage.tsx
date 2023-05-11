@@ -22,14 +22,8 @@ import {
   deleteStage,
   updateStagePosition,
 } from "~/models/contributorsPath.server";
+import { generateRandomNumberString } from "~/utils";
 
-const generateRandomNumberString = () => {
-  let result = "";
-  for (let i = 0; i < 6; i++) {
-    result += Math.floor(Math.random() * 10);
-  }
-  return result;
-};
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   const confirmationString = generateRandomNumberString();
@@ -147,7 +141,7 @@ export default function DeleteTaskPage() {
                 </Grid>
                 <Grid item>
                   <Button type="submit" variant="contained" disabled={disabled}>
-                    {isSubmitting ? "Submitting..." : "Submit"}
+                    {isSubmitting ? "Deleting..." : "Delete"}
                   </Button>
                 </Grid>
               </Grid>
