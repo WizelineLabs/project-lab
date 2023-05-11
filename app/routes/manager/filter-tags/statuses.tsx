@@ -24,7 +24,7 @@ import {
   updateProjectStatus,
 } from "~/models/status.server";
 import type { ProjectStatus } from "~/models/status.server";
-import { getProjects, updateManyProjects } from "~/models/project.server";
+import { getProjects } from "~/models/project.server";
 import { stageOptions } from "~/constants";
 import { Container } from "@mui/system";
 import { Card, CardContent, CardHeader, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel } from "@mui/material";
