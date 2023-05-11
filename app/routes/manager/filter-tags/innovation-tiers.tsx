@@ -59,10 +59,10 @@ type ProjectRecord = {
 const validatorFront = withZod(
   zfd.formData({
     id: z.string().optional(),
-    name: z.string(),
-    benefits: z.string(),
-    goals: z.string(),
-    requisites: z.string(),
+    name: z.string().min(1, { message: "Name is required"}),
+    benefits: z.string().min(1, { message: "Benefits is required"}),
+    goals: z.string().min(1, { message: "Goals is required"}),
+    requisites: z.string().min(1, { message: "Requisites is required"}),
   })
 );
 
@@ -217,9 +217,9 @@ const InnovationTiersGrid = () => {
         name: selectedRowID,
         id: selectedRowID,
         action: "DELETE",
-        benefits: "",
-        requisites: "",
-        goals: "",
+        benefits: " ",
+        requisites: " ",
+        goals: " ",
       };
       await fetcher.submit(body, { method: "delete" });
     } catch (error: any) {
