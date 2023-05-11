@@ -147,7 +147,7 @@ export const action: ActionFunction = async ({ request }) => {
   }
 };
 
-const InnovationTiersGrid = () => {
+function InnovationTiersGrid(){
   const fetcher = useFetcher();
   const { innovationTiers } = useLoaderData() as LoaderData;
   const createButtonText = "Create New Innovation Tier";

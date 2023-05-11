@@ -96,7 +96,7 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 
-export default function LabelsDataGrid() {
+function LabelsDataGrid() {
   const fetcher = useFetcher();
   const { labels } = useLoaderData() as LoaderData;
   const createButtonText = "Create New Label";
@@ -329,6 +329,8 @@ export default function LabelsDataGrid() {
     </>
   );
 }
+
+export default LabelsDataGrid;
 
 export function ErrorBoundary({ error }: { error: Error }) {
   return <div>An unexpected error occurred: {error.message}</div>;

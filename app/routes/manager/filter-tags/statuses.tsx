@@ -134,7 +134,7 @@ export const action: ActionFunction = async ({ request }) => {
   }
 };
 
-export default function ProjectStatusDataGrid() {
+function ProjectStatusDataGrid() {
   const fetcher = useFetcher();
   const { statuses } = useLoaderData() as LoaderData;
   const createButtonText = "Create New Status";
@@ -496,6 +496,8 @@ export default function ProjectStatusDataGrid() {
     </>
   );
 }
+
+export default ProjectStatusDataGrid;
 
 export function ErrorBoundary({ error }: { error: Error }) {
   console.error(error);
