@@ -69,7 +69,7 @@ export default function EditStagePage() {
             method="post"
           >
             <Stack>
-              <input type="text" name="projectId" value={projectId} />
+              <input type="hidden" name="projectId" value={projectId} />
               <LabeledTextField
                 fullWidth
                 name={`name`}
