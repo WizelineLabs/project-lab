@@ -1,15 +1,10 @@
-import type { ActionFunction, LoaderArgs } from "@remix-run/node";
+import type { LoaderArgs } from "@remix-run/node";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import type { TypedMetaFunction } from "remix-typedjson";
-import { redirect, json } from "@remix-run/node";
-import { Form, useActionData, Link, Outlet } from "@remix-run/react";
+import { Form, Link, Outlet } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import { requireProfile, requireUser } from "~/session.server";
-import {
-  isProjectTeamMember,
-  getProject,
-  updateProjects,
-} from "~/models/project.server";
+import { isProjectTeamMember, getProject } from "~/models/project.server";
 import { adminRoleName } from "app/constants";
 import {
   Box,
@@ -26,45 +21,20 @@ import {
   Grid,
 } from "@mui/material";
 import GoBack from "~/core/components/GoBack";
-import type { ReactNode, SyntheticEvent } from "react";
-import { Suspense } from "react";
+import type { SyntheticEvent } from "react";
 import { useEffect } from "react";
-import { lazy } from "react";
 import { useState } from "react";
-import { ProjectForm } from "../components/ProjectForm";
-// import ProjectContributorsPathForm from "../components/ProjectContributorsPathForm";
-import {
-  ValidatedForm,
-  useIsSubmitting,
-  validationError,
-} from "remix-validated-form";
-// import { validator } from "../create";
+import { ValidatedForm, useIsSubmitting } from "remix-validated-form";
 import Header from "~/core/layouts/Header";
 import { EditPanelsStyles } from "~/routes/manager/manager.styles";
-import { TabStyles } from "../components/Styles/TabStyles.component";
 import TabPanel from "~/core/components/TabPanel";
-import { getProjectStatuses } from "~/models/status.server";
-import { getInnovationTiers } from "~/models/innovationTier.server";
 import MDEditorStyles from "@uiw/react-md-editor/markdown-editor.css";
 import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
-import { isProjectMemberOrOwner } from "~/utils";
 import { withZod } from "@remix-validated-form/with-zod";
 import { zfd } from "zod-form-data";
 import { z } from "zod";
-import StageCollapsableHeader from "~/core/components/StageCollapsableHeader";
 import Markdown from "marked-react";
 import TextEditor from "~/core/components/TextEditor";
-import { beTarask } from "date-fns/locale";
-
-let LazyMDEditor = lazy(() => import("@uiw/react-md-editor"));
-
-export function ClientOnly({ children }: { children: ReactNode }) {
-  let [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-  return mounted ? <>{children}</> : null;
-}
 
 export function links() {
   return [
@@ -73,18 +43,11 @@ export function links() {
   ];
 }
 
-type ActionData = {
-  errors?: {
-    title?: string;
-    body?: string;
-  };
-};
-
 export const taskValidator = withZod(
   zfd
     .formData({
       id: z.string().optional(),
-      description: z.string().min(3,"Provide a valid description"),
+      description: z.string().min(3, "Provide a valid description"),
       position: zfd.numeric(),
       projectStageId: z.string(),
     })
@@ -93,33 +56,6 @@ export const taskValidator = withZod(
     })
 );
 
-// export const validator = withZod(
-//   zfd
-//     .formData({
-//       stageNames: z.array(
-//         z.object({
-//           id: z.string(),
-//           name: zfd.text(z.string().min(1)),
-//           criteria: zfd.text(z.string().optional()),
-//           mission: zfd.text(z.string().optional()),
-//           projectId: z.string(),
-//           position: zfd.numeric(),
-//           projectTasks: z.array(
-//             z.object({
-//               id: z.string(),
-//               description: zfd.text(z.string().min(1)),
-//               position: zfd.numeric(),
-//               projectStageId: z.string(),
-//             })
-//           ),
-//         })
-//       ),
-//     })
-//     .transform((val) => {
-//       return val;
-//     })
-// );
-
 export const loader = async ({ request, params }: LoaderArgs) => {
   invariant(params.projectId, "projectId could not be found");
   const projectId = params.projectId;
@@ -127,9 +63,6 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   if (!project) {
     throw new Response("Not Found", { status: 404 });
   }
-
-  // const statuses = await getProjectStatuses();
-  // const tiers = await getInnovationTiers();
   const user = await requireUser(request);
   const profile = await requireProfile(request);
   const isTeamMember = isProjectTeamMember(profile.id, project);
@@ -144,39 +77,9 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     project,
     profileId,
     projectId,
-    // statuses,
-    // tiers,
     projectStages,
   });
 };
-
-// export const action: ActionFunction = async ({ request, params }) => {
-//   console.log("The form was posted");
-//   invariant(params.projectId, "projectId could not be found");
-//   const projectId = params.projectId;
-//   // Validate permissions
-//   const user = await requireUser(request);
-//   const isAdmin = user.role == adminRoleName;
-//   if (!isAdmin) {
-//     const profile = await requireProfile(request);
-//     const currentProject = await getProject({ id: projectId });
-//     const {
-//       projectMembers: currentMembers = [],
-//       ownerId: currentOwnerId = null,
-//     } = currentProject;
-//     isProjectMemberOrOwner(profile.id, currentMembers, currentOwnerId);
-//   }
-
-//   const result = await validator.validate(await request.formData());
-//   console.log("THE RESULT DATA", result);
-//   if (result.error) return validationError(result.error);
-//   // const project = await updateProjects(projectId, result.data);
-//   // return redirect(`/projects/${projectId}`);
-//   return json<ActionData>(
-//     { errors: { body: "The information was sent to backend" } },
-//     { status: 400 }
-//   );
-// };
 
 export const meta: TypedMetaFunction = ({ data, params }) => {
   if (!data) {
@@ -276,21 +179,18 @@ export default function EditContributorsPathPage() {
 
             <TabPanel value={tabIndex} index={0}></TabPanel>
             <TabPanel value={tabIndex} index={1}>
-              {/* <pre>{JSON.stringify(projectStages, null, 4)}</pre> */}
-
-              {/* Display Stages and Task informatio without form  */}
-                      <Grid
-                        container
-                        justifyContent="flex-end"
-                        alignItems="center"
-                        spacing={2}
-                      >
-                        <Grid item>
-                          <Link to={`createStage`}>
-                            <Button variant="contained">Add Stage</Button>
-                          </Link>
-                        </Grid>
-                      </Grid>
+              <Grid
+                container
+                justifyContent="flex-end"
+                alignItems="center"
+                spacing={2}
+              >
+                <Grid item>
+                  <Link to={`createStage`}>
+                    <Button variant="contained">Add Stage</Button>
+                  </Link>
+                </Grid>
+              </Grid>
 
               {projectStages?.map((stage, index) => (
                 <Stack
@@ -298,7 +198,6 @@ export default function EditContributorsPathPage() {
                   mb={2}
                   padding={4}
                   style={{
-                    // backgroundColor: "#f1f1f1",
                     border: "2px solid #e2e2e2",
                     borderRadius: "1em",
                   }}
@@ -309,7 +208,9 @@ export default function EditContributorsPathPage() {
                     alignItems="center"
                   >
                     <Grid item>
-                      <h2>{stage.position} {stage.name}</h2>
+                      <h2>
+                        {stage.name}
+                      </h2>
                     </Grid>
                     <Grid item>
                       <Grid
@@ -344,7 +245,6 @@ export default function EditContributorsPathPage() {
                       sm={6}
                       p={2}
                       style={{
-                        // backgroundColor: "#f1f1f1",
                         border: "2px solid #f1f1f1",
                         borderRadius: "1em",
                       }}
@@ -358,7 +258,6 @@ export default function EditContributorsPathPage() {
                       sm
                       p={2}
                       style={{
-                        // backgroundColor: "#f1f1f1",
                         border: "2px solid #f1f1f1",
                         borderRadius: "1em",
                       }}
@@ -368,7 +267,6 @@ export default function EditContributorsPathPage() {
                     </Grid>
                   </Grid>
                   <h3>Tasks:</h3>
-                  <h4>Current edit task: {editTask}</h4>
                   {stage.projectTasks.map((task, indeB) => (
                     <Stack key={task.id}>
                       <Grid
@@ -390,9 +288,12 @@ export default function EditContributorsPathPage() {
                                 }}
                                 method="post"
                                 action="./editTask"
-                                // onSubmit={() => handleEditTask("")}
                               >
-                                <input type="hidden" name="id" value={task.id} />
+                                <input
+                                  type="hidden"
+                                  name="id"
+                                  value={task.id}
+                                />
                                 <input
                                   type="hidden"
                                   name="position"
@@ -411,10 +312,7 @@ export default function EditContributorsPathPage() {
                               </ValidatedForm>
                             </>
                           ) : (
-                            <>
-                            <p>{task.position}</p>
-                            <Markdown>{task.description}</Markdown>
-                            </>
+                              <Markdown>{task.description}</Markdown>
                           )}
                         </Grid>
                         <Grid item>
@@ -429,13 +327,13 @@ export default function EditContributorsPathPage() {
                             {editTask === task.id ? (
                               <>
                                 <Grid item>
-                                <Link to={`deleteTask?id=${task.id}&stageId=${stage.id}`}>
-                            <Button variant="contained">Delete</Button>
-                          </Link>
+                                  <Link
+                                    to={`deleteTask?id=${task.id}&stageId=${stage.id}`}
+                                  >
+                                    <Button variant="contained">Delete</Button>
+                                  </Link>
                                 </Grid>
                                 <Grid item>
-                                  {/* <Button variant="contained">SAVE</Button> */}
-                                  {/* <SubmitButton/> */}
                                   <Button
                                     type="submit"
                                     form="taskForm"
@@ -471,7 +369,6 @@ export default function EditContributorsPathPage() {
                       </Grid>
                     </Stack>
                   ))}
-                  {/* Add task */}
                   <Stack>
                     <Grid>
                       {createTask === stage.id ? (
@@ -487,7 +384,6 @@ export default function EditContributorsPathPage() {
                             }}
                             method="post"
                             action="./editTask"
-                            // onSubmit={() => handleEditTask("")}
                           >
                             <input type="hidden" name="id" value="" />
                             <input
@@ -507,8 +403,6 @@ export default function EditContributorsPathPage() {
                             />
                           </ValidatedForm>
                           <Grid item>
-                            {/* <Button variant="contained">SAVE</Button> */}
-                            {/* <SubmitButton/> */}
                             <Button
                               type="submit"
                               form="taskForm"
@@ -528,7 +422,11 @@ export default function EditContributorsPathPage() {
                           </Grid>
                         </>
                       ) : (
-                        <Grid container justifyContent="center" alignItems="cente">
+                        <Grid
+                          container
+                          justifyContent="center"
+                          alignItems="cente"
+                        >
                           <Grid item>
                             <Button onClick={() => handleCreateTask(stage.id)}>
                               ADD TASK
@@ -540,8 +438,6 @@ export default function EditContributorsPathPage() {
                   </Stack>
                 </Stack>
               ))}
-
-              {/* Add an Outlet component for stage form */}
             </TabPanel>
           </EditPanelsStyles>
           {isAdmin && (

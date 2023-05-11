@@ -1,39 +1,31 @@
-import type { Profiles, Projects } from "@prisma/client";
-import { Prisma } from "@prisma/client";
-import { defaultStatus, contributorPath } from "~/constants";
-import { joinCondition, prisma as db } from "~/db.server";
+import { prisma as db } from "~/db.server";
 
-export async function createStage(data:{
-  name: string,
-  projectId: string,
-  criteria: string,
-  mission: string,
-  // position: number
-}
-) {
+export async function createStage(data: {
+  name: string;
+  projectId: string;
+  criteria: string;
+  mission: string;
+}) {
+  await db.$transaction(async (tx) => {
+    const numberOfStages = await tx.projectStages.count({
+      where: { projectId: data.projectId },
+    });
+    const position = numberOfStages + 1;
 
-    await db.$transaction(async (tx) => {
+    const stage = await db.projectStages.create({
+      data: {
+        name: data.name,
+        project: { connect: { id: data.projectId } },
+        mission: data.mission,
+        criteria: data.criteria,
+        position,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    });
 
-      const numberOfStages = await tx.projectStages.count({
-        where:{projectId:data.projectId}
-      })
-      const position = numberOfStages+1;
-
-      
-      const stage = await db.projectStages.create({
-        data: {
-          name: data.name,
-          project: { connect: { id: data.projectId } },
-          mission: data.mission,
-          criteria: data.criteria,
-          position,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-      });
-      
-      return stage;
-    })
+    return stage;
+  });
 }
 
 export async function updateStage(input: any) {
@@ -66,21 +58,21 @@ export async function updateStagePosition(id: string) {
   });
 
   return await db.$transaction(async (tx) => {
-    const updateResponse:any = [];
+    const updateResponse: any = [];
     let response;
-    for (let i = 0; i < stages.length; i++){
-        const newPosition = i + 1;
-        const stage = stages[i];
-        if (stage.position !== newPosition) {
-          response = await tx.projectStages.update({
-            where: { id: stage.id },
-            data: { position: newPosition },
-          });
-  
-          updateResponse.push(response);
-        }
+    for (let i = 0; i < stages.length; i++) {
+      const newPosition = i + 1;
+      const stage = stages[i];
+      if (stage.position !== newPosition) {
+        response = await tx.projectStages.update({
+          where: { id: stage.id },
+          data: { position: newPosition },
+        });
+
+        updateResponse.push(response);
       }
-      return { updateResponse };
+    }
+    return { updateResponse };
   });
 }
 
@@ -130,20 +122,20 @@ export async function updateTaskPosition(id: string) {
   });
 
   return await db.$transaction(async (tx) => {
-    const updateResponse:any = [];
+    const updateResponse: any = [];
     let response;
-    for (let i = 0; i < tasks.length; i++){
-        const newPosition = i + 1;
-        const task = tasks[i];
-        if (task.position !== newPosition) {
-          response = await tx.projectTasks.update({
-            where: { id: task.id },
-            data: { position: newPosition },
-          });
-  
-          updateResponse.push(response);
-        }
+    for (let i = 0; i < tasks.length; i++) {
+      const newPosition = i + 1;
+      const task = tasks[i];
+      if (task.position !== newPosition) {
+        response = await tx.projectTasks.update({
+          where: { id: task.id },
+          data: { position: newPosition },
+        });
+
+        updateResponse.push(response);
       }
-      return { updateResponse };
+    }
+    return { updateResponse };
   });
 }

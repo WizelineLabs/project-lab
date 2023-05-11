@@ -3,7 +3,6 @@ import type { LoaderArgs, ActionFunction } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import {
   Link,
-  useActionData,
   useMatches,
   useNavigate,
   useParams,
@@ -18,9 +17,11 @@ import {
   validationError,
 } from "remix-validated-form";
 import { z } from "zod";
-import { zfd } from "zod-form-data";
 import LabeledTextField from "~/core/components/LabeledTextField";
-import { deleteTask, updateTaskPosition } from "~/models/contributorsPath.server";
+import {
+  deleteTask,
+  updateTaskPosition,
+} from "~/models/contributorsPath.server";
 
 const generateRandomNumberString = () => {
   let result = "";
@@ -37,27 +38,6 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     confirmationString,
   });
 };
-
-// const confirmationString = generateRandomNumberString();
-
-// export const validator = withZod(
-//   zfd
-//     .formData({
-//       id: z.string(),
-//       // confirmationInput: z.string().refine((i) => i === confirmationString, {message: "Please fill the confirmation code"})
-//       confirmationString: z.string(),
-//       confirmationInput: z.string()
-//     })
-//     .transform((val) => {
-//       return val;
-//     })
-//     .refine(({confirmationString,confirmationInput}) => confirmationInput === confirmationString,
-//     {
-//       path: ["confirmationInput"],
-//       message: "Please write the confirmation code to proceed"
-//     })
-//     )
-// ;
 
 export const validator = withZod(
   z
@@ -80,24 +60,17 @@ export const validator = withZod(
     })
 );
 
-export const action: ActionFunction = async ({ request, params }) => {
-  console.log("Delete form was posted");
+export const action: ActionFunction = async ({ request }) => {
   const result = await validator.validate(await request.formData());
   if (result.error) return validationError(result.error);
-  console.log("THE RESULT DATA", result);
 
   try {
-    if(result.data.id !== ''){
-      const taskId = result.data.id
-      const stageId = result.data.projectStageId
-    //   console.log(`SAVE editable values for stage`)
-    //   const stage = await updateStage(result.data);
-    console.log("Value will be deleted");
-    await deleteTask(taskId)
-    const changedPositions =  await updateTaskPosition(stageId)
-    console.log(changedPositions)
-    console.log("Will go back to Contributors path");
-    return redirect(`..`);
+    if (result.data.id !== "") {
+      const taskId = result.data.id;
+      const stageId = result.data.projectStageId;
+      await deleteTask(taskId);
+      await updateTaskPosition(stageId);
+      return redirect(`..`);
     }
   } catch (e) {
     throw e;
@@ -112,7 +85,6 @@ export default function DeleteTaskPage() {
     navigate("..");
   }
 
-
   const [searchParams] = useSearchParams();
   const matches = useMatches();
   const params = useParams();
@@ -120,28 +92,17 @@ export default function DeleteTaskPage() {
   const isSubmitting = useIsSubmitting("taskForm");
   const disabled = isSubmitting;
 
-  // console.log(searchParams);
-  // console.log("{{{{{{{{--------------------------------}}}}}}}}");
-  // console.log(matches);
-  // console.log(params);
-  // console.log("--------------------------------");
-
   const projectId = params.projectId;
   const stageId = searchParams.get("stageId");
   const taskId = searchParams.get("id");
   const stagesData = matches.find(
     (match) => match.pathname === `/projects/${projectId}/editContributorsPath`
   )?.data.projectStages;
-  console.dir(taskId);
-  console.dir(stageId);
   const stageData = stagesData.find((stage: any) => stage.id === stageId);
-  console.log(stageData);
   const taskData = stageData.projectTasks.find(
     (task: any) => task.id === taskId
   );
-  console.log(taskData);
-  const actionData = useActionData();
-  
+
   return (
     <Modal open disableEscapeKeyDown onClose={closeHandler}>
       <Container>
@@ -162,7 +123,11 @@ export default function DeleteTaskPage() {
             <Stack>
               <p>{confirmationString}</p>
               <input type="hidden" name="id" value={taskData.id} />
-              <input type="hidden" name="projectStageId" value={taskData.projectStageId} />
+              <input
+                type="hidden"
+                name="projectStageId"
+                value={taskData.projectStageId}
+              />
               <input
                 type="hidden"
                 name="confirmationString"
@@ -176,13 +141,6 @@ export default function DeleteTaskPage() {
                 label="Confirmation code"
                 placeholder=""
               />
-              {/* {JSON.stringify(actionData)}
-              {actionData && (
-                <div>
-                  <h2>the info{actionData.title}</h2>
-                  <p>{actionData.description}</p>
-                </div>
-              )} */}
               <Grid
                 container
                 mt={2}
@@ -196,26 +154,13 @@ export default function DeleteTaskPage() {
                   </Link>
                 </Grid>
                 <Grid item>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    disabled={disabled}
-                  >
+                  <Button type="submit" variant="contained" disabled={disabled}>
                     {isSubmitting ? "Submitting..." : "Submit"}
                   </Button>
                 </Grid>
               </Grid>
             </Stack>
           </ValidatedForm>
-
-          {/* <form action="" method="post"> */}
-          {/* <ValidatedForm method="post" validator={validator}>
-                <input type="text" name="test" />
-                <Button type="submit" variant="contained" disabled={disabled}>
-                  TEST SEND
-                </Button>
-            </ValidatedForm> */}
-          {/* </form> */}
         </Stack>
       </Container>
     </Modal>

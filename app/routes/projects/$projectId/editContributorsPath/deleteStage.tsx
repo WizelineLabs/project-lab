@@ -3,14 +3,13 @@ import type { LoaderArgs, ActionFunction } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import {
   Link,
-  useActionData,
   useMatches,
   useNavigate,
   useParams,
   useSearchParams,
 } from "@remix-run/react";
 import { withZod } from "@remix-validated-form/with-zod";
-import Markdown from "marked-react";
+
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import {
   ValidatedForm,
@@ -18,13 +17,10 @@ import {
   validationError,
 } from "remix-validated-form";
 import { z } from "zod";
-import { zfd } from "zod-form-data";
 import LabeledTextField from "~/core/components/LabeledTextField";
 import {
   deleteStage,
-  deleteTask,
   updateStagePosition,
-  updateTaskPosition,
 } from "~/models/contributorsPath.server";
 
 const generateRandomNumberString = () => {
@@ -64,23 +60,16 @@ export const validator = withZod(
     })
 );
 
-export const action: ActionFunction = async ({ request, params }) => {
-  console.log("Delete TAGEform was posted");
+export const action: ActionFunction = async ({ request }) => {
   const result = await validator.validate(await request.formData());
   if (result.error) return validationError(result.error);
-  console.log("THE RESULT DATA", result);
 
   try {
     if (result.data.id !== "") {
       const stageId = result.data.id;
       const projectId = result.data.projectId;
-      //   console.log(`SAVE editable values for stage`)
-      //   const stage = await updateStage(result.data);
-      console.log("STAGE will be deleted");
       await deleteStage(stageId);
-      const changedPositions = await updateStagePosition(projectId);
-      console.log(changedPositions);
-      console.log("Will go back to Contributors path");
+      await updateStagePosition(projectId);
       return redirect(`..`);
     }
   } catch (e) {
@@ -105,14 +94,10 @@ export default function DeleteTaskPage() {
 
   const projectId = params.projectId;
   const stageId = searchParams.get("id");
-  // const taskId = searchParams.get("id");
   const stagesData = matches.find(
     (match) => match.pathname === `/projects/${projectId}/editContributorsPath`
   )?.data.projectStages;
-  // console.dir(taskId);
-  console.dir(stageId);
   const stageData = stagesData.find((stage: any) => stage.id === stageId);
-  console.log(stageData);
 
   return (
     <Modal open disableEscapeKeyDown onClose={closeHandler}>
@@ -148,13 +133,6 @@ export default function DeleteTaskPage() {
                 label="Confirmation code"
                 placeholder=""
               />
-              {/* {JSON.stringify(actionData)}
-              {actionData && (
-                <div>
-                  <h2>the info{actionData.title}</h2>
-                  <p>{actionData.description}</p>
-                </div>
-              )} */}
               <Grid
                 container
                 mt={2}
@@ -175,15 +153,6 @@ export default function DeleteTaskPage() {
               </Grid>
             </Stack>
           </ValidatedForm>
-
-          {/* <form action="" method="post"> */}
-          {/* <ValidatedForm method="post" validator={validator}>
-                <input type="text" name="test" />
-                <Button type="submit" variant="contained" disabled={disabled}>
-                  TEST SEND
-                </Button>
-            </ValidatedForm> */}
-          {/* </form> */}
         </Stack>
       </Container>
     </Modal>
