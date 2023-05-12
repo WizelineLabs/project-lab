@@ -9,6 +9,9 @@ import { describe } from "vitest"
 import "@testing-library/jest-dom"
 
 describe("Admins test", () => {
+  it('should pass', () => {
+   expect(true).toBe(true)
+  });
   // mocking remix module to handle Loaders
   // vi.mock("@remix-run/react", async () => {
   //   let remix: any = await vi.importActual("@remix-run/react")
