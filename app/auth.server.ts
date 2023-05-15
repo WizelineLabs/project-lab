@@ -75,7 +75,7 @@ let auth0Strategy = new Auth0Strategy(
       if (userGitHubProfile?.email === '' || userGitHubProfile?.email === null || userGitHubProfile?.email === undefined)  {
         const { data: userInfo } = await getUserInfo(email);
         const { data: repos } = await getUserRepos(userInfo.items[0].login)
-        createGitHubProfile(email, userInfo.items[0].login, userInfo.items[0].avatar_url, userInfo.items[0].repos_url);
+        await createGitHubProfile(email, userInfo.items[0].login, userInfo.items[0].avatar_url, userInfo.items[0].repos_url);
         
 
         for (const repo of repos) {
