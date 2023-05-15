@@ -1,4 +1,4 @@
-import type { User, Profiles, PrismaClient } from "@prisma/client";
+import type { User, Profiles, GitHubProfile, GitHubProjects, PrismaClient } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../db.server";
 
@@ -22,6 +22,18 @@ export async function getProfileByUserId(id: User["id"]) {
 export async function getProfileByEmail(email: Profiles["email"]) {
   return prisma.profiles.findUnique({
     where: { email },
+  });
+}
+
+export async function getGitHubProfileByEmail(email: GitHubProfile["email"]) {
+  return prisma.gitHubProfile.findUnique({
+    where: { email },
+  });
+}
+
+export async function getGitHubProjectsByEmail(email: GitHubProjects["owner_email"]) {
+  return prisma.gitHubProjects.findMany({
+    where: { owner_email : email},
   });
 }
 
@@ -63,6 +75,38 @@ export async function updateProfile(
   }
   
   return prisma.profiles.update({ where: { id }, data: data });
+}
+
+export async function createGitHubProfile(
+  email: string,
+  username: string,
+  avatarUrl: string,
+  reposUrl: string
+) {
+  return prisma.gitHubProfile.create({  
+    data: {
+      email: email,
+      username: username, 
+      avatarUrl: avatarUrl,
+      reposUrl: reposUrl,
+    },
+  })
+}
+
+export async function createGitHubProject(
+  owner_email:string,
+  name: string,
+  description: string,
+  updated_at: string,
+) {
+  return prisma.gitHubProjects.create({  
+    data: {
+      owner_email: owner_email,
+      name: name,
+      description: description, 
+      updated_at: updated_at,
+    },
+  })
 }
 
 export async function consolidateProfilesByEmail(

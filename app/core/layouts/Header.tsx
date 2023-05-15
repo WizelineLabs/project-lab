@@ -32,6 +32,13 @@ const Header = ({ title }: IProps) => {
   const options: MenuItemArgs[] = [
     {
       onClick: async () => {
+        submit(null, { method: "get", action: "/profile" });
+      },
+      to: "/",
+      text: "Profile",
+    },
+    {
+      onClick: async () => {
         submit(null, { method: "post", action: "/logout" });
       },
       to: "/",
