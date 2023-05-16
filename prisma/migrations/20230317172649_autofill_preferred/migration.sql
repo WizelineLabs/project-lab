@@ -1,25 +1,22 @@
--- fill values for Profiles.preferredName
--- new ones will be inserted by our data lake import script
-UPDATE "Profiles" SET "preferredName" = "firstName" WHERE "preferredName" IS NULL;
-ALTER TABLE "Profiles" ALTER COLUMN "preferredName" SET NOT NULL;
-
--- Fill values for Profiles.searchCol adding preferred name
-DROP TRIGGER IF EXISTS profiles_search_col_trigger ON "Profiles";
-
--- create inmutable unaccent function
--- https://dba.stackexchange.com/questions/177020/creating-a-case-insensitive-and-accent-diacritics-insensitive-search-on-a-field
--- https://stackoverflow.com/questions/11005036/does-postgresql-support-accent-insensitive-collations/11007216#11007216
-CREATE OR REPLACE FUNCTION f_unaccent(text)
-  RETURNS text AS
-$func$
-SELECT public.unaccent('public.unaccent', $1)  -- schema-qualify function and dictionary
-$func$
-LANGUAGE sql
-IMMUTABLE;
-
-ALTER TABLE "Profiles" DROP COLUMN "searchCol";
-ALTER TABLE "Profiles" ADD COLUMN "searchCol" text
-  GENERATED ALWAYS AS
-  (
-    lower(f_unaccent("firstName" || ' ' || "preferredName" || ' ' || "lastName") || ' ' || "email")
-  ) STORED;
+-- DropIndex
+DROP INDEX "projects_ts_column_idx";
+-- CreateTable
+CREATE TABLE "GitHubProfile" (
+    "id" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "username" TEXT NOT NULL,
+    "avatarUrl" TEXT NOT NULL,
+    "reposUrl" TEXT NOT NULL,
+    CONSTRAINT "GitHubProfile_pkey" PRIMARY KEY ("id")
+);
+-- CreateTable
+CREATE TABLE "GitHubProjects" (
+    "id" TEXT NOT NULL,
+    "owner_email" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "updated_at" TEXT NOT NULL,
+    CONSTRAINT "GitHubProjects_pkey" PRIMARY KEY ("id")
+);
+-- CreateIndex
+CREATE UNIQUE INDEX "GitHubProfile_email_key" ON "GitHubProfile"("email");
