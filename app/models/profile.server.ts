@@ -83,14 +83,15 @@ export async function createGitHubProfile(
   avatarUrl: string,
   reposUrl: string
 ) {
-  return prisma.gitHubProfile.create({  
+  const gitHubProfile = await prisma.gitHubProfile.create({  
     data: {
-      email: email,
-      username: username, 
-      avatarUrl: avatarUrl,
-      reposUrl: reposUrl,
+      email,
+      username, 
+      avatarUrl,
+      reposUrl,
     },
-  })
+  });
+  return gitHubProfile;
 }
 
 export async function createGitHubProject(
