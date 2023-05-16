@@ -13,7 +13,6 @@ import TextEditor from "~/core/components/TextEditor";
 import type { ActionFunction } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import { createStage } from "~/models/contributorsPath.server";
-import { BoxContainer } from "~/core/components/ModalBox";
 
 export const validator = withZod(
   zfd
