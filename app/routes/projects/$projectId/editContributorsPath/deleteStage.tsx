@@ -36,8 +36,8 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 export const validator = withZod(
   z
     .object({
-      id: z.string(),
-      projectId: z.string(),
+      id: z.string().min(1),
+      projectId: z.string().min(1),
       confirmationString: z.string(),
       confirmationInput: z.string(),
     })
@@ -96,7 +96,7 @@ export default function DeleteTaskPage() {
   return (
     <Modal open disableEscapeKeyDown onClose={closeHandler}>
       <Container>
-        <Stack marginTop="2em" padding="2em 4em" bgcolor="white">
+        <Stack marginTop="2em" padding="2em 4em" bgcolor={theme => theme.palette.background.default}>
           <h2>Delete Stage</h2>
           <p>Are you sure you want to delete this stage?</p>
           <h1>{stageData.name}</h1>

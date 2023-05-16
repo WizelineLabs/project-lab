@@ -17,7 +17,7 @@ import { createStage } from "~/models/contributorsPath.server";
 export const validator = withZod(
   zfd
     .formData({
-      projectId: z.string(),
+      projectId: z.string().min(1),
       name: zfd.text(z.string().min(1)),
       criteria: zfd.text(z.string().min(1)),
       mission: zfd.text(z.string().min(1)),
@@ -54,8 +54,9 @@ export default function EditStagePage() {
 
   return (
     <Modal open disableEscapeKeyDown onClose={closeHandler}>
+
       <Container>
-        <Stack marginTop="2em" padding="2em 4em" bgcolor="white">
+        <Stack marginTop="2em" padding="2em 4em" bgcolor={theme => theme.palette.background.default}>
           <h2>Create Stage</h2>
           <ValidatedForm
             id="stageForm"
@@ -67,7 +68,7 @@ export default function EditStagePage() {
               projectId: projectId,
             }}
             method="post"
-          >
+            >
             <Stack>
               <input type="hidden" name="projectId" value={projectId} />
               <LabeledTextField
@@ -75,24 +76,24 @@ export default function EditStagePage() {
                 name={`name`}
                 label="Stage Name"
                 placeholder="Stage Name"
-              />
+                />
               <TextEditor
                 name={`criteria`}
                 label="Criteria"
                 placeholder={"Explain the criteria..."}
-              />
+                />
               <TextEditor
                 name={`mission`}
                 label="Mission"
                 placeholder={"Explain the mission..."}
-              />
+                />
               <Grid
                 container
                 mt={2}
                 justifyContent="flex-end"
                 alignItems="center"
                 spacing={2}
-              >
+                >
                 <Grid item>
                   <Link to="..">
                     <Button variant="contained">Cancel</Button>

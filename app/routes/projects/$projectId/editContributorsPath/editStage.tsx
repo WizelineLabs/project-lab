@@ -23,12 +23,12 @@ import { updateStage } from "~/models/contributorsPath.server";
 export const validator = withZod(
   zfd
     .formData({
-      id: z.string().optional(),
-      projectId: z.string(),
+      id: z.string().min(1),
+      projectId: z.string().min(1),
       position: zfd.numeric(),
       name: zfd.text(z.string().min(1)),
-      criteria: zfd.text(z.string().optional()),
-      mission: zfd.text(z.string().optional()),
+      criteria: zfd.text(z.string().min(1)),
+      mission: zfd.text(z.string().min(1)),
     })
     .transform((val) => {
       return val;
@@ -75,7 +75,7 @@ export default function EditStagePage() {
   return (
     <Modal open disableEscapeKeyDown onClose={closeHandler}>
       <Container>
-        <Stack marginTop="2em" padding="2em 4em" bgcolor="white">
+        <Stack marginTop="2em" padding="2em 4em" bgcolor={theme => theme.palette.background.default}>
           <h2>Edit Stage</h2>
           <ValidatedForm
             id="stageForm"
