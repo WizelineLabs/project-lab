@@ -82,9 +82,8 @@ export const isProjectMemberOrOwner = (
 };
 
 export const generateRandomNumberString = () => {
-  let result = "";
-  for (let i = 0; i < 6; i++) {
-    result += Math.floor(Math.random() * 10);
-  }
-  return result;
+  const crypto = require("crypto");
+  const randomString = crypto.randomBytes(3).toString("hex");
+
+  return randomString;
 };
