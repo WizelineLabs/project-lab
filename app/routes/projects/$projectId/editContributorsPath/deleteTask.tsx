@@ -115,7 +115,7 @@ export default function DeleteTaskPage() {
             action=""
           >
             <Stack>
-              <p>{confirmationString}</p>
+            <p>Type to confirm: <span style={{fontFamily:"inherit",fontWeight: 'bold'}}>{confirmationString}</span></p>
               <input type="hidden" name="id" value={taskData.id} />
               <input
                 type="hidden"
@@ -144,7 +144,7 @@ export default function DeleteTaskPage() {
               >
                 <Grid item>
                   <Link to="..">
-                    <Button variant="contained">cancel</Button>
+                    <Button variant="contained">Cancel</Button>
                   </Link>
                 </Grid>
                 <Grid item>

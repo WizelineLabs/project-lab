@@ -119,7 +119,7 @@ export default function EditStagePage() {
             >
               <Grid item>
                 <Link to="..">
-                  <Button variant="contained">cancel</Button>
+                  <Button variant="contained">Cancel</Button>
                 </Link>
               </Grid>
               <Grid item>

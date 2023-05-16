@@ -349,7 +349,7 @@ export default function EditContributorsPathPage() {
                                     variant="contained"
                                     onClick={() => handleEditTask("")}
                                   >
-                                    CANCEL
+                                    Cancel
                                   </Button>
                                 </Grid>
                               </>
@@ -433,7 +433,7 @@ export default function EditContributorsPathPage() {
                                   variant="contained"
                                   onClick={() => handleEditTask("")}
                                 >
-                                  CANCEL
+                                  Cancel
                                 </Button>
                               </Grid>
                             </Grid>
@@ -448,7 +448,7 @@ export default function EditContributorsPathPage() {
                         >
                           <Grid item>
                             <Button onClick={() => handleCreateTask(stage.id)}>
-                              ADD TASK
+                              Add Task
                             </Button>
                           </Grid>
                         </Grid>

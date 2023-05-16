@@ -157,8 +157,6 @@ export default function EditProjectPage() {
                 onChange={handleTabChange}
                 aria-label="Edit project"
               >
-                {/* <TabStyles label="Project Details" />
-                <TabStyles label="Contributor's Path" /> */}
                 <Tab
                   component={Link}
                   label="Project Details"
