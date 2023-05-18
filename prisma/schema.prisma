@@ -107,6 +107,22 @@ model Profiles {
   @@index([benchStatus], map: "profiles_bench_status_idx")
 }
 
+model GitHubProfile {
+  id                     String                   @id @default(uuid())
+  email                  String                   @unique
+  username               String                   
+  avatarUrl              String
+  reposUrl               String
+}
+
+model GitHubProjects {
+  id                     String                   @id @default(uuid())
+  owner_email            String
+  name                   String                   
+  description            String                   
+  updated_at             String
+}
+
 model ProjectMembers {
   id              String            @id @default(uuid())
   createdAt       DateTime          @default(now())
