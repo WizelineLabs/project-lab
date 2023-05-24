@@ -74,10 +74,11 @@ let auth0Strategy = new Auth0Strategy(
       const userGitHubProfile = await getGitHubProfileByEmail(email);
       if (userGitHubProfile?.email === '' || userGitHubProfile?.email === null || userGitHubProfile?.email === undefined)  {
         const { data: userInfo } = await getUserInfo(email);
-        const { data: repos } = await getUserRepos(userInfo.items[0].login)
-        await createGitHubProfile(email, userInfo.items[0].login, userInfo.items[0].avatar_url, userInfo.items[0].repos_url);
+        const { data: repos } = await getUserRepos(userInfo.items[0].login) 
+    
+        const userProfile = await getProfileByEmail(email);
+        await createGitHubProfile(email, userInfo.items[0].login, userInfo.items[0].avatar_url, userInfo.items[0].repos_url, userProfile?.firstName ?? "Default Name", userProfile?.lastName ?? "Default LastName",);
         
-
         for (const repo of repos) {
           const date = new Date(repo.updated_at);
           const formattedDate = date.toLocaleString();

@@ -18,6 +18,7 @@ import {
   TableHead,
   TableRow,
   TableSortLabel,
+  Button
 } from "@mui/material";
 import { useEffect, useState } from "react";
 
@@ -237,7 +238,12 @@ export const ContributorPathReport = ({
                         )}
                       </TableCell>
                       <TableCell align="center">
-                        <Link href={`mailto:${row.email}`}>{row.name}</Link>
+                      <Button
+                        component={Link}
+                        href={`/profile/${encodeURIComponent(row.email)}`}
+                      >
+                        {row.name}
+                      </Button>
                       </TableCell>
                       <TableCell align="center">{row.role}</TableCell>
                       <TableCell align="center">
