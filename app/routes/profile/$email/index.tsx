@@ -13,7 +13,6 @@ import {
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import { getGitHubProfileByEmail, getGitHubProjectsByEmail } from "../../../models/profile.server";
-import { useUser } from "~/utils";
 import {  useLoaderData } from "@remix-run/react";
 import type { LoaderArgs, LoaderFunction } from "@remix-run/node";
 import invariant from "tiny-invariant";
