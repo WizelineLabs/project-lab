@@ -47,7 +47,6 @@ export const loader: LoaderFunction = async ({ params }: LoaderArgs) => {
 
 export const ProfileInfo = () => {
   const { githubProfileData, githubProjects } = useLoaderData<LoaderData>();
-  const currentUser = useUser();
   const theme = useTheme();
   const lessThanMd = useMediaQuery(theme.breakpoints.down("md"));  
 
