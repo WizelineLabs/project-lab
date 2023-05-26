@@ -80,3 +80,10 @@ export const isProjectMemberOrOwner = (
     throw new Error("You don't have permission to perform this operation");
   }
 };
+
+export const generateRandomNumberString = () => {
+  const crypto = require("crypto");
+  const randomString = crypto.randomBytes(3).toString("hex");
+
+  return randomString;
+};
