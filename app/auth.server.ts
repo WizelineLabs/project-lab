@@ -74,18 +74,20 @@ let auth0Strategy = new Auth0Strategy(
       const userGitHubProfile = await getGitHubProfileByEmail(email);
       if (userGitHubProfile?.email === '' || userGitHubProfile?.email === null || userGitHubProfile?.email === undefined)  {
         const { data: userInfo } = await getUserInfo(email);
-        const { data: repos } = await getUserRepos(userInfo.items[0].login) 
-    
-        const userProfile = await getProfileByEmail(email);
-        await createGitHubProfile(email, userInfo.items[0].login, userInfo.items[0].avatar_url, userInfo.items[0].repos_url, userProfile?.firstName ?? "Default Name", userProfile?.lastName ?? "Default LastName",);
-        
-        for (const repo of repos) {
-          const date = new Date(repo.updated_at);
-          const formattedDate = date.toLocaleString();
-          const name = repo.name ? repo.name : "No name available";
-          const description = repo.description ? repo.description : "No description available";
-  
-          await createGitHubProject(email, name, description, formattedDate);
+        if(userInfo.length > 0){
+
+          const { data: repos } = await getUserRepos(userInfo.items[0].login)
+          const userProfile = await getProfileByEmail(email);
+          await createGitHubProfile(email, userInfo.items[0].login, userInfo.items[0].avatar_url, userInfo.items[0].repos_url, userProfile?.firstName ?? "Default Name", userProfile?.lastName ?? "Default LastName",);
+          
+          for (const repo of repos) {
+            const date = new Date(repo.updated_at);
+            const formattedDate = date.toLocaleString();
+            const name = repo.name ? repo.name : "No name available";
+            const description = repo.description ? repo.description : "No description available";
+            
+            await createGitHubProject(email, name, description, formattedDate);
+          }
         }
      }
       // Get the user data from your DB or API using the tokens and profile     
