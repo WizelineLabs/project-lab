@@ -73,7 +73,7 @@ export default function Resources({
   const resourceProviders = [
     ...new Set(RESOURCE_PROVIDERS.concat(resourceData.providers)),
   ];
-  const resourceNames = [...new Set(RESOURCE_NAMES.concat(resourceData.names))];
+  const resourceNames = [...new Set(resourceData.names)];
 
   const handleSubmit = async () => {
     const form = document.getElementById(

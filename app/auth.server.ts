@@ -44,7 +44,7 @@ let auth0Strategy = new Auth0Strategy(
           const gitHubUser = data.items[0].login;
           userProfile.githubUser = gitHubUser;
           try{
-            updateProfile(userProfile, userProfile.id);
+            await updateProfile(userProfile, userProfile.id);
           }catch{
             throw('error');
           }
