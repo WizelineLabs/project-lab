@@ -141,7 +141,6 @@ function ProjectStatusDataGrid() {
   const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
   const [openEditModal, setOpenEditModal] = useState<boolean>(false);
   const [openCreateModal, setOpenCreateModal] = useState<boolean>(false);
-  const [error, setError] = useState<string>("");
   const [rows, setRows] = useState<StatusRecord[]>(() =>
     statuses.map((item: ProjectStatus) => ({
       id: item.name,
@@ -171,12 +170,6 @@ function ProjectStatusDataGrid() {
   useEffect(() => {
     //It handles the fetcher error from the response
     if (fetcher.state === "idle" && fetcher.data) {
-      if (fetcher.data.error) {
-        setError(fetcher.data.error);
-      } else {
-        setError("");
-      }
-
       if (fetcher.data.projects) {
         setProjects(fetcher.data.projects);
       } else {

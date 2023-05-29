@@ -57,7 +57,5 @@ export async function updateProjectStatus({ id, name, stage }: updateProjectStat
   if (stage === "none") {
     data.stage = null
   }
-  // eslint-disable-next-line no-console
-  console.log(data)
   await prisma.projectStatus.update({ where: { name: id }, data })
 }

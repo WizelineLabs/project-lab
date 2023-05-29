@@ -153,7 +153,6 @@ function InnovationTiersGrid(){
   const createButtonText = "Create New Innovation Tier";
   const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
   const [editMode, setEditMode] = useState<boolean>(false);
-  const [error, setError] = useState<string>("");
   const [rows, setRows] = useState<InnovationTierRecord[]>(() =>
     innovationTiers.map((item: InnovationTierItem) => ({
       id: item.name,
@@ -181,12 +180,6 @@ function InnovationTiersGrid(){
   useEffect(() => {
     //It handles the fetcher error from the response
     if (fetcher.state === "idle" && fetcher.data) {
-      if (fetcher.data.error) {
-        setError(fetcher.data.error);
-      } else {
-        setError("");
-      }
-
       if (fetcher.data.projects) {
         setProjects(fetcher.data.projects);
       } else {
