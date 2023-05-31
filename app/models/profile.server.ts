@@ -30,10 +30,6 @@ export async function getGitHubProfileByEmail(email: GitHubProfile["email"]) {
     where: { email },
   });
 
-  if (!profile) {
-    throw new Error("El perfil de GitHub no existe");
-  }
-
   return profile;
 }
 

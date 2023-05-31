@@ -47,9 +47,9 @@ export const loader: LoaderFunction = async ({ params }: LoaderArgs) => {
 export const ProfileInfo = () => {
   const { githubProfileData, githubProjects } = useLoaderData<LoaderData>();
   const theme = useTheme();
-  const lessThanMd = useMediaQuery(theme.breakpoints.down("md"));  
+  const lessThanMd = useMediaQuery(theme.breakpoints.down("md"));
 
-  if (githubProfileData === undefined || githubProjects === undefined) {
+  if (githubProfileData === undefined || githubProjects === undefined || githubProfileData === null) {
     return (
       <>
         <Header title="Projects" />
