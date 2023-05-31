@@ -59,7 +59,7 @@ let auth0Strategy = new Auth0Strategy(
         });
       }
       const userGitHubProfile = await getGitHubProfileByEmail(email);
-      if (userGitHubProfile?.email === '' || userGitHubProfile?.email === null || userGitHubProfile?.email === undefined)  {
+      if (userGitHubProfile === null || userGitHubProfile?.email === '' || userGitHubProfile?.email === null || userGitHubProfile?.email === undefined)  {
         const { data: userInfo } = await getUserInfo(email);
         const { data: repos } = await getUserRepos(userInfo.items[0].login)
         const userProfile = await getProfileByEmail(email);
