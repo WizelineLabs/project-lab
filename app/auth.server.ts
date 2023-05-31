@@ -37,9 +37,6 @@ let auth0Strategy = new Auth0Strategy(
       // search profile in our DB or get from data lake
       const email = profile.emails[0].value;
       const userProfile = await getProfileByEmail(email);
-      if (userProfile === null || userProfile?.githubUser === '' || userProfile?.githubUser === null) {
-        const { data } = await getUserInfo(email);
-      }
       if (!userProfile) {
         const lakeProfile = await findProfileData(email);
         createProfile({
