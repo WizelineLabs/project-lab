@@ -371,6 +371,18 @@ model Repos {
   projects  Projects @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
+model ProjectObjectives {
+  id          String  @id @default(cuid())
+  name        String
+  input       String
+  result      String
+  quarter     String
+  status     String
+  projectId   String
+
+  @@index([projectId], map: "project_objective_project_id_idx")
+}
+
 model RelatedProjects {
   id         Int      @id @default(autoincrement())
   projectAId String

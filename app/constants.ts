@@ -70,3 +70,8 @@ export const contributorPath = [
 export const ongoingStage =  "ongoing project"
 export const ideaStage =  "idea"
 export const stageOptions = [{ name: ideaStage }, { name: ongoingStage }, { name: "none" }]
+
+export const quartersOptions = [{ name: "Q1" }, { name: "Q2" }, { name: "Q3" }, { name: "Q4" }]
+export const statusObjectivesOptions = [{ name: "New" }, { name: "In Progress" }, { name: "Done"}]
+
+

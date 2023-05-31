@@ -166,6 +166,11 @@ export default function EditProjectPage() {
                   component={Link}
                   label="Contributor's Path"
                   to={`/projects/${projectId}/editContributorsPath`}
+                />      
+                <Tab
+                  component={Link}
+                  label="Project Roadmap"
+                  to={`/projects/${projectId}/roadmap`}
                 />
               </Tabs>
             </Box>
