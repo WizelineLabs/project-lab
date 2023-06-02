@@ -131,7 +131,7 @@ export default function RoadMapProject() {
 
     const handleEditObjective = (idObjective:string) => {
         const objective:Objective | undefined = objectives.find( obj => obj.id === idObjective) || undefined;
-        setSelectedRow(objective)
+        setSelectedRow(objective);
         setEditMode(true);
         setOpenCreateModal(true);
     }
@@ -139,7 +139,7 @@ export default function RoadMapProject() {
     const handleDeleteObjective = (idObjective:string) => {
         setOpenCreateModal(false);
         const objective:Objective | undefined = objectives.find( obj => obj.id === idObjective) || undefined;
-        setSelectedRow(objective)
+        setSelectedRow(objective);
         setOpenDeleteModal(true);
     }
 
@@ -389,7 +389,7 @@ export default function RoadMapProject() {
                 handleClose={() => setOpenDeleteModal(false)}
                 close={() => { 
                     setSelectedRow(undefined);
-                    setOpenDeleteModal(false)
+                    setOpenDeleteModal(false);
                 }}
             >
                 <h2 data-testid="createNewLabel">

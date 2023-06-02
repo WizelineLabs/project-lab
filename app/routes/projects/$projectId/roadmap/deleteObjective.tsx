@@ -15,7 +15,7 @@ export const action: ActionFunction = async ({ request, params }) => {
     if (values.error != undefined) return validationError(values.error);
   
     try {
-        await deleteObjective(id)
+        await deleteObjective(id);
     } catch (e) {
       const session = await getSession(request);
       session.flash("warning", "Error while saving objective");
