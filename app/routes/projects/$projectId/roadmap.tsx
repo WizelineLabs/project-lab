@@ -1,4 +1,4 @@
-import { Box, Button, Container, Divider, Grid, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemSecondaryAction, ListItemText, Paper, Stack, Tab, Tabs, styled } from "@mui/material";
+import { Box, Button, Container, Divider, Grid, IconButton, List, ListItemButton, ListItemIcon, ListItemText, Paper, Stack, Tab, Tabs, styled } from "@mui/material";
 import { Link, Outlet, useTransition } from "@remix-run/react";
 import GoBack from "~/core/components/GoBack";
 import Header from "~/core/layouts/Header";
@@ -9,6 +9,7 @@ import { adminRoleName, quartersOptions, statusObjectivesOptions } from "app/con
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import { EditPanelsStyles } from "~/routes/manager/manager.styles";
 import type { SyntheticEvent } from "react";
+import { Fragment } from "react";
 import { useEffect, useState } from "react";
 import type { LoaderArgs } from "@remix-run/server-runtime";
 import TabPanel from "~/core/components/TabPanel";
@@ -27,6 +28,7 @@ type Objective = {
     name: string;
     input: string;
     quarter: string;
+    result: string;
     status: string;
     projectId: string
 }
@@ -67,6 +69,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   export const validator = withZod(
     z.object({
       id: z.string().optional(),
+      editmode: z.string().optional(),
       name: z
         .string()
         .min(1, { message: "Name is required" }),
@@ -83,25 +86,36 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     })
   );
 
+  export const deleteValidator = withZod(
+    z.object(
+        {
+            id: z.string(),
+            projectId: z.string()
+        }
+    )
+  );
+
 
 export default function RoadMapProject() {
 
     const [tabIndex, setTabIndex] = useState(2);
     const [openCreateModal, setOpenCreateModal] = useState(false);
+    const [openDeleteModal, setOpenDeleteModal] = useState(false);
     const [editMode, setEditMode] = useState(false);
-    const [selectedRowID, setSelectedRowID] = useState();
+    const [selectedRow, setSelectedRow] = useState<Objective>();
 
     const transition = useTransition();
 
     useEffect(() => {
-        if (transition.type == "actionReload" || transition.type == "actionSubmission") {
-        setOpenCreateModal(false);
+        if (transition.type == "actionReload" || transition.type == "actionSubmission" || transition.type == "actionRedirect") {
+            setOpenCreateModal(false);
+            setOpenDeleteModal(false);
         }
     }, [transition]);
 
     const handleTabChange = (event: SyntheticEvent, tabNumber: number) =>
     setTabIndex(tabNumber);
-    const { isAdmin, project, projectId, objectives } =
+    const { project, projectId, objectives } =
     useTypedLoaderData<typeof loader>();
     let objectivesQ1:Objective[] = [];
     let objectivesQ2:Objective[] = [];
@@ -116,15 +130,17 @@ export default function RoadMapProject() {
     }
 
     const handleEditObjective = (idObjective:string) => {
+        const objective:Objective | undefined = objectives.find( obj => obj.id === idObjective) || undefined;
+        setSelectedRow(objective)
         setEditMode(true);
         setOpenCreateModal(true);
-        // eslint-disable-next-line no-console
-        console.log(idObjective);
     }
 
     const handleDeleteObjective = (idObjective:string) => {
-        // eslint-disable-next-line no-console
-        console.log(idObjective);
+        setOpenCreateModal(false);
+        const objective:Objective | undefined = objectives.find( obj => obj.id === idObjective) || undefined;
+        setSelectedRow(objective)
+        setOpenDeleteModal(true);
     }
 
     return (
@@ -190,12 +206,12 @@ export default function RoadMapProject() {
                         <Grid container spacing={{ xs: 2, md: 4 }} columns={{ xs: 4, sm: 8, md: 12 }}>
                             <Grid item xs={4} sm={4} md={3} key={1}>
                             <List>
-                                <Item>Q1</Item>
+                                <Item key="q1">Q1</Item>
                                     {
                                         objectivesQ1 && objectivesQ1.map( objective => {
                                             return(
-                                                <>
-                                                    <ListItemButton key={objective.id}>   
+                                                <Fragment key={objective.id}>
+                                                    <ListItemButton >   
                                                         <ListItemText primary={objective.name} />
                                                         <ListItemIcon >
                                                             <IconButton onClick={() => handleEditObjective(objective.id)}>
@@ -209,7 +225,7 @@ export default function RoadMapProject() {
                                                         </ListItemIcon>
                                                     </ListItemButton> 
                                                     <Divider />
-                                                </>
+                                                </Fragment>
                                             )
                                         }
                                         )
@@ -219,12 +235,12 @@ export default function RoadMapProject() {
                             </Grid>
                             <Grid item xs={4} sm={4} md={3} key={2}>
                             <List>
-                                <Item>Q2</Item>
+                                <Item key="q2">Q2</Item>
 
                                 {
                                     objectivesQ2 && objectivesQ2.map( objective => {
                                         return(
-                                                <>
+                                                <Fragment key={objective.id}>
                                                     <ListItemButton key={objective.id}>   
                                                         <ListItemText primary={objective.name} />
                                                         <ListItemIcon >
@@ -239,7 +255,7 @@ export default function RoadMapProject() {
                                                         </ListItemIcon>
                                                     </ListItemButton> 
                                                     <Divider />
-                                                </>
+                                                </Fragment>
                                         )
                                     })
                                 }
@@ -249,13 +265,13 @@ export default function RoadMapProject() {
                             </Grid>
                             <Grid item xs={4} sm={4} md={3} key={3}>
                             <List>
-                                <Item>Q3</Item>
+                                <Item key="q3">Q3</Item>
 
                                 {
                                     objectivesQ3 && objectivesQ3.map( objective => {
                                         return(
-                                            <>
-                                                <ListItemButton key={objective.id}>   
+                                            <Fragment key={objective.id}>
+                                                <ListItemButton >   
                                                     <ListItemText primary={objective.name} />
                                                     <ListItemIcon >
                                                         <IconButton onClick={() => handleEditObjective(objective.id)}>
@@ -269,7 +285,7 @@ export default function RoadMapProject() {
                                                     </ListItemIcon>
                                                 </ListItemButton> 
                                                  <Divider />
-                                            </>
+                                            </Fragment>
                                         )
                                     })
                                 }
@@ -278,12 +294,12 @@ export default function RoadMapProject() {
                             </Grid>
                             <Grid item xs={4} sm={4} md={3} key={4}>
                                 <List>
-                                    <Item>Q4</Item>
+                                    <Item key="q4">Q4</Item>
                                     {
                                     objectivesQ4 && objectivesQ4.map( objective => {
                                         return(
-                                                <>
-                                                    <ListItemButton key={objective.id}>    
+                                                <Fragment key={objective.id}>
+                                                    <ListItemButton>    
                                                         <ListItemText primary={objective.name} />
                                                         <ListItemIcon >
                                                             <IconButton onClick={() => handleEditObjective(objective.id)}>
@@ -297,7 +313,7 @@ export default function RoadMapProject() {
                                                         </ListItemIcon>
                                                     </ListItemButton> 
                                                     <Divider />
-                                                </>
+                                                </Fragment>
                                         )
                                     })
                                 }
@@ -314,14 +330,27 @@ export default function RoadMapProject() {
             <ModalBox
                 open={openCreateModal}
                 handleClose={() => setOpenCreateModal(false)}
-                close={() => setOpenCreateModal(false)}
+                close={() => {
+                    setSelectedRow(undefined);
+                    setOpenCreateModal(false);
+                }}
             >
                 <h2 data-testid="createNewLabel">
                     {editMode ?  "Edit Objective" : "Create objective"}
                 </h2>
-                <ValidatedForm action='./createRoadMap' method="post" validator={validator} id="create-form">
+                <ValidatedForm action='./createRoadMap' method="post" validator={validator} id="create-form"
+                   defaultValues={ editMode ? {
+                        id: selectedRow?.id,
+                        name: selectedRow?.name,
+                        input: selectedRow?.input,
+                        result: selectedRow?.result,
+                        quarter: selectedRow ? { name: selectedRow?.quarter } : { name: ""},
+                        status: selectedRow ? { name: selectedRow?.status } : { name: ""},
+                    } : {} }
+                >
                     <Stack spacing={2}>
-                        <input type="hidden" name="id" value={selectedRowID} />
+                        <input type="hidden" name="id" value={selectedRow?.id} />
+                        <input type="hidden" name="editmode" value={editMode ? "edit" : "create"} />
                         <input type="hidden" name="projectId" value={projectId} />
                         <LabeledTextField fullWidth name="name" label="Name" placeholder="Name" />
                         <LabeledTextField fullWidth name="input" label="Input" placeholder="Input (What do you need to start)" />
@@ -335,25 +364,54 @@ export default function RoadMapProject() {
                         <InputSelect
                             valuesList={statusObjectivesOptions}
                             name="status"
-                            label="Select a satus"
+                            label="Select a status"
                             disabled={false}
                         />
                         
 
                         <div>
-                        <Button variant="contained" onClick={() => setOpenCreateModal(false)}>
-                            Cancel
-                        </Button>
-                        &nbsp;
-                        <Button type="submit" variant="contained" color="warning">
-                            Create
-                        </Button>
+                            <Button variant="contained" onClick={() => setOpenCreateModal(false)}>
+                                Cancel
+                            </Button>
+                            &nbsp;
+                            <Button type="submit" variant="contained" color="warning">
+                                Create
+                            </Button>
                         </div>
                     </Stack>
 
                 </ValidatedForm>
                 <br />
             </ModalBox>
+            
+            <ModalBox
+                open={openDeleteModal}
+                handleClose={() => setOpenDeleteModal(false)}
+                close={() => { 
+                    setSelectedRow(undefined);
+                    setOpenDeleteModal(false)
+                }}
+            >
+                <h2 data-testid="createNewLabel">
+                    Delete Objective
+                </h2>
+
+                <ValidatedForm validator={deleteValidator} action='./deleteObjective' method="post">
+                    <input type="hidden" name="id" value={selectedRow?.id} />
+                    <input type="hidden" name="projectId" value={projectId} />
+                    <p>This action cannot be undone.</p>
+                    <div>
+                            <Button variant="contained" onClick={() => setOpenCreateModal(false)}>
+                                Cancel
+                            </Button>
+                            &nbsp;
+                            <Button type="submit" variant="contained" color="warning">
+                                Delete
+                            </Button>
+                    </div>
+                </ValidatedForm>
+            </ModalBox>
+           
 
         </>     
     )
