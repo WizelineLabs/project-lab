@@ -1,6 +1,5 @@
 import type { ActionFunction } from "@remix-run/server-runtime";
 import { deleteValidator } from "../roadmap";
-import invariant from "tiny-invariant";
 import { getSession } from "~/session.server";
 import { redirect } from "remix-typedjson";
 import { deleteObjective } from "~/models/objectives.server";
