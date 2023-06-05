@@ -7,6 +7,8 @@ CREATE TABLE "GitHubProfile" (
     "username" TEXT NOT NULL,
     "avatarUrl" TEXT NOT NULL,
     "reposUrl" TEXT NOT NULL,
+    "firstName" TEXT NOT NULL,
+    "lastName" TEXT NOT NULL,
     CONSTRAINT "GitHubProfile_pkey" PRIMARY KEY ("id")
 );
 -- CreateTable

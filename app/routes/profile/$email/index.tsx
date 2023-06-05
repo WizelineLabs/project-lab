@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import { getGitHubProfileByEmail, getGitHubProjectsByEmail } from "../../models/profile.server";
+import { getGitHubProfileByEmail, getGitHubProjectsByEmail } from "../../../models/profile.server";
 import {  useLoaderData } from "@remix-run/react";
 import type { LoaderArgs, LoaderFunction } from "@remix-run/node";
 import invariant from "tiny-invariant";
