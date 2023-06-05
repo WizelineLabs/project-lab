@@ -29,11 +29,15 @@ const StyledHeaderButton = styled(Button)(({ theme }) => ({
 const Header = ({ title }: IProps) => {
   const currentUser = useUser();
   const submit = useSubmit();
+
+  const handleClickProfile = async () => {
+    const { email } = currentUser;    
+    submit(null, { method: "get", action: `/profile/${encodeURIComponent(email)}` });
+  };
+
   const options: MenuItemArgs[] = [
     {
-      onClick: async () => {
-        submit(null, { method: "get", action: "/profile" });
-      },
+      onClick: handleClickProfile,
       to: "/",
       text: "Profile",
     },

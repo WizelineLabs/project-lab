@@ -113,6 +113,8 @@ model GitHubProfile {
   username               String                   
   avatarUrl              String
   reposUrl               String
+  firstName              String
+  lastName               String
 }
 
 model GitHubProjects {
