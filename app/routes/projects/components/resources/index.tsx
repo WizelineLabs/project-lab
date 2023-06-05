@@ -30,7 +30,6 @@ const RESOURCE_TYPES = [
 ];
 
 const RESOURCE_PROVIDERS = ["AWS", "GCP", "Azure"];
-const RESOURCE_NAMES: string[] = [];
 
 interface IResource {
   type: string;
