@@ -123,14 +123,14 @@ export default function RoadMapProject() {
     let objectivesQ4:Objective[] = [];
 
     if(objectives.length > 0) {
-        objectivesQ1 = objectives.filter(objective => objective.quarter === 'Q1');
-        objectivesQ2 = objectives.filter(objective => objective.quarter === 'Q2');
-        objectivesQ3 = objectives.filter(objective => objective.quarter === 'Q3');
-        objectivesQ4 = objectives.filter(objective => objective.quarter === 'Q4');
+        objectivesQ1 = objectives.filter((objective: Objective) => objective.quarter === 'Q1');
+        objectivesQ2 = objectives.filter((objective: Objective) => objective.quarter === 'Q2');
+        objectivesQ3 = objectives.filter((objective: Objective) => objective.quarter === 'Q3');
+        objectivesQ4 = objectives.filter((objective: Objective) => objective.quarter === 'Q4');
     }
 
     const handleEditObjective = (idObjective:string) => {
-        const objective:Objective | undefined = objectives.find( obj => obj.id === idObjective) || undefined;
+        const objective:Objective | undefined = objectives.find( (obj: Objective) => obj.id === idObjective) || undefined;
         setSelectedRow(objective);
         setEditMode(true);
         setOpenCreateModal(true);
@@ -138,7 +138,7 @@ export default function RoadMapProject() {
 
     const handleDeleteObjective = (idObjective:string) => {
         setOpenCreateModal(false);
-        const objective:Objective | undefined = objectives.find( obj => obj.id === idObjective) || undefined;
+        const objective:Objective | undefined = objectives.find( (obj: Objective) => obj.id === idObjective) || undefined;
         setSelectedRow(objective);
         setOpenDeleteModal(true);
     }
