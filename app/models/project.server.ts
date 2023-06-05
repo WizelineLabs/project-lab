@@ -1,6 +1,6 @@
 import type { Profiles, Projects } from "@prisma/client";
 import { Prisma } from "@prisma/client";
-import { defaultStatus } from "~/constants";
+import { defaultStatus, contributorPath } from "~/constants";
 import { joinCondition, prisma as db } from "~/db.server";
 
 interface SearchProjectsInput {
@@ -116,7 +116,9 @@ export async function getProject({ id }: Pick<Projects, "id">) {
       },
       stages: {
         include: {
-          projectTasks: true,
+          projectTasks: {
+            orderBy: [{ position: "asc" }],
+          },
         },
         orderBy: [{ position: "asc" }],
       },
@@ -186,6 +188,33 @@ export async function createProject(input: any, profileId: string) {
       },
     },
   });
+
+
+  for (let i = 0; i < contributorPath?.length; i++) {
+    const data = {
+      name: contributorPath[i]?.name || "Failed",
+      criteria: contributorPath[i]?.criteria || "Failed",
+      mission: contributorPath[i]?.mission || "Failed",
+    }
+    const tasks = contributorPath[i]?.tasks || []
+    const position = i + 1
+    let projectTasks: any = []
+
+    for (let j = 0; j < tasks.length; j++) {
+      projectTasks.push({ description: tasks[j]?.name, position: tasks[j]?.position })
+    }
+
+    await db.projectStages.create({
+      data: {
+        ...data,
+        project: { connect: { id: project.id } },
+        position: position,
+        projectTasks: {
+          create: projectTasks,
+        },
+      },
+    })
+  }
 
   await db.projectMembers.create({
     data: {

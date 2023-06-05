@@ -26,15 +26,23 @@ export async function getProfileByEmail(email: Profiles["email"]) {
 }
 
 export async function getGitHubProfileByEmail(email: GitHubProfile["email"]) {
-  return prisma.gitHubProfile.findUnique({
+  const profile = await prisma.gitHubProfile.findUnique({
     where: { email },
   });
+
+  return profile;
 }
 
 export async function getGitHubProjectsByEmail(email: GitHubProjects["owner_email"]) {
-  return prisma.gitHubProjects.findMany({
+  const projects = await prisma.gitHubProjects.findMany({
     where: { owner_email : email},
   });
+
+  if (!projects) {
+    throw new Error("Los proyectos de GitHub no existen");
+  }
+
+  return projects;
 }
 
 export async function createProfile(data: Prisma.ProfilesCreateInput) {
@@ -81,16 +89,21 @@ export async function createGitHubProfile(
   email: string,
   username: string,
   avatarUrl: string,
-  reposUrl: string
+  reposUrl: string,
+  firstName: string,
+  lastName: string,
 ) {
-  return prisma.gitHubProfile.create({  
+  const gitHubProfile = await prisma.gitHubProfile.create({  
     data: {
-      email: email,
-      username: username, 
-      avatarUrl: avatarUrl,
-      reposUrl: reposUrl,
+      email,
+      username,
+      avatarUrl,
+      reposUrl,
+      firstName,
+      lastName,
     },
-  })
+  });
+  return gitHubProfile;
 }
 
 export async function createGitHubProject(
