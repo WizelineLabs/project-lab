@@ -8,7 +8,7 @@ export const getUserInfo = async (email: string) => {
     return await octokit.request(`GET /search/users?q=${email}`);
   }
   catch (e){
-    console.log('unable to get the guthub user');
+    console.log('unable to get the github user');
     return {
       data: null
     };
