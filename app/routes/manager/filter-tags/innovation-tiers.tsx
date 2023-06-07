@@ -68,6 +68,7 @@ const validatorFront = withZod(
 const validatorForm = withZod(
   zfd.formData({
     name: z.object({ name: z.string() }).optional(),
+    ids: z.array(z.union([z.string(), z.number()])).optional(),
     
   })
 );
