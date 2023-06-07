@@ -270,7 +270,7 @@ function ProjectStatusDataGrid() {
           color="primary"
           startIcon={<AddIcon />}
           onClick={() => handleAddClick()}
-          data-testid="StatusCreate"
+          data-testid="testStatusCreate"
         >
           {createButtonText}
         </Button>
@@ -323,6 +323,7 @@ function ProjectStatusDataGrid() {
                             size="small"
                             onClick={() => handleEditClick(row.id)}
                             style={{ marginLeft: 16 }}
+                            data-testid="testStatusEdit"
                           >
                             <EditIcon color="inherit" />
                           </Button>
@@ -429,7 +430,7 @@ function ProjectStatusDataGrid() {
 
       {/* edit status Modal */}
       <ModalBox open={openEditModal} close={() => setOpenEditModal(false)}>
-        <h2 data-testid="createNewLabel">
+        <h2 data-testid="testStatusEditModal">
          Edit  status
         </h2>
         <ValidatedForm action='./' method="put" validator={validator} 
@@ -460,7 +461,7 @@ function ProjectStatusDataGrid() {
 
       {/* create status Modal */}
       <ModalBox open={openCreateModal} close={() => setOpenCreateModal(false)}>
-        <h2 data-testid="editStatusLabel">
+        <h2 data-testid="testStatusCreateModal">
          Create new status
         </h2>
         <ValidatedForm action='./' method="post" validator={validator}>

@@ -234,6 +234,7 @@ function LabelsDataGrid() {
                             size="small"
                             onClick={() => handleModifyClick(row.id, row.name)}
                             style={{ marginLeft: 16 }}
+                            data-testid="testLabelEdit"
                           >
                             <EditIcon color="inherit" />
                           </Button>
@@ -280,7 +281,7 @@ function LabelsDataGrid() {
       {/* Modify Modal */}
       <ModalBox open={openModifyModal} close={() => setOpenModifyModal(false)}>
        
-        <h2 data-testid="deleteLabelModal">
+        <h2 data-testid="testEditLabelModal">
          Modifying label
         </h2>
  
@@ -306,7 +307,7 @@ function LabelsDataGrid() {
 
       {/* Create Label Modal */}
       <ModalBox open={openCreateModal} close={() => setOpenCreateModal(false)}>
-        <h2 data-testid="createNewLabel">
+        <h2 data-testid="testCreateNewLabelModal">
          Create new label
         </h2>
         <ValidatedForm action='./' method="post" validator={validator}>
