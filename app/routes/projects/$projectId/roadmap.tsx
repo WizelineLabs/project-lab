@@ -75,10 +75,10 @@ export const loader = async ({ request, params }: LoaderArgs) => {
         .min(1, { message: "Name is required" }),
       input: z
         .string()
-        .min(1, { message: "Name is required" }),
+        .min(1, { message: "Input is required" }),
       result: z
         .string()
-        .min(1, { message: "Name is required" }),
+        .min(1, { message: "Result is required" }),
       quarter: z
         .object({name: z.string().min(1, { message: "Quarter is required"})}),
       status: z
@@ -335,7 +335,7 @@ export default function RoadMapProject() {
                     setOpenCreateModal(false);
                 }}
             >
-                <h2 data-testid="createNewLabel">
+                <h2>
                     {editMode ?  "Edit Objective" : "Create objective"}
                 </h2>
                 <ValidatedForm action='./createRoadMap' method="post" validator={validator} id="create-form"
@@ -375,7 +375,7 @@ export default function RoadMapProject() {
                             </Button>
                             &nbsp;
                             <Button type="submit" variant="contained" color="warning">
-                                Create
+                                    { editMode ? "Edit" : "Create" }
                             </Button>
                         </div>
                     </Stack>
@@ -392,7 +392,7 @@ export default function RoadMapProject() {
                     setOpenDeleteModal(false);
                 }}
             >
-                <h2 data-testid="createNewLabel">
+                <h2>
                     Delete Objective
                 </h2>
 

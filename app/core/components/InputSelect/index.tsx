@@ -26,7 +26,7 @@ export const InputSelect = ({
   helperText,
   disabled,
 }: InputSelectProps) => {
-  const { error } = useField(name);
+  const { error } = useField(`${name}.name`);
   const [value, setValue] = useControlField<SelectValue>(name);
   return (
     <FormControl fullWidth id={name} size="small" error={!!error}>
