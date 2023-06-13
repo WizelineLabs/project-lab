@@ -7,10 +7,12 @@ import { findOrCreate } from "~/models/user.server";
 import {
   createProfile,
   getProfileByEmail,
-  updateProfile,
+  getGitHubProfileByEmail,
+  createGitHubProfile,
+  createGitHubProject,
 } from "./models/profile.server";
 import { findProfileData } from "./lake.server";
-import { getUserInfo } from "./routes/api/github/get-getUserInfo";
+import { getUserInfo, getUserRepos } from "./routes/api/github/get-getUserInfo";
 
 invariant(process.env.AUTH0_CLIENT_ID, "AUTH0_CLIENT_ID must be set");
 invariant(process.env.AUTH0_CLIENT_SECRET, "AUTH0_CLIENT_SECRET must be set");
@@ -35,21 +37,15 @@ let auth0Strategy = new Auth0Strategy(
       // search profile in our DB or get from data lake
       const email = profile.emails[0].value;
       const userProfile = await getProfileByEmail(email);
-      if (userProfile?.githubUser === '' || userProfile?.githubUser === null) {
-        const { data } = await getUserInfo(email);
-        if (data.total_count > 0) {
-          const gitHubUser = data.items[0].login;
-          userProfile.githubUser = gitHubUser;
-          updateProfile(userProfile, userProfile.id);
-        }
-      }
       if (!userProfile) {
         const lakeProfile = await findProfileData(email);
         createProfile({
           id: String(lakeProfile.contact__employee_number),
           email: lakeProfile.contact__email,
           firstName: lakeProfile.contact__first_name,
-          preferredName: lakeProfile.contact__preferred_name,
+          preferredName:
+            lakeProfile.contact__preferred_name ||
+            lakeProfile.contact__first_name,
           lastName: lakeProfile.contact__last_name,
           department: lakeProfile.contact__department,
           jobLevelTier: lakeProfile.contact__wizeos__level,
@@ -62,7 +58,27 @@ let auth0Strategy = new Auth0Strategy(
           benchStatus: lakeProfile.contact__status,
         });
       }
-      // Get the user data from your DB or API using the tokens and profile
+      const userGitHubProfile = await getGitHubProfileByEmail(email);
+      if (userGitHubProfile === null || userGitHubProfile?.email === '' || userGitHubProfile?.email === null || userGitHubProfile?.email === undefined)  {
+        const { data: userInfo } = await getUserInfo(email);
+        
+        if(userInfo.total_count !== 0) {
+            const { data: repos } = await getUserRepos(userInfo.items[0].login)
+            
+            const userProfile = await getProfileByEmail(email);
+            await createGitHubProfile(email, userInfo.items[0].login, userInfo.items[0].avatar_url, userInfo.items[0].repos_url, userProfile?.firstName ?? "Default Name", userProfile?.lastName ?? "Default LastName",);
+            
+            for (const repo of repos) {
+              const date = new Date(repo.updated_at);
+              const formattedDate = date.toLocaleString();
+              const name = repo.name ? repo.name : "No name available";
+              const description = repo.description ? repo.description : "No description available";
+              
+              await createGitHubProject(email, name, description, formattedDate);
+            }
+        }
+      }
+      // Get the user data from your DB or API using the tokens and profile     
       return findOrCreate({
         email: profile.emails[0].value,
         name: profile.displayName || "Unnamed",

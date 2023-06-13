@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
-import { useFetcher, useCatch, useLoaderData } from "@remix-run/react";
+import { useFetcher, useCatch, useLoaderData, useTransition } from "@remix-run/react";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import {
   ValidatedForm,
-  validationError,
   useFieldArray,
 } from "remix-validated-form";
 import { withZod } from "@remix-validated-form/with-zod";
@@ -11,13 +10,9 @@ import { zfd } from "zod-form-data";
 import { z } from "zod";
 import { json } from "@remix-run/node";
 import styled from "@emotion/styled";
-import { DataGrid, GridToolbarContainer } from "@mui/x-data-grid";
-import type { GridRenderCellParams } from "@mui/x-data-grid";
 import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
-import SaveIcon from "@mui/icons-material/Save";
-import CancelIcon from "@mui/icons-material/Close";
 import EastIcon from "@mui/icons-material/East";
 import invariant from "tiny-invariant";
 import { InputSelect } from "app/core/components/InputSelect";
@@ -28,7 +23,9 @@ import {
   removeInnovationTier,
   updateInnovationTier,
 } from "~/models/innovationTier.server";
-import { getProjects, updateManyProjects } from "~/models/project.server";
+import { getProjects } from "~/models/project.server";
+import { Card, CardContent, CardHeader, Container, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel } from "@mui/material";
+import LabeledTextField from "~/core/components/LabeledTextField";
 
 declare module "@mui/material/Button" {
   interface ButtonPropsColorOverrides {
@@ -36,18 +33,12 @@ declare module "@mui/material/Button" {
     secondaryC: true;
   }
 }
-
 type InnovationTierRecord = {
   id: string;
   name: string;
   benefits?: string;
   requisites?: string;
   goals?: string;
-};
-
-type gridEditToolbarProps = {
-  setRows: React.Dispatch<React.SetStateAction<InnovationTierRecord[]>>;
-  createButtonText: string;
 };
 
 type LoaderData = {
@@ -59,13 +50,6 @@ type InnovationTierItem = Awaited<
   ReturnType<typeof getInnovationTiers>
 >[number];
 
-type newInnovationTier = {
-  name: string;
-  benefits: string;
-  requisites: string;
-  goals: string;
-};
-
 type ProjectRecord = {
   id: number | string;
   name: string | null;
@@ -73,14 +57,19 @@ type ProjectRecord = {
 
 const validatorFront = withZod(
   zfd.formData({
-    name: z.object({ name: z.string() }).optional(),
+    id: z.string().optional(),
+    name: z.string().min(1, { message: "Name is required"}),
+    benefits: z.string().min(1, { message: "Benefits is required"}),
+    goals: z.string().min(1, { message: "Goals is required"}),
+    requisites: z.string().min(1, { message: "Requisites is required"}),
   })
 );
 
-const validatorBack = withZod(
+const validatorForm = withZod(
   zfd.formData({
     name: z.object({ name: z.string() }).optional(),
-    ids: z.array(z.union([z.string(), z.number()])),
+    ids: z.array(z.union([z.string(), z.number()])).optional(),
+    
   })
 );
 
@@ -101,22 +90,20 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData();
-
-  let action = formData.get("action");
+  let result = await validatorFront.validate(await request.formData());
+  let action = result.submittedData.action;
   let response;
-  let name, benefits, requisites, goals, data, id;
-  const subaction = formData.get("subaction");
+  let name, benefits, requisites, goals, id;
+  const subaction = result.submittedData.subaction;
+  let data = result.data;
   if (subaction) action = subaction;
-
   try {
     switch (action) {
-      case "POST":
-        data = JSON.parse(formData.get("data") as string);
-        name = data.name;
-        benefits = data.benefits;
-        requisites = data.requisites;
-        goals = data.goals;
+      case "ADD":
+        name = data?.name;
+        benefits = data?.benefits;
+        requisites = data?.requisites;
+        goals = data?.goals;
         invariant(name, "Invalid innovation tier name");
         invariant(benefits, "Invalid innovation tier benefits");
         invariant(requisites, "Invalid innovation tier requisites");
@@ -130,33 +117,21 @@ export const action: ActionFunction = async ({ request }) => {
         return json(response, { status: 201 });
 
       case "DELETE":
-        name = formData.get("name") as string;
-        invariant(name, "Innovation Tier name is required");
-        await removeInnovationTier({ name });
+        id = data?.id as string;
+        await removeInnovationTier({ name: id });
         return json({ error: "" }, { status: 200 });
 
       case "UPDATE":
-        data = JSON.parse(formData.get("data") as string);
-        id = formData.get("id") as string;
-        name = data.name;
-        benefits = data.benefits;
-        requisites = data.requisites;
-        goals = data.goals;
+        id = data?.id;
+        name = data?.name;
+        benefits = data?.benefits;
+        requisites = data?.requisites;
+        goals = data?.goals;
         invariant(name, "Invalid innovation tier name");
         invariant(benefits, "Invalid innovation tier benefits");
         invariant(requisites, "Invalid innovation tier requisites");
         invariant(goals, "Invalid innovation tier goals");
         await updateInnovationTier({ id, name, benefits, requisites, goals });
-        return json({ error: "" }, { status: 200 });
-
-      case "UPDATE-PROJECTS":
-        const result = await validatorBack.validate(formData);
-        if (result.error) return validationError(result.error);
-
-        const ids = result.data.ids as string[];
-        const tierName = result.data.name?.name;
-        invariant(tierName, "Innovation tier name is required");
-        await updateManyProjects({ ids, data: { tierName } });
         return json({ error: "" }, { status: 200 });
 
       default: {
@@ -173,39 +148,12 @@ export const action: ActionFunction = async ({ request }) => {
   }
 };
 
-const GridEditToolbar = (props: gridEditToolbarProps) => {
-  const { setRows, createButtonText } = props;
-  const handleAddClick = () => {
-    const id = "new-value";
-    const newName = "";
-    setRows((prevRows) => {
-      if (prevRows.find((rowValue) => rowValue.id === "new-value")) {
-        return [...prevRows];
-      }
-      return [...prevRows, { id, name: newName, isNew: true }];
-    });
-  };
-  return (
-    <GridToolbarContainer>
-      <Button
-        variant="contained"
-        color="primary"
-        startIcon={<AddIcon />}
-        onClick={() => handleAddClick()}
-        data-testid="testInnovationCreate"
-      >
-        {createButtonText}
-      </Button>
-    </GridToolbarContainer>
-  );
-};
-
-const InnovationTiersGrid = () => {
+function InnovationTiersGrid(){
   const fetcher = useFetcher();
   const { innovationTiers } = useLoaderData() as LoaderData;
   const createButtonText = "Create New Innovation Tier";
   const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
-  const [error, setError] = useState<string>("");
+  const [editMode, setEditMode] = useState<boolean>(false);
   const [rows, setRows] = useState<InnovationTierRecord[]>(() =>
     innovationTiers.map((item: InnovationTierItem) => ({
       id: item.name,
@@ -220,16 +168,19 @@ const InnovationTiersGrid = () => {
   const [items, { push }] = useFieldArray("ids", {
     formId: "delete-tier-form",
   });
+  const [openCreateModal, setOpenCreateModal] = useState<boolean>(false);
+
+  const transition = useTransition();
+
+  useEffect(() => {
+    if (transition.type == "actionReload" || transition.type == "actionSubmission") {
+      setOpenCreateModal(false);
+    }
+  }, [transition]);
 
   useEffect(() => {
     //It handles the fetcher error from the response
     if (fetcher.state === "idle" && fetcher.data) {
-      if (fetcher.data.error) {
-        setError(fetcher.data.error);
-      } else {
-        setError("");
-      }
-
       if (fetcher.data.projects) {
         setProjects(fetcher.data.projects);
       } else {
@@ -251,111 +202,17 @@ const InnovationTiersGrid = () => {
     );
   }, [innovationTiers]);
 
-  // Set handles for interactions
-
-  const handleRowEditStart = (event: any) => {
-    event.defaultMuiPrevented = true;
-  };
-
-  const handleRowEditStop = (event: any) => {
-    event.defaultMuiPrevented = true;
-  };
-
-  const handleCellFocusOut = (event: any) => {
-    event.defaultMuiPrevented = true;
-  };
-
-  const handleEditClick = (idRef: GridRenderCellParams) => {
-    idRef.api.setRowMode(idRef.row.id, "edit");
-  };
-
-  // Add new Innovation Tier
-  const createNewTier = async (values: newInnovationTier) => {
-    try {
-      const body = {
-        data: JSON.stringify({
-          ...values,
-        }),
-        action: "POST",
-      };
-      await fetcher.submit(body, { method: "post" });
-    } catch (error: any) {
-      console.error(error);
-    }
-  };
-
-  const handleSaveClick = async (idRef: GridRenderCellParams) => {
-    const id = idRef.row.id;
-
-    const row = idRef.api.getRow(id);
-    const isValid = await idRef.api.commitRowChange(idRef.row.id);
-    const newName = idRef.api.getCellValue(id, "name");
-    const newBenefits = idRef.api.getCellValue(id, "benefits");
-    const newRequisites = idRef.api.getCellValue(id, "requisites");
-    const newGoals = idRef.api.getCellValue(id, "goals");
-
-    if (
-      innovationTiers.find((rowValue) => rowValue.name === newName) &&
-      row.isNew
-    ) {
-      setError("Field Already exists");
-      return;
-    }
-
-    if (!newName || !newBenefits || !newRequisites || !newGoals) {
-      setError("All fields are required");
-      return;
-    }
-
-    if (row.isNew && isValid) {
-      const newValues = {
-        name: newName,
-        benefits: newBenefits,
-        requisites: newRequisites,
-        goals: newGoals,
-      };
-      idRef.api.setRowMode(id, "view");
-      await createNewTier(newValues);
-      return;
-    }
-    if (isValid) {
-      const row = idRef.api.getRow(idRef.row.id);
-      let id = idRef.row.id;
-      await editTierInfo(id, {
-        name: newName,
-        benefits: newBenefits,
-        requisites: newRequisites,
-        goals: newGoals,
-      });
-      idRef.api.updateRows([{ ...row, isNew: false }]);
-      idRef.api.setRowMode(id, "view");
-    }
-  };
-
-  const handleCancelClick = async (idRef: GridRenderCellParams) => {
-    const id = idRef.row.id;
-    idRef.api.setRowMode(id, "view");
-
-    const row = idRef.api.getRow(id);
-    if (row && row.isNew) {
-      await idRef.api.updateRows([{ id, _action: "delete" }]);
-      setRows((prevRows) => {
-        const rowToDeleteIndex = prevRows.length - 1;
-        return [
-          ...rows.slice(0, rowToDeleteIndex),
-          ...rows.slice(rowToDeleteIndex + 1),
-        ];
-      });
-    }
-  };
-
   // Delete Innovation Tier
   const deleteConfirmationHandler = async () => {
     setOpenDeleteModal(false);
     try {
       const body = {
         name: selectedRowID,
+        id: selectedRowID,
         action: "DELETE",
+        benefits: " ",
+        requisites: " ",
+        goals: " ",
       };
       await fetcher.submit(body, { method: "delete" });
     } catch (error: any) {
@@ -363,8 +220,7 @@ const InnovationTiersGrid = () => {
     }
   };
 
-  const handleDeleteClick = async (idRef: GridRenderCellParams) => {
-    let id = idRef.row.id;
+  const handleDeleteClick = async (id: string) => {
     const body = {
       innovationTier: id,
     };
@@ -372,6 +228,17 @@ const InnovationTiersGrid = () => {
     setSelectedRowID(() => id);
     setOpenDeleteModal(() => true);
   };
+
+  const handleEditClick = (id: string) => {
+    setSelectedRowID(id);
+    setEditMode(true);
+    setOpenCreateModal(true)
+  }
+
+  const handleCreateClick = () => {
+    setOpenCreateModal(true);
+    setEditMode(false)
+  }
 
   const handleSubmit = async ({
     projectsIds,
@@ -382,116 +249,155 @@ const InnovationTiersGrid = () => {
 
     await deleteConfirmationHandler();
   };
+  interface HeadTiersData {
+    id: keyof InnovationTierRecord;
+    label: string;
+    numeric: boolean;
+  }
 
-  // Edit Innovation Tier
-  const editTierInfo = async (id: string, values: newInnovationTier) => {
-    try {
-      const body = {
-        id,
-        data: JSON.stringify({
-          ...values,
-        }),
-        action: "UPDATE",
-      };
-      await fetcher.submit(body, { method: "put" });
-    } catch (error: any) {
-      console.error(error);
-    }
-  };
-
-  const columns = [
-    { field: "name", headerName: "Name", width: 150, editable: true },
-    { field: "benefits", headerName: "Benefits", flex: 1, editable: true },
-    { field: "requisites", headerName: "Requisites", flex: 1, editable: true },
-    { field: "goals", headerName: "Goals", flex: 1, editable: true },
+  const headCells: HeadTiersData[] = [
     {
-      field: "actions",
-      headerName: "Actions",
-      width: 200,
-      cellClassName: "actions",
-      renderCell: (idRef: any) => {
-        if (idRef.row.id === "new-value") {
-          idRef.api.setRowMode(idRef.row.id, "edit");
-        }
-        const isInEditMode = idRef.api.getRowMode(idRef.row.id) === "edit";
-        if (isInEditMode) {
-          return (
-            <>
-              <Button
-                variant="contained"
-                color="primary"
-                size="small"
-                onClick={() => handleCancelClick(idRef)}
-                style={{ marginLeft: 16 }}
-              >
-                <CancelIcon color="inherit" />
-              </Button>
-
-              <Button
-                variant="contained"
-                color="secondary"
-                size="small"
-                onClick={() => handleSaveClick(idRef)}
-                style={{ marginLeft: 16 }}
-                data-testid="testInnovationSave"
-              >
-                <SaveIcon color="inherit" />
-              </Button>
-            </>
-          );
-        }
-        return (
-          <>
-            <Button
-              variant="contained"
-              size="small"
-              onClick={() => handleEditClick(idRef)}
-              style={{ marginLeft: 16 }}
-            >
-              <EditIcon color="inherit" />
-            </Button>
-            <Button
-              variant="contained"
-              color="warning"
-              size="small"
-              onClick={() => handleDeleteClick(idRef)}
-              style={{ marginLeft: 16 }}
-              data-testid="testInnovationDelete"
-            >
-              <EastIcon color="inherit" />
-            </Button>
-          </>
-        );
-      },
+      id: "name",
+      numeric: false,
+      label: "Name",
     },
+    {
+      id: "benefits",
+      numeric: false,
+      label: "Benefits",
+    },
+    {
+      id: "requisites",
+      numeric: false,
+      label: "Requisites",
+    },
+    {
+      id: "goals",
+      numeric: false,
+      label: "Goals",
+    },
+    {
+      id: "id",
+      numeric: false,
+      label: "Actions",
+    },
+    
   ];
 
   const isMergeAction = projects.length > 0;
 
   return (
     <div>
-      <h2>Innovation Tiers</h2>
-      <div style={{ display: "flex", width: "100%", height: "70vh" }}>
-        <div style={{ flexGrow: 1 }}>
-          {error && <p style={{ color: "red" }}>{error}</p>}
-          <DataGrid
-            rows={rows}
-            columns={columns}
-            rowsPerPageOptions={[50]}
-            pageSize={50}
-            editMode="row"
-            onRowEditStart={handleRowEditStart}
-            onRowEditStop={handleRowEditStop}
-            onCellFocusOut={handleCellFocusOut}
-            components={{
-              Toolbar: GridEditToolbar,
-            }}
-            componentsProps={{
-              toolbar: { setRows, createButtonText },
-            }}
-          />
-        </div>
-      </div>
+      <Container sx={{ marginBottom: 2 }}>
+        <Card>
+        <CardHeader
+        title="Innovation Tiers"
+        action={
+          <Button
+          variant="contained"
+          color="primary"
+          startIcon={<AddIcon />}
+          onClick={() => handleCreateClick()}
+          data-testid="StatusCreate"
+        >
+          {createButtonText}
+        </Button>
+        }
+        />
+          <CardContent>
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  {
+                    headCells.map((cell) => (
+                      <TableCell key={cell.id} align="center" padding="normal">
+                        <TableSortLabel>
+                          {cell.label}
+                        </TableSortLabel>
+                      </TableCell>
+                    ))
+                  }
+                </TableHead>
+                <TableBody>
+                  {
+                    rows.map(
+                      (row, index) => {
+                        const labelId = `enhanced-table-checkbox-${index}`;
+                        return (
+                          <TableRow hover tabIndex={0} key={index}>
+                          <TableCell
+                            component="th"
+                            id={labelId}
+                            scope="row"
+                            align="center"
+                          >
+                            {row.name}
+                          </TableCell>
+                          <TableCell
+                            component="th"
+                            id={labelId}
+                            scope="row"
+                            align="center"
+                          >
+                            {row.benefits}
+                          </TableCell>
+                          <TableCell
+                            component="th"
+                            id={labelId}
+                            scope="row"
+                            align="center"
+                          >
+                            {row.requisites}
+                          </TableCell>
+                          <TableCell
+                            component="th"
+                            id={labelId}
+                            scope="row"
+                            align="center"
+                          >
+                            {row.goals}
+                          </TableCell>
+                          <TableCell
+                            component="th"
+                            id={labelId}
+                            scope="row"
+                            padding="normal"
+                            align="center"
+                            width="20%"
+                          >
+                            <Button
+                              variant="contained"
+                              color="secondary"
+                              size="small"
+                              onClick={() => handleEditClick(row.id)}
+                              style={{ marginLeft: 16 }}
+                            >
+                              <EditIcon color="inherit" />
+                            </Button>
+                            <Button
+                              variant="contained"
+                              color="primary"
+                              size="small"
+                              onClick={() => handleDeleteClick(row.id)}
+                              style={{ marginLeft: 16 }}
+                              data-testid="testStatusDelete"
+                            >
+                              <EastIcon color="inherit" />
+                            </Button>
+                          </TableCell>
+                          </TableRow>
+                        )
+                      }
+                    )
+                  }
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </CardContent>
+        </Card>
+        </Container>
+
+
       {/* Confirmation for deletion */}
       <ModalBox
         open={openDeleteModal}
@@ -513,16 +419,18 @@ const InnovationTiersGrid = () => {
         <br />
         <div>
           <ValidatedForm
-            validator={validatorFront}
+            validator={validatorForm}
             onSubmit={async () => {
               await handleSubmit({
                 projectsIds: projects.map((project) => project.id),
               });
             }}
-            method="put"
-            subaction="UPDATE-PROJECTS"
+            method="post"
+            action="../merge/tiers"
             id="delete-tier-form"
           >
+          <input type="hidden" name="id" value={selectedRowID} />
+
             {isMergeAction && (
               <InputSelect
                 valuesList={innovationTiers.filter(
@@ -570,6 +478,42 @@ const InnovationTiersGrid = () => {
           </ValidatedForm>
         </div>
       </ModalBox>
+
+
+      {/* create status Modal */}
+      <ModalBox open={openCreateModal} close={() => setOpenCreateModal(false)}>
+        <h2 data-testid="editStatusLabel">
+          {
+            editMode ? "Edit Innovation Tier" + selectedRowID : "Add a new innovation tier"
+          }
+        </h2>
+        <ValidatedForm action='./' method="post" subaction={ editMode ? "UPDATE" : "ADD" } validator={validatorFront}
+           defaultValues={  editMode ?  rows.find( row => row.name == selectedRowID) : undefined}
+        >
+          <input type="hidden" name="id" value={selectedRowID} />
+
+          <Stack spacing={2}>
+          <LabeledTextField fullWidth name="name" label="Name" placeholder="Name" />
+
+          <LabeledTextField fullWidth name="benefits" label="Benefits" placeholder="Benefits" />
+
+          <LabeledTextField fullWidth name="requisites" label="Requisites" placeholder="Requisites" />
+
+          <LabeledTextField fullWidth name="goals" label="Goals" placeholder="Goals" />
+          
+          
+          <div>
+            <Button variant="contained" onClick={() => setOpenCreateModal(false)}>
+              Cancel
+            </Button>
+              &nbsp;
+            <Button type="submit" variant="contained" color="warning">
+              { editMode ? "Update" : "Create"}
+            </Button>
+          </div>
+          </Stack>
+        </ValidatedForm>
+      </ModalBox>
     </div>
   );
 };
@@ -577,7 +521,6 @@ export default InnovationTiersGrid;
 
 export function ErrorBoundary({ error }: { error: Error }) {
   console.error(error);
-
   return <div>An unexpected error occurred: {error.message}</div>;
 }
 

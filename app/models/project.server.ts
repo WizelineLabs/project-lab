@@ -1,8 +1,7 @@
 import type { Profiles, Projects } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import { log } from "console";
-import { defaultStatus } from "~/constants";
-
+import { defaultStatus, contributorPath } from "~/constants";
 import { joinCondition, prisma as db } from "~/db.server";
 
 interface SearchProjectsInput {
@@ -32,7 +31,7 @@ interface SearchProjectsOutput {
   createdAt: string;
   updatedAt: string;
   description: string;
-  firstName: string;
+  preferredName: string;
   lastName: string;
   avatarUrl: string;
   status: string;
@@ -89,13 +88,13 @@ export async function getProjectTeamMembers(projectId: string) {
   return await db.projectMembers.findMany({
     where: { projectId },
     include: {
-      profile: { select: { firstName: true, lastName: true, email: true } },
+      profile: { select: { preferredName: true, lastName: true, email: true } },
       practicedSkills: true,
       role: true,
     },
     orderBy: [
       { active: "desc" },
-      { profile: { firstName: "asc" } },
+      { profile: { preferredName: "asc" } },
       { profile: { lastName: "asc" } },
     ],
   });
@@ -112,7 +111,9 @@ export async function getProject({ id }: Pick<Projects, "id">) {
       owner: true,
       projectMembers: {
         include: {
-          profile: { select: { firstName: true, lastName: true, email: true } },
+          profile: {
+            select: { preferredName: true, lastName: true, email: true },
+          },
           contributorPath: true,
           practicedSkills: true,
           role: true,
@@ -121,7 +122,9 @@ export async function getProject({ id }: Pick<Projects, "id">) {
       },
       stages: {
         include: {
-          projectTasks: true,
+          projectTasks: {
+            orderBy: [{ position: "asc" }],
+          },
         },
         orderBy: [{ position: "asc" }],
       },
@@ -191,6 +194,33 @@ export async function createProject(input: any, profileId: string) {
       },
     },
   });
+
+
+  for (let i = 0; i < contributorPath?.length; i++) {
+    const data = {
+      name: contributorPath[i]?.name || "Failed",
+      criteria: contributorPath[i]?.criteria || "Failed",
+      mission: contributorPath[i]?.mission || "Failed",
+    }
+    const tasks = contributorPath[i]?.tasks || []
+    const position = i + 1
+    let projectTasks: any = []
+
+    for (let j = 0; j < tasks.length; j++) {
+      projectTasks.push({ description: tasks[j]?.name, position: tasks[j]?.position })
+    }
+
+    await db.projectStages.create({
+      data: {
+        ...data,
+        project: { connect: { id: project.id } },
+        position: position,
+        projectTasks: {
+          create: projectTasks,
+        },
+      },
+    })
+  }
 
   await db.projectMembers.create({
     data: {
@@ -396,7 +426,9 @@ export async function updateProjects(
       },
       projectMembers: {
         include: {
-          profile: { select: { firstName: true, lastName: true, email: true } },
+          profile: {
+            select: { preferredName: true, lastName: true, email: true },
+          },
           role: true,
           contributorPath: true,
           practicedSkills: true,
@@ -611,7 +643,7 @@ export async function searchProjects({
   } else if (orderBy.field == "mostRecent") {
     orderQuery = Prisma.sql`ORDER BY p."createdAt" DESC`;
   } else {
-    orderQuery = Prisma.sql`ORDER BY "hotness" DESC`
+    orderQuery = Prisma.sql`ORDER BY "hotness" DESC`;
   }
 
   if (having != Prisma.empty) {
@@ -647,9 +679,9 @@ export async function searchProjects({
   }
 
   const projects = await db.$queryRaw<SearchProjectsOutput[]>`
-    SELECT p.id, p.name, p.description, p."searchSkills", pr."firstName", pr."lastName", pr."avatarUrl", p.status, count(distinct v."profileId") AS "votesCount", s.color,
-    LOG10(count(distinct v."profileId") + 1) * 287015 + extract(epoch from p."updatedAt") AS "hotness",  
-    p."createdAt",
+    SELECT p.id, p.name, p.description, p."searchSkills", pr."preferredName", pr."lastName", pr."avatarUrl", p.status, count(distinct v."profileId") AS "votesCount", s.color,
+      LOG10(count(distinct v."profileId") + 1) * 287015 + extract(epoch from p."updatedAt") AS "hotness",
+      p."createdAt",
       p."updatedAt",
       p."ownerId",
       p."tierName",
@@ -668,8 +700,9 @@ export async function searchProjects({
   const statusFacets = await db.$queryRaw<FacetOutput[]>`
     SELECT p.status as name, COUNT(DISTINCT p.id) as count
     FROM "Projects" p
-    WHERE ${projectIdsWhere} AND p.status NOT IN (${status.length > 0 ? Prisma.join(status) : ""
-    })
+    WHERE ${projectIdsWhere} AND p.status NOT IN (${
+    status.length > 0 ? Prisma.join(status) : ""
+  })
     GROUP BY p.status
     ORDER BY count DESC;`;
 
@@ -678,8 +711,9 @@ export async function searchProjects({
     FROM "Projects" p
     LEFT JOIN "_ProjectsToSkills" _ps ON _ps."A" = p.id
     LEFT JOIN "Skills" ON _ps."B" = "Skills".id
-    WHERE ${projectIdsWhere} AND "Skills".name NOT IN (${skill.length > 0 ? Prisma.join(skill) : ""
-    })
+    WHERE ${projectIdsWhere} AND "Skills".name NOT IN (${
+    skill.length > 0 ? Prisma.join(skill) : ""
+  })
     AND "Skills".name IS NOT NULL
     AND "Skills".id IS NOT NULL
     GROUP BY "Skills".id
@@ -691,8 +725,9 @@ export async function searchProjects({
     FROM "Projects" p
     LEFT JOIN "_DisciplinesToProjects" _dp ON _dp."B" = p.id
     LEFT JOIN "Disciplines" ON _dp."A" = "Disciplines".id
-    WHERE ${projectIdsWhere} AND "Disciplines".name NOT IN (${discipline.length > 0 ? Prisma.join(discipline) : ""
-    })
+    WHERE ${projectIdsWhere} AND "Disciplines".name NOT IN (${
+    discipline.length > 0 ? Prisma.join(discipline) : ""
+  })
     AND "Disciplines".name IS NOT NULL
     AND "Disciplines".id IS NOT NULL
     GROUP BY "Disciplines".id
@@ -704,8 +739,9 @@ export async function searchProjects({
     FROM "Projects" p
     LEFT JOIN "_LabelsToProjects" _lp ON _lp."B" = p.id
     LEFT JOIN "Labels" ON _lp."A" = "Labels".id
-    WHERE ${projectIdsWhere} AND "Labels".name NOT IN (${label.length > 0 ? Prisma.join(label) : ""
-    })
+    WHERE ${projectIdsWhere} AND "Labels".name NOT IN (${
+    label.length > 0 ? Prisma.join(label) : ""
+  })
     AND "Labels".name IS NOT NULL
     AND "Labels".id IS NOT NULL
     GROUP BY "Labels".id
@@ -715,8 +751,9 @@ export async function searchProjects({
   const tierFacets = await db.$queryRaw<FacetOutput[]>`
     SELECT p."tierName" as name, COUNT(DISTINCT p.id) as count
     FROM "Projects" p
-    WHERE ${projectIdsWhere} AND p."tierName" NOT IN (${tier.length > 0 ? Prisma.join(tier) : ""
-    })
+    WHERE ${projectIdsWhere} AND p."tierName" NOT IN (${
+    tier.length > 0 ? Prisma.join(tier) : ""
+  })
     GROUP BY p."tierName"
     ORDER BY count DESC, p."tierName"
   `;
@@ -727,8 +764,9 @@ export async function searchProjects({
     INNER JOIN "ProjectMembers" pm ON pm."projectId" = p.id
     INNER JOIN "Profiles" pr on pr.id = p."ownerId"
     LEFT JOIN "Locations" loc ON loc.id = pr."locationId"
-    WHERE ${projectIdsWhere} AND loc.name NOT IN (${location.length > 0 ? Prisma.join(location) : ""
-    })
+    WHERE ${projectIdsWhere} AND loc.name NOT IN (${
+    location.length > 0 ? Prisma.join(location) : ""
+  })
     AND loc.name IS NOT NULL
     AND loc.id IS NOT NULL
     GROUP BY loc.id
@@ -785,8 +823,11 @@ interface IProjectResource {
   name: string;
 }
 
-export async function updateProjectResources(projectId: string, resources: Array<IProjectResource>) {
+export async function updateProjectResources(
+  projectId: string,
+  resources: Array<IProjectResource>
+) {
   await db.resource.deleteMany({ where: { projectId } });
-  const data = resources.map(resource => ({ ...resource, projectId }))
-  return db.resource.createMany({ data })
+  const data = resources.map((resource) => ({ ...resource, projectId }));
+  return db.resource.createMany({ data });
 }

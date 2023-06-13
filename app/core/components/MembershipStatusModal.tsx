@@ -1,11 +1,9 @@
 import { useState } from "react";
-
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import type { SelectChangeEvent } from "@mui/material/Select";
-
 import type { ProjectComplete } from "~/models/project.server";
 import type { ProjectMembers } from "@prisma/client";
 import { withZod } from "@remix-validated-form/with-zod";
@@ -72,7 +70,7 @@ const MembershipStatusModal = ({ close, member, open, project }: IProps) => {
                 .map((member, index) => {
                   return (
                     <MenuItem key={index} value={member.profileId}>
-                      {member.profile.firstName} {member.profile.lastName} (
+                      {member.profile.preferredName} {member.profile.lastName} (
                       {member.profile.email})
                     </MenuItem>
                   );

@@ -6,7 +6,6 @@ import {
   Footer,
   LoginPageContainer,
 } from "./login.styles";
-
 import { useOptionalUser } from "~/utils";
 import { Grid } from "@mui/material";
 

@@ -3,7 +3,6 @@ import DisciplinesSelect from "app/core/components/DisciplinesSelect";
 import SkillsSelect from "app/core/components/SkillsSelect";
 import ModalBox from "app/core/components/ModalBox";
 import Button from "@mui/material/Button";
-
 import {
   Grid,
   FormDivContainer,

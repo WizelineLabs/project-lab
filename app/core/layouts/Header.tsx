@@ -30,7 +30,17 @@ const Header = ({ title }: IProps) => {
   const currentUser = useUser();
   const submit = useSubmit();
 
+  const handleClickProfile = async () => {
+    const { email } = currentUser;    
+    submit(null, { method: "get", action: `/profile/${encodeURIComponent(email)}` });
+  };
+
   const options: MenuItemArgs[] = [
+    {
+      onClick: handleClickProfile,
+      to: "/",
+      text: "Profile",
+    },
     {
       onClick: async () => {
         submit(null, { method: "post", action: "/logout" });

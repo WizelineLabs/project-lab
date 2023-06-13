@@ -22,7 +22,7 @@ export interface ProjectMember {
   id: string;
   practicedSkills: [{ id: string; name: string }];
   profile: {
-    firstName: string;
+    preferredName: string;
     lastName: string;
     email: string;
   };

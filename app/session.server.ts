@@ -1,6 +1,9 @@
-import { createCookieSessionStorage, redirect } from "@remix-run/node";
+import {
+  createCookieSessionStorage,
+  redirect,
+  createCookie,
+} from "@remix-run/node";
 import invariant from "tiny-invariant";
-
 import type { User } from "~/models/user.server";
 import { getUserById } from "~/models/user.server";
 import { getProfileByUserId } from "~/models/profile.server";
@@ -11,8 +14,6 @@ export const sessionStorage = createCookieSessionStorage({
   cookie: {
     name: "__session",
     httpOnly: true,
-    // maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
-    // maxAge: undefined, // default, expires with the browser session
     path: "/",
     sameSite: "lax",
     secrets: [process.env.SESSION_SECRET],
@@ -107,3 +108,10 @@ export async function logout(request: Request) {
     },
   });
 }
+
+export const returnToCookie = createCookie("return-to", {
+  path: "/",
+  httpOnly: true,
+  sameSite: "lax",
+  secure: process.env.NODE_ENV === "production",
+});

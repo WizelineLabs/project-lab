@@ -48,7 +48,7 @@ model Profiles {
   id                     String                   @id @default(uuid())
   email                  String                   @unique
   firstName              String
-  preferredName          String?
+  preferredName          String
   lastName               String
   searchCol              String?
   avatarUrl              String?
@@ -105,6 +105,24 @@ model Profiles {
   @@index([country], map: "profiles_country_idx")
   @@index([employeeStatus], map: "profiles_employee_status_idx")
   @@index([benchStatus], map: "profiles_bench_status_idx")
+}
+
+model GitHubProfile {
+  id                     String                   @id @default(uuid())
+  email                  String                   @unique
+  username               String                   
+  avatarUrl              String
+  reposUrl               String
+  firstName              String
+  lastName               String
+}
+
+model GitHubProjects {
+  id                     String                   @id @default(uuid())
+  owner_email            String
+  name                   String                   
+  description            String                   
+  updated_at             String
 }
 
 model ProjectMembers {

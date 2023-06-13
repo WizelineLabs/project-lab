@@ -1,5 +1,4 @@
 import type { PropsWithoutRef } from "react";
-
 import { TextField, Autocomplete } from "@mui/material";
 import { useField, useControlField } from "remix-validated-form";
 
@@ -17,8 +16,6 @@ interface RelatedProjectsSelectProps {
 }
 
 export const RelatedProjectsSelect = ({
-  customOnChange,
-  defaultValue = [],
   fullWidth,
   name,
   label,
@@ -26,7 +23,6 @@ export const RelatedProjectsSelect = ({
   outerProps,
   size,
   style,
-  thisProject,
 }: RelatedProjectsSelectProps) => {
   const { error, getInputProps } = useField(name);
   const [values, setValue] = useControlField<string[]>(name);

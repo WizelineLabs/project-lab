@@ -3,7 +3,6 @@ import type { MetaFunction, LoaderFunction } from "@remix-run/node"
 import { useLoaderData, Outlet } from "@remix-run/react"
 import { redirect } from "@remix-run/node"
 import { json } from "@remix-run/node"
-
 import { LinkTabStyles, EditPanelsStyles, BoxStyles } from "./manager.styles"
 
 export const loader: LoaderFunction = async ({ request }) => {

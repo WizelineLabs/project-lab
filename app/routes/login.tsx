@@ -9,13 +9,22 @@ import {
   Footer,
   LoginPageContainer,
 } from "./login.styles";
-
-import { getUserId } from "~/session.server";
+import { getUserId, returnToCookie } from "~/session.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
+  const url = new URL(request.url);
+  const redirectTo = url.searchParams.get("redirectTo") || "/projects";
+
   const userId = await getUserId(request);
   if (userId) return redirect("/projects");
-  return json({});
+  return json(
+    {},
+    {
+      headers: {
+        "Set-Cookie": await returnToCookie.serialize(redirectTo),
+      },
+    }
+  );
 };
 
 export const meta: MetaFunction = () => {

@@ -11,7 +11,6 @@ import {
 import Edit from "@mui/icons-material/Edit";
 import Delete from "@mui/icons-material/Delete";
 import { z } from "zod";
-
 import type { getComments } from "~/models/comment.server";
 import { zfd } from "zod-form-data";
 import { withZod } from "@remix-validated-form/with-zod";
@@ -105,7 +104,7 @@ function CommentItem({
           <Avatar alt={"alt"} src={comment.author?.avatarUrl ?? ""}></Avatar>
         </Grid>
         <Grid justifyContent="left" item xs zeroMinWidth>
-          <Typography variant="body1">{`${comment.author?.firstName} ${comment.author?.lastName}`}</Typography>
+          <Typography variant="body1">{`${comment.author?.preferredName} ${comment.author?.lastName}`}</Typography>
           <Typography variant="body2">
             {comment.updatedAt.toLocaleString()}
           </Typography>

@@ -1,17 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { useFetcher, useCatch, useLoaderData } from "@remix-run/react";
+import { useFetcher, useCatch, useLoaderData, useTransition } from "@remix-run/react";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import type { GridRenderCellParams } from "@mui/x-data-grid";
-import { DataGrid, GridToolbarContainer } from "@mui/x-data-grid";
 import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
-import SaveIcon from "@mui/icons-material/Save";
-import CancelIcon from "@mui/icons-material/Close";
-import invariant from "tiny-invariant";
-
 import ConfirmationModal from "../../../core/components/ConfirmationModal";
 import {
   getLabels,
@@ -19,6 +13,15 @@ import {
   removeLabel,
   updateLabel,
 } from "~/models/label.server";
+import { Card, CardContent, CardHeader, Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel } from "@mui/material";
+import { ValidatedForm, validationError } from "remix-validated-form";
+import { z } from "zod";
+import { withZod } from "@remix-validated-form/with-zod";
+import ModalBox from "~/core/components/ModalBox";
+import LabeledTextField from "~/core/components/LabeledTextField";
+import { Stack } from "@mui/system";
+import { redirect } from "remix-typedjson";
+import invariant from "tiny-invariant";
 
 declare module "@mui/material/Button" {
   interface ButtonPropsColorOverrides {
@@ -27,22 +30,22 @@ declare module "@mui/material/Button" {
   }
 }
 
-type LabelRecord = {
-  id: number | string;
-  name: string | null;
-};
+export const validator = withZod(
+  z.object({
+    id: z.string().optional(),
+    name: z
+      .string()
+      .min(1, { message: "Name is required" }),
+  })
+);
 
-type gridEditToolbarProps = {
-  setRows: React.Dispatch<React.SetStateAction<LabelRecord[]>>;
-  createButtonText: string;
+type LabelRecord = {
+  id: string ;
+  name: string;
 };
 
 type LoaderData = {
   labels: Awaited<ReturnType<typeof getLabels>>;
-};
-
-type newLabel = {
-  name: string;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -53,98 +56,51 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData();
+  
+  const result = await validator.validate(await request.formData());
+  const id = result.data?.id;
+  const name = result.data?.name as string;
+  if (result.error != undefined) return validationError(result.error);
 
-  const action = formData.get("action");
-  let response, id, name;
+  if(request.method == "POST") {   
+      const response = await addLabel({ name });
+      return json(response, { status: 201 });
+  } 
 
-  try {
-    switch (action) {
-      case "POST":
-        name = formData.get("name") as string;
-        invariant(name, "Invalid label name");
-        response = await addLabel({ name });
-        return json(response, { status: 201 });
-
-      case "DELETE":
-        id = formData.get("id") as string;
-        invariant(id, "Label Id is required");
-        response = await removeLabel({ id });
-        return json({ error: "" }, { status: 200 });
-
-      case "UPDATE":
-        id = formData.get("id") as string;
-        name = formData.get("name") as string;
-        invariant(id, "Label Id is required");
-        response = await updateLabel({ id, name });
-        return json({ error: "" }, { status: 200 });
-
-      default: {
-        throw new Error("Something went wrong");
-      }
-    }
-  } catch (e: any) {
-    switch (e.code) {
-      case "NOT_FOUND":
-        return json({ error: e.message }, { status: 404 });
-      default:
+  if( request.method == 'PUT') {
+    if(id){
+      try{
+        await updateLabel({id, name})
+        return redirect("./");
+      } catch (e) {
         throw e;
+      }
+    }else{
+      invariant(id, "Label Id is required");
     }
   }
-};
 
-const GridEditToolbar = (props: gridEditToolbarProps) => {
-  const { setRows, createButtonText } = props;
-  const handleAddClick = () => {
-    const id = "new-value";
-    const newName = "";
-    setRows((prevRows) => {
-      if (prevRows.find((rowValue) => rowValue.id === "new-value")) {
-        return [...prevRows];
+  if(request.method == "DELETE") {
+    if(id) {
+      try{
+        await removeLabel({ id });
+        return redirect("./");
+
+      } catch (e) {
+        throw e;
       }
-      return [...prevRows, { id, name: newName, isNew: true }];
-    });
-  };
-  return (
-    <GridToolbarContainer>
-      <Button
-        variant="contained"
-        color="primary"
-        startIcon={<AddIcon />}
-        onClick={() => handleAddClick()}
-        data-testid="testLabelCreate"
-      >
-        {createButtonText}
-      </Button>
-    </GridToolbarContainer>
-  );
+      
+    }
+}
+ 
 };
 
-export default function LabelsDataGrid() {
+
+function LabelsDataGrid() {
   const fetcher = useFetcher();
   const { labels } = useLoaderData() as LoaderData;
   const createButtonText = "Create New Label";
-  const [error, setError] = useState<string>("");
-  const [rows, setRows] = useState<LabelRecord[]>(() =>
-    labels.map((item: LabelRecord) => ({
-      id: item.id,
-      name: item.name,
-    }))
-  );
-
-  const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
-  const [selectedRowID, setSelectedRowID] = useState("");
-
-  useEffect(() => {
-    //It handles the fetcher error from the response
-    if (fetcher.state === "idle" && fetcher.data) {
-      if (fetcher.data.error) {
-        setError(fetcher.data.error);
-      } else {
-        setError("");
-      }
-    }
-  }, [fetcher]);
+  const [rows, setRows] = useState<LabelRecord[]>([]);
 
   useEffect(() => {
     //It changes the rows shown based on admins
@@ -154,86 +110,26 @@ export default function LabelsDataGrid() {
         name: item.name,
       }))
     );
-  }, [labels]);
+  }, [labels]);  
 
-  // Set handles for interactions
+  const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
+  const [openModifyModal, setOpenModifyModal] = useState<boolean>(false);
+  const [openCreateModal, setOpenCreateModal] = useState<boolean>(false);
+  const [selectedRowID, setSelectedRowID] = useState("");
+  const [selectedName, setSelectedName] = useState("");
 
-  const handleRowEditStart = (event: any) => {
-    event.defaultMuiPrevented = true;
-  };
 
-  const handleRowEditStop = (event: any) => {
-    event.defaultMuiPrevented = true;
-  };
+  const transition = useTransition();
 
-  const handleCellFocusOut = (event: any) => {
-    event.defaultMuiPrevented = true;
-  };
-
-  const handleEditClick = (idRef: GridRenderCellParams) => {
-    idRef.api.setRowMode(idRef.row.id, "edit");
-  };
-
-  // Add new label
-  const createNewLabel = async (values: newLabel) => {
-    try {
-      const body = {
-        ...values,
-        action: "POST",
-      };
-      await fetcher.submit(body, { method: "post" });
-    } catch (error: any) {
-      console.error(error);
+  useEffect(() => {
+    if (transition.type == "actionReload" || transition.type == "actionSubmission") {
+      setOpenCreateModal(false);
+      setOpenModifyModal(false);
     }
-  };
+  }, [transition]);
 
-  const handleCancelClick = async (idRef: GridRenderCellParams) => {
-    const id = idRef.row.id;
-    idRef.api.setRowMode(id, "view");
-
-    const row = idRef.api.getRow(id);
-    if (row && row.isNew) {
-      await idRef.api.updateRows([{ id, _action: "delete" }]);
-      setRows((prevRows) => {
-        const rowToDeleteIndex = prevRows.length - 1;
-        return [
-          ...rows.slice(0, rowToDeleteIndex),
-          ...rows.slice(rowToDeleteIndex + 1),
-        ];
-      });
-    }
-  };
-
-  const handleSaveClick = async (idRef: GridRenderCellParams) => {
-    const id = idRef.row.id;
-
-    const row = idRef.api.getRow(id);
-    const isValid = await idRef.api.commitRowChange(idRef.row.id);
-    const newName = idRef.api.getCellValue(id, "name");
-
-    if (labels.find((rowValue) => rowValue.name === newName)) {
-      setError("Field Already exists");
-      return;
-    }
-
-    if (!newName) {
-      setError("Field Name is required");
-      return;
-    }
-
-    if (row.isNew && isValid) {
-      const newValues = { name: newName };
-      idRef.api.setRowMode(id, "view");
-      await createNewLabel(newValues);
-      return;
-    }
-    if (isValid) {
-      const row = idRef.api.getRow(idRef.row.id);
-      let id = idRef.row.id;
-      await editLabelInfo(id, { name: newName });
-      idRef.api.updateRows([{ ...row, isNew: false }]);
-      idRef.api.setRowMode(id, "view");
-    }
+  const handleAddClick = () => {
+    setOpenCreateModal(() => true);
   };
 
   // Delete label
@@ -242,6 +138,7 @@ export default function LabelsDataGrid() {
     try {
       const body = {
         id: selectedRowID,
+        name: selectedName,
         action: "DELETE",
       };
       await fetcher.submit(body, { method: "delete" });
@@ -250,116 +147,117 @@ export default function LabelsDataGrid() {
     }
   };
 
-  const handleDeleteClick = (idRef: GridRenderCellParams) => {
-    let id = idRef.row.id;
+  const handleDeleteClick = (id: string, name: string) => {
     setSelectedRowID(() => id);
+    setSelectedName(() => name);
     setOpenDeleteModal(() => true);
   };
 
-  // Edit label
-  const editLabelInfo = async (id: string, values: newLabel) => {
-    try {
-      const body = {
-        id,
-        ...values,
-        action: "UPDATE",
-      };
-      await fetcher.submit(body, { method: "put" });
-    } catch (error: any) {
-      console.error(error);
-    }
-  };
+  const handleModifyClick = (id: string, name: string) => {
+    setSelectedRowID(() => id);
+    setSelectedName(() => name)
+    setOpenModifyModal(() => true)
+  }
 
-  const columns = [
-    { field: "name", headerName: "Name", width: 300, editable: true },
+  interface HeadLabelsData {
+    id: keyof LabelRecord;
+    label: string;
+    numeric: boolean;
+  }
 
+  const headCells: HeadLabelsData[] = [
     {
-      field: "actions",
-      headerName: "Actions",
-      width: 300,
-      cellClassName: "actions",
-      renderCell: (idRef: GridRenderCellParams) => {
-        if (idRef.row.id === "new-value") {
-          idRef.api.setRowMode(idRef.row.id, "edit");
-          idRef.api.setCellFocus(idRef.row.id, "name");
-        }
-        const isInEditMode = idRef.api.getRowMode(idRef.row.id) === "edit";
-        if (isInEditMode) {
-          return (
-            <>
-              <Button
-                variant="contained"
-                color="primary"
-                size="small"
-                onClick={() => handleCancelClick(idRef)}
-                style={{ marginLeft: 16 }}
-              >
-                <CancelIcon color="inherit" />
-              </Button>
-
-              <Button
-                variant="contained"
-                color="secondary"
-                size="small"
-                onClick={() => handleSaveClick(idRef)}
-                style={{ marginLeft: 16 }}
-                data-testid="testLabelSave"
-              >
-                <SaveIcon color="inherit" />
-              </Button>
-            </>
-          );
-        }
-        return (
-          <>
-            <Button
-              variant="contained"
-              size="small"
-              onClick={() => handleEditClick(idRef)}
-              style={{ marginLeft: 16 }}
-            >
-              <EditIcon color="inherit" />
-            </Button>
-            <Button
-              variant="contained"
-              color="warning"
-              size="small"
-              onClick={() => handleDeleteClick(idRef)}
-              style={{ marginLeft: 16 }}
-              data-testid="testLabelDelete"
-            >
-              <DeleteIcon color="inherit" />
-            </Button>
-          </>
-        );
-      },
+      id: "name",
+      numeric: false,
+      label: "Name",
+    },
+    {
+      id: "id",
+      numeric: false,
+      label: "Actions",
     },
   ];
 
+
   return (
-    <div>
-      <h2>Labels</h2>
-      <div style={{ display: "flex", width: "100%", height: "70vh" }}>
-        <div style={{ flexGrow: 1 }}>
-          {error && <p style={{ color: "red" }}>{error}</p>}
-          <DataGrid
-            rows={rows}
-            columns={columns}
-            rowsPerPageOptions={[50]}
-            pageSize={50}
-            editMode="row"
-            onRowEditStart={handleRowEditStart}
-            onRowEditStop={handleRowEditStop}
-            onCellFocusOut={handleCellFocusOut}
-            components={{
-              Toolbar: GridEditToolbar,
-            }}
-            componentsProps={{
-              toolbar: { setRows, createButtonText },
-            }}
-          />
-        </div>
-      </div>
+    <>
+    <Container sx={{ marginBottom: 2 }}>
+    <Card>
+      <CardHeader
+        title="Labels"
+        action={
+          <Button
+          variant="contained"
+          color="primary"
+          startIcon={<AddIcon />}
+          onClick={() => handleAddClick()}
+          data-testid="testLabelCreate"
+        >
+          {createButtonText}
+        </Button>
+        }
+      />
+      <CardContent>
+      <TableContainer>
+        <Table>
+            <TableHead>
+            {headCells.map((cell) => (
+                  <TableCell key={cell.id} align="center" padding="normal">
+                    <TableSortLabel >
+                      {cell.label}
+                    </TableSortLabel>
+                  </TableCell>
+                ))}
+            </TableHead>
+            <TableBody>
+              {
+                rows.map(
+                  (row, index) => {
+                    const labelId = `enhanced-table-checkbox-${index}`;
+  
+                    return (
+                      <TableRow hover tabIndex={0} key={index}>
+                        <TableCell
+                          component="th"
+                          id={labelId}
+                          scope="row"
+                          align="center"
+                        >
+                          {row.name}
+                        </TableCell>
+                        <TableCell
+                         component="th"
+                         scope="row"
+                         align="center">
+                            <Button
+                            variant="contained"
+                            size="small"
+                            onClick={() => handleModifyClick(row.id, row.name)}
+                            style={{ marginLeft: 16 }}
+                          >
+                            <EditIcon color="inherit" />
+                          </Button>
+                          <Button
+                            variant="contained"
+                            color="warning"
+                            size="small"
+                            onClick={() => handleDeleteClick(row.id, row.name)}
+                            style={{ marginLeft: 16 }}
+                            data-testid="testLabelDelete"
+                          >
+                            <DeleteIcon color="inherit" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    )}
+              )
+            }
+            </TableBody>
+        </Table>
+      </TableContainer>
+      </CardContent>
+      </Card>
+    </Container>
       {/* Confirmation for deletion */}
       <ConfirmationModal
         open={openDeleteModal}
@@ -378,13 +276,63 @@ export default function LabelsDataGrid() {
         <p>This action cannot be undone.</p>
         <br />
       </ConfirmationModal>
-    </div>
+
+      {/* Modify Modal */}
+      <ModalBox open={openModifyModal} close={() => setOpenModifyModal(false)}>
+       
+        <h2 data-testid="deleteLabelModal">
+         Modifying label
+        </h2>
+ 
+        <ValidatedForm action='./' method="put" validator={validator} defaultValues={{
+              name:selectedName
+            }}>
+          <Stack spacing={2}>
+            <input type="hidden" name="id" value={selectedRowID} />
+            <LabeledTextField fullWidth name="name" label="Name" />
+            <div>
+              <Button variant="contained" onClick={() => setOpenModifyModal(false)}>
+                  Cancel
+                </Button>
+                &nbsp;
+              <Button type="submit" variant="contained">
+                  Modify
+                </Button>
+            </div>
+          </Stack>
+        </ValidatedForm>
+
+      </ModalBox>
+
+      {/* Create Label Modal */}
+      <ModalBox open={openCreateModal} close={() => setOpenCreateModal(false)}>
+        <h2 data-testid="createNewLabel">
+         Create new label
+        </h2>
+        <ValidatedForm action='./' method="post" validator={validator}>
+          <Stack spacing={2}>
+          <LabeledTextField fullWidth name="name" label="Name" placeholder="Name" />
+
+            <div>
+              <Button variant="contained" onClick={() => setOpenCreateModal(false)}>
+                Cancel
+              </Button>
+              &nbsp;
+              <Button type="submit" variant="contained" color="warning">
+                Create
+              </Button>
+            </div>
+          </Stack>
+        </ValidatedForm>
+      </ModalBox>
+
+    </>
   );
 }
 
-export function ErrorBoundary({ error }: { error: Error }) {
-  console.error(error);
+export default LabelsDataGrid;
 
+export function ErrorBoundary({ error }: { error: Error }) {
   return <div>An unexpected error occurred: {error.message}</div>;
 }
 

@@ -5,7 +5,6 @@ import { useField } from "remix-validated-form";
 interface LabeledTextFieldAreaProps {
   name: string;
   label: string;
-  /** Field type. Doesn't include radio buttons and checkboxes */
   type?: "text" | "password" | "email" | "number";
   helperText?: string;
   placeholder?: string;

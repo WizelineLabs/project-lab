@@ -15,7 +15,6 @@ import {
   getProjectResources,
 } from "~/models/project.server";
 import { getDistinctResources } from "~/models/resource.server";
-
 import {
   Card,
   CardContent,
@@ -49,7 +48,6 @@ import Header from "~/core/layouts/Header";
 import MembershipStatusModal from "~/core/components/MembershipStatusModal";
 import { getComments } from "~/models/comment.server";
 import Comments from "~/core/components/Comments";
-
 import MDEditorStyles from "@uiw/react-md-editor/markdown-editor.css";
 import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
 import Resources from "../components/resources";
@@ -81,11 +79,9 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   const profile = await requireProfile(request);
   const isTeamMember = isProjectTeamMember(profile.id, project);
   const projectsList = await getProjects({});
-
   const membership = getProjectTeamMember(profile.id, project);
   const isAdmin = user.role == adminRoleName;
   const profileId = profile.id;
-
   const comments = await getComments(params.projectId);
 
   // Resources data
@@ -117,7 +113,6 @@ export const action: ActionFunction = async ({ request, params }) => {
       case "POST_VOTE":
         const profileId = form.get("profileId") as string;
         const isVote = await checkUserVote(projectId, profileId);
-
         const haveIVoted = isVote > 0 ? true : false;
         if (!haveIVoted) {
           await upvoteProject(projectId, profileId);
@@ -210,7 +205,7 @@ export default function ProjectDetailsPage() {
         ...values,
         subaction: "POST_VOTE",
       };
-      await fetcher.submit(body, { method: "post" });
+      fetcher.submit(body, { method: "post" });
     } catch (error: any) {
       console.error(error);
     }
@@ -283,7 +278,7 @@ export default function ProjectDetailsPage() {
                 <div className="itemHeadName">Owner:</div>
               </Grid>
               <Grid item>
-                <div className="itemHeadValue">{`${project.owner?.firstName} ${project.owner?.lastName}`}</div>
+                <div className="itemHeadValue">{`${project.owner?.preferredName} ${project.owner?.lastName}`}</div>
               </Grid>
             </Grid>
             <Grid

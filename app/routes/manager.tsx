@@ -9,7 +9,6 @@ import {
   NavBarTabsStyles,
   LinkStyles,
 } from "./manager/manager.styles";
-
 import { adminRoleName } from "app/constants";
 import { requireUser } from "~/session.server";
 import { Container, Paper } from "@mui/material";

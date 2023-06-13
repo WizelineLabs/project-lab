@@ -28,13 +28,16 @@ import {
   PrismaClientKnownRequestError,
   PrismaClientValidationError,
 } from "@prisma/client/runtime";
-
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import type { SubmitOptions } from "@remix-run/react";
 import { json, redirect } from "@remix-run/node";
 import { useTransition, useLoaderData, useFetcher } from "@remix-run/react";
 import { requireProfile, requireUser } from "~/session.server";
-import { getProject, getProjectTeamMembers, updateMembers } from "~/models/project.server";
+import {
+  getProject,
+  getProjectTeamMembers,
+  updateMembers,
+} from "~/models/project.server";
 import invariant from "tiny-invariant";
 import { adminRoleName } from "~/constants";
 import LabeledTextField from "~/core/components/LabeledTextField";
@@ -91,19 +94,16 @@ export const action: ActionFunction = async ({ request, params }) => {
     const currentProject = await getProject({ id: projectId });
     const {
       projectMembers: currentMembers = [],
-      ownerId: currentOwnerId = null
+      ownerId: currentOwnerId = null,
     } = currentProject;
     isProjectMemberOrOwner(profile.id, currentMembers, currentOwnerId);
   }
-  
+
   const result = await validator.validate(await request.formData());
   if (result.error != undefined) return validationError(result.error);
 
   try {
-    await updateMembers(
-      projectId,
-      result.data.projectMembers
-    );
+    await updateMembers(projectId, result.data.projectMembers);
     return redirect(`/projects/${projectId}`);
   } catch (e) {
     if (
@@ -191,7 +191,7 @@ const EditMembersPage = () => {
                           hoursPerWeek: "",
                           practicedSkills: [],
                           role: [],
-                          profile: { firstName: details?.option.name },
+                          profile: { preferredName: details?.option.name },
                           active: true,
                         });
                       }
@@ -243,7 +243,7 @@ const EditMembersPage = () => {
                               value={item.profileId}
                             />
                             <Chip
-                              label={`${item.profile?.firstName} ${item.profile?.lastName}`}
+                              label={`${item.profile?.preferredName} ${item.profile?.lastName}`}
                               onDelete={() => {
                                 if (item.profileId !== profile.id) {
                                   remove(i);
