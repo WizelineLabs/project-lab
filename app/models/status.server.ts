@@ -57,6 +57,5 @@ export async function updateProjectStatus({ id, name, stage }: updateProjectStat
   if (stage === "none") {
     data.stage = null
   }
-
   await prisma.projectStatus.update({ where: { name: id }, data })
 }

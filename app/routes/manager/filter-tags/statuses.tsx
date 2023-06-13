@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useFetcher, useLoaderData, useCatch } from "@remix-run/react";
+import { useFetcher, useLoaderData, useCatch, useTransition } from "@remix-run/react";
 import type { LoaderFunction, ActionFunction } from "@remix-run/node";
 import {
   ValidatedForm,
@@ -8,20 +8,14 @@ import {
 } from "remix-validated-form";
 import { withZod } from "@remix-validated-form/with-zod";
 import { zfd } from "zod-form-data";
-import { z } from "zod";
 import { json } from "@remix-run/node";
 import styled from "@emotion/styled";
-import { DataGrid, GridToolbarContainer } from "@mui/x-data-grid";
-import type { GridRenderCellParams } from "@mui/x-data-grid";
 import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
-import SaveIcon from "@mui/icons-material/Save";
-import CancelIcon from "@mui/icons-material/Close";
 import EastIcon from "@mui/icons-material/East";
 import invariant from "tiny-invariant";
 import { InputSelect } from "app/core/components/InputSelect";
-import { InputSelectWOValidate } from "app/core/components/InputSelectWOValidate";
 import ModalBox from "../../../core/components/ModalBox";
 import {
   getProjectStatuses,
@@ -30,8 +24,12 @@ import {
   updateProjectStatus,
 } from "~/models/status.server";
 import type { ProjectStatus } from "~/models/status.server";
-import { getProjects, updateManyProjects } from "~/models/project.server";
+import { getProjects } from "~/models/project.server";
 import { stageOptions } from "~/constants";
+import { Container } from "@mui/system";
+import { Card, CardContent, CardHeader, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel } from "@mui/material";
+import LabeledTextField from "~/core/components/LabeledTextField";
+import { z } from "zod";
 
 declare module "@mui/material/Button" {
   interface ButtonPropsColorOverrides {
@@ -41,24 +39,26 @@ declare module "@mui/material/Button" {
 }
 
 type StatusRecord = {
-  id: number | string;
-  name: string | null;
+  id: string;
+  name: string;
   stage: string | null;
 };
 
-type gridEditToolbarProps = {
-  setRows: React.Dispatch<React.SetStateAction<StatusRecord[]>>;
-  createButtonText: string;
-};
+export const validator = withZod(
+  zfd
+    .formData({
+    id: z.string().optional(),
+    name: z
+      .string()
+      .min(1, { message: "Name is required" }),
+    stage:z.object({ name: z.string().optional() }).optional(),
+  }),
+
+);
 
 type LoaderData = {
   statuses: Awaited<ReturnType<typeof getProjectStatuses>>;
   projects: Awaited<ReturnType<typeof getProjects>>;
-};
-
-type newStatus = {
-  name: string;
-  stage?: string;
 };
 
 type ProjectRecord = {
@@ -69,13 +69,6 @@ type ProjectRecord = {
 const validatorFront = withZod(
   zfd.formData({
     status: z.object({ name: z.string() }).optional(),
-  })
-);
-
-const validatorBack = withZod(
-  zfd.formData({
-    status: z.object({ name: z.string() }).optional(),
-    ids: z.array(z.union([z.string(), z.number()])),
   })
 );
 
@@ -96,56 +89,35 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData();
-
-  let action = formData.get("action");
-  let response, name, stage, data;
-  const subaction = formData.get("subaction");
-  if (subaction) action = subaction;
+  let result = await validator.validate(await request.formData());
+  const id = result.data?.id as string;
+  const name = result.data?.name as string;
+  let stage;
+  let response;
+  if (result.error != undefined) return validationError(result.error);
+  const action = request.method;
 
   try {
     switch (action) {
       case "POST":
-        name = formData.get("name") as string;
-        stage = formData.get("stage") as string;
+        stage = result.data?.stage?.name
         invariant(name, "Invalid project status name");
-        data = {
-          name,
-          ...(stage ? { stage } : null),
-        };
-        response = await addProjectStatus(data);
+        response = await addProjectStatus({name, stage});
         return json(response, { status: 201 });
 
       case "DELETE":
-        name = formData.get("name") as string;
         invariant(name, "Project status name is required");
         response = await removeProjectStatus({ name });
         return json({ error: "" }, { status: 200 });
 
-      case "UPDATE":
-        const id = formData.get("id") as string;
-        name = formData.get("name") as string;
-        stage = formData.get("stage") as
+      case "PUT":
+          stage = result.data?.stage?.name as
           | "idea"
           | "ongoing project"
           | "none"
           | null;
         invariant(name, "Invalid project status name");
-        data = {
-          id,
-          name,
-          ...(stage ? { stage } : null),
-        };
-        await updateProjectStatus(data);
-        return json({ error: "" }, { status: 200 });
-
-      case "UPDATE-PROJECTS":
-        const result = await validatorBack.validate(formData);
-        if (result.error) return validationError(result.error);
-        const ids = result.data.ids as string[];
-        const projectStatus = result.data.status?.name;
-        invariant(projectStatus, "Project status is required");
-        await updateManyProjects({ ids, data: { status: projectStatus } });
+        await updateProjectStatus({id, name, stage});
         return json({ error: "" }, { status: 200 });
 
       default: {
@@ -162,40 +134,13 @@ export const action: ActionFunction = async ({ request }) => {
   }
 };
 
-const GridEditToolbar = (props: gridEditToolbarProps) => {
-  const { setRows, createButtonText } = props;
-  const handleAddClick = () => {
-    const id = "new-value";
-    const newName = "";
-    const newStage = "";
-    setRows((prevRows) => {
-      if (prevRows.find((rowValue) => rowValue.id === "new-value")) {
-        return [...prevRows];
-      }
-      return [...prevRows, { id, name: newName, stage: newStage, isNew: true }];
-    });
-  };
-  return (
-    <GridToolbarContainer>
-      <Button
-        variant="contained"
-        color="primary"
-        startIcon={<AddIcon />}
-        onClick={() => handleAddClick()}
-        data-testid="testStatusCreate"
-      >
-        {createButtonText}
-      </Button>
-    </GridToolbarContainer>
-  );
-};
-
-export default function ProjectStatusDataGrid() {
+function ProjectStatusDataGrid() {
   const fetcher = useFetcher();
   const { statuses } = useLoaderData() as LoaderData;
   const createButtonText = "Create New Status";
   const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
-  const [error, setError] = useState<string>("");
+  const [openEditModal, setOpenEditModal] = useState<boolean>(false);
+  const [openCreateModal, setOpenCreateModal] = useState<boolean>(false);
   const [rows, setRows] = useState<StatusRecord[]>(() =>
     statuses.map((item: ProjectStatus) => ({
       id: item.name,
@@ -209,15 +154,22 @@ export default function ProjectStatusDataGrid() {
     formId: "delete-status-form",
   });
 
+  const transition = useTransition();
+
+  useEffect(() => {
+    if (transition.type == "actionReload" || transition.type == "actionSubmission") {
+      setOpenCreateModal(false);
+      setOpenEditModal(false);
+    }
+  }, [transition]);
+
+  const handleAddClick = () => {
+    setOpenCreateModal(true)
+  };
+  
   useEffect(() => {
     //It handles the fetcher error from the response
     if (fetcher.state === "idle" && fetcher.data) {
-      if (fetcher.data.error) {
-        setError(fetcher.data.error);
-      } else {
-        setError("");
-      }
-
       if (fetcher.data.projects) {
         setProjects(fetcher.data.projects);
       } else {
@@ -239,90 +191,9 @@ export default function ProjectStatusDataGrid() {
 
   // Set handles for interactions
 
-  const handleRowEditStart = (event: any) => {
-    event.defaultMuiPrevented = true;
-  };
-
-  const handleRowEditStop = (event: any) => {
-    event.defaultMuiPrevented = true;
-  };
-
-  const handleCellFocusOut = (event: any) => {
-    event.defaultMuiPrevented = true;
-  };
-
-  const handleEditClick = (idRef: GridRenderCellParams) => {
-    idRef.api.setRowMode(idRef.row.id, "edit");
-  };
-
-  // Add new project status
-  const createNewProjectStatus = async (values: newStatus) => {
-    try {
-      const body = {
-        ...values,
-        action: "POST",
-      };
-      await fetcher.submit(body, { method: "post" });
-    } catch (error: any) {
-      console.error(error);
-    }
-  };
-
-  const handleSaveClick = async (idRef: GridRenderCellParams) => {
-    const id = idRef.row.id;
-
-    const row = idRef.api.getRow(id);
-    const isValid = await idRef.api.commitRowChange(idRef.row.id);
-    const newName = idRef.api.getCellValue(id, "name");
-    const newStage = idRef.api.getCellValue(id, "stage");
-
-    if (statuses.find((rowValue) => rowValue.name === newName) && row.isNew) {
-      setError("Field Already exists");
-      return;
-    }
-
-    if (!newName) {
-      setError("Field Name is required");
-      return;
-    }
-
-    if (row.isNew && isValid) {
-      const newValues = { name: newName, stage: newStage };
-      idRef.api.setRowMode(id, "view");
-      await createNewProjectStatus(newValues);
-      return;
-    }
-    if (isValid) {
-      const row = idRef.api.getRow(idRef.row.id);
-      let id = idRef.row.id;
-      await editProjectStatusInfo(id, { name: newName, stage: newStage });
-      idRef.api.updateRows([{ ...row, isNew: false }]);
-      idRef.api.setRowMode(id, "view");
-    }
-  };
-
-  const handleCancelClick = async (idRef: GridRenderCellParams) => {
-    const id = idRef.row.id;
-    idRef.api.setRowMode(id, "view");
-
-    const row = idRef.api.getRow(id);
-    if (row && row.isNew) {
-      await idRef.api.updateRows([{ id, _action: "delete" }]);
-      setRows((prevRows) => {
-        const rowToDeleteIndex = prevRows.length - 1;
-        return [
-          ...rows.slice(0, rowToDeleteIndex),
-          ...rows.slice(rowToDeleteIndex + 1),
-        ];
-      });
-    }
-    setRows(
-      statuses.map((item: ProjectStatus) => ({
-        id: item.name,
-        name: item.name,
-        stage: item.stage,
-      }))
-    );
+  const handleEditClick = (idRef: string) => {
+    setSelectedRowID(() => idRef);
+    setOpenEditModal(true);
   };
 
   // Delete project status
@@ -339,13 +210,13 @@ export default function ProjectStatusDataGrid() {
     }
   };
 
-  const handleDeleteClick = async (idRef: GridRenderCellParams) => {
-    let id = idRef.row.id;
+  const handleDeleteClick = async (idRef: string | number) => {
+    let id = idRef as string;
     const body = {
       projectStatus: id,
     };
     await fetcher.submit(body, { method: "get" });
-    setSelectedRowID(() => id);
+    setSelectedRowID(id);
     setOpenDeleteModal(() => true);
   };
 
@@ -359,149 +230,124 @@ export default function ProjectStatusDataGrid() {
     await deleteConfirmationHandler();
   };
 
-  // Edit project status
-  const editProjectStatusInfo = async (id: string, values: newStatus) => {
-    try {
-      const body = {
-        id,
-        ...values,
-        action: "UPDATE",
-      };
-      await fetcher.submit(body, { method: "put" });
-    } catch (error: any) {
-      console.error(error);
-    }
-  };
+  interface HeadStatusData {
+    id: keyof StatusRecord;
+    label: string;
+    numeric: boolean;
+  }
 
-  const columns = [
-    { field: "name", headerName: "Name", width: 300, editable: true },
+
+  const headCells: HeadStatusData[] = [
     {
-      field: "stage",
-      headerName: "Stage",
-      width: 300,
-      cellClassName: "actions",
-      renderCell: (idRef: any) => {
-        const handleChangeStage = (newValue: { name: string }) => {
-          const currValue = statuses.find(
-            (status) => status.name === idRef.row.id
-          )?.stage;
-          if (currValue !== newValue.name)
-            idRef.api.setRowMode(idRef.row.id, "edit");
-
-          setRows((prevValues) =>
-            prevValues.map((v) =>
-              v.id === idRef.row.id
-                ? {
-                    ...v,
-                    stage: newValue.name,
-                  }
-                : v
-            )
-          );
-        };
-        return (
-          <InputSelectWOValidate
-            valuesList={stageOptions}
-            defaultValue=""
-            name="stage"
-            label="Stage"
-            disabled={false}
-            value={idRef.row.stage || "none"}
-            handleChange={handleChangeStage}
-          />
-        );
-      },
+      id: "name",
+      numeric: false,
+      label: "Name",
     },
     {
-      field: "actions",
-      headerName: "Actions",
-      width: 300,
-      cellClassName: "actions",
-      renderCell: (idRef: any) => {
-        if (idRef.row.id === "new-value") {
-          idRef.api.setRowMode(idRef.row.id, "edit");
-          idRef.api.setCellFocus(idRef.row.id, "name");
-        }
-        const isInEditMode = idRef.api.getRowMode(idRef.row.id) === "edit";
-        if (isInEditMode) {
-          return (
-            <>
-              <Button
-                variant="contained"
-                color="primary"
-                size="small"
-                onClick={() => handleCancelClick(idRef)}
-                style={{ marginLeft: 16 }}
-              >
-                <CancelIcon color="inherit" />
-              </Button>
-
-              <Button
-                variant="contained"
-                color="secondary"
-                size="small"
-                onClick={() => handleSaveClick(idRef)}
-                style={{ marginLeft: 16 }}
-                data-testid="testStatusSave"
-              >
-                <SaveIcon color="inherit" />
-              </Button>
-            </>
-          );
-        }
-        return (
-          <>
-            <Button
-              variant="contained"
-              color="secondary"
-              size="small"
-              onClick={() => handleEditClick(idRef)}
-              style={{ marginLeft: 16 }}
-            >
-              <EditIcon color="inherit" />
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              size="small"
-              onClick={() => handleDeleteClick(idRef)}
-              style={{ marginLeft: 16 }}
-              data-testid="testStatusDelete"
-            >
-              <EastIcon color="inherit" />
-            </Button>
-          </>
-        );
-      },
+      id: "stage",
+      numeric: false,
+      label: "Stage",
     },
+    {
+      id: "id",
+      numeric: false,
+      label: "Actions",
+    },
+    
   ];
 
   const isMergeAction = projects.length > 0;
 
   return (
-    <div>
-      <h2>Statuses</h2>
-      <div style={{ display: "flex", width: "100%", height: "70vh" }}>
-        <div style={{ flexGrow: 1 }}>
-          {error && <p style={{ color: "red" }}>{error}</p>}
-          <DataGrid
-            rows={rows}
-            columns={columns}
-            rowsPerPageOptions={[50]}
-            pageSize={50}
-            editMode="row"
-            onRowEditStart={handleRowEditStart}
-            onRowEditStop={handleRowEditStop}
-            onCellFocusOut={handleCellFocusOut}
-            components={{
-              Toolbar: GridEditToolbar,
-            }}
-            componentsProps={{
-              toolbar: { setRows, createButtonText },
-            }}
-          />
-        </div>
-      </div>
+    <>
+      <Container sx={{ marginBottom: 2 }}>
+        <Card>
+        <CardHeader
+        title="Statuses"
+        action={
+          <Button
+          variant="contained"
+          color="primary"
+          startIcon={<AddIcon />}
+          onClick={() => handleAddClick()}
+          data-testid="StatusCreate"
+        >
+          {createButtonText}
+        </Button>
+        }
+        />
+          <CardContent>
+          <TableContainer>
+            <Table>
+              <TableHead>
+              {headCells.map((cell) => (
+                  <TableCell key={cell.id} align="center" padding="normal">
+                    <TableSortLabel >
+                      {cell.label}
+                    </TableSortLabel>
+                  </TableCell>
+                ))}
+              </TableHead>
+              <TableBody>
+                {
+                  rows.map(
+                    (row, index) => {
+                      const labelId = `enhanced-table-checkbox-${index}`;
+                      return (
+                        <TableRow hover tabIndex={0} key={index}>
+                        <TableCell
+                          component="th"
+                          id={labelId}
+                          scope="row"
+                          align="center"
+                        >
+                          {row.name}
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          id={labelId}
+                          scope="row"
+                          align="center"
+                        >
+                          {row.stage}
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          id={labelId}
+                          scope="row"
+                          align="center"
+                        >
+                          <Button
+                            variant="contained"
+                            color="secondary"
+                            size="small"
+                            onClick={() => handleEditClick(row.id)}
+                            style={{ marginLeft: 16 }}
+                          >
+                            <EditIcon color="inherit" />
+                          </Button>
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            size="small"
+                            onClick={() => handleDeleteClick(row.id)}
+                            style={{ marginLeft: 16 }}
+                            data-testid="testStatusDelete"
+                          >
+                            <EastIcon color="inherit" />
+                          </Button>
+                        </TableCell>
+                        </TableRow>
+                      )
+                    }
+                  )
+                }
+              </TableBody>
+            </Table>
+          </TableContainer>
+          </CardContent>
+        </Card>
+      </Container>
       <ModalBox
         open={openDeleteModal}
         handleClose={() => setOpenDeleteModal(false)}
@@ -528,8 +374,8 @@ export default function ProjectStatusDataGrid() {
                 projectsIds: projects.map((project) => project.id),
               });
             }}
-            method="put"
-            subaction="UPDATE-PROJECTS"
+            action="../merge/status"
+            method="post"
             id="delete-status-form"
           >
             {isMergeAction && (
@@ -579,9 +425,72 @@ export default function ProjectStatusDataGrid() {
           </ValidatedForm>
         </div>
       </ModalBox>
-    </div>
+
+
+      {/* edit status Modal */}
+      <ModalBox open={openEditModal} close={() => setOpenEditModal(false)}>
+        <h2 data-testid="createNewLabel">
+         Edit  status
+        </h2>
+        <ValidatedForm action='./' method="put" validator={validator} 
+        defaultValues={{
+          name: selectedRowID
+        }}>
+          <input type="hidden" name="id" value={selectedRowID} />
+          <Stack spacing={2}>
+          <LabeledTextField fullWidth name="name" label="Name" placeholder="Name" />
+          <InputSelect
+            valuesList={stageOptions}
+            name="stage"
+            label="Select a stage"
+            disabled={false}
+          />
+          <div>
+            <Button variant="contained" onClick={() => setOpenEditModal(false)}>
+              Cancel
+            </Button>
+              &nbsp;
+            <Button type="submit" variant="contained" color="warning">
+              Modify
+            </Button>
+          </div>
+          </Stack>
+        </ValidatedForm>
+      </ModalBox>
+
+      {/* create status Modal */}
+      <ModalBox open={openCreateModal} close={() => setOpenCreateModal(false)}>
+        <h2 data-testid="editStatusLabel">
+         Create new status
+        </h2>
+        <ValidatedForm action='./' method="post" validator={validator}>
+          <Stack spacing={2}>
+          <LabeledTextField fullWidth name="name" label="Name" placeholder="Name" />
+          
+          <InputSelect
+            valuesList={stageOptions}
+            name="stage"
+            label="Select a stage"
+            disabled={false}
+          />
+          <div>
+            <Button variant="contained" onClick={() => setOpenCreateModal(false)}>
+              Cancel
+            </Button>
+              &nbsp;
+            <Button type="submit" variant="contained" color="warning">
+              Create
+            </Button>
+          </div>
+          </Stack>
+        </ValidatedForm>
+      </ModalBox>
+
+    </>
   );
 }
+
+export default ProjectStatusDataGrid;
 
 export function ErrorBoundary({ error }: { error: Error }) {
   console.error(error);
