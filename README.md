@@ -106,6 +106,13 @@ This starts your app in development mode, rebuilding assets on file changes.
 
 The database seed script creates a new user with some data you can use to get started, now you can login with your gmail user from wizeline that you added on the seeds file.
 
+If you pull code changes that affect the schema (a new migration), you will need to run:
+
+```sh
+npx prisma migrate deploy # run any pending migrations
+npx prisma generate # update your prisma client code with any changes to the schema
+```
+
 ### Relevant code:
 
 This is a pretty simple note-taking app, but it's a good example of how you can build a full stack app with Prisma and Remix. The main functionality is creating projects, logging in and out.
