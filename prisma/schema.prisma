@@ -94,7 +94,7 @@ model Profiles {
   projects               Projects[]
   projectsVersions       ProjectsVersions[]
   votes                  Vote[]
-  githubUser              String?
+  githubUser             String?
 
   // here "name" was changed for "map"
   @@index([email], map: "profiles_email_idx")
@@ -108,21 +108,21 @@ model Profiles {
 }
 
 model GitHubProfile {
-  id                     String                   @id @default(uuid())
-  email                  String                   @unique
-  username               String                   
-  avatarUrl              String
-  reposUrl               String
-  firstName              String
-  lastName               String
+  id        String @id @default(uuid())
+  email     String @unique
+  username  String
+  avatarUrl String
+  reposUrl  String
+  firstName String
+  lastName  String
 }
 
 model GitHubProjects {
-  id                     String                   @id @default(uuid())
-  owner_email            String
-  name                   String                   
-  description            String                   
-  updated_at             String
+  id          String @id @default(uuid())
+  owner_email String
+  name        String
+  description String
+  updated_at  String
 }
 
 model ProjectMembers {
@@ -381,4 +381,40 @@ model RelatedProjects {
   projectB   Projects @relation("RelatedProjectsB", fields: [projectBId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@unique([projectAId, projectBId])
+}
+
+model Applicant {
+  id                     Int      @id @default(autoincrement())
+  createdAt              DateTime @default(now())
+  email                  String   @unique
+  personalEmail          String
+  fullName               String
+  nationality            String
+  country                String
+  dayOfBirth             DateTime
+  homeAddress            String
+  phone                  String
+  universityEmail        String?
+  emergencyContactName   String?
+  emergencyContactPhone  String?
+  emergencyRelationship  String?
+  gender                 String
+  englishLevel           String
+  university             String
+  campus                 String?
+  major                  String
+  semester               String
+  graduationDate         DateTime
+  interest               String
+  experience             String
+  cvLink                 String
+  interestedRoles        String?
+  preferredTools         String?
+  startDate              DateTime
+  endDate                DateTime
+  hoursPerWeek           Int
+  howDidYouHearAboutUs   String
+  participatedAtWizeline Boolean
+  wizelinePrograms       String?
+  comments               String?
 }

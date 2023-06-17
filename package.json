@@ -73,6 +73,7 @@
     "binode": "^1.0.5",
     "c8": "^7.11.3",
     "cross-env": "^7.0.3",
+    "csv-parser": "^3.0.0",
     "cypress": "^10.11.0",
     "eslint": "^8.16.0",
     "eslint-config-prettier": "^8.5.0",
