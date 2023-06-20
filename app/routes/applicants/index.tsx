@@ -12,6 +12,7 @@ import type {
 } from "@mui/x-data-grid";
 import { DataGrid, GridLinkOperator, GridToolbar } from "@mui/x-data-grid";
 import { searchApplicants } from "~/models/applicant.server";
+import Link from "~/core/components/Link";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const data = await searchApplicants();
@@ -35,13 +36,15 @@ export default function Projects() {
       headerName: "Name",
       flex: 1,
       renderCell: (params: GridRenderCellParams<string>) => {
-        return <a href={`mailto:${params.value}`}>{params.row.fullName}</a>;
+        return <Link to={`mailto:${params.value}`}>{params.row.fullName}</Link>;
       },
     },
+    { field: "email", headerName: "Email", flex: 0.5, hide: true },
+    { field: "phone", headerName: "Phone", flex: 0.5, hide: true },
     {
       field: "startDate",
       headerName: "Start Date",
-      flex: 0.5,
+      flex: 0.4,
       type: "date",
       valueGetter: (params: GridValueGetterParams) => {
         return new Date(params.value).toISOString();
@@ -52,14 +55,27 @@ export default function Projects() {
       field: "endDate",
       headerName: "End Date",
       type: "date",
-      flex: 0.5,
+      flex: 0.4,
       valueGetter(params) {
         return new Date(params.value).toISOString();
       },
       valueFormatter: shortDateFormatter,
     },
-    { field: "hoursPerWeek", headerName: "HpW", flex: 0.2 },
-    { field: "university", headerName: "university", flex: 1 },
+    {
+      field: "graduationDate",
+      headerName: "Approx Graduation Date",
+      type: "date",
+      flex: 0.5,
+      valueGetter(params) {
+        return new Date(params.value).toISOString();
+      },
+      valueFormatter: shortDateFormatter,
+      hide: true,
+    },
+    { field: "hoursPerWeek", headerName: "Hour/w", flex: 0.2 },
+    { field: "university", headerName: "University", flex: 1 },
+    { field: "campus", headerName: "Campus", flex: 0.5, hide: true },
+    { field: "semester", headerName: "Semester", flex: 1, hide: true },
   ];
 
   const filterModel: GridFilterModel = {
