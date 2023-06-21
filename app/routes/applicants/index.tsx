@@ -36,7 +36,7 @@ export default function Projects() {
       headerName: "Name",
       flex: 1,
       renderCell: (params: GridRenderCellParams<string>) => {
-        return <Link to={`mailto:${params.value}`}>{params.row.fullName}</Link>;
+        return <Link to={`./${params.row.id}`}>{params.row.fullName}</Link>;
       },
     },
     { field: "email", headerName: "Email", flex: 0.5, hide: true },
