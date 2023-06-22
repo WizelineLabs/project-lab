@@ -1,6 +1,5 @@
 import type { Profiles, Projects } from "@prisma/client";
 import { Prisma } from "@prisma/client";
-import { log } from "console";
 import { defaultStatus, contributorPath } from "~/constants";
 import { joinCondition, prisma as db } from "~/db.server";
 
@@ -301,6 +300,7 @@ export async function updateMembers(
           role: { connect: projectMembers[i].role },
           active: projectMembers[i].active,
           practicedSkills: { connect: projectMembers[i].practicedSkills },
+          updatedAt: new Date(),
         },
         include: {
           practicedSkills: true,
@@ -514,33 +514,52 @@ export async function updateRelatedProjects({
   });
 }
 
+
 export async function getProjectMembership(profileId: string) {
-  let specificDays = 1; 
-
-  if (profileId) {
-    let queryMembership = await db.$queryRaw<membershipOutput[]>
-     `SELECT "ProjectMembers"."updatedAt", "Projects"."name", "ProjectMembers"."hoursPerWeek", "Disciplines"."name", "Skills"."name", "ProjectMembers"."active"
-      FROM "ProjectMembers"
-      INNER JOIN "Projects" ON "Projects"."id" = "ProjectMembers"."projectId"
-      INNER JOIN "Disciplines" ON "Disciplines"."id" = "ProjectMembers"."profileId"
-      INNER JOIN "Skills" ON "Skills"."id" = "ProjectMembers"."profileId"
-      WHERE "profileId" = ${profileId}
-      AND EXISTS (
-        SELECT 1
-        FROM "ProjectMembers" AS "SubqueryMembers"
-        WHERE "SubqueryMembers"."profileId" = ${profileId}
-        AND ${specificDays} = (
-          SELECT FLOOR(EXTRACT(EPOCH FROM (CURRENT_DATE - "SubqueryMembers"."updatedAt")) / 86400)
-        )
-      )`;
-
-    // eslint-disable-next-line no-console
-    console.log(queryMembership);
-
-    return queryMembership;
-  } else {
-    return null;
+  let daysToCheck = 2;
+  let limitDateAbsence = new Date();
+  limitDateAbsence.setDate(limitDateAbsence.getDate() - daysToCheck);
+  let queryMembership = await db.projectMembers.findMany({
+    where: { 
+              profileId,
+              updatedAt: {
+                lte: limitDateAbsence,
+              },
+              active: true,
+    },
+    include: { practicedSkills: true, 
+        role: true , 
+        project: {
+          select: { name: true }
+        }
+    }
   }
+  );
+  return queryMembership;
+}
+
+export async function updateProjectActivity(projects: {
+  id: string;
+  profileId: string,
+  projectId: string,
+  hoursPerWeek?: number;
+  role: { id: string }[];
+  practicedSkills: { id: string }[];
+  active: boolean;
+}[]){
+
+  for(let i=0; i < projects.length; i++){
+    let projectMembers = [{
+      id: projects[i].id as string,
+      profileId: projects[i].profileId,
+      hoursPerWeek: projects[i].hoursPerWeek,
+      role: projects[i].role,
+      practicedSkills: projects[i].practicedSkills,
+      active: projects[i].active,
+    }];
+    await updateMembers(projects[i].projectId, projectMembers);
+  }
+
 }
 
 export async function searchProjects({

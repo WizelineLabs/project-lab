@@ -27,19 +27,39 @@ import ExpandMore from "@mui/icons-material/ExpandMore";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import CloseIcon from "@mui/icons-material/Close";
 import { SortInput } from "app/core/components/SortInput";
-import { getProjectMembership, searchProjects } from "~/models/project.server";
+import { getProjectMembership , searchProjects } from "~/models/project.server";
 import { requireProfile } from "~/session.server";
 import type { ProjectStatus } from "~/models/status.server";
 import { getProjectStatuses } from "~/models/status.server";
 import { ongoingStage, ideaStage } from "~/constants";
 import Link from "~/core/components/Link";
 import MembershipModal from "~/core/components/MembershipModal/index";
-import { log } from "console";
+
+
+export interface projectMembership {
+  active: boolean;
+  createdAt: string;
+  hoursPerWeek: number
+  id: string;
+  practicedSkills: [{
+    id: string;
+    name: string;
+  }];
+  profileId: string;
+  project: { name: string; }
+  projectId: string;
+  role: [{
+    id: string;
+    name: string;
+  }];
+  updatedAt: string;
+}
 
 type LoaderData = {
   data: Awaited<ReturnType<typeof searchProjects>>;
   ongoingStatuses: ProjectStatus[];
   ideaStatuses: ProjectStatus[];
+  projectMembership: projectMembership[]
 };
 
 const ITEMS_PER_PAGE = 50;
@@ -51,7 +71,7 @@ const FACETS = [
   "location",
   "tier",
   "role",
-  "missing",
+  "missing"
 ];
 
 interface Tab {
@@ -81,8 +101,6 @@ export const loader: LoaderFunction = async ({ request }) => {
   const order = url.searchParams.get("order") || "";
   const statuses = await getProjectStatuses();
   const projectMembership = await getProjectMembership(profile.id);
-  // eslint-disable-next-line no-console
-  console.log(projectMembership);
   
   const ongoingStatuses = statuses.filter(
     (status) => status.stage === ongoingStage
@@ -107,7 +125,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   // return json<LoaderData>({ data, ongoingStatuses, ideaStatuses });
   return new Response(
     JSON.stringify(
-      { data, ongoingStatuses, ideaStatuses },
+      { data, ongoingStatuses, ideaStatuses, projectMembership },
       (key, value) => (typeof value === "bigint" ? value.toString() : value) // return everything else unchanged
     ),
     {
@@ -136,6 +154,7 @@ export default function Projects() {
       missingFacets,
       count,
     },
+    projectMembership,
     ongoingStatuses,
     ideaStatuses,
   } = useLoaderData() as LoaderData;
@@ -635,8 +654,9 @@ export default function Projects() {
         </Grid>
       </Container>
       <MembershipModal
-        open={true}
+        open={projectMembership.length > 0}
         handleCloseModal={() => setShowJoinModal(false)}
+        projects={projectMembership}
       />
     </>
   );
