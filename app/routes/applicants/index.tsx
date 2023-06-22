@@ -76,6 +76,13 @@ export default function Projects() {
     { field: "university", headerName: "University", flex: 1 },
     { field: "campus", headerName: "Campus", flex: 0.5, hide: true },
     { field: "semester", headerName: "Semester", flex: 1, hide: true },
+    {
+      field: "participatedAtWizeline",
+      headerName: "Knows Wizeline",
+      type: "boolean",
+      flex: 1,
+      hide: true,
+    },
   ];
 
   const filterModel: GridFilterModel = {

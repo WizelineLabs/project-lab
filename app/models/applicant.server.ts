@@ -7,5 +7,13 @@ export async function searchApplicants() {
 export async function getApplicantById(id: any) {
   return await db.applicant.findUnique({
     where: { id: parseInt(id) },
+    include: {
+      project: {
+        select: { name: true },
+      },
+      mentor: {
+        select: { preferredName: true },
+      },
+    },
   });
 }

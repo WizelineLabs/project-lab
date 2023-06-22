@@ -45,7 +45,15 @@ export default function Applicant() {
                 </ExternalLink>
               </h1>{" "}
             </Grid>
-            <Grid xs={4}></Grid>
+            <Grid xs={4} sx={{ textAlign: "right" }}>
+              <h3 style={{ margin: 0 }}>{applicant.status}</h3>
+              {applicant.project && (
+                <>
+                  <div>{applicant.project.name}</div>
+                  <div>{applicant.mentor?.preferredName}</div>
+                </>
+              )}
+            </Grid>
           </Grid>
           <div>
             {applicant.university} / <strong>{applicant.major}</strong> /{" "}
@@ -78,9 +86,20 @@ export default function Applicant() {
               {applicant.interestedRoles}
             </div>
           )}
+          {applicant.participatedAtWizeline && (
+            <div>
+              <strong>I previously participated with Wizeline in:</strong>{" "}
+              {applicant.wizelinePrograms}
+            </div>
+          )}
           {applicant.preferredTools && (
             <div>
               <strong>Preferred tools</strong> {applicant.preferredTools}
+            </div>
+          )}
+          {applicant.experience && (
+            <div>
+              <strong>Relevant experience:</strong> {applicant.experience}
             </div>
           )}
           {applicant.interest && (

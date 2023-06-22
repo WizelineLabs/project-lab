@@ -95,12 +95,13 @@ model Profiles {
   projectsVersions       ProjectsVersions[]
   votes                  Vote[]
   githubUser             String?
+  applicants             Applicant[]
 
   // here "name" was changed for "map"
   @@index([email], map: "profiles_email_idx")
   @@index([jobTitleId], map: "profiles_job_title_id_idx")
   @@index([locationId], map: "profiles_location_id_idx")
-  @@index([searchCol], map: "profiles_search_col_idx")
+  @@index([searchCol(ops: raw("gin_trgm_ops"))], map: "profiles_search_col_idx", type: Gin)
   @@index([location], map: "profiles_location_idx")
   @@index([country], map: "profiles_country_idx")
   @@index([employeeStatus], map: "profiles_employee_status_idx")
@@ -220,13 +221,14 @@ model Projects {
   skills                 Skills[]
   resources              Resource[]
   projectBoard           String?
+  applicants             Applicant[]
 
   // here also the change of name for map
   @@index([ownerId], map: "projects_owner_id_idx")
   @@index([status], map: "projects_status_idx")
   @@index([isArchived], map: "projects_isArchived_idx")
   @@index([tierName], map: "projects_innovation_tier_idx")
-  @@index([tsColumn], map: "projects_ts_column_idx")
+  @@index([tsColumn], map: "projects_ts_column_idx", type: Gin)
 }
 
 model ProjectsVersions {
@@ -384,9 +386,9 @@ model RelatedProjects {
 }
 
 model Applicant {
-  id                     Int      @id @default(autoincrement())
-  createdAt              DateTime @default(now())
-  email                  String   @unique
+  id                     Int       @id @default(autoincrement())
+  createdAt              DateTime  @default(now())
+  email                  String    @unique
   personalEmail          String
   fullName               String
   nationality            String
@@ -417,4 +419,11 @@ model Applicant {
   participatedAtWizeline Boolean
   wizelinePrograms       String?
   comments               String?
+  status                 String    @default("DRAFT")
+  mentorId               String?
+  projectId              String?
+  mentor                 Profiles? @relation(fields: [mentorId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  project                Projects? @relation(fields: [projectId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+  @@index([status], map: "applicant_status_idx")
 }
