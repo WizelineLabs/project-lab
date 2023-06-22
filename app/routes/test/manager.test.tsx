@@ -1,11 +1,11 @@
 /* eslint-disable jest-dom/prefer-in-document */
 import { describe, test, vi } from "vitest";
-// import { render, screen } from "@testing-library/react";
-// import userEvent from "@testing-library/user-event";
-// import Manager from "../manager";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import Manager from "../manager";
 import { loader } from "../manager";
 import "@testing-library/jest-dom";
-// import { RemixStub } from "test/utils";
+import { RemixStub } from "test/utils";
 
 describe("Manager test", () => {
   // mocking remix module to handle Loaders
@@ -55,27 +55,27 @@ describe("Manager test", () => {
     expect(response).toBeInstanceOf(Response);
   });
 
-  // test("Manager selects the tab that comes from the Loader", () => {
-  //   const { container } = render(
-  //     <RemixStub>
-  //       <Manager />
-  //     </RemixStub>
-  //   );
-  //   const selectedTab = container.getElementsByClassName("linkSelected");
-  //   expect(selectedTab.length).toBe(1);
-  //   expect(selectedTab[0]).toHaveTextContent("Filter Tags");
-  // });
+  test("Manager selects the tab that comes from the Loader", () => {
+    const { container } = render(
+      <RemixStub>
+        <Manager />
+      </RemixStub>
+    );
+    const selectedTab = container.getElementsByClassName("linkSelected");
+    expect(selectedTab.length).toBe(1);
+    expect(selectedTab[0]).toHaveTextContent("Filter Tags");
+  });
 
-  // test("Click on a different tab change the tab selected", async () => {
-  //   const tab = userEvent.setup();
-  //   const { container } = render(
-  //     <RemixStub>
-  //       <Manager />
-  //     </RemixStub>
-  //   );
-  //   await tab.click(screen.getByText(/Admins/i));
-  //   const selectedTab = container.getElementsByClassName("linkSelected");
-  //   expect(selectedTab.length).toBe(1);
-  //   expect(selectedTab[0]).toHaveTextContent("Admins");
-  // });
+  test("Click on a different tab change the tab selected", async () => {
+    const tab = userEvent.setup();
+    const { container } = render(
+      <RemixStub>
+        <Manager />
+      </RemixStub>
+    );
+    await tab.click(screen.getByText(/Admins/i));
+    const selectedTab = container.getElementsByClassName("linkSelected");
+    expect(selectedTab.length).toBe(1);
+    expect(selectedTab[0]).toHaveTextContent("Admins");
+  });
 });

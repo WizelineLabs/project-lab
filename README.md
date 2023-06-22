@@ -52,7 +52,7 @@ SESSION_SECRET=
 AUTH0_CLIENT_ID=
 AUTH0_DOMAIN=
 AUTH0_CLIENT_SECRET=
-BASE_URL:
+BASE_URL=
 GOOGLE_APPLICATION_CREDENTIALS=
 ```
 
@@ -105,6 +105,13 @@ nvm use
 This starts your app in development mode, rebuilding assets on file changes.
 
 The database seed script creates a new user with some data you can use to get started, now you can login with your gmail user from wizeline that you added on the seeds file.
+
+If you pull code changes that affect the schema (a new migration), you will need to run:
+
+```sh
+npx prisma migrate deploy # run any pending migrations
+npx prisma generate # update your prisma client code with any changes to the schema
+```
 
 ### Relevant code:
 

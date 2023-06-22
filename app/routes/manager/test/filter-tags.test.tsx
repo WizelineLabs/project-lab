@@ -1,10 +1,10 @@
 /* eslint-disable jest-dom/prefer-in-document */
 import { describe, test, vi } from "vitest";
-// import { render, screen } from "@testing-library/react";
-// import userEvent from "@testing-library/user-event";
-// import FilterTags from "../filter-tags";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import FilterTags from "../filter-tags";
 import { loader } from "../filter-tags";
-// import { RemixStub } from "test/utils";
+import { RemixStub } from "test/utils";
 import "@testing-library/jest-dom";
 
 describe("Filter Tags test", () => {
@@ -31,26 +31,26 @@ describe("Filter Tags test", () => {
     expect(response).toBeInstanceOf(Response);
   });
 
-  // test("Filter Tags selects the tab that comes from the Loader", () => {
-  //   const { container } = render(
-  //     <RemixStub>
-  //       <FilterTags />
-  //     </RemixStub>
-  //   );
-  //   const selectedTab = container.getElementsByClassName("tabSelected");
-  //   expect(selectedTab.length).toBe(1);
-  //   expect(selectedTab[0]).toHaveTextContent("Labels");
-  // });
+  test("Filter Tags selects the tab that comes from the Loader", () => {
+    const { container } = render(
+      <RemixStub>
+        <FilterTags />
+      </RemixStub>
+    );
+    const selectedTab = container.getElementsByClassName("tabSelected");
+    expect(selectedTab.length).toBe(1);
+    expect(selectedTab[0]).toHaveTextContent("Labels");
+  });
 
-  // test("Click on a different tab change the tab selected", async () => {
-  //   const tab = userEvent.setup();
-  //   const { container } = render(
-  //     <RemixStub>
-  //       <FilterTags />
-  //     </RemixStub>
-  //   );
-  //   await tab.click(screen.getByText(/Statuses/i));
-  //   const selectedTab = container.getElementsByClassName("tabSelected");
-  //   expect(selectedTab.length).toBe(1);
-  // });
+  test("Click on a different tab change the tab selected", async () => {
+    const tab = userEvent.setup();
+    const { container } = render(
+      <RemixStub>
+        <FilterTags />
+      </RemixStub>
+    );
+    await tab.click(screen.getByText(/Statuses/i));
+    const selectedTab = container.getElementsByClassName("tabSelected");
+    expect(selectedTab.length).toBe(1);
+  });
 });
