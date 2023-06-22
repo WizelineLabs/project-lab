@@ -19,11 +19,6 @@ interface SearchProjectsInput {
   orderBy: { field: string; order: string };
 }
 
-interface membershipOutput {
-  updatedAt: string;
-  name: string
-}
-
 interface SearchProjectsOutput {
   id: string;
   name: string;
@@ -516,7 +511,7 @@ export async function updateRelatedProjects({
 
 
 export async function getProjectMembership(profileId: string) {
-  let daysToCheck = 2;
+  let daysToCheck = 30;
   let limitDateAbsence = new Date();
   limitDateAbsence.setDate(limitDateAbsence.getDate() - daysToCheck);
   let queryMembership = await db.projectMembers.findMany({
