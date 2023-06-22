@@ -1,63 +1,59 @@
 /* eslint-disable jest-dom/prefer-in-document */
-import { describe } from "vitest";
-// import { describe, test, vi } from "vitest";
+import { describe, test, vi } from "vitest";
 // import { render, screen } from "@testing-library/react";
 // import userEvent from "@testing-library/user-event";
 // import Manager from "../manager";
-// import { loader } from "../manager";
+import { loader } from "../manager";
 import "@testing-library/jest-dom";
 // import { RemixStub } from "test/utils";
 
-describe("Admins test", () => {
-  it('should pass', () => {
-    expect(true).toBe(true)
-   });
-  // // mocking remix module to handle Loaders
-  // vi.mock("@remix-run/react", async () => {
-  //   let remix: any = await vi.importActual("@remix-run/react");
-  //   return {
-  //     ...remix,
-  //     useLoaderData: vi.fn().mockReturnValue({
-  //       initialTabIdx: 0,
-  //       initialTitle: "Filter Tags",
-  //     }),
-  //   };
-  // });
+describe("Manager test", () => {
+  // mocking remix module to handle Loaders
+  vi.mock("@remix-run/react", async () => {
+    let remix: any = await vi.importActual("@remix-run/react");
+    return {
+      ...remix,
+      useLoaderData: vi.fn().mockReturnValue({
+        initialTabIdx: 0,
+        initialTitle: "Filter Tags",
+      }),
+    };
+  });
 
-  // vi.mock("~/session.server", async () => {
-  //   let session: any = await vi.importActual("~/session.server");
-  //   return {
-  //     ...session,
-  //     requireUser: vi.fn().mockReturnValue({
-  //       role: "ADMIN",
-  //     }),
-  //   };
-  // });
+  vi.mock("~/session.server", async () => {
+    let session: any = await vi.importActual("~/session.server");
+    return {
+      ...session,
+      requireUser: vi.fn().mockReturnValue({
+        role: "ADMIN",
+      }),
+    };
+  });
 
-  // vi.mock("~/utils", async () => {
-  //   let userUtils: any = await vi.importActual("~/utils");
-  //   return {
-  //     ...userUtils,
-  //     useUser: vi.fn().mockReturnValue({
-  //       role: "ADMIN",
-  //       email: "test@test.com",
-  //     }),
-  //   };
-  // });
+  vi.mock("~/utils", async () => {
+    let userUtils: any = await vi.importActual("~/utils");
+    return {
+      ...userUtils,
+      useUser: vi.fn().mockReturnValue({
+        role: "ADMIN",
+        email: "test@test.com",
+      }),
+    };
+  });
 
-  // afterEach(() => {
-  //   vi.clearAllMocks();
-  // });
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
 
-  // test("Path loader", async () => {
-  //   let request = new Request(
-  //     "http://localhost:3000/manager/filter-tags/innovation-tiers"
-  //   );
+  test("Path loader", async () => {
+    let request = new Request(
+      "http://localhost:3000/manager/filter-tags/innovation-tiers"
+    );
 
-  //   const response = await loader({ request, params: {}, context: {} });
+    const response = await loader({ request, params: {}, context: {} });
 
-  //   expect(response).toBeInstanceOf(Response);
-  // });
+    expect(response).toBeInstanceOf(Response);
+  });
 
   // test("Manager selects the tab that comes from the Loader", () => {
   //   const { container } = render(
