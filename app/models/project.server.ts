@@ -61,8 +61,11 @@ export class SearchProjectsError extends Error {
 }
 
 export function isProjectTeamMember(
-  profileId: string,
-  project: ProjectComplete
+  profileId: string | number,
+  project: {
+    ownerId?: string | null;
+    projectMembers?: { profileId: string }[];
+  }
 ) {
   const isProjectMember = project?.projectMembers?.some(
     (p) => p.profileId === profileId
@@ -189,19 +192,21 @@ export async function createProject(input: any, profileId: string) {
     },
   });
 
-
   for (let i = 0; i < contributorPath?.length; i++) {
     const data = {
       name: contributorPath[i]?.name || "Failed",
       criteria: contributorPath[i]?.criteria || "Failed",
       mission: contributorPath[i]?.mission || "Failed",
-    }
-    const tasks = contributorPath[i]?.tasks || []
-    const position = i + 1
-    let projectTasks: any = []
+    };
+    const tasks = contributorPath[i]?.tasks || [];
+    const position = i + 1;
+    let projectTasks: any = [];
 
     for (let j = 0; j < tasks.length; j++) {
-      projectTasks.push({ description: tasks[j]?.name, position: tasks[j]?.position })
+      projectTasks.push({
+        description: tasks[j]?.name,
+        position: tasks[j]?.position,
+      });
     }
 
     await db.projectStages.create({
@@ -213,7 +218,7 @@ export async function createProject(input: any, profileId: string) {
           create: projectTasks,
         },
       },
-    })
+    });
   }
 
   await db.projectMembers.create({
