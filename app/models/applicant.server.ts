@@ -9,7 +9,15 @@ export async function getApplicantById(id: any) {
     where: { id: parseInt(id) },
     include: {
       project: {
-        select: { name: true },
+        select: {
+          name: true,
+          ownerId: true,
+          projectMembers: {
+            select: {
+              profileId: true,
+            },
+          },
+        },
       },
       mentor: {
         select: { preferredName: true },

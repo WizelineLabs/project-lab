@@ -32,6 +32,9 @@ export function checkPermission(
   }
 
   if (resourceType == "applicant" && action == "edit.project") {
+    if (!resource.mentorId && role == "USER") {
+      return true;
+    }
     if (resource.mentorId == principal) {
       return true;
     }

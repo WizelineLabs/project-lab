@@ -8,21 +8,34 @@ import Link from "~/core/components/Link";
 import Header from "~/core/layouts/Header";
 import { getApplicantById } from "~/models/applicant.server";
 import Grid from "@mui/material/Unstable_Grid2";
+import { checkPermission } from "~/models/authorization.server";
+import type { Roles } from "~/models/authorization.server";
+import { requireProfile, requireUser } from "~/session.server";
 
-// loader function
-export const loader = async ({ params }: LoaderArgs) => {
+export const loader = async ({ params, request }: LoaderArgs) => {
   invariant(params.applicantId, "projectId not found");
 
   const applicant = await getApplicantById(params.applicantId);
+
   if (!applicant) {
     throw new Response("Not Found", { status: 404 });
   }
 
-  return typedjson({ applicant });
+  const profile = await requireProfile(request);
+  const user = await requireUser(request);
+  const canEditProject = checkPermission(
+    profile.id,
+    user.role as Roles,
+    "edit.project",
+    "applicant",
+    applicant
+  );
+
+  return typedjson({ applicant, canEditProject });
 };
 
 export default function Applicant() {
-  const { applicant } = useTypedLoaderData<typeof loader>();
+  const { applicant, canEditProject } = useTypedLoaderData<typeof loader>();
   return (
     <>
       <Header title="Applicants" />
@@ -47,6 +60,7 @@ export default function Applicant() {
             </Grid>
             <Grid xs={4} sx={{ textAlign: "right" }}>
               <h3 style={{ margin: 0 }}>{applicant.status}</h3>
+              <div>{canEditProject ? "can" : "can't"}</div>
               {applicant.project && (
                 <>
                   <div>{applicant.project.name}</div>
