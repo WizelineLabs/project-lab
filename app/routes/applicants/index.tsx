@@ -1,6 +1,6 @@
 import { Container, Paper } from "@mui/material";
-import { useLoaderData } from "@remix-run/react";
-import type { LoaderFunction } from "@remix-run/server-runtime";
+import { useLoaderData, useNavigate } from "@remix-run/react";
+import { type LoaderFunction } from "@remix-run/server-runtime";
 import Header from "app/core/layouts/Header";
 import type {
   GridColDef,
@@ -13,6 +13,7 @@ import type {
 import { DataGrid, GridLinkOperator, GridToolbar } from "@mui/x-data-grid";
 import { searchApplicants } from "~/models/applicant.server";
 import Link from "~/core/components/Link";
+
 
 export const loader: LoaderFunction = async ({ request }) => {
   const data = await searchApplicants();
@@ -30,6 +31,7 @@ const shortDateFormatter = (params: GridValueFormatterParams) => {
 
 export default function Projects() {
   const applicants = useLoaderData();
+  const navigate = useNavigate();
   const columns: GridColDef[] = [
     {
       field: "fullName",
@@ -99,6 +101,10 @@ export default function Projects() {
     linkOperator: GridLinkOperator.And,
   };
 
+  const selectRow = (id:string) => {
+    navigate(`./${id}`);
+  }
+
   const sortModel: GridSortModel = [{ field: "startDate", sort: "asc" }];
 
   return (
@@ -111,6 +117,7 @@ export default function Projects() {
             rows={applicants}
             columns={columns}
             autoHeight={true}
+            onRowClick={(e) => selectRow(e.id as string)}
             initialState={{
               filter: { filterModel },
               sorting: { sortModel },

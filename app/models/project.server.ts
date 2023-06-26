@@ -55,6 +55,11 @@ interface RelatedProjectInput {
   relatedProjects: { id: string }[];
 }
 
+interface ProjectListOutput {
+  id: string;
+  name: string;
+}
+
 export class SearchProjectsError extends Error {
   name = "SearchProjectsError";
   message = "There was an error while searching for projects.";
@@ -800,4 +805,10 @@ export async function updateProjectResources(
   await db.resource.deleteMany({ where: { projectId } });
   const data = resources.map((resource) => ({ ...resource, projectId }));
   return db.resource.createMany({ data });
+}
+
+export async function getProjectsList() {
+  return await db.$queryRaw<ProjectListOutput[]>`
+   SELECT "id", "name" FROM "Projects" where "isArchived" = false
+  `
 }

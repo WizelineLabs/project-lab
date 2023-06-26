@@ -25,3 +25,7 @@ export async function getApplicantById(id: any) {
     },
   });
 }
+
+export async function editApplicant(data:any, id:number) {
+    return await db.applicant.update({ data , where: { id }});
+}
