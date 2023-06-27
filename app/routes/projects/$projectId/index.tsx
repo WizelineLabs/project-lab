@@ -34,7 +34,6 @@ import EditSharp from "@mui/icons-material/EditSharp";
 import ThumbUpSharp from "@mui/icons-material/ThumbUpSharp";
 import ThumbDownSharp from "@mui/icons-material/ThumbDownSharp";
 import OpenInNew from "@mui/icons-material/OpenInNew";
-import { adminRoleName } from "app/constants";
 import ContributorPathReport from "../../../core/components/ContributorPathReport/index";
 import { useEffect, useState } from "react";
 import JoinProjectModal from "~/core/components/JoinProjectModal";
@@ -54,6 +53,8 @@ import Resources from "../components/resources";
 import { validationError } from "remix-validated-form";
 import { validator } from "~/routes/projects/components/resources";
 import { updateProjectResources } from "~/models/project.server";
+import { checkPermission } from "~/models/authorization.server";
+import type { Roles } from "~/models/authorization.server";
 
 export function links() {
   return [
@@ -80,8 +81,14 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   const isTeamMember = isProjectTeamMember(profile.id, project);
   const projectsList = await getProjects({});
   const membership = getProjectTeamMember(profile.id, project);
-  const isAdmin = user.role == adminRoleName;
   const profileId = profile.id;
+  const canEditProject = checkPermission(
+    profileId,
+    user.role as Roles,
+    "edit",
+    "project",
+    project
+  );
   const comments = await getComments(params.projectId);
 
   // Resources data
@@ -89,7 +96,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   const resourceData = await getDistinctResources();
 
   return typedjson({
-    isAdmin,
+    canEditProject,
     isTeamMember,
     membership,
     profile,
@@ -124,10 +131,15 @@ export const action: ActionFunction = async ({ request, params }) => {
         const profile = await requireProfile(request);
         const user = await requireUser(request);
         const project = await getProject({ id: params.projectId });
-        const isAdmin = user.role == adminRoleName;
-        const isTeamMember = isProjectTeamMember(profile.id, project);
+        const canEditProject = checkPermission(
+          profile.id,
+          user.role as Roles,
+          "edit",
+          "project",
+          project
+        );
 
-        if (!isAdmin && !isTeamMember) {
+        if (!canEditProject) {
           return validationError({
             fieldErrors: {
               formError: "Operation not allowed",
@@ -174,7 +186,7 @@ export const meta: TypedMetaFunction<typeof loader> = ({ data, params }) => {
 
 export default function ProjectDetailsPage() {
   const {
-    isAdmin,
+    canEditProject,
     isTeamMember,
     profile,
     membership,
@@ -247,7 +259,7 @@ export default function ProjectDetailsPage() {
               </Typography>
             </Grid>
             <Grid item>
-              {(isTeamMember || isAdmin) && (
+              {canEditProject && (
                 <IconButton
                   aria-label="Edit"
                   href={`/projects/${projectId}/edit`}
@@ -539,7 +551,7 @@ export default function ProjectDetailsPage() {
       )}
       <Container sx={{ marginBottom: 2 }}>
         <RelatedProjectsSection
-          allowEdit={isTeamMember || isAdmin}
+          allowEdit={canEditProject}
           relatedProjects={project.relatedProjects}
           projectsList={projectsList}
           projectId={projectId}
@@ -548,7 +560,7 @@ export default function ProjectDetailsPage() {
 
       <Container sx={{ marginBottom: 2 }}>
         <Resources
-          allowEdit={isTeamMember || isAdmin}
+          allowEdit={canEditProject}
           projectResources={projectResources}
           resourceData={resourceData}
         />
@@ -557,8 +569,7 @@ export default function ProjectDetailsPage() {
       <Container sx={{ marginBottom: 2 }}>
         <ContributorPathReport
           project={project}
-          isTeamMember={isTeamMember}
-          isAdmin={isAdmin}
+          canEditProject={canEditProject}
         />
       </Container>
       <JoinProjectModal

@@ -18,14 +18,13 @@ import {
   TableHead,
   TableRow,
   TableSortLabel,
-  Button
+  Button,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 
 interface IProps {
   project: any;
-  isTeamMember: boolean;
-  isAdmin: boolean;
+  canEditProject: boolean;
 }
 
 type ContributiorRecord = {
@@ -81,11 +80,7 @@ function getComparator<Key extends keyof any>(
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
-export const ContributorPathReport = ({
-  project,
-  isTeamMember,
-  isAdmin,
-}: IProps) => {
+export const ContributorPathReport = ({ project, canEditProject }: IProps) => {
   const [rows, setRows] = useState<ContributiorRecord[]>([]);
   const page: number = 0;
   const rowsPerPage: number = 25;
@@ -184,7 +179,7 @@ export const ContributorPathReport = ({
       <CardHeader
         title="Contributors"
         action={
-          (isTeamMember || isAdmin) && (
+          canEditProject && (
             <IconButton
               aria-label="Edit"
               href={`/projects/${project.id}/members`}
@@ -238,12 +233,12 @@ export const ContributorPathReport = ({
                         )}
                       </TableCell>
                       <TableCell align="center">
-                      <Button
-                        component={Link}
-                        href={`/profile/${encodeURIComponent(row.email)}`}
-                      >
-                        {row.name}
-                      </Button>
+                        <Button
+                          component={Link}
+                          href={`/profile/${encodeURIComponent(row.email)}`}
+                        >
+                          {row.name}
+                        </Button>
                       </TableCell>
                       <TableCell align="center">{row.role}</TableCell>
                       <TableCell align="center">
