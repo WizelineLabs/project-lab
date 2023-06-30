@@ -1,4 +1,4 @@
-import { Container, Paper } from "@mui/material";
+import { Container, Paper, darken, lighten } from "@mui/material";
 import { useLoaderData, useNavigate } from "@remix-run/react";
 import { type LoaderFunction } from "@remix-run/server-runtime";
 import Header from "app/core/layouts/Header";
@@ -13,6 +13,7 @@ import type {
 import { DataGrid, GridLinkOperator, GridToolbar } from "@mui/x-data-grid";
 import { searchApplicants } from "~/models/applicant.server";
 import Link from "~/core/components/Link";
+import { styled } from "@mui/material/styles";
 
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -28,6 +29,44 @@ const shortDateFormatter = (params: GridValueFormatterParams) => {
     year: "numeric",
   });
 };
+
+const getBackgroundColor = (color: string, mode: string) =>
+  mode === 'dark' ? darken(color, 0.7) : lighten(color, 0.7);
+
+  const getHoverBackgroundColor = (color: string, mode: string) =>
+  mode === 'dark' ? darken(color, 0.4) : lighten(color, 0.4);
+
+const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
+  '& .status-HOLD': {
+    backgroundColor: getBackgroundColor(theme.palette.info.main, theme.palette.mode),
+    '&:hover': {
+      backgroundColor: getHoverBackgroundColor(
+        theme.palette.info.main,
+        theme.palette.mode,
+      ),
+    },
+  },
+
+  '& .status-ACCEPTED': {
+    backgroundColor: getBackgroundColor(theme.palette.success.main, theme.palette.mode),
+    '&:hover': {
+      backgroundColor: getHoverBackgroundColor(
+        theme.palette.success.main,
+        theme.palette.mode,
+      ),
+    },
+  },
+
+  '& .status-REJECTED': {
+    backgroundColor: getBackgroundColor(theme.palette.warning.main, theme.palette.mode),
+    '&:hover': {
+      backgroundColor: getHoverBackgroundColor(
+        theme.palette.warning.main,
+        theme.palette.mode,
+      ),
+    },
+  },
+}));
 
 export default function Projects() {
   const applicants = useLoaderData();
@@ -85,6 +124,8 @@ export default function Projects() {
       flex: 1,
       hide: true,
     },
+    { field: "status", headerName: "Status", flex: 0.4, hide: false },
+
   ];
 
   const filterModel: GridFilterModel = {
@@ -97,15 +138,22 @@ export default function Projects() {
           Date.now() - 60 * 60 * 24 * 30 * 3 /** months **/ * 1000
         ).toISOString(),
       },
+      // {
+      //   id: 2,
+      //   columnField: "status",
+      //   operatorValue: "equals",
+      //   value: "DRAFT"
+      // },
+      //Just the pro version allows more than one filter
     ],
-    linkOperator: GridLinkOperator.And,
+    linkOperator: GridLinkOperator.Or,
   };
 
   const selectRow = (id:string) => {
     navigate(`./${id}`);
   }
 
-  const sortModel: GridSortModel = [{ field: "startDate", sort: "asc" }];
+  const sortModel: GridSortModel = [{ field: "startDate", sort: "asc" }, ];
 
   return (
     <>
@@ -113,10 +161,11 @@ export default function Projects() {
       <Container>
         <Paper sx={{ p: 2 }}>
           <h1 style={{ marginTop: 0 }}>Applicants</h1>
-          <DataGrid
+          <StyledDataGrid
             rows={applicants}
             columns={columns}
             autoHeight={true}
+            filterModel={filterModel}
             onRowClick={(e) => selectRow(e.id as string)}
             initialState={{
               filter: { filterModel },
@@ -125,6 +174,8 @@ export default function Projects() {
             components={{
               Toolbar: GridToolbar,
             }}
+            isRowSelectable={(e) => e.row.status !== 'HOLD'}
+            getRowClassName={(params) => `status-${params.row.status}`}
           />
         </Paper>
       </Container>

@@ -20,12 +20,14 @@ export async function getApplicantById(id: any) {
         },
       },
       mentor: {
-        select: { preferredName: true },
+        select: { preferredName: true, lastName: true },
       },
     },
   });
 }
 
 export async function editApplicant(data:any, id:number) {
-    return await db.applicant.update({ data , where: { id }});
+  // eslint-disable-next-line no-console
+  console.log('test edit');
+  return await db.applicant.update({ data , where: { id }});
 }

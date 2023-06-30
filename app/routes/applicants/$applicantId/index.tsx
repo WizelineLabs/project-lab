@@ -1,12 +1,12 @@
 import LinkedIn from "@mui/icons-material/LinkedIn";
 import ArrowBack from "@mui/icons-material/ArrowBack";
-import { Container, Paper, Link as ExternalLink, Button, TextField, Autocomplete, debounce } from "@mui/material";
+import { Container, Paper, Link as ExternalLink, Button, TextField, Autocomplete, debounce, Stack, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent, Typography } from "@mui/material";
 import type { LoaderArgs } from "@remix-run/server-runtime";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import invariant from "tiny-invariant";
 import Link from "~/core/components/Link";
 import Header from "~/core/layouts/Header";
-import { getApplicantById } from "~/models/applicant.server";
+import { editApplicant, getApplicantById } from "~/models/applicant.server";
 import Grid from "@mui/material/Unstable_Grid2";
 import { checkPermission } from "~/models/authorization.server";
 import type { Roles } from "~/models/authorization.server";
@@ -27,6 +27,13 @@ type ProfileValue = {
   name: string;
 };
 
+type ApplicantValue ={
+  applicantId: string,
+  projectId: string,
+  mentorId: string,
+  status: string,
+}
+
 const profileFetcherOptions: SubmitOptions = {
   method: "get",
   action: "/api/profiles-search",
@@ -39,9 +46,11 @@ export const validator = withZod(
         z.object({
           id: z.string().optional(),
           name: z.string().optional(),
-        }),
+        }).optional(),
       mentorId: z.string(),
-      mentorName: z.string(),
+      mentorName: z.string().optional(),
+      status: z.string(),
+      projectId: z.string().optional(),
     })
 );
 
@@ -71,6 +80,8 @@ export default function Applicant() {
   const [openManageModal, setOpenManageModal] = useState(false);
   const [mentorSelected, setMentorSelected] = useState<ProfileValue | null>();
 
+  const fetcher = useFetcher<ApplicantValue>();
+
   const transition = useTransition();
 
   useEffect(() => {
@@ -84,6 +95,17 @@ export default function Applicant() {
   const searchProfiles = (value: string) => {
     profileFetcher.submit({ q: value }, profileFetcherOptions);
   };
+
+  const changeStatus = (event: SelectChangeEvent) => {
+    const body= {
+      applicantId: applicant.id as unknown as string,
+      projectId: applicant.projectId as string,
+      mentorId: applicant.mentorId as string,
+      status: event.target.value
+    };
+   
+     fetcher.submit(body, { method: "post", action: `/applicants/${applicant.id}/hold`})
+  }
 
   const searchProfilesDebounced = debounce(searchProfiles, 500);
 
@@ -116,22 +138,40 @@ export default function Applicant() {
               </h1>{" "}
             </Grid>
             <Grid xs={4} sx={{ textAlign: "right" }}>
-              <h3 style={{ margin: 0 }}>{applicant.status}</h3>
-              <div>{canEditProject ? "can" : "can't"}</div>
               {
-                applicant.status === 'DRAFT' && (
+                canEditProject && applicant.status === 'DRAFT' && (
                   <>
-                  
                     <Button onClick={() => setOpenManageModal(true)} variant="contained">Hold intern</Button>
                   </>
                 )
               }
-              {applicant.project && (
-                <>
-                  <div>{applicant.project.name}</div>
-                  <div>{applicant.mentor?.preferredName}</div>
-                </>
-              )}
+              {
+                canEditProject && applicant.status === 'HOLD' && (
+                  <Stack direction="column" spacing={1}>
+                    <FormControl fullWidth size="medium">
+                    <InputLabel id="demo-simple-select-label">Status</InputLabel>
+                      <Select
+                        id="actions-select"
+                        label="Status"
+                        onChange={changeStatus}
+                        value={applicant.status}
+                      >
+                        <MenuItem value="HOLD">HOLD</MenuItem>
+                        <MenuItem value="DRAFT">DRAFT</MenuItem>
+                        <MenuItem value="ACCEPTED">ACCEPTED</MenuItem>
+                        <MenuItem value="REJECTED">REJECTED</MenuItem>
+                      </Select>
+                    </FormControl>
+                    <Paper >
+                      <Typography variant="h6" alignContent="center" alignItems="left">Project:  {applicant.project?.name}</Typography>
+                    </Paper>
+                    <Paper>
+                    <Typography variant="h6" alignContent="center" alignItems="left">Mentor: {applicant.mentor?.preferredName} {applicant.mentor?.lastName} </Typography>
+                    </Paper>
+                  </Stack>
+                )
+              }
+              
             </Grid>
           </Grid>
           <div>
@@ -142,10 +182,17 @@ export default function Applicant() {
             <ExternalLink href={`mailto:${applicant.email}`}>
               {applicant.email}
             </ExternalLink>{" "}
-            / t.
-            <ExternalLink href={`tel:${applicant.phone}`}>
-              {applicant.phone}
-            </ExternalLink>
+            {
+              applicant.phone && (
+                <>
+                / t.
+                <ExternalLink href={`tel:${applicant.phone}`}>
+                  {applicant.phone}
+                </ExternalLink>
+                </>
+              )
+            }
+            
           </div>
           <hr />
           <div>
@@ -197,6 +244,7 @@ export default function Applicant() {
         <h2>Select project and mentor</h2>
             <ValidatedForm validator={validator} method="post" action="./hold">
                 <input type="hidden" name="applicantId" value={applicant.id} />
+                <input type="hidden" name="status" value="HOLD" />
 
                 <RegularSelect
                   valuesList={projects}
