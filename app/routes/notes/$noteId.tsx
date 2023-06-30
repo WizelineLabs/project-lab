@@ -3,8 +3,7 @@ import { redirect } from "@remix-run/node";
 import { Form, useCatch } from "@remix-run/react";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import invariant from "tiny-invariant";
-import { deleteNote } from "~/models/note.server";
-import { getNote } from "~/models/note.server";
+import { deleteNote, getNote } from "~/models/note.server";
 import { requireUserId } from "~/session.server";
 
 export const loader = async ({ request, params }: LoaderArgs) => {

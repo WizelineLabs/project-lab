@@ -13,6 +13,7 @@ import {
   getProject,
   getProjects,
   getProjectResources,
+  updateProjectResources,
 } from "~/models/project.server";
 import { getDistinctResources } from "~/models/resource.server";
 import {
@@ -50,10 +51,8 @@ import { getComments } from "~/models/comment.server";
 import Comments from "~/core/components/Comments";
 import MDEditorStyles from "@uiw/react-md-editor/markdown-editor.css";
 import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
-import Resources from "../components/resources";
 import { validationError } from "remix-validated-form";
-import { validator } from "~/routes/projects/components/resources";
-import { updateProjectResources } from "~/models/project.server";
+import Resources, { validator } from "~/routes/projects/components/resources";
 import GitHub from '@mui/icons-material/GitHub';
 
 export function links() {

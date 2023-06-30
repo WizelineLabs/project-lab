@@ -22,8 +22,7 @@ import {
 } from "@mui/material";
 import GoBack from "~/core/components/GoBack";
 import type { SyntheticEvent } from "react";
-import { useEffect } from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ValidatedForm, useIsSubmitting } from "remix-validated-form";
 import Header from "~/core/layouts/Header";
 import { EditPanelsStyles } from "~/routes/manager/manager.styles";

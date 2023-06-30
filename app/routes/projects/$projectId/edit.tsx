@@ -2,7 +2,7 @@ import type { ActionFunction, LoaderArgs } from "@remix-run/node";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import type { TypedMetaFunction } from "remix-typedjson";
 import { redirect } from "@remix-run/node";
-import { Form } from "@remix-run/react";
+import { Form, Link } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import { requireProfile, requireUser } from "~/session.server";
 import {
@@ -37,7 +37,6 @@ import { getInnovationTiers } from "~/models/innovationTier.server";
 import MDEditorStyles from "@uiw/react-md-editor/markdown-editor.css";
 import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
 import { isProjectMemberOrOwner } from "~/utils";
-import { Link } from "@remix-run/react";
 
 export function links() {
   return [

@@ -8,6 +8,7 @@ import {
   Button,
   Card,
   CardHeader,
+  CardContent,
 } from "@mui/material";
 import { EditSharp, Close } from "@mui/icons-material";
 import { useEffect, useState } from "react";
@@ -16,7 +17,6 @@ import { withZod } from "@remix-validated-form/with-zod";
 import { zfd } from "zod-form-data";
 import { z } from "zod";
 import Link from "./Link";
-import { CardContent } from "@mui/material";
 
 type ProjectValue = {
   id: string;
@@ -25,7 +25,7 @@ type ProjectValue = {
 
 interface IProps {
   relatedProjects: ProjectValue[];
-  allowEdit: Boolean;
+  allowEdit: boolean;
   projectsList: { id: string; name: string }[];
   projectId: string;
 }
@@ -48,7 +48,7 @@ function RelatedProjectsSection({
   projectId,
 }: IProps) {
   const [isEditActive, setIsEditActive] = useState(false);
-  const handleChangeEditView = (val: Boolean) => setIsEditActive(!isEditActive);
+  const handleChangeEditView = (val: boolean) => setIsEditActive(!isEditActive);
   const [selectedRelatedProjects, setSelectedRelatedProjects] =
     useState(relatedProjects);
   const { error } = useField("relatedProjects", {

@@ -39,7 +39,7 @@ interface IResource {
 }
 
 interface IProps {
-  allowEdit: Boolean;
+  allowEdit: boolean;
   projectResources: IResource[];
   resourceData: { types: string[]; providers: string[]; names: string[] };
 }

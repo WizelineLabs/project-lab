@@ -2,15 +2,14 @@
 import { describe, test, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import FilterTags from "../filter-tags";
-import { loader } from "../filter-tags";
+import FilterTags, { loader } from "../filter-tags";
 import { RemixStub } from "test/utils";
 import "@testing-library/jest-dom";
 
 describe("Filter Tags test", () => {
   // mocking remix module to handle Loaders
   vi.mock("@remix-run/react", async () => {
-    let remix: any = await vi.importActual("@remix-run/react");
+    const remix: any = await vi.importActual("@remix-run/react");
     return {
       ...remix,
       useLoaderData: vi.fn().mockReturnValue({
@@ -24,7 +23,7 @@ describe("Filter Tags test", () => {
   });
 
   test("Path loader", async () => {
-    let request = new Request("http://localhost:3000/manager/filter-tags");
+    const request = new Request("http://localhost:3000/manager/filter-tags");
 
     const response = await loader({ request, params: {}, context: {} });
 

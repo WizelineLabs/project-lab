@@ -22,7 +22,7 @@ invariant(process.env.AUTH0_DOMAIN, "AUTH0_DOMAIN must be set");
 // strategies will return and will be stored in the session
 export const authenticator = new Authenticator<User>(sessionStorage);
 
-let auth0Strategy = new Auth0Strategy(
+const auth0Strategy = new Auth0Strategy(
   {
     callbackURL: `${process.env.BASE_URL}/auth/auth0/callback`,
     clientID: process.env.AUTH0_CLIENT_ID,
