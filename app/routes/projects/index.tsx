@@ -33,6 +33,10 @@ import type { ProjectStatus } from "~/models/status.server";
 import { getProjectStatuses } from "~/models/status.server";
 import { ongoingStage, ideaStage } from "~/constants";
 import Link from "~/core/components/Link";
+import ViewModuleIcon from '@mui/icons-material/ViewModule';
+import ViewListIcon from '@mui/icons-material/ViewList';
+import { Table, TableHead, TableRow, TableCell, TableBody } from '@material-ui/core';
+
 
 type LoaderData = {
   data: Awaited<ReturnType<typeof searchProjects>>;
@@ -116,7 +120,7 @@ export default function Projects() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
 
   const [searchParams, setSearchParams] = useSearchParams();
-  
+
   let {
     data: {
       projects,
@@ -165,7 +169,7 @@ export default function Projects() {
   };
 
   const handlePaginationChange = (event: React.ChangeEvent<unknown>, value: number) => {
-    searchParams.set("page", String(value-1));
+    searchParams.set("page", String(value - 1));
     setSearchParams(searchParams);
   };
 
@@ -244,7 +248,7 @@ export default function Projects() {
       padding: '0 16px',
     },
   }));
-  
+
   const StyledAppBar = styled(AppBar)(({ theme }) => ({
     fontWeight: "bold",
     color: theme.palette.mode === "dark" ? "#AF2E33" : "#701D21",
@@ -266,7 +270,9 @@ export default function Projects() {
       background: theme.palette.mode === "dark" ? "#202020" : "#F5F5F5",
     },
   }));
-   
+
+  const [viewOption, setViewOption] = useState("card");
+
   return (
     <>
       <Header title="Projects" />
@@ -274,23 +280,23 @@ export default function Projects() {
         Disable Gutters based on:
         https://stackoverflow.com/questions/70038913/materialui-show-and-hide-the-containers-gutters-based-on-breakpoints
       */}
-      <StyledBox sx={{maxWidth: '1200px', height:'62.75px', margin: '0 auto', mb:2, px:3}}>
-        <StyledAppBar position="static" sx={{ p:2, display:'block', borderRadius: '4px', boxShadow: 'none'}}>
-          <StyledToolbar sx={{position:'static', pl:0, height:'30.75px!important'}}>
-          {Object.values(tabs).map((tab) => (
-                <StyledTabButton
-                  size="small"
-                  disableElevation
-                  variant={isTabActive(tab.name) ? "contained" : "text"}
-                  onClick={() => handleTabChange(tab.name)}
-                  key={tab.name}
-                  sx={{
-                    color: isTabActive(tab.name) ? prefersDarkMode ? "#fff" : "#000000": null, 
-                  }}
-                >
-                  {tab.title}
-                </StyledTabButton>
-              ))}
+      <StyledBox sx={{ maxWidth: '1200px', height: '62.75px', margin: '0 auto', mb: 2, px: 3 }}>
+        <StyledAppBar position="static" sx={{ p: 2, display: 'block', borderRadius: '4px', boxShadow: 'none' }}>
+          <StyledToolbar sx={{ position: 'static', pl: 0, height: '30.75px!important' }}>
+            {Object.values(tabs).map((tab) => (
+              <StyledTabButton
+                size="small"
+                disableElevation
+                variant={isTabActive(tab.name) ? "contained" : "text"}
+                onClick={() => handleTabChange(tab.name)}
+                key={tab.name}
+                sx={{
+                  color: isTabActive(tab.name) ? prefersDarkMode ? "#fff" : "#000000" : null,
+                }}
+              >
+                {tab.title}
+              </StyledTabButton>
+            ))}
           </StyledToolbar>
         </StyledAppBar>
       </StyledBox>
@@ -363,9 +369,8 @@ export default function Projects() {
                           <Link
                             id={item.name}
                             color="#AF2E33"
-                            to={`?${searchParams.toString()}&status=${
-                              item.name
-                            }`}
+                            to={`?${searchParams.toString()}&status=${item.name
+                              }`}
                           >
                             {item.name} ({item.count})
                           </Link>
@@ -417,9 +422,8 @@ export default function Projects() {
                           <Link
                             id={item.name}
                             color="#AF2E33"
-                            to={`?${searchParams.toString()}&label=${
-                              item.name
-                            }`}
+                            to={`?${searchParams.toString()}&label=${item.name
+                              }`}
                           >
                             {item.name} ({item.count})
                           </Link>
@@ -445,9 +449,8 @@ export default function Projects() {
                           <Link
                             id={item.name}
                             color="#AF2E33"
-                            to={`?${searchParams.toString()}&discipline=${
-                              item.name
-                            }`}
+                            to={`?${searchParams.toString()}&discipline=${item.name
+                              }`}
                           >
                             {item.name} ({item.count})
                           </Link>
@@ -499,9 +502,8 @@ export default function Projects() {
                           <Link
                             id={item.name}
                             color="#AF2E33"
-                            to={`?${searchParams.toString()}&missing=${
-                              item.name
-                            }`}
+                            to={`?${searchParams.toString()}&missing=${item.name
+                              }`}
                           >
                             {item.name} ({item.count})
                           </Link>
@@ -527,9 +529,8 @@ export default function Projects() {
                           <Link
                             id={item.name}
                             color="#AF2E33"
-                            to={`?${searchParams.toString()}&skill=${
-                              item.name
-                            }`}
+                            to={`?${searchParams.toString()}&skill=${item.name
+                              }`}
                           >
                             {item.name} ({item.count})
                           </Link>
@@ -555,9 +556,8 @@ export default function Projects() {
                           <Link
                             id={item.name}
                             color="#AF2E33"
-                            to={`?${searchParams.toString()}&location=${
-                              item.name
-                            }`}
+                            to={`?${searchParams.toString()}&location=${item.name
+                              }`}
                           >
                             {item.name} ({item.count})
                           </Link>
@@ -579,6 +579,19 @@ export default function Projects() {
                   setSortQuery={setSortQuery}
                   sortBy={searchParams.get("field") || ""}
                 />
+                <IconButton
+                  color={viewOption === "card" ? "primary" : "default"}
+                  onClick={() => setViewOption("card")}
+                >
+                  <ViewModuleIcon />
+                </IconButton>
+                <IconButton
+                  color={viewOption === "table" ? "primary" : "default"}
+                  onClick={() => setViewOption("table")}
+                >
+                  <ViewListIcon />
+                </IconButton>
+
                 &nbsp;
                 <Button
                   variant="contained"
@@ -589,40 +602,67 @@ export default function Projects() {
                   Filters
                 </Button>
               </div>
-              <Grid
-                container
-                spacing={2}
-                sx={{ paddingTop: 2, paddingBottom: 2 }}
-              >
-                {projects.map((item, i) => {
-                  return (
-                    <Grid item xs={12} sm={6} lg={4} key={i}>
-                      <ProposalCard
-                        id={item.id}
-                        title={item.name}
-                        picture={item.avatarUrl}
-                        initials={initials(item.preferredName, item.lastName)}
-                        date={new Intl.DateTimeFormat([], {
-                          year: "numeric",
-                          month: "long",
-                          day: "2-digit",
-                        }).format(new Date(item.createdAt))}
-                        description={item.description}
-                        status={item.status}
-                        color={item.color}
-                        votesCount={Number(item.votesCount)}
-                        skills={item.searchSkills
-                          .trim()
-                          .split(",")
-                          .map((skill) => ({ name: skill }))}
-                        tierName={item.tierName}
-                        projectMembers={Number(item.projectMembers)}
-                      />
-                    </Grid>
-                  );
-                })}
-              </Grid>
-              <Pagination count={count % ITEMS_PER_PAGE === 0 ? count / ITEMS_PER_PAGE : Math.trunc(count/ITEMS_PER_PAGE) + 1} shape="rounded" sx={{pt: "15px"}}  onChange={handlePaginationChange}/>
+              {viewOption === "card" ? (
+                <Grid
+                  container
+                  spacing={2}
+                  sx={{ paddingTop: 2, paddingBottom: 2 }}
+                >
+                  {projects.map((item, i) => {
+                    return (
+                      <Grid item xs={12} sm={6} lg={4} key={i}>
+                        <ProposalCard
+                          id={item.id}
+                          title={item.name}
+                          picture={item.avatarUrl}
+                          initials={initials(item.preferredName, item.lastName)}
+                          date={new Intl.DateTimeFormat([], {
+                            year: "numeric",
+                            month: "long",
+                            day: "2-digit",
+                          }).format(new Date(item.createdAt))}
+                          description={item.description}
+                          status={item.status}
+                          color={item.color}
+                          votesCount={Number(item.votesCount)}
+                          skills={item.searchSkills
+                            .trim()
+                            .split(",")
+                            .map((skill) => ({ name: skill }))}
+                          tierName={item.tierName}
+                          projectMembers={Number(item.projectMembers)}
+                        />
+                      </Grid>
+                    );
+                  })}
+                </Grid>
+              ) : (
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Name</TableCell>
+                      <TableCell>Tier</TableCell>
+                      <TableCell>Status</TableCell>
+                      <TableCell>Contributors</TableCell>
+                      <TableCell>Likes</TableCell>
+                      <TableCell>Skills</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {projects.map((item, i) => (
+                      <TableRow key={i}>
+                        <TableCell>{item.name}</TableCell>
+                        <TableCell>{item.tierName}</TableCell>
+                        <TableCell>{item.status}</TableCell>
+                        <TableCell>{item.projectMembers}</TableCell>
+                        <TableCell>{item.votesCount}</TableCell>
+                        <TableCell>{item.searchSkills}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+              <Pagination count={count % ITEMS_PER_PAGE === 0 ? count / ITEMS_PER_PAGE : Math.trunc(count / ITEMS_PER_PAGE) + 1} shape="rounded" sx={{ pt: "15px" }} onChange={handlePaginationChange} />
             </Paper>
           </Grid>
         </Grid>
