@@ -69,7 +69,6 @@ const validatorForm = withZod(
   zfd.formData({
     name: z.object({ name: z.string() }).optional(),
     ids: z.array(z.union([z.string(), z.number()])).optional(),
-    
   })
 );
 
@@ -298,7 +297,7 @@ function InnovationTiersGrid(){
           color="primary"
           startIcon={<AddIcon />}
           onClick={() => handleCreateClick()}
-          data-testid="StatusCreate"
+          data-testid="testInnovationCreate"
         >
           {createButtonText}
         </Button>
@@ -380,7 +379,7 @@ function InnovationTiersGrid(){
                               size="small"
                               onClick={() => handleDeleteClick(row.id)}
                               style={{ marginLeft: 16 }}
-                              data-testid="testStatusDelete"
+                              data-testid="testInnovationDelete"
                             >
                               <EastIcon color="inherit" />
                             </Button>
@@ -482,7 +481,7 @@ function InnovationTiersGrid(){
 
       {/* create status Modal */}
       <ModalBox open={openCreateModal} close={() => setOpenCreateModal(false)}>
-        <h2 data-testid="editStatusLabel">
+        <h2 data-testid="testCreateTierModal">
           {
             editMode ? "Edit Innovation Tier" + selectedRowID : "Add a new innovation tier"
           }

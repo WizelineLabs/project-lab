@@ -54,6 +54,7 @@ import Resources from "../components/resources";
 import { validationError } from "remix-validated-form";
 import { validator } from "~/routes/projects/components/resources";
 import { updateProjectResources } from "~/models/project.server";
+import GitHub from '@mui/icons-material/GitHub';
 
 export function links() {
   return [
@@ -83,7 +84,6 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   const isAdmin = user.role == adminRoleName;
   const profileId = profile.id;
   const comments = await getComments(params.projectId);
-
   // Resources data
   const projectResources = await getProjectResources(params.projectId);
   const resourceData = await getDistinctResources();
@@ -456,7 +456,19 @@ export default function ProjectDetailsPage() {
                 </div>
               </CardContent>
             </Card>
+
+            <Card>
+            <CardHeader
+                title="Github Information" 
+                action={
+                  <Button variant="contained" href={`/projects/${project.id}/github-info`} endIcon={<GitHub />}>
+                    See Info
+                </Button>
+                }/>
+                
+            </Card>
           </Grid>
+   
           <Grid item xs={12} md={4}>
             <Stack direction="column" spacing={1}>
               {project.disciplines && project.disciplines.length > 0 && (
