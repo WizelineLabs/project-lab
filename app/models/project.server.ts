@@ -515,18 +515,19 @@ export async function getProjectMembership(profileId: string) {
   let limitDateAbsence = new Date();
   limitDateAbsence.setDate(limitDateAbsence.getDate() - daysToCheck);
   let queryMembership = await db.projectMembers.findMany({
-    where: { 
-              profileId,
-              updatedAt: {
-                lte: limitDateAbsence,
-              },
-              active: true,
+    where: {
+      profileId,
+      updatedAt: {
+        lte: limitDateAbsence,
+      },
+      active: true,
     },
-    include: { practicedSkills: true, 
-        role: true , 
-        project: {
-          select: { name: true }
-        }
+    include: {
+      practicedSkills: true, 
+      role: true , 
+      project: {
+        select: { name: true }
+      }
     }
   }
   );
@@ -542,17 +543,20 @@ export async function updateProjectActivity(projects: {
   practicedSkills: { id: string }[];
   active: boolean;
 }[]){
-
   for(let i=0; i < projects.length; i++){
-    let projectMembers = [{
-      id: projects[i].id as string,
-      profileId: projects[i].profileId,
-      hoursPerWeek: projects[i].hoursPerWeek,
-      role: projects[i].role,
-      practicedSkills: projects[i].practicedSkills,
-      active: projects[i].active,
-    }];
-    await updateMembers(projects[i].projectId, projectMembers);
+    await db.projectMembers.update({
+      where: { id: projects[i].id as string },
+      data: {
+        hoursPerWeek:projects[i].hoursPerWeek,
+        role: { connect: projects[i].role },
+        active: projects[i].active,
+        practicedSkills: { connect: projects[i].practicedSkills },
+        updatedAt: new Date(),
+      },
+      include: {
+        practicedSkills: true,
+      },
+    });
   }
 
 }

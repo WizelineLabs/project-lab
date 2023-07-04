@@ -158,7 +158,6 @@ export default function Projects() {
     ongoingStatuses,
     ideaStatuses,
   } = useLoaderData() as LoaderData;
-  const [showJoinModal, setShowJoinModal] = useState<boolean>(false);
   const myPropQuery = "myProposals";
   const activeProjectsSearchParams = new URLSearchParams();
   const ideasSearchParams = new URLSearchParams();
@@ -655,7 +654,7 @@ export default function Projects() {
       </Container>
       <MembershipModal
         open={projectMembership.length > 0}
-        handleCloseModal={() => setShowJoinModal(false)}
+        handleCloseModal={() => {}}
         projects={projectMembership}
       />
     </>
