@@ -12,5 +12,11 @@ export default defineConfig({
     environment: "happy-dom",
     setupFiles: ["./test/setup-test-env.ts"],
     testTimeout: 10000,
+    alias: {
+      "~": "/app"
+    },
+    coverage: {
+      provider: "v8"
+    }
   },
 });
