@@ -89,7 +89,7 @@ jobs:
         run: npx prisma migrate reset --force
 
       - name: ⚡ Run vitest
-        run: npm run test -- --coverage
+        run: npm run test
 
   cypress:
     name: ⚫️ Cypress
