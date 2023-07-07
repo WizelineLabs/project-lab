@@ -183,3 +183,11 @@ export async function searchProfiles(searchTerm: string) {
   }
   return result;
 }
+
+export async function hasProject(profileId: string) {
+    const searchTemMember = await prisma.projectMembers.findFirst( {
+      where: { profileId }
+    });
+
+    return searchTemMember ? true : false;
+}

@@ -1,5 +1,3 @@
--- DropIndex
-DROP INDEX "projects_ts_column_idx";
 -- CreateTable
 CREATE TABLE "GitHubProfile" (
     "id" TEXT NOT NULL,
