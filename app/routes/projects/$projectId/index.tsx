@@ -55,6 +55,7 @@ import { validator } from "~/routes/projects/components/resources";
 import { updateProjectResources } from "~/models/project.server";
 import { checkPermission } from "~/models/authorization.server";
 import type { Roles } from "~/models/authorization.server";
+import GitHub from '@mui/icons-material/GitHub';
 
 export function links() {
   return [
@@ -90,7 +91,6 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     project
   );
   const comments = await getComments(params.projectId);
-
   // Resources data
   const projectResources = await getProjectResources(params.projectId);
   const resourceData = await getDistinctResources();
@@ -468,7 +468,19 @@ export default function ProjectDetailsPage() {
                 </div>
               </CardContent>
             </Card>
+
+            <Card>
+            <CardHeader
+                title="Github Information" 
+                action={
+                  <Button variant="contained" href={`/projects/${project.id}/github-info`} endIcon={<GitHub />}>
+                    See Info
+                </Button>
+                }/>
+                
+            </Card>
           </Grid>
+   
           <Grid item xs={12} md={4}>
             <Stack direction="column" spacing={1}>
               {project.disciplines && project.disciplines.length > 0 && (
