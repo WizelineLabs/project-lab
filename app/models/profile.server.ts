@@ -136,25 +136,34 @@ export async function consolidateProfilesByEmail(
   // eslint-disable-next-line no-console
   console.info(`Starting upsert profiles to DB`);
 
-  const profilesUpsert = data.map((profile) => {
-    return db.profiles.upsert({
-      where: { email: profile.email },
-      update: {
-        ...profile,
-      },
-      create: {
-        ...profile,
-      },
+  try {
+    await prisma.$transaction(async (tx) => {
+      data.forEach(async (profile) => {
+        try {
+          await db.profiles.upsert({
+            where: { email: profile.email },
+            update: {
+              ...profile,
+            },
+            create: {
+              ...profile,
+            },
+          });
+        } catch (e) {
+          // eslint-disable-next-line no-console
+          console.log(e, profile);
+        }
+      });
+      // eslint-disable-next-line no-console
+      console.info(`Terminate users not found on data lake from DB`);
+      db.$queryRaw`UPDATE "Profiles" SET "employeeStatus"='Terminated' WHERE email NOT IN (${Prisma.join(
+        profileMails
+      )})`;
     });
-  });
-  // eslint-disable-next-line no-console
-  console.info(`Terminate users not found on data lake from DB`);
-  await db.$transaction([
-    db.$queryRaw`UPDATE "Profiles" SET "employeeStatus"='Terminated' WHERE email NOT IN (${Prisma.join(
-      profileMails
-    )})`,
-    ...profilesUpsert,
-  ]);
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.log(e);
+  }
 }
 
 export async function searchProfiles(searchTerm: string) {
@@ -185,9 +194,9 @@ export async function searchProfiles(searchTerm: string) {
 }
 
 export async function hasProject(profileId: string) {
-    const searchTemMember = await prisma.projectMembers.findFirst( {
-      where: { profileId }
-    });
+  const searchTemMember = await prisma.projectMembers.findFirst({
+    where: { profileId },
+  });
 
-    return searchTemMember ? true : false;
+  return searchTemMember ? true : false;
 }
