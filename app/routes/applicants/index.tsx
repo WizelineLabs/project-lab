@@ -127,26 +127,17 @@ export default function Projects() {
     { field: "status", headerName: "Status", flex: 0.4, hide: false },
 
   ];
-
+  
   const filterModel: GridFilterModel = {
     items: [
       {
         id: 1,
-        columnField: "startDate",
-        operatorValue: "after",
-        value: new Date(
-          Date.now() - 60 * 60 * 24 * 30 * 3 /** months **/ * 1000
-        ).toISOString(),
+        columnField: "status",
+        operatorValue: "equals",
+        value: "DRAFT"
       },
-      // {
-      //   id: 2,
-      //   columnField: "status",
-      //   operatorValue: "equals",
-      //   value: "DRAFT"
-      // },
       //Just the pro version allows more than one filter
     ],
-    linkOperator: GridLinkOperator.Or,
   };
 
   const selectRow = (id:string) => {
@@ -165,7 +156,6 @@ export default function Projects() {
             rows={applicants}
             columns={columns}
             autoHeight={true}
-            filterModel={filterModel}
             onRowClick={(e) => selectRow(e.id as string)}
             initialState={{
               filter: { filterModel },

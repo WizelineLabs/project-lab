@@ -1,12 +1,12 @@
 import LinkedIn from "@mui/icons-material/LinkedIn";
 import ArrowBack from "@mui/icons-material/ArrowBack";
-import { Container, Paper, Link as ExternalLink, Button, TextField, Autocomplete, debounce, Stack, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent, Typography } from "@mui/material";
+import { Container, Paper, Link as ExternalLink, Button, TextField, Autocomplete, debounce, Stack, FormControl, InputLabel, Select, MenuItem, type SelectChangeEvent, Typography } from "@mui/material";
 import type { LoaderArgs } from "@remix-run/server-runtime";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import invariant from "tiny-invariant";
 import Link from "~/core/components/Link";
 import Header from "~/core/layouts/Header";
-import { editApplicant, getApplicantById } from "~/models/applicant.server";
+import { getApplicantById } from "~/models/applicant.server";
 import Grid from "@mui/material/Unstable_Grid2";
 import { checkPermission } from "~/models/authorization.server";
 import type { Roles } from "~/models/authorization.server";
