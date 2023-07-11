@@ -19,6 +19,7 @@
     "typecheck": "tsc -b && tsc -b cypress",
     "validate": "run-p \"test -- --run\" lint typecheck test:e2e:run",
     "migrate-profiles-lake": "ts-node --project ./ts-node.tsconfig.json ./tasks/ProfilesMigration/migrateProfilesLake.ts",
+    "terminate-inactive-profiles": "ts-node --project ./ts-node.tsconfig.json ./tasks/terminateProfiles.ts",
     "prepare": "husky install"
   },
   "eslintIgnore": [

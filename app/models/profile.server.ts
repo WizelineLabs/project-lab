@@ -173,6 +173,36 @@ export async function consolidateProfilesByEmail(
   }
 }
 
+export async function terminateProfiles(
+  emails: string[],
+  db: PrismaClient
+) {
+  // don't do anything if we have no data (avoid Terminating users)
+  if (emails.length == 0) {
+    return;
+  }
+  // eslint-disable-next-line no-console
+  console.info(`Terminating inactive users in data lake DB`);
+
+  try {
+    const result = await db.profiles.updateMany({
+      data: {
+        employeeStatus: 'Terminated'
+      },
+      where: {
+        email: {
+          in: emails
+        }
+      }
+    })
+    // eslint-disable-next-line no-console
+    console.info(`${result.count} affected profiles`);
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.log(e);
+  }
+}
+
 export async function searchProfiles(searchTerm: string) {
   const select = Prisma.sql`
     SELECT id, "preferredName" || ' ' || "lastName" || ' <' || "email" || '>' as name
