@@ -1,6 +1,7 @@
 import { redirect, type ActionFunction } from "@remix-run/server-runtime";
 import { multipleProjectsValidator } from "~/core/components/MembershipModal";
 import { updateProjectActivity } from "~/models/project.server";
+import { hasCheckMembership } from "~/cookies" 
 
 export const action: ActionFunction = async ({ request }) => {
   const result = await multipleProjectsValidator.validate(
@@ -9,6 +10,7 @@ export const action: ActionFunction = async ({ request }) => {
   const projects = result.data?.projects;
   if (projects) {
     try {
+      await hasCheckMembership.serialize({showModal:false});
       await updateProjectActivity(projects);
       return redirect("/projects");
     } catch (e) {

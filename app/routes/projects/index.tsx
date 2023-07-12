@@ -34,6 +34,7 @@ import { getProjectStatuses } from "~/models/status.server";
 import { ongoingStage, ideaStage } from "~/constants";
 import Link from "~/core/components/Link";
 import MembershipModal from "~/core/components/MembershipModal/index";
+import { hasCheckMembership } from "~/cookies" 
 
 
 export interface projectMembership {
@@ -59,7 +60,9 @@ type LoaderData = {
   data: Awaited<ReturnType<typeof searchProjects>>;
   ongoingStatuses: ProjectStatus[];
   ideaStatuses: ProjectStatus[];
-  projectMembership: projectMembership[]
+  projectMembership: projectMembership[],
+  message: string,
+  hasUserVisitedPage: boolean,
 };
 
 const ITEMS_PER_PAGE = 50;
@@ -100,13 +103,16 @@ export const loader: LoaderFunction = async ({ request }) => {
   const field = url.searchParams.get("field") || "";
   const order = url.searchParams.get("order") || "";
   const statuses = await getProjectStatuses();
-  const projectMembership = await getProjectMembership(profile.id);
   
   const ongoingStatuses = statuses.filter(
     (status) => status.stage === ongoingStage
   );
   const ideaStatuses = statuses.filter((status) => status.stage === ideaStage);
 
+  const cookieHeader = request.headers.get("Cookie");
+  const hasUserVisitedPage = await hasCheckMembership.parse(cookieHeader);
+  const projectMembership = !hasUserVisitedPage ? await getProjectMembership(profile.id) : [];
+  
   const data = await searchProjects({
     search,
     status,
@@ -125,12 +131,13 @@ export const loader: LoaderFunction = async ({ request }) => {
   // return json<LoaderData>({ data, ongoingStatuses, ideaStatuses });
   return new Response(
     JSON.stringify(
-      { data, ongoingStatuses, ideaStatuses, projectMembership },
+      { data, ongoingStatuses, ideaStatuses, projectMembership, hasUserVisitedPage },
       (key, value) => (typeof value === "bigint" ? value.toString() : value) // return everything else unchanged
     ),
     {
       headers: {
         "Content-Type": "application/json; charset=utf-8",
+        "Set-Cookie": await hasCheckMembership.serialize({})
       },
     }
   );
@@ -157,10 +164,12 @@ export default function Projects() {
     projectMembership,
     ongoingStatuses,
     ideaStatuses,
+    hasUserVisitedPage,
   } = useLoaderData() as LoaderData;
   const myPropQuery = "myProposals";
   const activeProjectsSearchParams = new URLSearchParams();
   const ideasSearchParams = new URLSearchParams();
+
   ongoingStatuses.forEach((status) => {
     activeProjectsSearchParams.append("status", status.name);
   });
@@ -291,6 +300,10 @@ export default function Projects() {
       background: theme.palette.mode === "dark" ? "#202020" : "#F5F5F5",
     },
   }));
+
+  const isVisited = () => {
+    return hasUserVisitedPage;
+  };
    
   return (
     <>
@@ -653,7 +666,7 @@ export default function Projects() {
         </Grid>
       </Container>
       <MembershipModal
-        open={projectMembership.length > 0}
+        open={projectMembership.length > 0 && !isVisited()}
         handleCloseModal={() => {}}
         projects={projectMembership}
       />

@@ -8,6 +8,8 @@ import {
 } from "./login.styles";
 import { useOptionalUser } from "~/utils";
 import { Grid } from "@mui/material";
+import { hasCheckMembership } from "~/cookies" 
+
 
 export default function Index() {
   const user = useOptionalUser();
