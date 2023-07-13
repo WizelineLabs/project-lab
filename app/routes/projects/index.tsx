@@ -1,4 +1,4 @@
-import * as React from 'react';
+import * as React from "react";
 import { useState } from "react";
 import type { LoaderFunction } from "@remix-run/node";
 import { useLoaderData, useSearchParams } from "@remix-run/react";
@@ -20,7 +20,7 @@ import {
   AppBar,
   Toolbar,
   styled,
-  Pagination
+  Pagination,
 } from "@mui/material";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import ExpandMore from "@mui/icons-material/ExpandMore";
@@ -33,10 +33,13 @@ import type { ProjectStatus } from "~/models/status.server";
 import { getProjectStatuses } from "~/models/status.server";
 import { ongoingStage, ideaStage } from "~/constants";
 import Link from "~/core/components/Link";
-import ViewModuleIcon from '@mui/icons-material/ViewModule';
-import ViewListIcon from '@mui/icons-material/ViewList';
-import { Table, TableHead, TableRow, TableCell, TableBody } from '@material-ui/core';
-
+import ViewModuleIcon from "@mui/icons-material/ViewModule";
+import ViewListIcon from "@mui/icons-material/ViewList";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
 
 type LoaderData = {
   data: Awaited<ReturnType<typeof searchProjects>>;
@@ -168,7 +171,10 @@ export default function Projects() {
     ideas: ideasTab,
   };
 
-  const handlePaginationChange = (event: React.ChangeEvent<unknown>, value: number) => {
+  const handlePaginationChange = (
+    event: React.ChangeEvent<unknown>,
+    value: number
+  ) => {
     searchParams.set("page", String(value - 1));
     setSearchParams(searchParams);
   };
@@ -244,8 +250,8 @@ export default function Projects() {
   const lessThanMd = useMediaQuery(theme.breakpoints.down("md"));
 
   const StyledBox = styled(Box)(({ theme }) => ({
-    [theme.breakpoints.down('sm')]: {
-      padding: '0 16px',
+    [theme.breakpoints.down("sm")]: {
+      padding: "0 16px",
     },
   }));
 
@@ -257,8 +263,8 @@ export default function Projects() {
   }));
 
   const StyledToolbar = styled(Toolbar)(({ theme }) => ({
-    padding: '0 !important',
-    minHeight: '30.75px !important',
+    padding: "0 !important",
+    minHeight: "30.75px !important",
   }));
 
   const StyledTabButton = styled(Button)(({ theme }) => ({
@@ -280,9 +286,27 @@ export default function Projects() {
         Disable Gutters based on:
         https://stackoverflow.com/questions/70038913/materialui-show-and-hide-the-containers-gutters-based-on-breakpoints
       */}
-      <StyledBox sx={{ maxWidth: '1200px', height: '62.75px', margin: '0 auto', mb: 2, px: 3 }}>
-        <StyledAppBar position="static" sx={{ p: 2, display: 'block', borderRadius: '4px', boxShadow: 'none' }}>
-          <StyledToolbar sx={{ position: 'static', pl: 0, height: '30.75px!important' }}>
+      <StyledBox
+        sx={{
+          maxWidth: "1200px",
+          height: "62.75px",
+          margin: "0 auto",
+          mb: 2,
+          px: 3,
+        }}
+      >
+        <StyledAppBar
+          position="static"
+          sx={{
+            p: 2,
+            display: "block",
+            borderRadius: "4px",
+            boxShadow: "none",
+          }}
+        >
+          <StyledToolbar
+            sx={{ position: "static", pl: 0, height: "30.75px!important" }}
+          >
             {Object.values(tabs).map((tab) => (
               <StyledTabButton
                 size="small"
@@ -291,7 +315,11 @@ export default function Projects() {
                 onClick={() => handleTabChange(tab.name)}
                 key={tab.name}
                 sx={{
-                  color: isTabActive(tab.name) ? prefersDarkMode ? "#fff" : "#000000" : null,
+                  color: isTabActive(tab.name)
+                    ? prefersDarkMode
+                      ? "#fff"
+                      : "#000000"
+                    : null,
                 }}
               >
                 {tab.title}
@@ -369,8 +397,9 @@ export default function Projects() {
                           <Link
                             id={item.name}
                             color="#AF2E33"
-                            to={`?${searchParams.toString()}&status=${item.name
-                              }`}
+                            to={`?${searchParams.toString()}&status=${
+                              item.name
+                            }`}
                           >
                             {item.name} ({item.count})
                           </Link>
@@ -422,8 +451,9 @@ export default function Projects() {
                           <Link
                             id={item.name}
                             color="#AF2E33"
-                            to={`?${searchParams.toString()}&label=${item.name
-                              }`}
+                            to={`?${searchParams.toString()}&label=${
+                              item.name
+                            }`}
                           >
                             {item.name} ({item.count})
                           </Link>
@@ -449,8 +479,9 @@ export default function Projects() {
                           <Link
                             id={item.name}
                             color="#AF2E33"
-                            to={`?${searchParams.toString()}&discipline=${item.name
-                              }`}
+                            to={`?${searchParams.toString()}&discipline=${
+                              item.name
+                            }`}
                           >
                             {item.name} ({item.count})
                           </Link>
@@ -502,8 +533,9 @@ export default function Projects() {
                           <Link
                             id={item.name}
                             color="#AF2E33"
-                            to={`?${searchParams.toString()}&missing=${item.name
-                              }`}
+                            to={`?${searchParams.toString()}&missing=${
+                              item.name
+                            }`}
                           >
                             {item.name} ({item.count})
                           </Link>
@@ -529,8 +561,9 @@ export default function Projects() {
                           <Link
                             id={item.name}
                             color="#AF2E33"
-                            to={`?${searchParams.toString()}&skill=${item.name
-                              }`}
+                            to={`?${searchParams.toString()}&skill=${
+                              item.name
+                            }`}
                           >
                             {item.name} ({item.count})
                           </Link>
@@ -556,8 +589,9 @@ export default function Projects() {
                           <Link
                             id={item.name}
                             color="#AF2E33"
-                            to={`?${searchParams.toString()}&location=${item.name
-                              }`}
+                            to={`?${searchParams.toString()}&location=${
+                              item.name
+                            }`}
                           >
                             {item.name} ({item.count})
                           </Link>
@@ -591,7 +625,6 @@ export default function Projects() {
                 >
                   <ViewListIcon />
                 </IconButton>
-
                 &nbsp;
                 <Button
                   variant="contained"
@@ -662,7 +695,16 @@ export default function Projects() {
                   </TableBody>
                 </Table>
               )}
-              <Pagination count={count % ITEMS_PER_PAGE === 0 ? count / ITEMS_PER_PAGE : Math.trunc(count / ITEMS_PER_PAGE) + 1} shape="rounded" sx={{ pt: "15px" }} onChange={handlePaginationChange} />
+              <Pagination
+                count={
+                  count % ITEMS_PER_PAGE === 0
+                    ? count / ITEMS_PER_PAGE
+                    : Math.trunc(count / ITEMS_PER_PAGE) + 1
+                }
+                shape="rounded"
+                sx={{ pt: "15px" }}
+                onChange={handlePaginationChange}
+              />
             </Paper>
           </Grid>
         </Grid>
