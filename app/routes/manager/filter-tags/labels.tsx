@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useFetcher, useCatch, useLoaderData, useTransition } from "@remix-run/react";
+import { useFetcher, useCatch, useLoaderData, useNavigation } from "@remix-run/react";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import Button from "@mui/material/Button";
@@ -22,6 +22,8 @@ import LabeledTextField from "~/core/components/LabeledTextField";
 import { Stack } from "@mui/system";
 import { redirect } from "remix-typedjson";
 import invariant from "tiny-invariant";
+import { validateNavigationRedirect } from '~/utils'
+
 
 declare module "@mui/material/Button" {
   interface ButtonPropsColorOverrides {
@@ -119,14 +121,15 @@ function LabelsDataGrid() {
   const [selectedName, setSelectedName] = useState("");
 
 
-  const transition = useTransition();
+  const navigation = useNavigation();
 
   useEffect(() => {
-    if (transition.type == "actionReload" || transition.type == "actionSubmission") {
+    const isActionRedirect = validateNavigationRedirect(navigation)
+    if (isActionRedirect) {
       setOpenCreateModal(false);
       setOpenModifyModal(false);
     }
-  }, [transition]);
+  }, [navigation]);
 
   const handleAddClick = () => {
     setOpenCreateModal(() => true);

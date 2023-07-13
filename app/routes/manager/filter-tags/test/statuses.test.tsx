@@ -24,7 +24,7 @@ describe("Statuses test", () => {
         ],
         projects: [],
       }),
-      useTransition: vi.fn().mockReturnValue({
+      useNavigation: vi.fn().mockReturnValue({
         type: "",
       }),
     };

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useFetcher, useCatch, useLoaderData, useTransition } from "@remix-run/react";
+import { useFetcher, useCatch, useLoaderData, useNavigation } from "@remix-run/react";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import {
   ValidatedForm,
@@ -26,6 +26,7 @@ import {
 import { getProjects } from "~/models/project.server";
 import { Card, CardContent, CardHeader, Container, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel } from "@mui/material";
 import LabeledTextField from "~/core/components/LabeledTextField";
+import { validateNavigationRedirect } from '~/utils'
 
 declare module "@mui/material/Button" {
   interface ButtonPropsColorOverrides {
@@ -89,12 +90,12 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export const action: ActionFunction = async ({ request }) => {
-  let result = await validatorFront.validate(await request.formData());
+  const result = await validatorFront.validate(await request.formData());
   let action = result.submittedData.action;
   let response;
   let name, benefits, requisites, goals, id;
   const subaction = result.submittedData.subaction;
-  let data = result.data;
+  const data = result.data;
   if (subaction) action = subaction;
   try {
     switch (action) {
@@ -169,13 +170,14 @@ function InnovationTiersGrid(){
   });
   const [openCreateModal, setOpenCreateModal] = useState<boolean>(false);
 
-  const transition = useTransition();
+  const navigation = useNavigation();
 
   useEffect(() => {
-    if (transition.type == "actionReload" || transition.type == "actionSubmission") {
+    const isActionRedirect = validateNavigationRedirect(navigation)
+    if (isActionRedirect) {
       setOpenCreateModal(false);
     }
-  }, [transition]);
+  }, [navigation]);
 
   useEffect(() => {
     //It handles the fetcher error from the response

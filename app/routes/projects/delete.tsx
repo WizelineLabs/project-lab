@@ -7,8 +7,8 @@ import { adminRoleName } from "~/constants";
 export const action: ActionFunction = async ({ request }) => {
   const user = await requireUser(request);
   const isAdmin = user.role == adminRoleName;
-  let formData = await request.formData();
-  let id: string = formData.get("projectId") as string;
+  const formData = await request.formData();
+  const id: string = formData.get("projectId") as string;
   try {
     await deleteProject(id, isAdmin);
     return redirect("/projects");

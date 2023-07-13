@@ -1,4 +1,4 @@
-import { useTransition } from "@remix-run/react";
+import { useNavigation } from "@remix-run/react";
 import {
   Autocomplete,
   TextField,
@@ -17,6 +17,8 @@ import { withZod } from "@remix-validated-form/with-zod";
 import { zfd } from "zod-form-data";
 import { z } from "zod";
 import Link from "./Link";
+import { validateNavigationRedirect } from '~/utils'
+
 
 type ProjectValue = {
   id: string;
@@ -54,13 +56,14 @@ function RelatedProjectsSection({
   const { error } = useField("relatedProjects", {
     formId: "relatedProjectsForm",
   });
-  const transition = useTransition();
+  const navigation = useNavigation();
 
   useEffect(() => {
-    if (transition.type == "actionRedirect") {
+    const isActionRedirect = validateNavigationRedirect(navigation)
+    if (isActionRedirect) {
       setIsEditActive(false);
     }
-  }, [transition]);
+  }, [navigation]);
 
   return (
     <>
@@ -131,7 +134,7 @@ function RelatedProjectsSection({
                 <Button
                   variant="contained"
                   type="submit"
-                  disabled={transition.state === "submitting"}
+                  disabled={navigation.state === "submitting"}
                 >
                   Submit
                 </Button>

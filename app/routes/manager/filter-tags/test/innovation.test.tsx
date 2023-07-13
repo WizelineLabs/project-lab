@@ -25,7 +25,7 @@ describe("Innovation Tiers test", () => {
         ],
         projects: [],
       }),
-      useTransition: vi.fn().mockReturnValue({
+      useNavigation: vi.fn().mockReturnValue({
         type: "",
       }),
     };

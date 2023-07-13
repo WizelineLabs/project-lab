@@ -2,8 +2,8 @@ import styled from "@emotion/styled";
 import { ArrowBack } from "@mui/icons-material";
 import Link from "./Link";
 interface IProps {
-  title: String;
-  href: any;
+  title: string;
+  href: string;
 }
 
 function GoBack({ title, href }: IProps) {

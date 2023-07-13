@@ -2,7 +2,7 @@ import { formatDistance } from "date-fns";
 import Markdown from "marked-react";
 import type { ActionFunction, LoaderArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
-import { useCatch, useFetcher, useTransition } from "@remix-run/react";
+import { useCatch, useFetcher, useNavigation } from "@remix-run/react";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import type { TypedMetaFunction } from "remix-typedjson";
 import invariant from "tiny-invariant";
@@ -54,6 +54,7 @@ import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
 import { validationError } from "remix-validated-form";
 import Resources, { validator } from "~/routes/projects/components/resources";
 import GitHub from '@mui/icons-material/GitHub';
+import { validateNavigationRedirect } from '~/utils';
 
 export function links() {
   return [
@@ -210,13 +211,14 @@ export default function ProjectDetailsPage() {
     }
   };
 
-  const transition = useTransition();
+  const navigation = useNavigation();
   useEffect(() => {
-    if (transition.type == "actionRedirect") {
+    const isActionRedirect = validateNavigationRedirect(navigation)
+    if (isActionRedirect) {
       setShowJoinModal(false);
       setShowMembershipModal(false);
     }
-  }, [transition]);
+  }, [navigation]);
 
   const voteCount = project.votes?.filter(
     (vote) => vote.profileId === profile.id
