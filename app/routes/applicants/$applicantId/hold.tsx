@@ -1,6 +1,5 @@
 import type { ActionFunction } from "@remix-run/server-runtime";
 import { redirect } from "remix-typedjson";
-import invariant from "tiny-invariant";
 import { editApplicant } from "~/models/applicant.server";
 import { validator } from "~/routes/applicants/$applicantId";
 
