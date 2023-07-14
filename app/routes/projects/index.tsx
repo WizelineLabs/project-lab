@@ -47,7 +47,7 @@ type LoaderData = {
   ideaStatuses: ProjectStatus[];
 };
 
-const ITEMS_PER_PAGE = 50;
+const ITEMS_PER_PAGE = 100;
 const FACETS = [
   "status",
   "skill",
@@ -197,6 +197,12 @@ export default function Projects() {
     return `?${newParams.toString()}`;
   };
 
+  const replaceFilterUrl = (filter: string, value: string) => {
+    const newParams = new URLSearchParams(searchParams.toString());
+    newParams.set(filter, value);
+    return `?${newParams.toString()}`;
+  };
+
   //Tabs selection logic
   const isMyProposalTab = () => {
     return searchParams.get("q") === myProposalsTab.searchParams.get("q");
@@ -277,7 +283,7 @@ export default function Projects() {
     },
   }));
 
-  const [viewOption, setViewOption] = useState("card");
+  const viewOption = searchParams.get("view") || "card";
 
   return (
     <>
@@ -614,14 +620,14 @@ export default function Projects() {
                   sortBy={searchParams.get("field") || ""}
                 />
                 <IconButton
+                  href={replaceFilterUrl("view", "card")}
                   color={viewOption === "card" ? "primary" : "default"}
-                  onClick={() => setViewOption("card")}
                 >
                   <ViewModuleIcon />
                 </IconButton>
                 <IconButton
+                  href={replaceFilterUrl("view", "table")}
                   color={viewOption === "table" ? "primary" : "default"}
-                  onClick={() => setViewOption("table")}
                 >
                   <ViewListIcon />
                 </IconButton>
