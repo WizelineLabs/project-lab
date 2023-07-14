@@ -670,21 +670,29 @@ export default function Projects() {
                   })}
                 </Grid>
               ) : (
-                <Table>
+                <Table size="small">
                   <TableHead>
                     <TableRow>
-                      <TableCell>Name</TableCell>
-                      <TableCell>Tier</TableCell>
-                      <TableCell>Status</TableCell>
-                      <TableCell>Contributors</TableCell>
-                      <TableCell>Likes</TableCell>
-                      <TableCell>Skills</TableCell>
+                      <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
+                      <TableCell sx={{ fontWeight: "bold" }}>Owner</TableCell>
+                      <TableCell sx={{ fontWeight: "bold" }}>Tier</TableCell>
+                      <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>
+                      <TableCell sx={{ fontWeight: "bold" }}>
+                        Contributors
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: "bold" }}>Likes</TableCell>
+                      <TableCell sx={{ fontWeight: "bold" }}>Skills</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {projects.map((item, i) => (
                       <TableRow key={i}>
-                        <TableCell>{item.name}</TableCell>
+                        <TableCell>
+                          <Link to={`/projects/${item.id}`}>{item.name}</Link>
+                        </TableCell>
+                        <TableCell>
+                          {item.preferredName} {item.lastName}
+                        </TableCell>
                         <TableCell>{item.tierName}</TableCell>
                         <TableCell>{item.status}</TableCell>
                         <TableCell>{item.projectMembers}</TableCell>
