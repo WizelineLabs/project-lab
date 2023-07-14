@@ -10,6 +10,7 @@ import {
   getGitHubProfileByEmail,
   createGitHubProfile,
   createGitHubProject,
+  updateProfile,
 } from "./models/profile.server";
 import { findProfileData } from "./lake.server";
 import { getUserInfo, getUserRepos } from "./routes/api/github/get-getUserInfo";
@@ -37,6 +38,18 @@ const auth0Strategy = new Auth0Strategy(
       // search profile in our DB or get from data lake
       const email = profile.emails[0].value;
       const userProfile = await getProfileByEmail(email);
+      if (userProfile?.githubUser === '' || userProfile?.githubUser === null) {
+        const { data } = await getUserInfo(email);
+        if (data.total_count > 0) {
+          const gitHubUser = data.items[0].login;
+          userProfile.githubUser = gitHubUser;
+          try{
+            await updateProfile(userProfile, userProfile.id);
+          }catch{
+            throw('error');
+          }
+        }
+      }
       if (!userProfile) {
         const lakeProfile = await findProfileData(email);
         createProfile({
