@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useFetcher, useCatch, useLoaderData, useNavigation } from "@remix-run/react";
+import { useFetcher, useLoaderData, useNavigation, useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import Button from "@mui/material/Button";
@@ -336,16 +336,14 @@ function LabelsDataGrid() {
 
 export default LabelsDataGrid;
 
-export function ErrorBoundary({ error }: { error: Error }) {
-  return <div>An unexpected error occurred: {error.message}</div>;
-}
+export function ErrorBoundary() {
+  const error = useRouteError() as Error
+  console.error(error);
 
-export function CatchBoundary() {
-  const caught = useCatch();
-
-  if (caught.status === 404) {
+  if (isRouteErrorResponse(error) && error.status === 404) {
     return <div>Label not found</div>;
   }
 
-  throw new Error(`Unexpected caught response with status: ${caught.status}`);
+  return <div>An unexpected error occurred: {error.message}</div>;
 }
+

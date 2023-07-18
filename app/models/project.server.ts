@@ -205,7 +205,7 @@ export async function createProject(input: any, profileId: string) {
     };
     const tasks = contributorPath[i]?.tasks || [];
     const position = i + 1;
-    let projectTasks: any = [];
+    const projectTasks: any = [];
 
     for (let j = 0; j < tasks.length; j++) {
       projectTasks.push({
@@ -284,7 +284,7 @@ export async function updateMembers(
     select: { id: true, profileId: true },
   });
 
-  let activeMembers: any = [];
+  const activeMembers: any = [];
 
   // Loop Project Members
   for (let i = 0; i < projectMembers.length; i++) {
@@ -473,7 +473,7 @@ export async function updateRelatedProjects({
     const createResponse = [];
     let response;
     for (let i = 0; i < data.relatedProjects.length; i++) {
-      let relationExist = await tx.relatedProjects.count({
+      const relationExist = await tx.relatedProjects.count({
         where: {
           OR: [
             {

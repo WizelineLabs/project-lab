@@ -2,7 +2,7 @@ import { formatDistance } from "date-fns";
 import Markdown from "marked-react";
 import type { ActionFunction, LoaderArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
-import { useCatch, useFetcher, useNavigation } from "@remix-run/react";
+import { useFetcher, useNavigation, useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import type { TypedMetaFunction } from "remix-typedjson";
 import invariant from "tiny-invariant";
@@ -73,7 +73,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   invariant(params.projectId, "projectId not found");
 
   const project = await getProject({ id: params.projectId });
-  if (!project) {
+  if (!project.id) {
     throw new Response("Not Found", { status: 404 });
   }
 
@@ -611,18 +611,12 @@ export default function ProjectDetailsPage() {
   );
 }
 
-export function ErrorBoundary({ error }: { error: Error }) {
-  console.error(error);
+export function ErrorBoundary() {
+  const error = useRouteError() as Error
 
-  return <div>An unexpected error occurred: {error.message}</div>;
-}
-
-export function CatchBoundary() {
-  const caught = useCatch();
-
-  if (caught.status === 404) {
+  if (isRouteErrorResponse(error) && error.status === 404) {
     return <div>Project not found</div>;
   }
 
-  throw new Error(`Unexpected caught response with status: ${caught.status}`);
+  return <div>An unexpected error occurred: {error.message}</div>;
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useFetcher, useLoaderData, useCatch, useNavigation } from "@remix-run/react";
+import { useFetcher, useLoaderData, useNavigation, useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import type { LoaderFunction, ActionFunction } from "@remix-run/node";
 import {
   ValidatedForm,
@@ -495,18 +495,13 @@ function ProjectStatusDataGrid() {
 
 export default ProjectStatusDataGrid;
 
-export function ErrorBoundary({ error }: { error: Error }) {
+export function ErrorBoundary() {
+  const error = useRouteError() as Error
   console.error(error);
 
-  return <div>An unexpected error occurred: {error.message}</div>;
-}
-
-export function CatchBoundary() {
-  const caught = useCatch();
-
-  if (caught.status === 404) {
+  if (isRouteErrorResponse(error) && error.status === 404) {
     return <div>ProjectStatus not found</div>;
   }
 
-  throw new Error(`Unexpected caught response with status: ${caught.status}`);
+  return <div>An unexpected error occurred: {error.message}</div>;
 }
