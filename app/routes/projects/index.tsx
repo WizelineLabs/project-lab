@@ -123,8 +123,8 @@ export default function Projects() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
 
   const [searchParams, setSearchParams] = useSearchParams();
-
-  let {
+  
+  const {
     data: {
       projects,
       statusFacets,
@@ -240,7 +240,7 @@ export default function Projects() {
   };
 
   const handleTabChange = (selectedTab: string) => {
-    let params = tabs[selectedTab]?.searchParams;
+    const params = tabs[selectedTab]?.searchParams;
     if (params) {
       setSearchParams(params);
     }

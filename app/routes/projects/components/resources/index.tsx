@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { EditSharp, Close, Delete } from "@mui/icons-material";
 import { useState } from "react";
-import { useSubmit, useTransition } from "@remix-run/react";
+import { useSubmit, useNavigation } from "@remix-run/react";
 import { zfd } from "zod-form-data";
 import { withZod } from "@remix-validated-form/with-zod";
 import { z } from "zod";
@@ -38,7 +38,7 @@ interface IResource {
 }
 
 interface IProps {
-  allowEdit: Boolean;
+  allowEdit: boolean;
   projectResources: IResource[];
   resourceData: { types: string[]; providers: string[]; names: string[] };
 }
@@ -60,7 +60,7 @@ export default function Resources({
   projectResources,
   resourceData,
 }: IProps) {
-  const transition = useTransition();
+  const navigation = useNavigation();
   const submit = useSubmit();
   const [isEditActive, setIsEditActive] = useState(false);
   const [resources, { push: addResource, remove: removeResource }] =
@@ -122,7 +122,7 @@ export default function Resources({
         <CardContent>
           {isEditActive && (
             <Button
-              disabled={transition.state === "submitting"}
+              disabled={navigation.state === "submitting"}
               variant="contained"
               type="button"
               sx={{
@@ -206,12 +206,12 @@ export default function Resources({
           {isEditActive && (
             <Box textAlign="center">
               <Button
-                disabled={!isEditActive || transition.state === "submitting"}
+                disabled={!isEditActive || navigation.state === "submitting"}
                 variant="contained"
                 type="submit"
                 onClick={() => handleSubmit()}
               >
-                {transition.state === "submitting" ? "Submitting..." : "Submit"}
+                {navigation.state === "submitting" ? "Submitting..." : "Submit"}
               </Button>
             </Box>
           )}

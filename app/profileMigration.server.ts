@@ -1,7 +1,6 @@
-import type { PrismaClient } from "@prisma/client";
+import type { PrismaClient, Prisma } from "@prisma/client";
 import { getActiveProfiles } from "./lake.server";
 import { consolidateProfilesByEmail } from "./models/profile.server";
-import type { Prisma } from "@prisma/client";
 
 async function getMappedProfiles(): Promise<Prisma.ProfilesCreateInput[]> {
   const activeProfiles = await getActiveProfiles();

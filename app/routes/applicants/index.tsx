@@ -10,7 +10,7 @@ import type {
   GridValueFormatterParams,
   GridValueGetterParams,
 } from "@mui/x-data-grid";
-import { DataGrid, GridLinkOperator, GridToolbar } from "@mui/x-data-grid";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { searchApplicants } from "~/models/applicant.server";
 import Link from "~/core/components/Link";
 import { styled } from "@mui/material/styles";

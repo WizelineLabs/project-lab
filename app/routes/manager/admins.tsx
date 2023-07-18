@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useFetcher, useLoaderData, useCatch } from "@remix-run/react";
+import { useFetcher, useLoaderData, useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import type {
   LoaderFunction,
   ActionFunction,
@@ -242,7 +242,7 @@ export default function AdminsDataGrid() {
   };
 
   const handleDeleteClick = (idRef: GridRenderCellParams) => {
-    let id = idRef.row.id;
+    const id = idRef.row.id;
     setSelectedRowID(() => id);
     setOpenDeleteModal(() => true);
   };
@@ -347,18 +347,13 @@ export default function AdminsDataGrid() {
   );
 }
 
-export function ErrorBoundary({ error }: { error: Error }) {
+export function ErrorBoundary() {
+  const error = useRouteError() as Error
   console.error(error);
 
-  return <div>An unexpected error occurred: {error.message}</div>;
-}
-
-export function CatchBoundary() {
-  const caught = useCatch();
-
-  if (caught.status === 404) {
-    return <div>Project not found</div>;
+  if (isRouteErrorResponse(error) && error.status === 404) {
+    return <div>Admin not found</div>;
   }
 
-  throw new Error(`Unexpected caught response with status: ${caught.status}`);
+  return <div>An unexpected error occurred: {error.message}</div>;
 }

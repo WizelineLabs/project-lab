@@ -2,19 +2,19 @@
 import { describe, test, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import Statuses from "../statuses";
-import { loader } from "../statuses";
+import Statuses, { loader } from "../statuses";
+
 // import type { DataGridProps } from "@mui/x-data-grid";
 import "@testing-library/jest-dom";
 
 describe("Statuses test", () => {
   // mocking remix module to handle Loaders
   vi.mock("@remix-run/react", async () => {
-    let remix: any = await vi.importActual("@remix-run/react");
+    const remix: any = await vi.importActual("@remix-run/react");
     return {
       ...remix,
       // get useFetcher to return an idle state initially and an empty submit
-      useFetcher: vi.fn().mockReturnValue({ state: "idle", submit: () => {} }),
+      useFetcher: vi.fn().mockReturnValue({ state: "idle", submit: () => ({}) }),
       useLoaderData: vi.fn().mockReturnValue({
         statuses: [
           {
@@ -24,7 +24,7 @@ describe("Statuses test", () => {
         ],
         projects: [],
       }),
-      useTransition: vi.fn().mockReturnValue({
+      useNavigation: vi.fn().mockReturnValue({
         type: "",
       }),
     };
@@ -37,7 +37,7 @@ describe("Statuses test", () => {
       useFieldArray: vi.fn().mockReturnValue([
         [],
         {
-          push: () => {},
+          push: () => ({}),
         },
       ]),
       ValidatedForm: ({ children }: any) => <>{children}</>,
@@ -62,7 +62,7 @@ describe("Statuses test", () => {
   });
 
   test("Path loader", async () => {
-    let request = new Request(
+    const request = new Request(
       "http://localhost:3000/manager/filter-tags/statuses"
     );
 

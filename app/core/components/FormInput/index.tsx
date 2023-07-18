@@ -1,6 +1,5 @@
-import { Stack } from "@mui/material";
+import { Stack, FormHelperText } from "@mui/material";
 import { useField } from "remix-validated-form";
-import { FormHelperText } from "@mui/material";
 
 type FormInputProps = {
   name: string;

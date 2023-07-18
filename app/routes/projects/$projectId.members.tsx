@@ -31,7 +31,7 @@ import {
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import type { SubmitOptions } from "@remix-run/react";
 import { json, redirect } from "@remix-run/node";
-import { useTransition, useLoaderData, useFetcher } from "@remix-run/react";
+import { useNavigation, useLoaderData, useFetcher } from "@remix-run/react";
 import { requireProfile, requireUser } from "~/session.server";
 import {
   getProject,
@@ -130,7 +130,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 const EditMembersPage = () => {
   const { profile, projectMembers, projectId } = useLoaderData();
   const profileFetcher = useFetcher<ProfileValue[]>();
-  const transition = useTransition();
+  const navigation = useNavigation();
 
   const searchProfiles = (value: string) => {
     profileFetcher.submit({ q: value }, profileFetcherOptions);
@@ -300,11 +300,11 @@ const EditMembersPage = () => {
             </FieldArray>
             <Box textAlign="center">
               <Button
-                disabled={transition.state === "submitting"}
+                disabled={navigation.state === "submitting"}
                 variant="contained"
                 type="submit"
               >
-                {transition.state === "submitting" ? "Submitting..." : "Submit"}
+                {navigation.state === "submitting" ? "Submitting..." : "Submit"}
               </Button>
             </Box>
           </ValidatedForm>

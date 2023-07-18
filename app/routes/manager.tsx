@@ -1,6 +1,6 @@
 import Header from "app/core/layouts/Header";
 import { useState } from "react";
-import { useLoaderData, Outlet } from "@remix-run/react";
+import { useLoaderData, Outlet, useRouteError } from "@remix-run/react";
 import { redirect } from "@remix-run/server-runtime";
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
@@ -76,7 +76,8 @@ export default function ManagerPage() {
   );
 }
 
-export function ErrorBoundary({ error }: { error: Error }) {
+export function ErrorBoundary() {
+  const error = useRouteError() as Error
   console.error(error);
 
   return <div>An unexpected error occurred: {error.message}</div>;
