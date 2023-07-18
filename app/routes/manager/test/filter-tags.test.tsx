@@ -3,7 +3,6 @@ import { describe, test, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import FilterTags, { loader } from "../filter-tags";
-import { RemixStub } from "test/utils";
 import "@testing-library/jest-dom";
 
 describe("Filter Tags test", () => {
@@ -15,6 +14,7 @@ describe("Filter Tags test", () => {
       useLoaderData: vi.fn().mockReturnValue({
         initialTabIdx: 0,
       }),
+      Link: "",
     };
   });
 
@@ -31,11 +31,8 @@ describe("Filter Tags test", () => {
   });
 
   test("Filter Tags selects the tab that comes from the Loader", () => {
-    const { container } = render(
-      <RemixStub>
-        <FilterTags />
-      </RemixStub>
-    );
+    const { container } = render(<FilterTags />);
+
     const selectedTab = container.getElementsByClassName("tabSelected");
     expect(selectedTab.length).toBe(1);
     expect(selectedTab[0]).toHaveTextContent("Labels");
@@ -43,13 +40,10 @@ describe("Filter Tags test", () => {
 
   test("Click on a different tab change the tab selected", async () => {
     const tab = userEvent.setup();
-    const { container } = render(
-      <RemixStub>
-        <FilterTags />
-      </RemixStub>
-    );
+    const { container } = render(<FilterTags />);
     await tab.click(screen.getByText(/Statuses/i));
     const selectedTab = container.getElementsByClassName("tabSelected");
     expect(selectedTab.length).toBe(1);
+    expect(selectedTab[0]).toHaveTextContent("Statuses");
   });
 });

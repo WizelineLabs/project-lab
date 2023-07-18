@@ -4,7 +4,6 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Manager, { loader } from "../manager";
 import "@testing-library/jest-dom";
-import { RemixStub } from "test/utils";
 
 describe("Manager test", () => {
   // mocking remix module to handle Loaders
@@ -16,6 +15,7 @@ describe("Manager test", () => {
         initialTabIdx: 0,
         initialTitle: "Filter Tags",
       }),
+      Link: "",
     };
   });
 
@@ -40,6 +40,12 @@ describe("Manager test", () => {
     };
   });
 
+  vi.mock("app/core/layouts/Header", async () => {
+    return {
+      default: "",
+    };
+  });
+
   afterEach(() => {
     vi.clearAllMocks();
   });
@@ -55,11 +61,7 @@ describe("Manager test", () => {
   });
 
   test("Manager selects the tab that comes from the Loader", () => {
-    const { container } = render(
-      <RemixStub>
-        <Manager />
-      </RemixStub>
-    );
+    const { container } = render(<Manager />);
     const selectedTab = container.getElementsByClassName("linkSelected");
     expect(selectedTab.length).toBe(1);
     expect(selectedTab[0]).toHaveTextContent("Filter Tags");
@@ -67,11 +69,7 @@ describe("Manager test", () => {
 
   test("Click on a different tab change the tab selected", async () => {
     const tab = userEvent.setup();
-    const { container } = render(
-      <RemixStub>
-        <Manager />
-      </RemixStub>
-    );
+    const { container } = render(<Manager />);
     await tab.click(screen.getByText(/Admins/i));
     const selectedTab = container.getElementsByClassName("linkSelected");
     expect(selectedTab.length).toBe(1);

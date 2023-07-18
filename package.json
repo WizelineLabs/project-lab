@@ -58,6 +58,7 @@
     "@octokit/core": "^4.2.0",
     "@remix-run/dev": "^1.18.0",
     "@remix-run/eslint-config": "^1.18.0",
+    "@remix-run/testing": "^1.18.1",
     "@testing-library/cypress": "^8.0.2",
     "@testing-library/dom": "^8.13.0",
     "@testing-library/jest-dom": "^5.16.4",
