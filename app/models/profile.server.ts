@@ -163,9 +163,18 @@ export async function consolidateProfilesByEmail(
       });
       // eslint-disable-next-line no-console
       console.info(`Terminate users not found on data lake from DB`);
-      db.$queryRaw`UPDATE "Profiles" SET "employeeStatus"='Terminated' WHERE email NOT IN (${Prisma.join(
-        profileMails
-      )})`;
+      const result = await db.profiles.updateMany({
+        data: {
+          employeeStatus: 'Terminated'
+        },
+        where: {
+          email: {
+            notIn: profileMails
+          }
+        }
+      })
+      // eslint-disable-next-line no-console
+      console.info(`${result.count} affected profiles`);
     });
   } catch (e) {
     // eslint-disable-next-line no-console
