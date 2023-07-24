@@ -35,6 +35,7 @@ interface SearchProjectsOutput {
   projectMembers: number;
   owner: string;
   tierName: string;
+  reourcesCount: number;
 }
 
 interface ProjectWhereInput {
@@ -660,6 +661,7 @@ export async function searchProjects({
       p."updatedAt",
       p."ownerId",
       p."tierName",
+      count(p.resources) AS "reourcesCount",
     COUNT(DISTINCT pm."profileId") as "projectMembers"
     FROM "Projects" p
     INNER JOIN "ProjectStatus" s on s.name = p.status
