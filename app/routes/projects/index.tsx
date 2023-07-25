@@ -703,7 +703,7 @@ export default function Projects() {
                       <TableCell>{item.projectMembers}</TableCell>
                       <TableCell>{item.votesCount}</TableCell>
                       <TableCell><a href={`/projects/${item.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>{item.searchSkills}</a></TableCell>
-                      <TableCell>{item.reourcesCount}</TableCell>
+                      <TableCell>{item.resourcesCount}</TableCell>
                     </TableRow>
                     ))}
                   </TableBody>

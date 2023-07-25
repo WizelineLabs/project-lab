@@ -35,7 +35,7 @@ interface SearchProjectsOutput {
   projectMembers: number;
   owner: string;
   tierName: string;
-  reourcesCount: number;
+  resourcesCount: number;
 }
 
 interface ProjectWhereInput {
@@ -652,7 +652,7 @@ export async function searchProjects({
     projectIdsWhere = Prisma.sql`p.id IN (${Prisma.join(
       ids.map((val) => val.id)
     )})`;
-  }
+  }      
 
   const projects = await db.$queryRaw<SearchProjectsOutput[]>`
     SELECT p.id, p.name, p.description, p."searchSkills", pr."preferredName", pr."lastName", pr."avatarUrl", p.status, count(distinct v."profileId") AS "votesCount", s.color,
@@ -661,13 +661,14 @@ export async function searchProjects({
       p."updatedAt",
       p."ownerId",
       p."tierName",
-      count(p.resources) AS "reourcesCount",
-    COUNT(DISTINCT pm."profileId") as "projectMembers"
+    COUNT(DISTINCT pm."profileId") as "projectMembers",
+    COUNT(DISTINCT r.id) as "resourcesCount"
     FROM "Projects" p
     INNER JOIN "ProjectStatus" s on s.name = p.status
     INNER JOIN "Profiles" pr on pr.id = p."ownerId"
     INNER JOIN "ProjectMembers" pm ON pm."projectId" = p.id
     LEFT JOIN "Vote" v on v."projectId" = p.id
+    LEFT JOIN "Resource" r on r."projectId" = p.id
     WHERE ${projectIdsWhere}
     GROUP BY p.id, pr.id, s.name
     ${orderQuery}
