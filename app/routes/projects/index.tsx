@@ -34,8 +34,6 @@ import { getProjectStatuses } from "~/models/status.server";
 import { ongoingStage, ideaStage } from "~/constants";
 import Link from "~/core/components/Link";
 import MembershipModal from "~/core/components/MembershipModal/index";
-import { hasCheckMembership } from "~/cookies" 
-
 
 export interface projectMembership {
   active: boolean;
@@ -62,7 +60,6 @@ type LoaderData = {
   ideaStatuses: ProjectStatus[];
   projectMembership: projectMembership[],
   message: string,
-  hasUserVisitedPage: boolean,
 };
 
 const ITEMS_PER_PAGE = 50;
@@ -109,10 +106,8 @@ export const loader: LoaderFunction = async ({ request }) => {
   );
   const ideaStatuses = statuses.filter((status) => status.stage === ideaStage);
 
-  const cookieHeader = request.headers.get("Cookie");
-  const hasUserVisitedPage = await hasCheckMembership.parse(cookieHeader);
-  const projectMembership = !hasUserVisitedPage ? await getProjectMembership(profile.id) : [];
-  
+  const projectMembership = await getProjectMembership(profile.id);
+
   const data = await searchProjects({
     search,
     status,
@@ -128,16 +123,15 @@ export const loader: LoaderFunction = async ({ request }) => {
     skip: ITEMS_PER_PAGE * page,
     take: ITEMS_PER_PAGE,
   });
-  // return json<LoaderData>({ data, ongoingStatuses, ideaStatuses });
+  
   return new Response(
     JSON.stringify(
-      { data, ongoingStatuses, ideaStatuses, projectMembership, hasUserVisitedPage },
+      { data, ongoingStatuses, ideaStatuses, projectMembership },
       (key, value) => (typeof value === "bigint" ? value.toString() : value) // return everything else unchanged
     ),
     {
       headers: {
         "Content-Type": "application/json; charset=utf-8",
-        "Set-Cookie": await hasCheckMembership.serialize({})
       },
     }
   );
@@ -164,11 +158,17 @@ export default function Projects() {
     projectMembership,
     ongoingStatuses,
     ideaStatuses,
-    hasUserVisitedPage,
   } = useLoaderData() as LoaderData;
   const myPropQuery = "myProposals";
   const activeProjectsSearchParams = new URLSearchParams();
   const ideasSearchParams = new URLSearchParams();
+  let membershipCookie;
+
+  function getCookie(name:string) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts?.pop()?.split(';').shift();
+  }
 
   ongoingStatuses.forEach((status) => {
     activeProjectsSearchParams.append("status", status.name);
@@ -301,9 +301,11 @@ export default function Projects() {
     },
   }));
 
-  const isVisited = () => {
-    return hasUserVisitedPage;
-  };
+
+  if (typeof window !== 'undefined') {
+    membershipCookie = getCookie('checkMembership');
+  }
+
    
   return (
     <>
@@ -666,7 +668,7 @@ export default function Projects() {
         </Grid>
       </Container>
       <MembershipModal
-        open={projectMembership.length > 0 && !isVisited()}
+        open={projectMembership.length > 0 && membershipCookie == null}
         handleCloseModal={() => {}}
         projects={projectMembership}
       />

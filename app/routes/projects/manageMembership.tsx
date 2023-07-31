@@ -10,9 +10,14 @@ export const action: ActionFunction = async ({ request }) => {
   const projects = result.data?.projects;
   if (projects) {
     try {
-      await hasCheckMembership.serialize({showModal:false});
       await updateProjectActivity(projects);
-      return redirect("/projects");
+      return redirect('/projects',
+          {
+            headers: {
+              "Set-Cookie": await hasCheckMembership.serialize({})
+            },
+          }
+        );
     } catch (e) {
       throw e;
     }
