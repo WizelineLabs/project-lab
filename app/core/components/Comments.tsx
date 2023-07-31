@@ -15,11 +15,12 @@ import type { getComments } from "~/models/comment.server";
 import { zfd } from "zod-form-data";
 import { withZod } from "@remix-validated-form/with-zod";
 import ModalBox from "./ModalBox";
-import { Form, useTransition } from "@remix-run/react";
+import { Form, useNavigation } from "@remix-run/react";
 import TextEditor from "./TextEditor";
 import { ValidatedForm } from "remix-validated-form";
 import Markdown from "marked-react";
 import type { Comments as CommentType, Profiles } from "@prisma/client";
+import { validateNavigationRedirect } from '~/utils'
 
 type CommentsArrayType = Awaited<ReturnType<typeof getComments>>;
 type CommentItemType = CommentType & {
@@ -89,13 +90,14 @@ function CommentItem({
   const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
   const [openEditComment, setOpenEditComment] = useState<boolean>(false);
 
-  const transition = useTransition();
+  const navigation = useNavigation();
   useEffect(() => {
-    if (transition.type == "actionRedirect") {
+    const isActionRedirect = validateNavigationRedirect(navigation)
+    if (isActionRedirect) {
       setOpenDeleteModal(false);
       setOpenEditComment(false);
     }
-  }, [transition]);
+  }, [navigation]);
 
   return (
     <Paper sx={{ padding: 2, marginY: 2 }}>

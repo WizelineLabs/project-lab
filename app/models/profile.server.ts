@@ -1,4 +1,10 @@
-import type { User, Profiles, GitHubProfile, GitHubProjects, PrismaClient } from "@prisma/client";
+import type {
+  User,
+  Profiles,
+  GitHubProfile,
+  GitHubProjects,
+  PrismaClient,
+} from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../db.server";
 
@@ -33,9 +39,11 @@ export async function getGitHubProfileByEmail(email: GitHubProfile["email"]) {
   return profile;
 }
 
-export async function getGitHubProjectsByEmail(email: GitHubProjects["owner_email"]) {
+export async function getGitHubProjectsByEmail(
+  email: GitHubProjects["owner_email"]
+) {
   const projects = await prisma.gitHubProjects.findMany({
-    where: { owner_email : email},
+    where: { owner_email: email },
   });
 
   if (!projects) {
@@ -53,7 +61,6 @@ export async function updateProfile(
   data: Prisma.ProfilesUpdateInput,
   id: string
 ) {
-
   data = {
     id: data.id,
     email: data.email,
@@ -79,9 +86,9 @@ export async function updateProfile(
     projects: data.projects,
     projectsVersions: data.projectsVersions,
     votes: data.votes,
-    githubUser: data.githubUser
-  }
-  
+    githubUser: data.githubUser,
+  };
+
   return prisma.profiles.update({ where: { id }, data: data });
 }
 
@@ -91,9 +98,9 @@ export async function createGitHubProfile(
   avatarUrl: string,
   reposUrl: string,
   firstName: string,
-  lastName: string,
+  lastName: string
 ) {
-  const gitHubProfile = await prisma.gitHubProfile.create({  
+  const gitHubProfile = await prisma.gitHubProfile.create({
     data: {
       email,
       username,
@@ -107,19 +114,19 @@ export async function createGitHubProfile(
 }
 
 export async function createGitHubProject(
-  owner_email:string,
+  owner_email: string,
   name: string,
   description: string,
-  updated_at: string,
+  updated_at: string
 ) {
-  return prisma.gitHubProjects.create({  
+  return prisma.gitHubProjects.create({
     data: {
       owner_email: owner_email,
       name: name,
-      description: description, 
+      description: description,
       updated_at: updated_at,
     },
-  })
+  });
 }
 
 export async function consolidateProfilesByEmail(
@@ -136,25 +143,43 @@ export async function consolidateProfilesByEmail(
   // eslint-disable-next-line no-console
   console.info(`Starting upsert profiles to DB`);
 
-  const profilesUpsert = data.map((profile) => {
-    return db.profiles.upsert({
-      where: { email: profile.email },
-      update: {
-        ...profile,
-      },
-      create: {
-        ...profile,
-      },
+  try {
+    await prisma.$transaction(async (tx) => {
+      data.forEach(async (profile) => {
+        try {
+          await db.profiles.upsert({
+            where: { email: profile.email },
+            update: {
+              ...profile,
+            },
+            create: {
+              ...profile,
+            },
+          });
+        } catch (e) {
+          // eslint-disable-next-line no-console
+          console.log(e, profile);
+        }
+      });
+      // eslint-disable-next-line no-console
+      console.info(`Terminate users not found on data lake from DB`);
+      const result = await db.profiles.updateMany({
+        data: {
+          employeeStatus: 'Terminated'
+        },
+        where: {
+          email: {
+            notIn: profileMails
+          }
+        }
+      })
+      // eslint-disable-next-line no-console
+      console.info(`${result.count} affected profiles`);
     });
-  });
-  // eslint-disable-next-line no-console
-  console.info(`Terminate users not found on data lake from DB`);
-  await db.$transaction([
-    db.$queryRaw`UPDATE "Profiles" SET "employeeStatus"='Terminated' WHERE email NOT IN (${Prisma.join(
-      profileMails
-    )})`,
-    ...profilesUpsert,
-  ]);
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.log(e);
+  }
 }
 
 export async function searchProfiles(searchTerm: string) {
@@ -182,4 +207,12 @@ export async function searchProfiles(searchTerm: string) {
     `;
   }
   return result;
+}
+
+export async function hasProject(profileId: string) {
+  const searchTemMember = await prisma.projectMembers.findFirst({
+    where: { profileId },
+  });
+
+  return searchTemMember ? true : false;
 }

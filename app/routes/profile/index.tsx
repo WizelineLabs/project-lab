@@ -67,11 +67,11 @@ export const ProfileInfo = () => {
         </Container>
       </>
   )}else{
-    let username = githubProfileData?.username;
-    let avatarUrl = githubProfileData?.avatarUrl;
-    let firstName = githubProfileData?.firstName;
-    let lastName = githubProfileData?.lastName;
-    let githubProjectsLink = githubProjects;
+    const username = githubProfileData?.username;
+    const avatarUrl = githubProfileData?.avatarUrl;
+    const firstName = githubProfileData?.firstName;
+    const lastName = githubProfileData?.lastName;
+    const githubProjectsLink = githubProjects;
     return (
       <>
         <Header title="Projects" />

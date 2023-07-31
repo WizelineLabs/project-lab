@@ -4,6 +4,7 @@ import {
   Collapse,
   Stack,
   Button,
+  Box,
 } from "@mui/material";
 import { useState } from "react";
 import { MultiUrl } from "~/core/components/MultiUrl";
@@ -15,9 +16,7 @@ import InputSelect from "~/core/components/InputSelect";
 import SkillsSelect from "~/core/components/SkillsSelect";
 import LabelsSelect from "~/core/components/LabelsSelect";
 import ProjectOwnerField from "~/core/components/ProjectOwnerField";
-import { useControlField } from "remix-validated-form";
-import { Box } from "@mui/material";
-import { useIsSubmitting } from "remix-validated-form";
+import { useControlField, useIsSubmitting } from "remix-validated-form";
 import type { ProjectStatus } from "@prisma/client";
 import type { getInnovationTiers } from "~/models/innovationTier.server";
 

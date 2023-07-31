@@ -2,15 +2,10 @@ import type { ActionFunction, LoaderArgs } from "@remix-run/node";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import type { TypedMetaFunction } from "remix-typedjson";
 import { redirect } from "@remix-run/node";
-import { Form } from "@remix-run/react";
+import { Form, Link } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import { requireProfile, requireUser } from "~/session.server";
-import {
-  isProjectTeamMember,
-  getProject,
-  updateProjects,
-} from "~/models/project.server";
-import { adminRoleName } from "app/constants";
+import { getProject, updateProjects } from "~/models/project.server";
 import {
   Box,
   Button,
@@ -36,8 +31,8 @@ import { getProjectStatuses } from "~/models/status.server";
 import { getInnovationTiers } from "~/models/innovationTier.server";
 import MDEditorStyles from "@uiw/react-md-editor/markdown-editor.css";
 import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
-import { isProjectMemberOrOwner } from "~/utils";
-import { Link } from "@remix-run/react";
+import { checkPermission } from "~/models/authorization.server";
+import type { Roles } from "~/models/authorization.server";
 
 export function links() {
   return [
@@ -58,19 +53,23 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   const tiers = await getInnovationTiers();
   const user = await requireUser(request);
   const profile = await requireProfile(request);
-  const isTeamMember = isProjectTeamMember(profile.id, project);
-  const isAdmin = user.role == adminRoleName;
   const profileId = profile.id;
+  const canDeleteProject = checkPermission(
+    profileId,
+    user.role as Roles,
+    "delete",
+    "project",
+    project
+  );
 
   return typedjson({
-    isAdmin,
-    isTeamMember,
     profile,
     project,
     profileId,
     projectId,
     statuses,
     tiers,
+    canDeleteProject,
   });
 };
 
@@ -79,15 +78,18 @@ export const action: ActionFunction = async ({ request, params }) => {
   const projectId = params.projectId;
   // Validate permissions
   const user = await requireUser(request);
-  const isAdmin = user.role == adminRoleName;
-  if (!isAdmin) {
-    const profile = await requireProfile(request);
-    const currentProject = await getProject({ id: projectId });
-    const {
-      projectMembers: currentMembers = [],
-      ownerId: currentOwnerId = null,
-    } = currentProject;
-    isProjectMemberOrOwner(profile.id, currentMembers, currentOwnerId);
+  const profile = await requireProfile(request);
+  const currentProject = await getProject({ id: projectId });
+  if (
+    !checkPermission(
+      profile.id,
+      user.role as Roles,
+      "edit",
+      "project",
+      currentProject
+    )
+  ) {
+    throw new Error("You don't have permission to perform this operation");
   }
 
   const result = await validator.validate(await request.formData());
@@ -112,7 +114,7 @@ export const meta: TypedMetaFunction = ({ data, params }) => {
 };
 
 export default function EditProjectPage() {
-  const { isAdmin, project, projectId, statuses, tiers } =
+  const { project, projectId, statuses, tiers, canDeleteProject } =
     useTypedLoaderData<typeof loader>();
 
   const [tabIndex, setTabIndex] = useState(0);
@@ -196,7 +198,7 @@ export default function EditProjectPage() {
             </TabPanel>
             <TabPanel value={tabIndex} index={1}></TabPanel>
           </EditPanelsStyles>
-          {isAdmin && (
+          {canDeleteProject && (
             <Button
               onClick={handleClickOpen}
               color="warning"

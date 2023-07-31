@@ -2,7 +2,7 @@ import { formatDistance } from "date-fns";
 import Markdown from "marked-react";
 import type { ActionFunction, LoaderArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
-import { useCatch, useFetcher, useTransition } from "@remix-run/react";
+import { useFetcher, useNavigation, useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import type { TypedMetaFunction } from "remix-typedjson";
 import invariant from "tiny-invariant";
@@ -13,6 +13,7 @@ import {
   getProject,
   getProjects,
   getProjectResources,
+  updateProjectResources,
 } from "~/models/project.server";
 import { getDistinctResources } from "~/models/resource.server";
 import {
@@ -34,7 +35,6 @@ import EditSharp from "@mui/icons-material/EditSharp";
 import ThumbUpSharp from "@mui/icons-material/ThumbUpSharp";
 import ThumbDownSharp from "@mui/icons-material/ThumbDownSharp";
 import OpenInNew from "@mui/icons-material/OpenInNew";
-import { adminRoleName } from "app/constants";
 import ContributorPathReport from "../../../core/components/ContributorPathReport/index";
 import { useEffect, useState } from "react";
 import JoinProjectModal from "~/core/components/JoinProjectModal";
@@ -50,11 +50,12 @@ import { getComments } from "~/models/comment.server";
 import Comments from "~/core/components/Comments";
 import MDEditorStyles from "@uiw/react-md-editor/markdown-editor.css";
 import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
-import Resources from "../components/resources";
 import { validationError } from "remix-validated-form";
-import { validator } from "~/routes/projects/components/resources";
-import { updateProjectResources } from "~/models/project.server";
+import Resources, { validator } from "~/routes/projects/components/resources";
+import { checkPermission } from "~/models/authorization.server";
+import type { Roles } from "~/models/authorization.server";
 import GitHub from '@mui/icons-material/GitHub';
+import { validateNavigationRedirect } from '~/utils';
 
 export function links() {
   return [
@@ -72,7 +73,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   invariant(params.projectId, "projectId not found");
 
   const project = await getProject({ id: params.projectId });
-  if (!project) {
+  if (!project.id) {
     throw new Response("Not Found", { status: 404 });
   }
 
@@ -81,15 +82,21 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   const isTeamMember = isProjectTeamMember(profile.id, project);
   const projectsList = await getProjects({});
   const membership = getProjectTeamMember(profile.id, project);
-  const isAdmin = user.role == adminRoleName;
   const profileId = profile.id;
+  const canEditProject = checkPermission(
+    profileId,
+    user.role as Roles,
+    "edit",
+    "project",
+    project
+  );
   const comments = await getComments(params.projectId);
   // Resources data
   const projectResources = await getProjectResources(params.projectId);
   const resourceData = await getDistinctResources();
 
   return typedjson({
-    isAdmin,
+    canEditProject,
     isTeamMember,
     membership,
     profile,
@@ -124,10 +131,15 @@ export const action: ActionFunction = async ({ request, params }) => {
         const profile = await requireProfile(request);
         const user = await requireUser(request);
         const project = await getProject({ id: params.projectId });
-        const isAdmin = user.role == adminRoleName;
-        const isTeamMember = isProjectTeamMember(profile.id, project);
+        const canEditProject = checkPermission(
+          profile.id,
+          user.role as Roles,
+          "edit",
+          "project",
+          project
+        );
 
-        if (!isAdmin && !isTeamMember) {
+        if (!canEditProject) {
           return validationError({
             fieldErrors: {
               formError: "Operation not allowed",
@@ -174,7 +186,7 @@ export const meta: TypedMetaFunction<typeof loader> = ({ data, params }) => {
 
 export default function ProjectDetailsPage() {
   const {
-    isAdmin,
+    canEditProject,
     isTeamMember,
     profile,
     membership,
@@ -211,13 +223,14 @@ export default function ProjectDetailsPage() {
     }
   };
 
-  const transition = useTransition();
+  const navigation = useNavigation();
   useEffect(() => {
-    if (transition.type == "actionRedirect") {
+    const isActionRedirect = validateNavigationRedirect(navigation)
+    if (isActionRedirect) {
       setShowJoinModal(false);
       setShowMembershipModal(false);
     }
-  }, [transition]);
+  }, [navigation]);
 
   const voteCount = project.votes?.filter(
     (vote) => vote.profileId === profile.id
@@ -247,7 +260,7 @@ export default function ProjectDetailsPage() {
               </Typography>
             </Grid>
             <Grid item>
-              {(isTeamMember || isAdmin) && (
+              {canEditProject && (
                 <IconButton
                   aria-label="Edit"
                   href={`/projects/${projectId}/edit`}
@@ -551,7 +564,7 @@ export default function ProjectDetailsPage() {
       )}
       <Container sx={{ marginBottom: 2 }}>
         <RelatedProjectsSection
-          allowEdit={isTeamMember || isAdmin}
+          allowEdit={canEditProject}
           relatedProjects={project.relatedProjects}
           projectsList={projectsList}
           projectId={projectId}
@@ -560,7 +573,7 @@ export default function ProjectDetailsPage() {
 
       <Container sx={{ marginBottom: 2 }}>
         <Resources
-          allowEdit={isTeamMember || isAdmin}
+          allowEdit={canEditProject}
           projectResources={projectResources}
           resourceData={resourceData}
         />
@@ -569,8 +582,7 @@ export default function ProjectDetailsPage() {
       <Container sx={{ marginBottom: 2 }}>
         <ContributorPathReport
           project={project}
-          isTeamMember={isTeamMember}
-          isAdmin={isAdmin}
+          canEditProject={canEditProject}
         />
       </Container>
       <JoinProjectModal
@@ -599,18 +611,12 @@ export default function ProjectDetailsPage() {
   );
 }
 
-export function ErrorBoundary({ error }: { error: Error }) {
-  console.error(error);
+export function ErrorBoundary() {
+  const error = useRouteError() as Error
 
-  return <div>An unexpected error occurred: {error.message}</div>;
-}
-
-export function CatchBoundary() {
-  const caught = useCatch();
-
-  if (caught.status === 404) {
+  if (isRouteErrorResponse(error) && error.status === 404) {
     return <div>Project not found</div>;
   }
 
-  throw new Error(`Unexpected caught response with status: ${caught.status}`);
+  return <div>An unexpected error occurred: {error.message}</div>;
 }

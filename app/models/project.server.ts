@@ -55,14 +55,22 @@ interface RelatedProjectInput {
   relatedProjects: { id: string }[];
 }
 
+interface ProjectListOutput {
+  id: string;
+  name: string;
+}
+
 export class SearchProjectsError extends Error {
   name = "SearchProjectsError";
   message = "There was an error while searching for projects.";
 }
 
 export function isProjectTeamMember(
-  profileId: string,
-  project: ProjectComplete
+  profileId: string | number,
+  project: {
+    ownerId?: string | null;
+    projectMembers?: { profileId: string }[];
+  }
 ) {
   const isProjectMember = project?.projectMembers?.some(
     (p) => p.profileId === profileId
@@ -189,19 +197,21 @@ export async function createProject(input: any, profileId: string) {
     },
   });
 
-
   for (let i = 0; i < contributorPath?.length; i++) {
     const data = {
       name: contributorPath[i]?.name || "Failed",
       criteria: contributorPath[i]?.criteria || "Failed",
       mission: contributorPath[i]?.mission || "Failed",
-    }
-    const tasks = contributorPath[i]?.tasks || []
-    const position = i + 1
-    let projectTasks: any = []
+    };
+    const tasks = contributorPath[i]?.tasks || [];
+    const position = i + 1;
+    const projectTasks: any = [];
 
     for (let j = 0; j < tasks.length; j++) {
-      projectTasks.push({ description: tasks[j]?.name, position: tasks[j]?.position })
+      projectTasks.push({
+        description: tasks[j]?.name,
+        position: tasks[j]?.position,
+      });
     }
 
     await db.projectStages.create({
@@ -213,7 +223,7 @@ export async function createProject(input: any, profileId: string) {
           create: projectTasks,
         },
       },
-    })
+    });
   }
 
   await db.projectMembers.create({
@@ -274,7 +284,7 @@ export async function updateMembers(
     select: { id: true, profileId: true },
   });
 
-  let activeMembers: any = [];
+  const activeMembers: any = [];
 
   // Loop Project Members
   for (let i = 0; i < projectMembers.length; i++) {
@@ -464,7 +474,7 @@ export async function updateRelatedProjects({
     const createResponse = [];
     let response;
     for (let i = 0; i < data.relatedProjects.length; i++) {
-      let relationExist = await tx.relatedProjects.count({
+      const relationExist = await tx.relatedProjects.count({
         where: {
           OR: [
             {
@@ -848,4 +858,10 @@ export async function updateProjectResources(
   await db.resource.deleteMany({ where: { projectId } });
   const data = resources.map((resource) => ({ ...resource, projectId }));
   return db.resource.createMany({ data });
+}
+
+export async function getProjectsList() {
+  return await db.$queryRaw<ProjectListOutput[]>`
+   SELECT "id", "name" FROM "Projects" where "isArchived" = false
+  `
 }

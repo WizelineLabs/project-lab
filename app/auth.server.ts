@@ -10,6 +10,7 @@ import {
   getGitHubProfileByEmail,
   createGitHubProfile,
   createGitHubProject,
+  updateProfile,
 } from "./models/profile.server";
 import { findProfileData } from "./lake.server";
 import { getUserInfo, getUserRepos } from "./routes/api/github/get-getUserInfo";
@@ -22,7 +23,7 @@ invariant(process.env.AUTH0_DOMAIN, "AUTH0_DOMAIN must be set");
 // strategies will return and will be stored in the session
 export const authenticator = new Authenticator<User>(sessionStorage);
 
-let auth0Strategy = new Auth0Strategy(
+const auth0Strategy = new Auth0Strategy(
   {
     callbackURL: `${process.env.BASE_URL}/auth/auth0/callback`,
     clientID: process.env.AUTH0_CLIENT_ID,
@@ -37,6 +38,14 @@ let auth0Strategy = new Auth0Strategy(
       // search profile in our DB or get from data lake
       const email = profile.emails[0].value;
       const userProfile = await getProfileByEmail(email);
+      if (userProfile?.githubUser === "" || userProfile?.githubUser === null) {
+        const { data } = await getUserInfo(email);
+        if (data.total_count > 0) {
+          const gitHubUser = data.items[0].login;
+          userProfile.githubUser = gitHubUser;
+          await updateProfile(userProfile, userProfile.id);
+        }
+      }
       if (!userProfile) {
         const lakeProfile = await findProfileData(email);
         createProfile({
@@ -59,31 +68,47 @@ let auth0Strategy = new Auth0Strategy(
         });
       }
       const userGitHubProfile = await getGitHubProfileByEmail(email);
-      if (userGitHubProfile === null || userGitHubProfile?.email === '' || userGitHubProfile?.email === null || userGitHubProfile?.email === undefined)  {
+      if (
+        userGitHubProfile === null ||
+        userGitHubProfile?.email === "" ||
+        userGitHubProfile?.email === null ||
+        userGitHubProfile?.email === undefined
+      ) {
         const { data: userInfo } = await getUserInfo(email);
-        
-        if(userInfo.total_count !== 0) {
-            const { data: repos } = await getUserRepos(userInfo.items[0].login)
-            
-            const userProfile = await getProfileByEmail(email);
-            await createGitHubProfile(email, userInfo.items[0].login, userInfo.items[0].avatar_url, userInfo.items[0].repos_url, userProfile?.firstName ?? "Default Name", userProfile?.lastName ?? "Default LastName",);
-            
-            for (const repo of repos) {
-              const date = new Date(repo.updated_at);
-              const formattedDate = date.toLocaleString();
-              const name = repo.name ? repo.name : "No name available";
-              const description = repo.description ? repo.description : "No description available";
-              
-              await createGitHubProject(email, name, description, formattedDate);
-            }
+
+        if (userInfo.total_count !== 0) {
+          const { data: repos } = await getUserRepos(userInfo.items[0].login);
+
+          const userProfile = await getProfileByEmail(email);
+          await createGitHubProfile(
+            email,
+            userInfo.items[0].login,
+            userInfo.items[0].avatar_url,
+            userInfo.items[0].repos_url,
+            userProfile?.firstName ?? "Default Name",
+            userProfile?.lastName ?? "Default LastName"
+          );
+
+          for (const repo of repos) {
+            const date = new Date(repo.updated_at);
+            const formattedDate = date.toLocaleString();
+            const name = repo.name ? repo.name : "No name available";
+            const description = repo.description
+              ? repo.description
+              : "No description available";
+
+            await createGitHubProject(email, name, description, formattedDate);
+          }
         }
       }
-      // Get the user data from your DB or API using the tokens and profile     
+      // Get the user data from your DB or API using the tokens and profile
       return findOrCreate({
         email: profile.emails[0].value,
         name: profile.displayName || "Unnamed",
       });
     } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log(e);
       throw e;
     }
   }

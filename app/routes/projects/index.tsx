@@ -1,4 +1,4 @@
-import * as React from 'react';
+import * as React from "react";
 import { useState } from "react";
 import type { LoaderFunction } from "@remix-run/node";
 import { useLoaderData, useSearchParams } from "@remix-run/react";
@@ -20,7 +20,7 @@ import {
   AppBar,
   Toolbar,
   styled,
-  Pagination
+  Pagination,
 } from "@mui/material";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import ExpandMore from "@mui/icons-material/ExpandMore";
@@ -33,6 +33,13 @@ import type { ProjectStatus } from "~/models/status.server";
 import { getProjectStatuses } from "~/models/status.server";
 import { ongoingStage, ideaStage } from "~/constants";
 import Link from "~/core/components/Link";
+import ViewModuleIcon from "@mui/icons-material/ViewModule";
+import ViewListIcon from "@mui/icons-material/ViewList";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
 import MembershipModal from "~/core/components/MembershipModal/index";
 
 export interface projectMembership {
@@ -62,7 +69,7 @@ type LoaderData = {
   message: string,
 };
 
-const ITEMS_PER_PAGE = 50;
+const ITEMS_PER_PAGE = 100;
 const FACETS = [
   "status",
   "skill",
@@ -142,7 +149,7 @@ export default function Projects() {
 
   const [searchParams, setSearchParams] = useSearchParams();
   
-  let {
+  const {
     data: {
       projects,
       statusFacets,
@@ -198,8 +205,11 @@ export default function Projects() {
     ideas: ideasTab,
   };
 
-  const handlePaginationChange = (event: React.ChangeEvent<unknown>, value: number) => {
-    searchParams.set("page", String(value-1));
+  const handlePaginationChange = (
+    event: React.ChangeEvent<unknown>,
+    value: number
+  ) => {
+    searchParams.set("page", String(value - 1));
     setSearchParams(searchParams);
   };
 
@@ -218,6 +228,12 @@ export default function Projects() {
     const newFilter = newParams.getAll(filter).filter((item) => item != value);
     newParams.delete(filter);
     newFilter.forEach((item) => newParams.append(filter, item));
+    return `?${newParams.toString()}`;
+  };
+
+  const replaceFilterUrl = (filter: string, value: string) => {
+    const newParams = new URLSearchParams(searchParams.toString());
+    newParams.set(filter, value);
     return `?${newParams.toString()}`;
   };
 
@@ -258,7 +274,7 @@ export default function Projects() {
   };
 
   const handleTabChange = (selectedTab: string) => {
-    let params = tabs[selectedTab]?.searchParams;
+    const params = tabs[selectedTab]?.searchParams;
     if (params) {
       setSearchParams(params);
     }
@@ -274,11 +290,11 @@ export default function Projects() {
   const lessThanMd = useMediaQuery(theme.breakpoints.down("md"));
 
   const StyledBox = styled(Box)(({ theme }) => ({
-    [theme.breakpoints.down('sm')]: {
-      padding: '0 16px',
+    [theme.breakpoints.down("sm")]: {
+      padding: "0 16px",
     },
   }));
-  
+
   const StyledAppBar = styled(AppBar)(({ theme }) => ({
     fontWeight: "bold",
     color: theme.palette.mode === "dark" ? "#AF2E33" : "#701D21",
@@ -287,8 +303,8 @@ export default function Projects() {
   }));
 
   const StyledToolbar = styled(Toolbar)(({ theme }) => ({
-    padding: '0 !important',
-    minHeight: '30.75px !important',
+    padding: "0 !important",
+    minHeight: "30.75px !important",
   }));
 
   const StyledTabButton = styled(Button)(({ theme }) => ({
@@ -301,12 +317,14 @@ export default function Projects() {
     },
   }));
 
+  const viewOption = searchParams.get("view") || "card";
+
 
   if (typeof window !== 'undefined') {
     membershipCookie = getCookie('checkMembership');
   }
 
-   
+
   return (
     <>
       <Header title="Projects" />
@@ -314,23 +332,45 @@ export default function Projects() {
         Disable Gutters based on:
         https://stackoverflow.com/questions/70038913/materialui-show-and-hide-the-containers-gutters-based-on-breakpoints
       */}
-      <StyledBox sx={{maxWidth: '1200px', height:'62.75px', margin: '0 auto', mb:2, px:3}}>
-        <StyledAppBar position="static" sx={{ p:2, display:'block', borderRadius: '4px', boxShadow: 'none'}}>
-          <StyledToolbar sx={{position:'static', pl:0, height:'30.75px!important'}}>
-          {Object.values(tabs).map((tab) => (
-                <StyledTabButton
-                  size="small"
-                  disableElevation
-                  variant={isTabActive(tab.name) ? "contained" : "text"}
-                  onClick={() => handleTabChange(tab.name)}
-                  key={tab.name}
-                  sx={{
-                    color: isTabActive(tab.name) ? prefersDarkMode ? "#fff" : "#000000": null, 
-                  }}
-                >
-                  {tab.title}
-                </StyledTabButton>
-              ))}
+      <StyledBox
+        sx={{
+          maxWidth: "1200px",
+          height: "62.75px",
+          margin: "0 auto",
+          mb: 2,
+          px: 3,
+        }}
+      >
+        <StyledAppBar
+          position="static"
+          sx={{
+            p: 2,
+            display: "block",
+            borderRadius: "4px",
+            boxShadow: "none",
+          }}
+        >
+          <StyledToolbar
+            sx={{ position: "static", pl: 0, height: "30.75px!important" }}
+          >
+            {Object.values(tabs).map((tab) => (
+              <StyledTabButton
+                size="small"
+                disableElevation
+                variant={isTabActive(tab.name) ? "contained" : "text"}
+                onClick={() => handleTabChange(tab.name)}
+                key={tab.name}
+                sx={{
+                  color: isTabActive(tab.name)
+                    ? prefersDarkMode
+                      ? "#fff"
+                      : "#000000"
+                    : null,
+                }}
+              >
+                {tab.title}
+              </StyledTabButton>
+            ))}
           </StyledToolbar>
         </StyledAppBar>
       </StyledBox>
@@ -619,6 +659,18 @@ export default function Projects() {
                   setSortQuery={setSortQuery}
                   sortBy={searchParams.get("field") || ""}
                 />
+                <IconButton
+                  href={replaceFilterUrl("view", "card")}
+                  color={viewOption === "card" ? "primary" : "default"}
+                >
+                  <ViewModuleIcon />
+                </IconButton>
+                <IconButton
+                  href={replaceFilterUrl("view", "table")}
+                  color={viewOption === "table" ? "primary" : "default"}
+                >
+                  <ViewListIcon />
+                </IconButton>
                 &nbsp;
                 <Button
                   variant="contained"
@@ -629,40 +681,84 @@ export default function Projects() {
                   Filters
                 </Button>
               </div>
-              <Grid
-                container
-                spacing={2}
-                sx={{ paddingTop: 2, paddingBottom: 2 }}
-              >
-                {projects.map((item, i) => {
-                  return (
-                    <Grid item xs={12} sm={6} lg={4} key={i}>
-                      <ProposalCard
-                        id={item.id}
-                        title={item.name}
-                        picture={item.avatarUrl}
-                        initials={initials(item.preferredName, item.lastName)}
-                        date={new Intl.DateTimeFormat([], {
-                          year: "numeric",
-                          month: "long",
-                          day: "2-digit",
-                        }).format(new Date(item.createdAt))}
-                        description={item.description}
-                        status={item.status}
-                        color={item.color}
-                        votesCount={Number(item.votesCount)}
-                        skills={item.searchSkills
-                          .trim()
-                          .split(",")
-                          .map((skill) => ({ name: skill }))}
-                        tierName={item.tierName}
-                        projectMembers={Number(item.projectMembers)}
-                      />
-                    </Grid>
-                  );
-                })}
-              </Grid>
-              <Pagination count={count % ITEMS_PER_PAGE === 0 ? count / ITEMS_PER_PAGE : Math.trunc(count/ITEMS_PER_PAGE) + 1} shape="rounded" sx={{pt: "15px"}}  onChange={handlePaginationChange}/>
+              {viewOption === "card" ? (
+                <Grid
+                  container
+                  spacing={2}
+                  sx={{ paddingTop: 2, paddingBottom: 2 }}
+                >
+                  {projects.map((item, i) => {
+                    return (
+                      <Grid item xs={12} sm={6} lg={4} key={i}>
+                        <ProposalCard
+                          id={item.id}
+                          title={item.name}
+                          picture={item.avatarUrl}
+                          initials={initials(item.preferredName, item.lastName)}
+                          date={new Intl.DateTimeFormat([], {
+                            year: "numeric",
+                            month: "long",
+                            day: "2-digit",
+                          }).format(new Date(item.createdAt))}
+                          description={item.description}
+                          status={item.status}
+                          color={item.color}
+                          votesCount={Number(item.votesCount)}
+                          skills={item.searchSkills
+                            .trim()
+                            .split(",")
+                            .map((skill) => ({ name: skill }))}
+                          tierName={item.tierName}
+                          projectMembers={Number(item.projectMembers)}
+                        />
+                      </Grid>
+                    );
+                  })}
+                </Grid>
+              ) : (
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
+                      <TableCell sx={{ fontWeight: "bold" }}>Owner</TableCell>
+                      <TableCell sx={{ fontWeight: "bold" }}>Tier</TableCell>
+                      <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>
+                      <TableCell sx={{ fontWeight: "bold" }}>
+                        Contributors
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: "bold" }}>Likes</TableCell>
+                      <TableCell sx={{ fontWeight: "bold" }}>Skills</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {projects.map((item, i) => (
+                      <TableRow key={i}>
+                        <TableCell>
+                          <Link to={`/projects/${item.id}`}>{item.name}</Link>
+                        </TableCell>
+                        <TableCell>
+                          {item.preferredName} {item.lastName}
+                        </TableCell>
+                        <TableCell>{item.tierName}</TableCell>
+                        <TableCell>{item.status}</TableCell>
+                        <TableCell>{item.projectMembers}</TableCell>
+                        <TableCell>{item.votesCount}</TableCell>
+                        <TableCell>{item.searchSkills}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+              <Pagination
+                count={
+                  count % ITEMS_PER_PAGE === 0
+                    ? count / ITEMS_PER_PAGE
+                    : Math.trunc(count / ITEMS_PER_PAGE) + 1
+                }
+                shape="rounded"
+                sx={{ pt: "15px" }}
+                onChange={handlePaginationChange}
+              />
             </Paper>
           </Grid>
         </Grid>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useFetcher, useLoaderData, useCatch, useTransition } from "@remix-run/react";
+import { useFetcher, useLoaderData, useNavigation, useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import type { LoaderFunction, ActionFunction } from "@remix-run/node";
 import {
   ValidatedForm,
@@ -30,6 +30,7 @@ import { Container } from "@mui/system";
 import { Card, CardContent, CardHeader, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel } from "@mui/material";
 import LabeledTextField from "~/core/components/LabeledTextField";
 import { z } from "zod";
+import { validateNavigationRedirect } from '~/utils'
 
 declare module "@mui/material/Button" {
   interface ButtonPropsColorOverrides {
@@ -89,7 +90,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export const action: ActionFunction = async ({ request }) => {
-  let result = await validator.validate(await request.formData());
+  const result = await validator.validate(await request.formData());
   const id = result.data?.id as string;
   const name = result.data?.name as string;
   let stage;
@@ -154,14 +155,15 @@ function ProjectStatusDataGrid() {
     formId: "delete-status-form",
   });
 
-  const transition = useTransition();
+  const navigation = useNavigation();
 
   useEffect(() => {
-    if (transition.type == "actionReload" || transition.type == "actionSubmission") {
+    const isActionRedirect = validateNavigationRedirect(navigation)
+    if (isActionRedirect) {
       setOpenCreateModal(false);
       setOpenEditModal(false);
     }
-  }, [transition]);
+  }, [navigation]);
 
   const handleAddClick = () => {
     setOpenCreateModal(true)
@@ -211,7 +213,7 @@ function ProjectStatusDataGrid() {
   };
 
   const handleDeleteClick = async (idRef: string | number) => {
-    let id = idRef as string;
+    const id = idRef as string;
     const body = {
       projectStatus: id,
     };
@@ -493,18 +495,13 @@ function ProjectStatusDataGrid() {
 
 export default ProjectStatusDataGrid;
 
-export function ErrorBoundary({ error }: { error: Error }) {
+export function ErrorBoundary() {
+  const error = useRouteError() as Error
   console.error(error);
 
-  return <div>An unexpected error occurred: {error.message}</div>;
-}
-
-export function CatchBoundary() {
-  const caught = useCatch();
-
-  if (caught.status === 404) {
+  if (isRouteErrorResponse(error) && error.status === 404) {
     return <div>ProjectStatus not found</div>;
   }
 
-  throw new Error(`Unexpected caught response with status: ${caught.status}`);
+  return <div>An unexpected error occurred: {error.message}</div>;
 }

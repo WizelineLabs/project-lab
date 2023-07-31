@@ -2,19 +2,18 @@
 import { describe, test, vi } from "vitest"
 import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import Admins from "../admins"
-import { loader } from "../admins"
+import Admins, { loader } from "../admins"
 import type { DataGridProps } from "@mui/x-data-grid"
 import "@testing-library/jest-dom"
 
 describe("Admins test", () => {
   // mocking remix module to handle Loaders
   vi.mock("@remix-run/react", async () => {
-    let remix: any = await vi.importActual("@remix-run/react")
+    const remix: any = await vi.importActual("@remix-run/react")
     return {
       ...remix,
       // get useFetcher to return an idle state initially and an empty submit
-      useFetcher: vi.fn().mockReturnValue({ state: "idle", submit: () => {} }),
+      useFetcher: vi.fn().mockReturnValue({ state: "idle", submit: () => ({}) }),
       useLoaderData: vi.fn().mockReturnValue({
         admins: [
           {
@@ -43,7 +42,7 @@ describe("Admins test", () => {
   })
 
   test("Path loader", async () => {
-    let request = new Request("http://localhost:3000/manager/admins")
+    const request = new Request("http://localhost:3000/manager/admins")
 
     const response = await loader({ request, params: {}, context: {} })
 

@@ -1,6 +1,7 @@
 import { useMatches } from "@remix-run/react";
 import { useMemo } from "react";
 import type { User } from "~/models/user.server";
+import type { Navigation } from "@remix-run/router";
 
 const DEFAULT_REDIRECT = "/";
 
@@ -82,8 +83,19 @@ export const isProjectMemberOrOwner = (
 };
 
 export const generateRandomNumberString = () => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const crypto = require("crypto");
   const randomString = crypto.randomBytes(3).toString("hex");
 
   return randomString;
+};
+
+export const validateNavigationRedirect = (navigation: Navigation) => {
+  return (
+    navigation.state === "loading" &&
+    navigation.formMethod !== null &&
+    navigation.formMethod !== "GET" // &&
+    // We had a submission navigation and are now navigating to different location
+    // navigation.formAction !== navigation.location.pathname
+  );
 };
