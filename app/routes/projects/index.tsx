@@ -123,7 +123,7 @@ export default function Projects() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
 
   const [searchParams, setSearchParams] = useSearchParams();
-  
+
   const {
     data: {
       projects,
@@ -678,9 +678,15 @@ export default function Projects() {
               ) : (
                 <Table size="small">
                   <TableHead>
-                  <TableRow>
+                    <TableRow>
                       <TableCell>Name</TableCell>
-                      <TableCell>Tier</TableCell>
+                      <TableCell>
+                        <a href="https://wizeline.atlassian.net/wiki/spaces/wiki/pages/3075342381/Innovation+Tiers"
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{ color: 'inherit' }}>Tier
+                        </a>
+                      </TableCell>
                       <TableCell>Status</TableCell>
                       <TableCell>Contributors</TableCell>
                       <TableCell>Likes</TableCell>
@@ -691,20 +697,22 @@ export default function Projects() {
                   <TableBody>
                     {projects.map((item, i) => (
                       <TableRow key={i}>
-                      <TableCell><a href={`/projects/${item.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>{item.name}</a></TableCell>
-                      <TableCell>
-                        <a href="https://wizeline.atlassian.net/wiki/spaces/wiki/pages/3075342381/Innovation+Tiers"
-                          target="_blank"
-                          rel="noreferrer"
-                          style={{ color: 'inherit', textDecoration: 'none' }}>{item.tierName}
-                        </a>
-                      </TableCell>
-                      <TableCell><a href={`/projects/${item.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>{item.status}</a></TableCell>
-                      <TableCell>{item.projectMembers}</TableCell>
-                      <TableCell>{item.votesCount}</TableCell>
-                      <TableCell><a href={`/projects/${item.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>{item.searchSkills}</a></TableCell>
-                      <TableCell>{item.resourcesCount}</TableCell>
-                    </TableRow>
+                        <TableCell><a href={`/projects/${item.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>{item.name}</a></TableCell>
+                        <TableCell>
+                          <Chip
+                            component="a"
+                            href={`/projects?tier=${item.tierName}`}
+                            clickable
+                            rel="noreferrer"
+                            label={item.tierName}
+                          />
+                        </TableCell>
+                        <TableCell><a href={`/projects/${item.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>{item.status}</a></TableCell>
+                        <TableCell>{item.projectMembers}</TableCell>
+                        <TableCell>{item.votesCount}</TableCell>
+                        <TableCell><a href={`/projects/${item.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>{item.searchSkills}</a></TableCell>
+                        <TableCell>{item.resourcesCount}</TableCell>
+                      </TableRow>
                     ))}
                   </TableBody>
                 </Table>

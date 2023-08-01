@@ -652,7 +652,7 @@ export async function searchProjects({
     projectIdsWhere = Prisma.sql`p.id IN (${Prisma.join(
       ids.map((val) => val.id)
     )})`;
-  }      
+  }
 
   const projects = await db.$queryRaw<SearchProjectsOutput[]>`
     SELECT p.id, p.name, p.description, p."searchSkills", pr."preferredName", pr."lastName", pr."avatarUrl", p.status, count(distinct v."profileId") AS "votesCount", s.color,
