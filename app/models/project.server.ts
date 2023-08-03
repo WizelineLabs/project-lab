@@ -35,6 +35,7 @@ interface SearchProjectsOutput {
   projectMembers: number;
   owner: string;
   tierName: string;
+  resourcesCount: number;
 }
 
 interface ProjectWhereInput {
@@ -660,12 +661,14 @@ export async function searchProjects({
       p."updatedAt",
       p."ownerId",
       p."tierName",
-    COUNT(DISTINCT pm."profileId") as "projectMembers"
+    COUNT(DISTINCT pm."profileId") as "projectMembers",
+    COUNT(DISTINCT r.id) as "resourcesCount"
     FROM "Projects" p
     INNER JOIN "ProjectStatus" s on s.name = p.status
     INNER JOIN "Profiles" pr on pr.id = p."ownerId"
     INNER JOIN "ProjectMembers" pm ON pm."projectId" = p.id
     LEFT JOIN "Vote" v on v."projectId" = p.id
+    LEFT JOIN "Resource" r on r."projectId" = p.id
     WHERE ${projectIdsWhere}
     GROUP BY p.id, pr.id, s.name
     ${orderQuery}
