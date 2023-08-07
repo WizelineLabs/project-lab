@@ -242,7 +242,7 @@ jobs:
             echo "*** Step: *** Schedule cron to update profiles"
             crontab -r -u admin
             #echo "*/5 * * * * /home/admin/projectlab/app/profilesmigration.sh" | crontab -
-            echo "0 0 13 * * ? /home/admin/projectlab/app/profilesmigration.sh" | crontab -
+            (crontab -l 2>/dev/null; echo "0 0 13 * * ? /home/admin/projectlab/app/profilesmigration.sh" | crontab -
 
             echo "*** Step: *** Start pm2 service"
             pm2 start ecosystem.config.js
