@@ -27,7 +27,7 @@ import ExpandMore from "@mui/icons-material/ExpandMore";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import CloseIcon from "@mui/icons-material/Close";
 import { SortInput } from "app/core/components/SortInput";
-import { searchProjects } from "~/models/project.server";
+import { getProjectMembership , searchProjects } from "~/models/project.server";
 import { requireProfile } from "~/session.server";
 import type { ProjectStatus } from "~/models/status.server";
 import { getProjectStatuses } from "~/models/status.server";
@@ -40,11 +40,33 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
+import MembershipModal from "~/core/components/MembershipModal/index";
+
+export interface projectMembership {
+  active: boolean;
+  createdAt: string;
+  hoursPerWeek: number
+  id: string;
+  practicedSkills: [{
+    id: string;
+    name: string;
+  }];
+  profileId: string;
+  project: { name: string; }
+  projectId: string;
+  role: [{
+    id: string;
+    name: string;
+  }];
+  updatedAt: string;
+}
 
 type LoaderData = {
   data: Awaited<ReturnType<typeof searchProjects>>;
   ongoingStatuses: ProjectStatus[];
   ideaStatuses: ProjectStatus[];
+  projectMembership: projectMembership[],
+  message: string,
 };
 
 const ITEMS_PER_PAGE = 100;
@@ -56,7 +78,7 @@ const FACETS = [
   "location",
   "tier",
   "role",
-  "missing",
+  "missing"
 ];
 
 interface Tab {
@@ -85,10 +107,13 @@ export const loader: LoaderFunction = async ({ request }) => {
   const field = url.searchParams.get("field") || "";
   const order = url.searchParams.get("order") || "";
   const statuses = await getProjectStatuses();
+  
   const ongoingStatuses = statuses.filter(
     (status) => status.stage === ongoingStage
   );
   const ideaStatuses = statuses.filter((status) => status.stage === ideaStage);
+
+  const projectMembership = await getProjectMembership(profile.id);
 
   const data = await searchProjects({
     search,
@@ -105,10 +130,10 @@ export const loader: LoaderFunction = async ({ request }) => {
     skip: ITEMS_PER_PAGE * page,
     take: ITEMS_PER_PAGE,
   });
-  // return json<LoaderData>({ data, ongoingStatuses, ideaStatuses });
+  
   return new Response(
     JSON.stringify(
-      { data, ongoingStatuses, ideaStatuses },
+      { data, ongoingStatuses, ideaStatuses, projectMembership },
       (key, value) => (typeof value === "bigint" ? value.toString() : value) // return everything else unchanged
     ),
     {
@@ -137,12 +162,21 @@ export default function Projects() {
       missingFacets,
       count,
     },
+    projectMembership,
     ongoingStatuses,
     ideaStatuses,
   } = useLoaderData() as LoaderData;
   const myPropQuery = "myProposals";
   const activeProjectsSearchParams = new URLSearchParams();
   const ideasSearchParams = new URLSearchParams();
+  let membershipCookie;
+
+  function getCookie(name:string) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts?.pop()?.split(';').shift();
+  }
+
   ongoingStatuses.forEach((status) => {
     activeProjectsSearchParams.append("status", status.name);
   });
@@ -284,6 +318,12 @@ export default function Projects() {
   }));
 
   const viewOption = searchParams.get("view") || "card";
+
+
+  if (typeof window !== 'undefined') {
+    membershipCookie = getCookie('checkMembership');
+  }
+
 
   return (
     <>
@@ -731,6 +771,11 @@ export default function Projects() {
           </Grid>
         </Grid>
       </Container>
+      <MembershipModal
+        open={projectMembership.length > 0 && membershipCookie == null}
+        handleCloseModal={() => {}}
+        projects={projectMembership}
+      />
     </>
   );
 }
