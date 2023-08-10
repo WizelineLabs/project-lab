@@ -27,6 +27,11 @@ type ProfileValue = {
   name: string;
 };
 
+type ProjectValue = {
+  id: string;
+  name: string;
+};
+
 type ApplicantValue ={
   applicantId: string,
   projectId: string,
@@ -79,6 +84,7 @@ export default function Applicant() {
   const { applicant, projects, canEditProject } = useTypedLoaderData<typeof loader>();
   const [openManageModal, setOpenManageModal] = useState(false);
   const [mentorSelected, setMentorSelected] = useState<ProfileValue | null>();
+  const [projectSelected, setProjectSelected] = useState<ProjectValue | null>();
 
   const fetcher = useFetcher<ApplicantValue>();
 
@@ -92,8 +98,15 @@ export default function Applicant() {
 
   const profileFetcher = useFetcher<ProfileValue[]>();
 
-  const searchProfiles = (value: string) => {
-    profileFetcher.submit({ q: value }, profileFetcherOptions);
+  const searchProfiles = (value: string, project:string | null = null) => {
+    const queryProject = project ?? projectSelected?.id
+    profileFetcher.submit(
+      {
+        q: value,
+        ...(queryProject ? { projectId: queryProject } : null),
+      },
+      profileFetcherOptions
+    );
   };
 
   const changeStatus = (event: SelectChangeEvent) => {
@@ -114,6 +127,17 @@ export default function Applicant() {
       profileFetcher.submit({}, profileFetcherOptions);
     }
   }, [profileFetcher]);
+
+  const handleSelectProject = (project: ProjectValue) => {
+    setProjectSelected(project)
+    searchProfiles("", project.id)
+  }
+
+  const handleCloseModal = () => {
+    setOpenManageModal(false)
+    setProjectSelected(null)
+    searchProfiles("", "")
+  }
 
   return (
     <>
@@ -240,7 +264,7 @@ export default function Applicant() {
           )}
         </Paper>
       </Container>
-      <ModalBox close={() => setOpenManageModal(false)} open={openManageModal}>
+      <ModalBox close={handleCloseModal} open={openManageModal}>
         <h2>Select project and mentor</h2>
             <ValidatedForm validator={validator} method="post" action="./hold">
                 <input type="hidden" name="applicantId" value={applicant.id} />
@@ -250,6 +274,7 @@ export default function Applicant() {
                   valuesList={projects}
                   name="project"
                   label="Select a project"
+                  onChange={handleSelectProject}
                 />
 
                 <input type="hidden" name="mentorId" value={mentorSelected?.id} />

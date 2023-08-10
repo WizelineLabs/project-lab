@@ -18,6 +18,7 @@ import {
     label: string;
     helperText?: string;
     disabled?: boolean;
+    onChange?: (e: SelectValue) => void;
   }
   
   export const RegularSelect = ({
@@ -26,6 +27,7 @@ import {
     label,
     helperText,
     disabled,
+    onChange,
   }: InputSelectProps) => {
     const { error } = useField(name);
     
@@ -45,6 +47,7 @@ import {
               (item) => item.name === event.target.value
             );
             if (newValue) setValue(newValue);
+            onChange && onChange(newValue as SelectValue);
           }}
           disabled={disabled}
         >
