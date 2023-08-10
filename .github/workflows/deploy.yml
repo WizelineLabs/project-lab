@@ -343,6 +343,9 @@ jobs:
             pg_dump --dbname $DB_URL --clean --if-exists > db.sql ## Just for a quick backup
             npx -y prisma migrate deploy # first npx with -y to avoid prompt to install
             npx prisma db seed
+            
+            echo "*** Step: *** Schedule cron to update profiles"
+            echo "0 0 13 * * ? /home/admin/projectlab/app/profilesmigration.sh" | crontab -
 
             echo "*** Step: *** Start pm2 service"
             pm2 start ecosystem.config.js
