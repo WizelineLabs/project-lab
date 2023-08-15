@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
     Select,
     MenuItem,
@@ -18,6 +19,7 @@ import {
     label: string;
     helperText?: string;
     disabled?: boolean;
+    onChange?: (e: SelectValue) => void;
   }
   
   export const RegularSelect = ({
@@ -26,10 +28,13 @@ import {
     label,
     helperText,
     disabled,
+    onChange,
   }: InputSelectProps) => {
     const { error } = useField(name);
     
     const [value, setValue] = useControlField<SelectValue>(name);
+    //This state variable is to have a controlled input and avoid errors in the console
+    const [selectValue, setSelectValue] = useState<String>("");
     return (
       <FormControl fullWidth id={name} size="small" error={!!error}>
         <input type="hidden" name={`${name}.name`} value={value?.name} />
@@ -37,14 +42,18 @@ import {
         <InputLabel id={name}>{label}</InputLabel>
         <Select
           label={label}
-          value={value}
+          value={selectValue}
           error={!!error}
           onChange={(event) => {
             
             const newValue = valuesList.find(
               (item) => item.name === event.target.value
             );
-            if (newValue) setValue(newValue);
+            if (newValue) {
+              setValue(newValue)
+              setSelectValue(newValue.name)
+            };
+            onChange && onChange(newValue as SelectValue);
           }}
           disabled={disabled}
         >
