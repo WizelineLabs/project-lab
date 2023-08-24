@@ -19,7 +19,11 @@ import {
   getGitHubProjectsByEmail,
 } from "../../../models/profile.server";
 import { useLoaderData } from "@remix-run/react";
-import type { LoaderArgs, LoaderFunction, ActionFunction } from "@remix-run/node";
+import type {
+  LoaderArgs,
+  LoaderFunction,
+  ActionFunction,
+} from "@remix-run/node";
 import invariant from "tiny-invariant";
 import { z } from "zod";
 import { requireProfile } from "~/session.server";
@@ -63,9 +67,11 @@ export const loader: LoaderFunction = async ({ params }: LoaderArgs) => {
   }
 };
 
-export const validator = withZod(zfd.formData({
-  comentario: z.string().min(10),
-}));
+export const validator = withZod(
+  zfd.formData({
+    comentario: z.string().min(10),
+  })
+);
 
 export const action: ActionFunction = async ({ request }) => {
   const profile = await requireProfile(request);
