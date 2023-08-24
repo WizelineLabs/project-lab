@@ -19,10 +19,7 @@ import {
   getGitHubProjectsByEmail,
 } from "../../../models/profile.server";
 import { useLoaderData } from "@remix-run/react";
-import { ActionFunction,
-  type LoaderArgs,
-  type LoaderFunction,
-} from "@remix-run/node";
+import type { LoaderArgs, LoaderFunction, ActionFunction } from "@remix-run/node";
 import invariant from "tiny-invariant";
 import { z } from "zod";
 import { requireProfile } from "~/session.server";

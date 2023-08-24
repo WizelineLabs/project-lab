@@ -6,14 +6,14 @@ export async function createExperience(comentario: string, profileId: string){
         data: { comentario: comentario, profile: { connect: { id: profileId } } },
     })
     
-    return result
+    return result;
 }
 
 export async function getExperience() {
     const result =  prisma.experience.findMany({
         include: { profile: {select: {avatarUrl: true }}}
     });
-    return result
+    return result;
 };
 
 export async function updateExperience() {

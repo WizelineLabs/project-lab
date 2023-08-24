@@ -35,10 +35,10 @@ export default function Index() {
   return (
     <article>
       <HomeHeader>
-        <img src="/wizeletters.png" alt="Wizeline" width={190} />
+        <img src="/wizeletters.png" alt="Wizeline letters for homepage header" width={190} />
       </HomeHeader>
       <HomePageContainer>
-        <img src="/background.jpg" alt="Wizeline" style={{ width: "100%" }} />
+        <img src="/background.jpg" alt="Background fo the homepage" style={{ width: "100%" }} />
         <Stack
           direction={{ xs: "column", sm: "row" }}
           margin={{ xs: "20px", sm: "5px", md: "30px" }}
@@ -72,7 +72,7 @@ export default function Index() {
           )}
           <Button
             href="/projects"
-            className="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium css-1a9vgbr-MuiButtonBase-root-MuiButton-root"
+            variant="contained"
             sx={{
               width: "240px",
               height: "60px",
