@@ -18,7 +18,7 @@ import {
   getGitHubProfileByEmail,
   getGitHubProjectsByEmail,
 } from "../../../models/profile.server";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, useTransition } from "@remix-run/react";
 import type {
   LoaderArgs,
   LoaderFunction,
@@ -90,6 +90,7 @@ export const ProfileInfo = () => {
   const { githubProfileData, githubProjects } = useLoaderData<LoaderData>();
   const theme = useTheme();
   const lessThanMd = useMediaQuery(theme.breakpoints.down("md"));
+  const trasition = useTransition();
 
   if (
     githubProfileData === undefined ||
@@ -215,15 +216,18 @@ export const ProfileInfo = () => {
                     <Grid sx={{ display: "flex", justifyContent: "center" }}>
                       <Button
                         type="submit"
-                        className="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium css-1a9vgbr-MuiButtonBase-root-MuiButton-root"
+                        className="contained"
                         sx={{
                           width: "220px",
                           height: "50px",
                           fontSize: "1em",
                           marginTop: "15px",
                         }}
+                        disabled={!!trasition.submission}
                       >
-                        Add Experience
+                        {trasition.submission
+                          ? "Addign experience..."
+                          : "Add experience"}
                       </Button>
                     </Grid>
                   </ValidatedForm>
