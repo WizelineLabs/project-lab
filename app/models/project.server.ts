@@ -767,7 +767,7 @@ export async function searchProjects({
   `;
 
   const resourceFacets = await db.$queryRaw<FacetOutput[]>`
-    SELECT DISTINCT r.type as name, count(DISTINCT r.type) as count
+    SELECT DISTINCT r.type as name, count(DISTINCT r.id) as count
     FROM "Projects" p
     LEFT JOIN "Resource" r ON p."id" = r."projectId"
     WHERE ${projectIdsWhere} AND r.type NOT IN (${resource.length > 0 ? Prisma.join(resource) : ""
@@ -783,24 +783,24 @@ export async function searchProjects({
       const valuePairs = provider.map(value => value.split(' | '))
       const joined = valuePairs.map(pair => Prisma.join(pair))
       providerFacets = await db.$queryRaw<FacetOutput[]>`
-      SELECT r.type || ' | ' || r.provider as name, r.id, count(DISTINCT p.id) as count
+      SELECT r.type || ' | ' || r.provider as name, count(DISTINCT p.id) as count
       FROM "Projects" p
       LEFT JOIN "Resource" r ON p."id" = r."projectId"
       WHERE ${projectIdsWhere} AND (r.type,r.provider) NOT IN (VALUES (${Prisma.join(joined, "),(")})) AND r.type IN (${Prisma.join(resource)})
       AND r.provider IS NOT NULL
       AND r.id IS NOT NULL
-      GROUP BY r.id
+      GROUP BY r.type, r.provider
       ORDER BY count DESC
     `;
     } else {
       providerFacets = await db.$queryRaw<FacetOutput[]>`
-      SELECT r.type || ' | ' || r.provider as name, r.id, count(DISTINCT p.id) as count
+      SELECT r.type || ' | ' || r.provider as name, count(DISTINCT p.id) as count
       FROM "Projects" p
       LEFT JOIN "Resource" r ON p."id" = r."projectId"
       WHERE ${projectIdsWhere} AND r.type IN (${Prisma.join(resource)})
       AND r.provider IS NOT NULL
       AND r.id IS NOT NULL
-      GROUP BY r.id
+      GROUP BY r.type, r.provider
       ORDER BY count DESC
     `;
     }
