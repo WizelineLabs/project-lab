@@ -1,7 +1,8 @@
 import * as React from "react";
 import { useState } from "react";
-import type { LoaderFunction } from "@remix-run/node";
-import { useLoaderData, useSearchParams } from "@remix-run/react";
+import type { LoaderArgs } from "@remix-run/node";
+import { useSearchParams } from "@remix-run/react";
+import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import ProposalCard from "app/core/components/ProposalCard";
 import Header from "app/core/layouts/Header";
 import {
@@ -29,7 +30,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import { SortInput } from "app/core/components/SortInput";
 import { getProjectMembership, searchProjects } from "~/models/project.server";
 import { requireProfile } from "~/session.server";
-import type { ProjectStatus } from "~/models/status.server";
 import { getProjectStatuses } from "~/models/status.server";
 import { ongoingStage, ideaStage } from "~/constants";
 import Link from "~/core/components/Link";
@@ -41,37 +41,6 @@ import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import MembershipModal from "~/core/components/MembershipModal/index";
-
-export interface projectMembership {
-  active: boolean;
-  createdAt: string;
-  hoursPerWeek: number;
-  id: string;
-  practicedSkills: [
-    {
-      id: string;
-      name: string;
-    }
-  ];
-  profileId: string;
-  project: { name: string };
-  projectId: string;
-  role: [
-    {
-      id: string;
-      name: string;
-    }
-  ];
-  updatedAt: string;
-}
-
-type LoaderData = {
-  data: Awaited<ReturnType<typeof searchProjects>>;
-  ongoingStatuses: ProjectStatus[];
-  ideaStatuses: ProjectStatus[];
-  projectMembership: projectMembership[];
-  message: string;
-};
 
 const ITEMS_PER_PAGE = 100;
 const FACETS = [
@@ -97,7 +66,7 @@ interface Tabs {
   [key: string]: Tab;
 }
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: LoaderArgs) => {
   const profile = await requireProfile(request);
   const url = new URL(request.url);
   const page = Number(url.searchParams.get("page") || 0);
@@ -141,17 +110,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     take: ITEMS_PER_PAGE,
   });
 
-  return new Response(
-    JSON.stringify(
-      { data, ongoingStatuses, ideaStatuses, projectMembership },
-      (key, value) => (typeof value === "bigint" ? value.toString() : value) // return everything else unchanged
-    ),
-    {
-      headers: {
-        "Content-Type": "application/json; charset=utf-8",
-      },
-    }
-  );
+  return typedjson({ data, ongoingStatuses, ideaStatuses, projectMembership });
 };
 
 export default function Projects() {
@@ -177,7 +136,7 @@ export default function Projects() {
     projectMembership,
     ongoingStatuses,
     ideaStatuses,
-  } = useLoaderData() as LoaderData;
+  } = useTypedLoaderData<typeof loader>();
   const myPropQuery = "myProposals";
   const activeProjectsSearchParams = new URLSearchParams();
   const ideasSearchParams = new URLSearchParams();
