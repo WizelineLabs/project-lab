@@ -182,30 +182,44 @@ export async function consolidateProfilesByEmail(
   }
 }
 
-export async function searchProfiles(searchTerm: string) {
+export async function searchProfiles(
+  searchTerm: string,
+  project: string | null = null
+) {
   const select = Prisma.sql`
-    SELECT id, "preferredName" || ' ' || "lastName" || ' <' || "email" || '>' as name
+    SELECT "Profiles".id, "preferredName" || ' ' || "lastName" || ' <' || "email" || '>' as name
     FROM "Profiles"
   `;
   const orderBy = Prisma.sql`
     ORDER BY "preferredName", "lastName"
     LIMIT 50;
   `;
-  let result;
+  // where condition
+  let where = Prisma.sql``;
   if (searchTerm && searchTerm !== "") {
     const prefixSearch = `%${searchTerm}%`;
-    const where = Prisma.sql`WHERE "searchCol" like lower(unaccent(${prefixSearch}))`;
-    result = await prisma.$queryRaw`
-      ${select}
-      ${where}
-      ${orderBy}
-    `;
-  } else {
-    result = await prisma.$queryRaw`
-      ${select}
-      ${orderBy}
-    `;
+    where = Prisma.sql`WHERE "searchCol" like lower(unaccent(${prefixSearch}))`;
   }
+
+  //project condition
+  let projectJoin = Prisma.sql``;
+  let projectWhere = Prisma.sql``;
+  if (project) {
+    projectJoin = Prisma.sql`INNER JOIN "ProjectMembers" pm ON "Profiles".id = pm."profileId"`;
+    projectWhere = Prisma.sql`WHERE pm."projectId" = ${project}`;
+    if (searchTerm && searchTerm !== "") {
+      projectWhere = Prisma.sql`AND pm."projectId" = ${project}`;
+    }
+  }
+
+  // final query
+  let result = await prisma.$queryRaw`
+    ${select}
+    ${projectJoin}
+    ${where}
+    ${projectWhere}
+    ${orderBy}
+  `;
   return result;
 }
 

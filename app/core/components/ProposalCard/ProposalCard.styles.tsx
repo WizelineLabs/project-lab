@@ -4,6 +4,7 @@ export const ProposalCardWrap = styled.div`
   display: flex;
   flex-direction: column;
   position: relative;
+  font-size: 1rem;
 
   .ProposalCard__head {
     display: flex;
@@ -72,6 +73,7 @@ export const ProposalCardWrap = styled.div`
     }
   }
   .ProposalCard__status--display {
+    font-size: 1rem;
     height: 25px;
     font-weight: 700;
     line-height: 25px;

@@ -4,5 +4,7 @@ import { searchProfiles } from "~/models/profile.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
-  return json(await searchProfiles(url.searchParams.get("q") || ""));
+  const q = url.searchParams.get("q")
+  const project = url.searchParams.get("projectId")
+  return json(await searchProfiles(q || "", project || null));
 };
