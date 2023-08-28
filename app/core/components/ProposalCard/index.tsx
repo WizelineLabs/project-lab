@@ -11,6 +11,7 @@ import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import PersonIcon from "@mui/icons-material/Person";
 import HelpIcon from "@mui/icons-material/Help";
 import { ProposalCardWrap } from "./ProposalCard.styles";
+import { useNavigate } from "@remix-run/react";
 
 interface IProps {
   id: string | number;
@@ -29,15 +30,20 @@ interface IProps {
 }
 
 export const ProposalCard = (props: IProps) => {
+  const navigate = useNavigate();
   const stopEvent = (event: React.MouseEvent<HTMLElement>) =>
     event.stopPropagation();
 
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
 
+  const handleCardClick = () => {
+    navigate(`/projects/${props.id}`);
+  };
+
   return (
     <>
       <Card>
-        <CardActionArea sx={{ height: "100%" }} href={`/projects/${props.id}`}>
+        <CardActionArea sx={{ height: "100%" }} onClick={handleCardClick}>
           <CardContent>
             <ProposalCardWrap>
               <div className="ProposalCard__head">

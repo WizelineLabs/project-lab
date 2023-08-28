@@ -27,7 +27,7 @@ import ExpandMore from "@mui/icons-material/ExpandMore";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import CloseIcon from "@mui/icons-material/Close";
 import { SortInput } from "app/core/components/SortInput";
-import { getProjectMembership , searchProjects } from "~/models/project.server";
+import { getProjectMembership, searchProjects } from "~/models/project.server";
 import { requireProfile } from "~/session.server";
 import type { ProjectStatus } from "~/models/status.server";
 import { getProjectStatuses } from "~/models/status.server";
@@ -45,19 +45,23 @@ import MembershipModal from "~/core/components/MembershipModal/index";
 export interface projectMembership {
   active: boolean;
   createdAt: string;
-  hoursPerWeek: number
+  hoursPerWeek: number;
   id: string;
-  practicedSkills: [{
-    id: string;
-    name: string;
-  }];
+  practicedSkills: [
+    {
+      id: string;
+      name: string;
+    }
+  ];
   profileId: string;
-  project: { name: string; }
+  project: { name: string };
   projectId: string;
-  role: [{
-    id: string;
-    name: string;
-  }];
+  role: [
+    {
+      id: string;
+      name: string;
+    }
+  ];
   updatedAt: string;
 }
 
@@ -65,8 +69,8 @@ type LoaderData = {
   data: Awaited<ReturnType<typeof searchProjects>>;
   ongoingStatuses: ProjectStatus[];
   ideaStatuses: ProjectStatus[];
-  projectMembership: projectMembership[],
-  message: string,
+  projectMembership: projectMembership[];
+  message: string;
 };
 
 const ITEMS_PER_PAGE = 100;
@@ -78,7 +82,9 @@ const FACETS = [
   "location",
   "tier",
   "role",
-  "missing"
+  "missing",
+  "resource",
+  "provider",
 ];
 
 interface Tab {
@@ -98,6 +104,8 @@ export const loader: LoaderFunction = async ({ request }) => {
   const search = url.searchParams.get("q") || "";
   const status = url.searchParams.getAll("status");
   const skill = url.searchParams.getAll("skill");
+  const resource = url.searchParams.getAll("resource");
+  const provider = url.searchParams.getAll("provider");
   const label = url.searchParams.getAll("label");
   const discipline = url.searchParams.getAll("discipline");
   const location = url.searchParams.getAll("location");
@@ -107,7 +115,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   const field = url.searchParams.get("field") || "";
   const order = url.searchParams.get("order") || "";
   const statuses = await getProjectStatuses();
-  
+
   const ongoingStatuses = statuses.filter(
     (status) => status.stage === ongoingStage
   );
@@ -125,12 +133,14 @@ export const loader: LoaderFunction = async ({ request }) => {
     tier,
     role,
     missing,
+    resource,
+    provider,
     profileId: profile.id,
     orderBy: { field, order },
     skip: ITEMS_PER_PAGE * page,
     take: ITEMS_PER_PAGE,
   });
-  
+
   return new Response(
     JSON.stringify(
       { data, ongoingStatuses, ideaStatuses, projectMembership },
@@ -161,6 +171,8 @@ export default function Projects() {
       roleFacets,
       missingFacets,
       count,
+      resourceFacets,
+      providerFacets,
     },
     projectMembership,
     ongoingStatuses,
@@ -171,10 +183,10 @@ export default function Projects() {
   const ideasSearchParams = new URLSearchParams();
   let membershipCookie;
 
-  function getCookie(name:string) {
+  function getCookie(name: string) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts?.pop()?.split(';').shift();
+    if (parts.length === 2) return parts?.pop()?.split(";").shift();
   }
 
   ongoingStatuses.forEach((status) => {
@@ -225,9 +237,16 @@ export default function Projects() {
 
   const deleteFilterUrl = (filter: string, value: string | null) => {
     const newParams = new URLSearchParams(searchParams.toString());
-    const newFilter = newParams.getAll(filter).filter((item) => item != value);
+    let newFilter = newParams.getAll(filter).filter((item) => item != value);
     newParams.delete(filter);
     newFilter.forEach((item) => newParams.append(filter, item));
+    if (filter === "resource") {
+      let newProviderFilter = newParams
+        .getAll("provider")
+        .filter((item) => !item.startsWith(value + " | "));
+      newParams.delete("provider");
+      newProviderFilter.forEach((item) => newParams.append("provider", item));
+    }
     return `?${newParams.toString()}`;
   };
 
@@ -319,11 +338,9 @@ export default function Projects() {
 
   const viewOption = searchParams.get("view") || "card";
 
-
-  if (typeof window !== 'undefined') {
-    membershipCookie = getCookie('checkMembership');
+  if (typeof window !== "undefined") {
+    membershipCookie = getCookie("checkMembership");
   }
-
 
   return (
     <>
@@ -619,6 +636,64 @@ export default function Projects() {
                   </AccordionDetails>
                 </Accordion>
               )}
+
+              {resourceFacets.length > 0 && (
+                <Accordion disableGutters>
+                  <AccordionSummary
+                    expandIcon={<ExpandMore />}
+                    aria-controls="panel2a-controls"
+                    id="panel2a-header"
+                  >
+                    <strong>Resources</strong>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <ul>
+                      {resourceFacets.map((item) => (
+                        <li key={item.name}>
+                          <Link
+                            id={item.name}
+                            color="#AF2E33"
+                            to={`?${searchParams.toString()}&resource=${
+                              item.name
+                            }`}
+                          >
+                            {item.name} ({item.count})
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </AccordionDetails>
+                </Accordion>
+              )}
+              {providerFacets.length > 0 && (
+                <Accordion disableGutters>
+                  <AccordionSummary
+                    expandIcon={<ExpandMore />}
+                    aria-controls="panel2a-controls"
+                    id="panel2a-header"
+                  >
+                    <strong>Provider</strong>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <ul>
+                      {providerFacets.map((item) => (
+                        <li key={item.name}>
+                          <Link
+                            id={item.name}
+                            color="#AF2E33"
+                            to={`?${searchParams.toString()}&provider=${
+                              item.name
+                            }`}
+                          >
+                            {item.name} ({item.count})
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </AccordionDetails>
+                </Accordion>
+              )}
+
               {locationsFacets.length > 0 && (
                 <Accordion disableGutters>
                   <AccordionSummary
@@ -721,10 +796,13 @@ export default function Projects() {
                     <TableRow>
                       <TableCell>Name</TableCell>
                       <TableCell>
-                        <a href="https://wizeline.atlassian.net/wiki/spaces/wiki/pages/3075342381/Innovation+Tiers"
+                        <a
+                          href="https://wizeline.atlassian.net/wiki/spaces/wiki/pages/3075342381/Innovation+Tiers"
                           target="_blank"
                           rel="noreferrer"
-                          style={{ color: 'inherit' }}>Tier
+                          style={{ color: "inherit" }}
+                        >
+                          Tier
                         </a>
                       </TableCell>
                       <TableCell>Status</TableCell>
@@ -737,7 +815,14 @@ export default function Projects() {
                   <TableBody>
                     {projects.map((item, i) => (
                       <TableRow key={i}>
-                        <TableCell><a href={`/projects/${item.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>{item.name}</a></TableCell>
+                        <TableCell>
+                          <a
+                            href={`/projects/${item.id}`}
+                            style={{ color: "inherit", textDecoration: "none" }}
+                          >
+                            {item.name}
+                          </a>
+                        </TableCell>
                         <TableCell>
                           <Chip
                             component="a"
@@ -747,10 +832,24 @@ export default function Projects() {
                             label={item.tierName}
                           />
                         </TableCell>
-                        <TableCell><a href={`/projects/${item.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>{item.status}</a></TableCell>
+                        <TableCell>
+                          <a
+                            href={`/projects/${item.id}`}
+                            style={{ color: "inherit", textDecoration: "none" }}
+                          >
+                            {item.status}
+                          </a>
+                        </TableCell>
                         <TableCell>{item.projectMembers}</TableCell>
                         <TableCell>{item.votesCount}</TableCell>
-                        <TableCell><a href={`/projects/${item.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>{item.searchSkills}</a></TableCell>
+                        <TableCell>
+                          <a
+                            href={`/projects/${item.id}`}
+                            style={{ color: "inherit", textDecoration: "none" }}
+                          >
+                            {item.searchSkills}
+                          </a>
+                        </TableCell>
                         <TableCell>{item.resourcesCount}</TableCell>
                       </TableRow>
                     ))}
