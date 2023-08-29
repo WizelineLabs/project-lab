@@ -20,7 +20,7 @@ import TextEditor from "../TextEditor";
 import { ValidatedForm } from "remix-validated-form";
 import Markdown from "marked-react";
 import type { internsComments as CommentType, Profiles } from "@prisma/client";
-import { validateNavigationRedirect } from '~/utils'
+import { validateNavigationRedirect } from '~/utils';
 
 type CommentsArrayType = Awaited<ReturnType<typeof getCommentsApplicant>>;
 type CommentItemType = CommentType & {

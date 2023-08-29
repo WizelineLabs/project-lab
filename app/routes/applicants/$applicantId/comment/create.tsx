@@ -7,7 +7,7 @@ import { validationError } from "remix-validated-form";
 import { createComment } from "~/models/applicantComment.server";
 
 export const action: ActionFunction = async ({ request, params }) => {
-  invariant(params.projectId, "projectId could not be found");
+  invariant(params.applicantId, "applicantId could not be found");
   const applicantId = params.applicantId;
   const profile = await requireProfile(request);
   const result = await validator.validate(await request.formData());

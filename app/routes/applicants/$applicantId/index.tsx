@@ -11,7 +11,8 @@ import Grid from "@mui/material/Unstable_Grid2";
 import { checkPermission } from "~/models/authorization.server";
 import type { Roles } from "~/models/authorization.server";
 import { requireProfile, requireUser } from "~/session.server";
-
+import MDEditorStyles from "@uiw/react-md-editor/markdown-editor.css";
+import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
 import ModalBox from "~/core/components/ModalBox";
 import { useEffect, useState } from "react";
 import { ValidatedForm } from "remix-validated-form";
@@ -24,6 +25,14 @@ import RegularSelect from "~/core/components/RegularSelect";
 import { validateNavigationRedirect } from '~/utils'
 import AplicantComments from "~/core/components/ApplicantComments";
 import { getCommentsApplicant } from "~/models/applicantComment.server";
+
+export function links() {
+  return [
+    { rel: "stylesheet", href: MDEditorStyles },
+    { rel: "stylesheet", href: MarkdownStyles },
+  ];
+}
+
 
 type ProfileValue = {
   id: string;

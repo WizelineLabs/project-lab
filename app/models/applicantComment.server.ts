@@ -17,6 +17,12 @@ export async function createComment(
     });
   }
 
+  export async function getComment(id: string) {
+    return await db.internsComments.findUniqueOrThrow({
+      where: { id },
+    });
+  }
+
   export async function getCommentsApplicant(applicantId: number) {
     return await db.internsComments.findMany({
       where: { applicantId, parentId: null },
@@ -24,3 +30,19 @@ export async function createComment(
       include: { author: true, children: { include: { author: true } } },
     });
   }
+
+  export async function updateComment(id: string, body: string) {
+    return await db.internsComments.update({
+      where: { id },
+      data: {
+        body,
+      },
+    });
+  }
+
+
+export async function deleteComment(id: string) {
+  return await db.internsComments.delete({
+    where: { id },
+  });
+}
