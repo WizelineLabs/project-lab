@@ -555,6 +555,17 @@ async function seed() {
       department: "Engineering",
     },
   });
+  await db.profiles.upsert({
+    where: { email: "carlos.milanoduarte@in.wizeline.com" },
+    update: {},
+    create: {
+      email: "carlos.milanoduarte@in.wizeline.com",
+      firstName: "Carlos",
+      preferredName: "Carlos",
+      lastName: "Milano",
+      department: "Engineering",
+    },
+  });
   console.info("Profiles created, starting projects upsert");
 
   const pH = await db.projects.upsert({

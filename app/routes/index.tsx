@@ -1,120 +1,93 @@
-import { Link } from "@remix-run/react";
-import {
-  Panel,
-  Greet,
-  StyledLoginForm,
-  Footer,
-  LoginPageContainer,
-} from "./login.styles";
+import { useLoaderData } from "@remix-run/react";
+import { HomePageContainer, HomeHeader } from "./login.styles";
 import { useOptionalUser } from "~/utils";
-import { Grid } from "@mui/material";
+import { Button, Stack } from "@mui/material";
+import ExperienceArea from "~/core/components/ExperienceComments";
+import type { LoaderFunction } from "@remix-run/server-runtime";
+import { getExperience } from "~/models/experience.server";
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const info = await getExperience();
+
+  return {
+    info,
+  };
+};
+
+type experienceInfo = {
+  comentario: string | null;
+  id: number;
+  profile: { avatarUrl: string | null } | null;
+};
 
 export default function Index() {
   const user = useOptionalUser();
+
+  const { info } = useLoaderData();
+
+  const shuffledInfo = info ? [...info].sort(() => Math.random() - 0.5) : [];
+
+  const justFour = shuffledInfo.slice(0, 4);
+
   return (
-    <LoginPageContainer>
-      <Panel>
-        <img src="/wizeletters.png" alt="Wizeline" width={140} />
-        <StyledLoginForm>
-          <Greet>Welcome back Wizeliner!</Greet>
-          {user ? (
-            <Link
-              to="/projects"
-              className="flex items-center justify-center rounded-md border border-transparent bg-white px-4 py-3 text-base font-medium text-yellow-700 shadow-sm hover:bg-yellow-50 sm:px-8"
-            >
-              Projects
-            </Link>
-          ) : (
-            <Link
-              to="/login"
-              className="flex items-center justify-center rounded-md bg-yellow-500 px-4 py-3 font-medium text-white hover:bg-yellow-600"
+    <article>
+      <HomeHeader>
+        <img
+          src="/wizeletters.png"
+          alt="Wizeline letters for homepage header"
+          width={190}
+        />
+      </HomeHeader>
+      <HomePageContainer>
+        <img
+          src="/background.jpg"
+          alt="Background fo the homepage"
+          style={{ width: "100%" }}
+        />
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          margin={{ xs: "20px", sm: "5px", md: "30px" }}
+        >
+          {!info && <p>No experience</p>}
+          {info && (
+            <>
+              {justFour.map((experience: experienceInfo) => (
+                <ExperienceArea
+                  key={experience.id}
+                  imag={experience.profile?.avatarUrl || ""}
+                  text={experience.comentario || ""}
+                />
+              ))}
+            </>
+          )}
+        </Stack>
+        <Stack alignItems="center" spacing={2} sx={{ margin: "20px" }}>
+          {!user && (
+            <Button
+              href="/login"
+              className="contained"
+              sx={{
+                width: "240px",
+                height: "60px",
+                fontSize: "1.5em",
+              }}
             >
               Log In
-            </Link>
+            </Button>
           )}
-          <Footer>
-            <h3>Built with</h3>
-            <Grid container spacing={2} justifyContent="space-evenly">
-              {[
-                {
-                  src: "https://avatars.githubusercontent.com/u/64235328?s=200&v=4",
-                  alt: "Remix.run",
-                  href: "https//remix.run/",
-                },
-                {
-                  src: "https://d1.awsstatic.com/product-marketing/Lightsail/NotALogoHires1024t.bb64e1dae756b668764acf6ceb27ae987a90fd47.png",
-                  alt: "AWS Lightsail",
-                  href: "https://aws.amazon.com/lightsail/",
-                },
-                {
-                  src: "http://logonoid.com/images/postgresql-logo.png",
-                  alt: "Postgres",
-                  href: "https://www.postgresql.org/",
-                },
-                {
-                  src: "https://user-images.githubusercontent.com/1500684/157764484-ad64a21a-d7fb-47e3-8669-ec046da20c1f.svg",
-                  alt: "Prisma",
-                  href: "https://prisma.io",
-                },
-                {
-                  src: "https://seeklogo.com/images/M/material-ui-logo-5BDCB9BA8F-seeklogo.com.png",
-                  alt: "Material UI",
-                  href: "https://mui.com/core/",
-                },
-                {
-                  src: "https://user-images.githubusercontent.com/1500684/157764454-48ac8c71-a2a9-4b5e-b19c-edef8b8953d6.svg",
-                  alt: "Cypress",
-                  href: "https://www.cypress.io",
-                },
-                {
-                  src: "https://user-images.githubusercontent.com/1500684/157772386-75444196-0604-4340-af28-53b236faa182.svg",
-                  alt: "MSW",
-                  href: "https://mswjs.io",
-                },
-                {
-                  src: "https://user-images.githubusercontent.com/1500684/157772447-00fccdce-9d12-46a3-8bb4-fac612cdc949.svg",
-                  alt: "Vitest",
-                  href: "https://vitest.dev",
-                },
-                {
-                  src: "https://user-images.githubusercontent.com/1500684/157772662-92b0dd3a-453f-4d18-b8be-9fa6efde52cf.png",
-                  alt: "Testing Library",
-                  href: "https://testing-library.com",
-                },
-                {
-                  src: "https://user-images.githubusercontent.com/1500684/157772934-ce0a943d-e9d0-40f8-97f3-f464c0811643.svg",
-                  alt: "Prettier",
-                  href: "https://prettier.io",
-                },
-                {
-                  src: "https://user-images.githubusercontent.com/1500684/157772990-3968ff7c-b551-4c55-a25c-046a32709a8e.svg",
-                  alt: "ESLint",
-                  href: "https://eslint.org",
-                },
-                {
-                  src: "https://user-images.githubusercontent.com/1500684/157773063-20a0ed64-b9f8-4e0b-9d1e-0b65a3d4a6db.svg",
-                  alt: "TypeScript",
-                  href: "https://typescriptlang.org",
-                },
-              ].map((img) => (
-                <Grid item key={img.href}>
-                  <a
-                    href={img.href}
-                    className="flex h-16 w-32 justify-center p-1 grayscale transition hover:grayscale-0 focus:grayscale-0"
-                  >
-                    <img
-                      height={32}
-                      alt={img.alt}
-                      src={img.src}
-                      className="object-contain"
-                    />
-                  </a>
-                </Grid>
-              ))}
-            </Grid>
-          </Footer>
-        </StyledLoginForm>
-      </Panel>
-    </LoginPageContainer>
+          <Button
+            href="/projects"
+            variant="contained"
+            sx={{
+              width: "240px",
+              height: "60px",
+              fontSize: "1.5em",
+            }}
+          >
+            View Projects
+          </Button>
+        </Stack>
+      </HomePageContainer>
+    </article>
   );
 }

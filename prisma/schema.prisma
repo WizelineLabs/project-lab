@@ -97,6 +97,7 @@ model Profiles {
   githubUser             String?
   applicants             Applicant[]
   internsComments        internsComments[]
+  experience             Experience[]
 
   // here "name" was changed for "map"
   @@index([email], map: "profiles_email_idx")
@@ -445,6 +446,9 @@ model Applicant {
   @@index([status], map: "applicant_status_idx")
 }
 
-
-
-
+model Experience{
+  id            Int       @id @default(autoincrement())
+  comentario    String  
+  profileId     String?
+  profile       Profiles? @relation(fields: [profileId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+}
