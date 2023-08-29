@@ -42,6 +42,10 @@ const Header = ({ title }: IProps) => {
       text: "Profile",
     },
     {
+      to: "/",
+      text: "Home",
+    },
+    {
       onClick: async () => {
         submit(null, { method: "post", action: "/logout" });
       },
