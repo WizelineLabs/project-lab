@@ -1,4 +1,4 @@
-import type { Profiles, Projects } from "@prisma/client";
+import type { Profiles, Projects, User } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import { defaultStatus, contributorPath } from "~/constants";
 import { joinCondition, prisma as db } from "~/db.server";
@@ -64,6 +64,18 @@ interface ProjectListOutput {
 export class SearchProjectsError extends Error {
   name = "SearchProjectsError";
   message = "There was an error while searching for projects.";
+}
+
+export async function getProjectByUserId(id: User["id"]){
+  const result = await db.$queryRaw<Projects[]>`
+    SELECT p.id FROM "Profiles" p
+    INNER JOIN "User" u ON u.email = p.email
+    LEFT JOIN "Projects" pj ON pj.ownerId = p.id
+    WHERE u.id = ${id}
+  `;
+
+  if (result.length != 1 || !result[0]) return null;
+  else return result[0];
 }
 
 export function isProjectTeamMember(

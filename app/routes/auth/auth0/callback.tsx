@@ -9,10 +9,15 @@ export const loader: LoaderFunction = async ({ request }) => {
   const user = await authenticator.authenticate("auth0", request, {
     failureRedirect: "/login",
   });
+
+  const isCompanyUser = user.email.endsWith("@in.wizeline.com");
+
+  const redirectTo = isCompanyUser ? "/projects" : "/intershipProjects";
+
   return createUserSession({
     request,
     userId: user.id,
     remember: false,
-    redirectTo: returnTo || "/projects",
+    redirectTo: returnTo || redirectTo,
   });
 };
