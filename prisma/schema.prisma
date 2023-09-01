@@ -96,6 +96,7 @@ model Profiles {
   votes                  Vote[]
   githubUser             String?
   applicants             Applicant[]
+  internsComments        internsComments[]
   experience             Experience[]
 
   // here "name" was changed for "map"
@@ -386,6 +387,20 @@ model RelatedProjects {
   @@unique([projectAId, projectBId])
 }
 
+model internsComments {
+  id          String      @id @default(uuid())
+  body        String
+  authorId    String
+  applicantId Int
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @default(now())
+  parentId    String?
+  author      Profiles    @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  parent      internsComments?  @relation("ParentComment", fields: [parentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  applicant   Applicant   @relation(fields: [applicantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  children    internsComments[] @relation("ParentComment")
+}
+
 model Applicant {
   id                     Int       @id @default(autoincrement())
   createdAt              DateTime  @default(now())
@@ -419,12 +434,14 @@ model Applicant {
   howDidYouHearAboutUs   String
   participatedAtWizeline Boolean
   wizelinePrograms       String?
-  comments               String?
   status                 String    @default("DRAFT")
   mentorId               String?
+  comments               String?
+  generalComments        internsComments[]
   projectId              String?
   mentor                 Profiles? @relation(fields: [mentorId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   project                Projects? @relation(fields: [projectId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
 
   @@index([status], map: "applicant_status_idx")
 }

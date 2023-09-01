@@ -57,7 +57,6 @@ fs.createReadStream(csvFileName)
         row["Have you participated in any program at Wizeline before?"] ==
         "Yes",
       wizelinePrograms: row["Which Wizeline program?"] as string,
-      comments: row["Any comments?"] as string,
     };
     try {
       await prisma.applicant.upsert({

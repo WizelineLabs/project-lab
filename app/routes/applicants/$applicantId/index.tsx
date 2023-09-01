@@ -11,7 +11,8 @@ import Grid from "@mui/material/Unstable_Grid2";
 import { checkPermission } from "~/models/authorization.server";
 import type { Roles } from "~/models/authorization.server";
 import { requireProfile, requireUser } from "~/session.server";
-
+import MDEditorStyles from "@uiw/react-md-editor/markdown-editor.css";
+import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
 import ModalBox from "~/core/components/ModalBox";
 import { useEffect, useState } from "react";
 import { ValidatedForm } from "remix-validated-form";
@@ -22,6 +23,16 @@ import { getProjectsList } from "~/models/project.server";
 import { type SubmitOptions, useFetcher, useNavigation } from "@remix-run/react";
 import RegularSelect from "~/core/components/RegularSelect";
 import { validateNavigationRedirect } from '~/utils'
+import AplicantComments from "~/core/components/ApplicantComments";
+import { getCommentsApplicant } from "~/models/applicantComment.server";
+
+export function links() {
+  return [
+    { rel: "stylesheet", href: MDEditorStyles },
+    { rel: "stylesheet", href: MarkdownStyles },
+  ];
+}
+
 
 type ProfileValue = {
   id: string;
@@ -62,13 +73,18 @@ export const validator = withZod(
 
 export const loader = async ({ params, request }: LoaderArgs) => {
   invariant(params.applicantId, "projectId not found");
+  
   const projects = await getProjectsList();
+  const applicantId = params.applicantId;
+  const comments = await getCommentsApplicant(parseInt(applicantId as string));
   const applicant = await getApplicantById(params.applicantId);
   if (!applicant) {
     throw new Response("Not Found", { status: 404 });
   }
 
   const profile = await requireProfile(request);
+  const profileId = profile.id;
+
   const user = await requireUser(request);
   const canEditProject = checkPermission(
     profile.id,
@@ -78,11 +94,11 @@ export const loader = async ({ params, request }: LoaderArgs) => {
     applicant
   );
 
-  return typedjson({ applicant, projects, canEditProject });
+  return typedjson({ applicant, projects, canEditProject, applicantId, profileId, comments });
 };
 
 export default function Applicant() {
-  const { applicant, projects, canEditProject } = useTypedLoaderData<typeof loader>();
+  const { applicant, projects, canEditProject, applicantId, profileId, comments } = useTypedLoaderData<typeof loader>();
   const [openManageModal, setOpenManageModal] = useState(false);
   const [mentorSelected, setMentorSelected] = useState<ProfileValue | null>({
     id: "",
@@ -283,6 +299,15 @@ export default function Applicant() {
           )}
         </Paper>
       </Container>
+    
+      <Container>
+        <AplicantComments
+            comments={comments}
+            applicantId={applicantId}
+            profileId={profileId}
+          />
+      </Container>
+      
       <ModalBox close={handleCloseModal} open={openManageModal}>
         <h2>Select project and mentor</h2>
         <ValidatedForm validator={validator} method="post" action="./hold" defaultValues={{project: {id: "", name: ""}}}>
