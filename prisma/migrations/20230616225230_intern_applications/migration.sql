@@ -46,3 +46,12 @@ ALTER TABLE "Applicant" ADD CONSTRAINT "Applicant_mentorId_fkey" FOREIGN KEY ("m
 
 -- AddForeignKey
 ALTER TABLE "Applicant" ADD CONSTRAINT "Applicant_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Projects"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+--- CreateIndex
+CREATE UNIQUE INDEX "Applicant_email_key" ON "Applicant"("email");
+
+-- CreateIndex
+CREATE INDEX "applicant_status_idx" ON "Applicant"("status");
+
+-- AlterTable
+ALTER TABLE "Profiles" ALTER COLUMN "preferredName" SET NOT NULL;
