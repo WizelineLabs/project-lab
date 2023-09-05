@@ -223,6 +223,7 @@ model Projects {
   resources              Resource[]
   projectBoard           String?
   applicants             Applicant[]
+  githubActivity         GitHubActivity[]
 
   // here also the change of name for map
   @@index([ownerId], map: "projects_owner_id_idx")
@@ -434,4 +435,14 @@ model Experience{
   comentario    String  
   profileId     String?
   profile       Profiles? @relation(fields: [profileId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+}
+
+model GitHubActivity {
+  id            Int         @id @default(autoincrement())
+  typeEvent     String
+  created_at    String
+  author        String
+  avatar_url    String
+  projectId     String?
+  project       Projects? @relation(fields: [projectId], references: [id], onDelete: SetNull, onUpdate: Cascade)
 }
