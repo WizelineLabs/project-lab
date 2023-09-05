@@ -1,100 +1,49 @@
-import React from 'react';
-import { Button, Checkbox, Container, FormControlLabel, Grid, Radio, RadioGroup} from '@mui/material';
-import TextInput from '../../../core/components/FormFields/TextInput';
-import DatePickerInput from '~/core/components/FormFields/DatePicker';
+import { Button, Checkbox, Container, FormControlLabel, Grid, } from '@mui/material';
+import LabeledTextField from '~/core/components/LabeledTextField';
 import { withZod } from '@remix-validated-form/with-zod';
 import { z } from "zod";
-import { createForm } from '~/models/applicant.server';
 import { ValidatedForm } from "remix-validated-form";
-import { redirect } from 'remix-typedjson';
 import { zfd } from "zod-form-data";
-import type { ActionFunction,} from "@remix-run/node";
-import { requireProfile } from '~/session.server';
-//import Projects from '../projects';
+import SelectField from '~/core/components/FormFields/SelectField';
 
 export const validator = withZod(
   zfd.formData({
-    email: z.string(),
-    personalEmail: z.string(),
-    fullName: z.string(),
-    nationality: z.string(),
-    country: z.string(),
-    dayOfBirth: z.date(),
-    homeAddress: z.string(),
-    phone: z.string(),
-    universityEmail: z.string(),
-    emergencyContactName: z.string(),
-    emergencyContactPhone: z.string(),
-    emergencyRelationship: z.string(),
-    gender: z.string(),
-    englishLevel: z.string(),
-    university: z.string(),
-    campus: z.string(),
-    major: z.string(),
-    semester: z.string(),
-    graduationDate: z.date(),
-    interest: z.string(),
-    experience: z.string(),
-    cvLink: z.string(),
-    interestedRoles: z.string(),
-    preferredTools: z.string(),
-    startDate: z.date(),
-    endDate: z.date(),
-    hoursPerWeek: z.number(),
-    howDidYouHearAboutUs: z.string(),
-    participatedAtWizeline: z.boolean(),
-    wizelinePrograms: z.string(),
-    comments: z.string(),
+    email: z.string().email({message: "This field is Required"}).min(1), //For the moment this is for testing, once the login with LinkdIn is implemented, I will take the email with which you are logged in.
+    personalEmail: z.string().email({message: "This field is Required"}).min(1),
+    fullName: z.string().min(1,{message: "This field is Required"}),
+    nationality: z.string().min(1,{message: "This field is Required"}),
+    country: z.string().min(1,{message: "This field is Required"}),
+    dayOfBirth: z.string().min(1,{message: "This field is Required"}), 
+    homeAddress: z.string().min(1,{message: "This field is Required"}),
+    phone: z.string().regex(
+      /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/im, 
+      'Invalid phone number',
+    ),
+    universityEmail: z.string().email().optional(),
+    emergencyContactName: z.string().optional(),
+    emergencyContactPhone: z.string().optional(),
+    emergencyRelationship: z.string().optional(),
+    gender: z.string().min(1,{message: "This field is Required"}),
+    englishLevel: z.string().min(1,{message: "This field is Required"}),
+    university: z.string().min(1,{message: "This field is Required"}),
+    campus: z.string().optional(),
+    major: z.string().min(1,{message: "This field is Required"}),
+    semester: z.string().min(1,{message: "This field is Required"}),
+    graduationDate: z.string().min(1,{message: "This field is Required"}), 
+    interest: z.string().min(1,{message: "This field is Required"}),
+    experience: z.string().min(1,{message: "This field is Required"}),
+    cvLink: z.string().url({message: "This field is Required"}).min(1),
+    interestedRoles: z.string().optional(),
+    preferredTools: z.string().optional(),
+    startDate: z.string().min(1,{message: "This field is Required"}), 
+    endDate: z.string().min(1,{message: "This field is Required"}), 
+    hoursPerWeek: z.string().min(1,{message: "This field is Required"}), 
+    howDidYouHearAboutUs: z.string().min(1,{message: "This field is Required"}),
+    participatedAtWizeline: z.string().min(1,{message: "This field is Required"}),
+    wizelinePrograms: z.string().optional(),
+    comments: z.string().optional(),
   })
 );
-
-export const action: ActionFunction = async ({ request }) => {
-    const profile = await requireProfile(request);
-    //const project = await requireProject(request);
-    const result = await validator.validate(await request.formData());
-    
-
-    if (!result) {
-      throw new Response("Error", {
-        status: 400,
-      });
-    }
-    await createForm(
-      result?.data?.email as string,
-      result?.data?.personalEmail as string,
-      result?.data?.fullName as string,
-      result?.data?.nationality as string,
-      result?.data?.country as string,
-      result?.data?.dayOfBirth as Date,
-      result?.data?.homeAddress as string,
-      result?.data?.phone as string,
-      result?.data?.universityEmail as string,
-      result?.data?.emergencyContactName as string,
-      result?.data?.emergencyContactPhone as string,
-      result?.data?.emergencyRelationship as string,
-      result?.data?.gender as string,
-      result?.data?.englishLevel as string,
-      result?.data?.university as string,
-      result?.data?.campus as string,
-      result?.data?.major as string,
-      result?.data?.semester as string,
-      result?.data?.graduationDate as Date,
-      result?.data?.interest as string,
-      result?.data?.experience as string,
-      result?.data?.cvLink as string,
-      result?.data?.interestedRoles as string,
-      result?.data?.preferredTools as string,
-      result?.data?.startDate as Date,
-      result?.data?.endDate as Date,
-      result?.data?.hoursPerWeek as number,
-      result?.data?.howDidYouHearAboutUs as string,
-      result?.data?.participatedAtWizeline as boolean,
-      result?.data?.wizelinePrograms as string,
-      result?.data?.comments as string,
-      profile.id
-    );
-    return redirect('/projects/');
-  };
   
   export default function FormPage() {
     return (
@@ -109,229 +58,335 @@ export const action: ActionFunction = async ({ request }) => {
       </h3>
       <ValidatedForm 
         validator={validator}
-        action='./hold'
-        defaultValues={{
-          email: "",
-          personalEmail: "",
-          gender: "",
-          fullName: "",
-          nationality: "",
-          country: "",
-          dayOfBirth: new Date(),
-          homeAddress: "",
-          phone: "",
-          university: "",
-          campus: "",
-          universityEmail: "",
-          emergencyContactName: "",
-          emergencyRelationship: "",
-          emergencyContactPhone: "",
-          experience: "",
-          englishLevel: "",
-          major: "",
-          semester: "",
-          graduationDate: new Date(),
-          interest: "",
-          cvLink: "",
-          interestedRoles: "",
-          preferredTools: "",
-          startDate: new Date(),
-          endDate: new Date(),
-          hoursPerWeek: 1,
-          howDidYouHearAboutUs: "",
-          participatedAtWizeline: false,
-          wizelinePrograms: "",
-          comments: "",
-        }} 
+        action='./createapplicant'
         method='post'
         >
         <Grid container spacing={10}>
           <Grid item xs={6}>
-          <TextInput
+          <LabeledTextField
               label="Email"
-              id='outlined-basic-email'
+              placeholder='Email'
               name="email"
+              fullWidth
+              type='email'
+              style={{marginBottom: '20px'}}
             />
-          <TextInput
+          <LabeledTextField
               label="Personal email"
-              id='outlined-basic-personalEmail'
+              placeholder='Personal email'
               name="personalEmail"
+              fullWidth
+              type='email'
+              style={{marginBottom: '20px'}}
             />
-            <RadioGroup name='gender' id='radio-buttons-group-gender'>
-            <FormControlLabel value="Male" control={<Radio />} label="Male" />
-            <FormControlLabel value="Female" control={<Radio />} label="Female" />
-            <FormControlLabel value="Non-binary" control={<Radio />} label="Non-binary" />
-            <FormControlLabel value="Prefer not to say" control={<Radio />} label="Prefer not to say" />
-            <FormControlLabel value="Other" control={<Radio />} label="Other" />
-            </RadioGroup>
-
-            <TextInput
+            <SelectField
+              name="gender"
+              label="I identify as:"
+              options={[
+                "Male", 
+                "Female", 
+                "Non-binary", 
+                "Prefer not to say", 
+              ]}
+              style={{ width: '100%', marginBottom: '20px' }}
+            />
+            <LabeledTextField
               label="Full Name"
+              placeholder='Full Name'
               name="fullName"
-              id="outlined-basic-fullName"
+              fullWidth
+              type='text'
+              style={{marginBottom: '20px'}}
             />
-            <TextInput
+            <LabeledTextField
               label="Nationality"
+              placeholder='Full Name'
               name="nationality"
-              id='outlined-basic-nationality'
+              fullWidth
+              type='text'
+              style={{marginBottom: '20px'}}
             />
-            <RadioGroup name="country" id='radio-buttons-group-country'>
-              <FormControlLabel value="Canada" control={<Radio />} label="Canada" />
-              <FormControlLabel value="Colombia" control={<Radio />} label="Colombia" />
-              <FormControlLabel value="Mexico" control={<Radio />} label="Mexico" />
-              <FormControlLabel value="Spain" control={<Radio />} label="Spain" />
-              <FormControlLabel value="United States" control={<Radio />} label="United States" />
-              <FormControlLabel value="Vietnam" control={<Radio />} label="Vietnam" />
-              <FormControlLabel value="Other" control={<Radio />} label="Other" />
-            </RadioGroup>
-
-            <DatePickerInput
+            <SelectField
+              name="country"
+              label="Country of residence:"
+              options={[
+                "Canada",
+                "Colombia",
+                "Mexico",
+                "Spain",
+                "United States",
+                "Vietnam",
+              ]}
+              style={{ width: '100%', marginBottom: '20px' }}
+            />
+            <LabeledTextField
+              name="dayOfBirth"
               label="Date of birth"
+              fullWidth
+              type='date'
+              style={{marginBottom: '20px'}}
             />
-            <TextInput
+            <LabeledTextField
               label="Home adress"
+              placeholder='Home adress'
               name="homeAddress"
-              id='outlined-basic-homeAdress'
+              fullWidth
+              type='text'
+              style={{marginBottom: '20px'}}
             />
-            <TextInput
+            <LabeledTextField
               label="Phone number"
+              placeholder='Phone number'
               name="phone"
-              id='outlined-basic-phone'
+              fullWidth
+              type='text'
+              style={{marginBottom: '20px'}}
             />
-            <RadioGroup name="university" id='radio-buttons-group-university'>
-              <FormControlLabel value="Instituto Tecnológico Superior de Ciudad Hidalgo" control={<Radio />} label="Instituto Tecnológico Superior de Ciudad Hidalgo" />
-              <FormControlLabel value="Instituto Tecnológico Superior Zacatecas Sur" control={<Radio />} label="Instituto Tecnológico Superior Zacatecas Sur" />
-              <FormControlLabel value="Tecnológico de Monterrey" control={<Radio />} label="Tecnológico de Monterrey" />
-              <FormControlLabel value="UNIVA" control={<Radio />} label="UNIVA" />
-              <FormControlLabel value="Universidad Autónoma de San Luis Potosí" control={<Radio />} label="Universidad Autónoma de San Luis Potosí" />
-              <FormControlLabel value="Universidad de Guadalajara (CUNORTE)" control={<Radio />} label="Universidad de Guadalajara (CUNORTE)" />
-              <FormControlLabel value="Universidad Politécnica de Quintana Roo" control={<Radio />} label="Universidad Politécnica de Quintana Roo" />
-              <FormControlLabel value="Other" control={<Radio />} label="Other" />
-            </RadioGroup>
-
-            <TextInput
-              label="Campus, if applicable"
+            <p>
+              If your university is not listed here, 
+              please contact us at internships@wizeline.com to work it out.
+            </p>
+            <SelectField
+              name="university"
+              label="University or organization you belong to"
+              options={[
+                "Instituto Tecnológico Superior de Ciudad Hidalgo",
+                "Instituto Tecnológico Superior Zacatecas Sur",
+                "Tecnológico de Monterrey",
+                "UNIVA",
+                "Universidad Autónoma de San Luis Potosí",
+                "Universidad de Guadalajara (CUNORTE)",
+                "Universidad Politécnica de Quintana Roo",
+              ]}
+              style={{ width: '100%', marginBottom: '20px' }}
+            />
+            <LabeledTextField
+              label="Campus"
+              placeholder='Campus, if applicable'
               name='campus'
-              id='outlined-basic-campus'
+              fullWidth
+              type='text'
+              style={{marginBottom: '20px'}}
             />
-            <TextInput
+            <LabeledTextField
               label="Organization or University Email"
+              placeholder='Organization or University Email'
               name='universityEmail'
-              id='outlined-basic-universityEmail'
+              fullWidth
+              type='email'
+              style={{marginBottom: '20px'}}
             />
-            <TextInput
+            <LabeledTextField
               label="Name of contact in case of emergency"
+              placeholder='Name of contact in case of emergency'
               name='emergencyContactName'
-              id='outlined-basic-emergencyContactName'
+              fullWidth
+              type='text'
+              style={{marginBottom: '20px'}}
             />
-            <RadioGroup name="emergencyRelationship" id='radio-buttons-group-emergencyRelationship'>
-              <FormControlLabel value="Brother" control={<Radio />} label="Brother" />
-              <FormControlLabel value="Daughter" control={<Radio />} label="Daughter" />
-              <FormControlLabel value="Father" control={<Radio />} label="Father" />
-              <FormControlLabel value="Friend" control={<Radio />} label="Friend" />
-              <FormControlLabel value="Husband" control={<Radio />} label="Husband" />
-              <FormControlLabel value="Mother" control={<Radio />} label="Mother" />
-              <FormControlLabel value="Partner" control={<Radio />} label="Partner" />
-              <FormControlLabel value="Sister" control={<Radio />} label="Sister" />
-              <FormControlLabel value="Son" control={<Radio />} label="Son" />
-              <FormControlLabel value="Wife" control={<Radio />} label="Wife" />
-            </RadioGroup>
-
-            <TextInput
+            <SelectField
+              name="emergencyRelationship"
+              label="Relationship"
+              options={[
+                "Brother",
+                "Daughter",
+                "Father",
+                "Friend",
+                "Husband",
+                "Mother",
+                "Partner",
+                "Sister",
+                "Son",
+                "Wife"
+              ]}
+              style={{ width: '100%', marginBottom: '20px' }}
+            />
+            <LabeledTextField
               label="Emergency phone number"
+              placeholder='Name of contact in case of emergency'
               name='emergencyContactPhone'
-              id='emergencyContactPhone'
+              fullWidth
+              type='text'
+              style={{marginBottom: '20px'}}
+            />
+            <LabeledTextField
+              label="Professional Experience"
+              placeholder='Professional Experience'
+              name='experience'
+              fullWidth
+              type='text'
+              multiline
+              rows={2}
+              style={{marginBottom: '20px'}}
             />
           </Grid>
           <Grid item xs={6}>
-            <TextInput
-              label="Professional Experience"
-              name='experience'
-              id='outlined-basic-experience'
+            <SelectField
+              name="englishLevel"
+              label="English Level"
+              options={[
+                "English Basic User (A1, A2)",
+                "Intermediate (B1)",
+                "Upper intermediate (B2)",
+                "Proficient (C1,C2)"
+              ]}
+              style={{ width: '100%', marginBottom: '20px' }}
             />
-            <RadioGroup name="englishLevel" id='radio-buttons-group-englishLevel'>
-              <FormControlLabel value="English Basic User (A1, A2)" control={<Radio />} label="English Basic User (A1, A2)" />
-              <FormControlLabel value="Intermediate (B1)" control={<Radio />} label="Intermediate (B1)" />
-              <FormControlLabel value="Upper intermediate (B2)" control={<Radio />} label="Upper intermediate (B2)" />
-              <FormControlLabel value="Proficient (C1,C2)" control={<Radio />} label="Proficient (C1,C2)" />
-            </RadioGroup>
-
-            <TextInput
+            <LabeledTextField
               label="Degree and field you are studying"
+              placeholder='Degree and field you are studying'
               name='major'
-              id='outlined-basic-major'
+              fullWidth
+              type='text'
+              style={{marginBottom: '20px'}}
             />
-            <TextInput
+            <LabeledTextField
               label="Semester or period you will be studying while this program runs"
+              placeholder='Degree and field you are studying'
               name='semester'
-              id='outlined-basic-semester'
+              fullWidth
+              type='text'
+              style={{marginBottom: '20px'}}
             />
-            <DatePickerInput
+            <LabeledTextField
               label="Graduation date"
+              name='graduationDate'
+              fullWidth
+              type='date'
+              style={{marginBottom: '20px'}}
             />
-            <TextInput
+            <LabeledTextField
               label="Describe why you are interested in applying for a program at Wizeline"
+              placeholder='Describe why you are interested in applying for a program at Wizeline'
               name='interest'
-              id='outlined-basic-interest'
+              fullWidth
+              type='text'
+              multiline
+              rows={2}
+              style={{marginBottom: '20px'}}
             />
-            <TextInput
+            <LabeledTextField
               label="Link to your CV or LinkedIn profile"
+              placeholder='Link to your CV or LinkedIn profile'
               name='cvLink'
-              id='outlined-basic-cvLink'
+              fullWidth
+              type='text'
+              style={{marginBottom: '20px'}}
             />
-            <RadioGroup name="interestedRoles" id='radio-buttons-group-interestedRoles'>
-              <FormControlLabel value="Software Development" control={<Radio />} label="Software Development" />
-              <FormControlLabel value="Data Engineering" control={<Radio />} label="Data Engineering" />
-              <FormControlLabel value="Mobile Development" control={<Radio />} label="Mobile Development" />
-              <FormControlLabel value="QA Engineering" control={<Radio />} label="QA Engineering" />
-              <FormControlLabel value="Site Reliability Engineering (DevOps)" control={<Radio />} label="Site Reliability Engineering (DevOps)" />
-              <FormControlLabel value="UX Design" control={<Radio />} label="UX Design" />
-              <FormControlLabel value="Visual Design" control={<Radio />} label="Visual Design" />
-              <FormControlLabel value="Project Management" control={<Radio />} label="Project Management" />
-            </RadioGroup>
-
-            <TextInput
+            <SelectField
+              name="interestedRoles"
+              label="Roles im more interested in growing"
+              options={[
+                "Software Development",
+                "Data Engineering",
+                "Mobile Development",
+                "QA Engineering",
+                "Site Reliability Engineering (DevOps)",
+                "UX Design",
+                "Visual Design",
+                "Project Management"
+              ]}
+              style={{ width: '100%', marginBottom: '20px' }}
+            />
+            <LabeledTextField
               label="Preferred tools, programs, frameworks, programming languages or libraries"
+              placeholder='Preferred tools, programs, frameworks, programming languages or libraries'
               name='preferredTools'
-              id='outlined-basic-preferredTools'
+              fullWidth
+              type='text'
+              multiline
+              rows={2}
+              style={{marginBottom: '20px'}}
             />
-            <DatePickerInput
+            <LabeledTextField
               label="Preferred start date"
+              name='startDate'
+              fullWidth
+              type='date'
+              style={{marginBottom: '20px'}}
             />
-            <DatePickerInput
+            <LabeledTextField
               label="Preferred end date"
+              name='endDate'
+              fullWidth
+              type='date'
+              style={{marginBottom: '20px'}}
             />
-            <TextInput
+            <LabeledTextField
               label="How many hours a week could you provide"
+              placeholder='How many hours a week could you provide'
               name="hoursPerWeek"
-              id="outlined-basic-hoursPerWeek"
+              fullWidth
+              type="number" 
+              style={{marginBottom: '20px'}}
             />
-            <RadioGroup name="howDidYouHearAboutUs" id='radio-buttons-group-howDidYouHearAboutUs'>
-              <FormControlLabel value="Friend recommendation" control={<Radio />} label="Friend recommendation" />
-              <FormControlLabel value="Teacher recommendation" control={<Radio />} label="Teacher recommendation" />
-              <FormControlLabel value="University media" control={<Radio />} label="University media" />
-              <FormControlLabel value="University talk" control={<Radio />} label="University talk" />
-              <FormControlLabel value="Other" control={<Radio />} label="Other" />
-            </RadioGroup>
-
-            <FormControlLabel
-            control={<Checkbox name="participatedAtWizeline" id='checkbox-button-participatedAtWizeline' />}
-            label="Have you participated in any program at Wizeline before?"
+            <SelectField
+              name="howDidYouHearAboutUs"
+              label="How did you hear about this program"
+              options={[
+                "Friend recommendation",
+                "Teacher recommendation",
+                "University media",
+                "University talk",
+              ]}
+              style={{ width: '100%', marginBottom: '20px' }}
             />
-            <RadioGroup name="wizelinePrograms" id='radio-buttons-group-wizelinePrograms'>
-              <FormControlLabel value="Socio Formador 2023" control={<Radio />} label="Socio Formador 2023" />
-              <FormControlLabel value="Socio Formador 2022" control={<Radio />} label="Socio Formador 2022" />
-              <FormControlLabel value="Wizeline Experience Program (Intership)" control={<Radio />} label="Wizeline Experience Program (Intership)" />
-              <FormControlLabel value="Wizeline Academy Bootcamp or Course" control={<Radio />} label="Wizeline Academy Bootcamp or Course" />
-              <FormControlLabel value="Does not apply" control={<Radio />} label="Does not apply" />
-            </RadioGroup>
-
-            <TextInput
+            <SelectField
+              name="participatedAtWizeline"
+              label="Have you participated in any program at Wizeline before?"
+              options={[
+                "Yes",
+                "No"
+              ]}
+              style={{ width: '100%', marginBottom: '20px' }}
+            />
+            <SelectField
+              name="wizelinePrograms"
+              label="Wich Wizeline program"
+              options={[
+                "Socio Formador 2023",
+                "Socio Formador 2022",
+                "Wizeline Experience Program (Intership)",
+                "Wizeline Academy Bootcamp or Course",
+                "Does not apply"
+              ]}
+              style={{ width: '100%', marginBottom: '20px' }}
+            />
+            <LabeledTextField
               label="Any additional comments?"
+              placeholder='Any additional comments?'
               name='comments'
-              id='outlined-basic-comments'
+              fullWidth
+              multiline
+              rows={2}
+              style={{marginBottom: '20px'}}
             />
-            <Button type='submit'>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="confirmRegistration"
+                  required
+                />
+              }
+              label="I agree to finish the program and devote time to improving my skillset by confirming my registration."
+              style={{ marginBottom: '20px' }}
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="acceptPrivacy"
+                  required
+                />
+              }
+              label={
+                <span>
+                  I have read, understand, and accept Wizeline's{' '}
+                  <a href="https://www.wizeline.com/privacy-policy/">privacy notice</a>
+                </span>
+              }
+              style={{ marginBottom: '20px' }}
+            />
+            <Button type='submit' id='Form-Button' style={{marginBottom: '20px'}}>
               Submit
             </Button>
           </Grid>
@@ -340,4 +395,3 @@ export const action: ActionFunction = async ({ request }) => {
     </Container>
   );
 }
-        

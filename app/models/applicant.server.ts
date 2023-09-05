@@ -1,48 +1,5 @@
 import { prisma as db } from "~/db.server";
 
-/*
-export async function createForm(FormData: any, mentorId: string) {
-  const result = await db.applicant.create({
-    data: {
-      email: FormData.email,
-      personalEmail: FormData.personalEmail,
-      fullName: FormData.fullName,
-      nationality: FormData.nationality,
-      country: FormData.country,
-      dayOfBirth: FormData.dayOfBirth,
-      homeAddress: FormData.homeAddress,
-      phone: FormData.phone,
-      universityEmail: FormData.universityEmail,
-      emergencyContactName: FormData.emergencyContactName,
-      emergencyContactPhone: FormData.emergencyContactPhone,
-      emergencyRelationship: FormData.emergencyRelationship,
-      gender: FormData.gender,
-      englishLevel: FormData.englishLevel,
-      university: FormData.university,
-      campus: FormData.campus,
-      major: FormData.major,
-      semester: FormData.semester,
-      graduationDate: FormData.graduationDate,
-      interest: FormData.interest,
-      experience: FormData.experience,
-      cvLink: FormData.cvLink,
-      interestedRoles: FormData.interestedRoles,
-      preferredTools: FormData.preferredTools,
-      startDate: FormData.startDate,
-      endDate: FormData.endDate,
-      hoursPerWeek: FormData.hoursPerWeek,
-      howDidYouHearAboutUs: FormData.howDidYouHearAboutUs,  
-      participatedAtWizeline: FormData.participatedAtWizeline,
-      wizelinePrograms: FormData.wizelinePrograms,
-      comments: FormData.comments,
-      mentor: { connect: { id: mentorId } },
-      //project: { connect: {id: projectId} },
-    },
-  });
-  return result;
-}
-*/
-
 export async function createForm (
   email: string,
   personalEmail: string, 
@@ -74,8 +31,8 @@ export async function createForm (
   howDidYouHearAboutUs: string, 
   participatedAtWizeline: boolean, 
   wizelinePrograms: string,
-  comments: string,
-  mentorId: string,) {
+  comments: string, 
+  ){
   const result = await db.applicant.create({
     data: {
       email: email,
@@ -109,7 +66,6 @@ export async function createForm (
       participatedAtWizeline: participatedAtWizeline,
       wizelinePrograms: wizelinePrograms,
       comments: comments,
-      mentor: { connect: { id: mentorId } },
     },
   });
   return result;

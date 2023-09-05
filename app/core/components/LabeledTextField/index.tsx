@@ -5,7 +5,7 @@ import { useControlField, useField } from "remix-validated-form";
 interface LabeledTextFieldProps {
   name: string;
   label: string;
-  type?: "text" | "password" | "email" | "number";
+  type?: "text" | "password" | "email" | "number" | "date";
   helperText?: string;
   placeholder?: string;
   fullWidth?: boolean;
@@ -43,6 +43,9 @@ export const LabeledTextField = ({
         helperText={error || helperText}
         error={!!error}
         {...props}
+        InputLabelProps={
+          type === "date" ? { shrink: true } : undefined
+        }
       />
     </div>
   );
