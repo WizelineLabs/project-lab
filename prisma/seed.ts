@@ -563,6 +563,7 @@ async function seed() {
       firstName: "Axel",
       preferredName: "Axel",
       lastName: "Uzeta",
+      department: "Engineering"
     },
   });
   await db.profiles.upsert({
