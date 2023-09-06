@@ -556,6 +556,17 @@ async function seed() {
     },
   });
   await db.profiles.upsert({
+    where: { email: "axel.uzetagomez@in.wizeline.com" },
+    update: {},
+    create: {
+      email: "axel.uzetagomez@in.wizeline.com",
+      firstName: "Axel",
+      preferredName: "Axel",
+      lastName: "Uzeta",
+      department: "Engineering"
+    },
+  });
+  await db.profiles.upsert({
     where: { email: "carlos.milanoduarte@in.wizeline.com" },
     update: {},
     create: {
