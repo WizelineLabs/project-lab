@@ -15,6 +15,7 @@ interface LabeledTextFieldProps {
   multiline?: boolean;
   rows?: number;
   outerProps?: PropsWithoutRef<JSX.IntrinsicElements["div"]>;
+  inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
 }
 
 export const LabeledTextField = ({
@@ -24,6 +25,7 @@ export const LabeledTextField = ({
   helperText,
   size,
   outerProps,
+  inputProps,
   ...props
 }: LabeledTextFieldProps) => {
   const { error } = useField(name);
@@ -46,6 +48,7 @@ export const LabeledTextField = ({
         InputLabelProps={
           type === "date" ? { shrink: true } : undefined
         }
+        inputProps={inputProps}
       />
     </div>
   );

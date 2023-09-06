@@ -1,4 +1,4 @@
-import { Button, Checkbox, Container, FormControlLabel, Grid, } from '@mui/material';
+import { Button, Checkbox, Container, FormControlLabel, Grid, Typography, } from '@mui/material';
 import LabeledTextField from '~/core/components/LabeledTextField';
 import { withZod } from '@remix-validated-form/with-zod';
 import { z } from "zod";
@@ -10,8 +10,18 @@ export const validator = withZod(
   zfd.formData({
     email: z.string().email({message: "This field is Required"}).min(1), //For the moment this is for testing, once the login with LinkdIn is implemented, I will take the email with which you are logged in.
     personalEmail: z.string().email({message: "This field is Required"}).min(1),
-    fullName: z.string().min(1,{message: "This field is Required"}),
-    nationality: z.string().min(1,{message: "This field is Required"}),
+    fullName: z
+    .string()
+    .min(1, { message: "This field is required" })
+    .refine((value) => {
+      return !/\d/.test(value);
+    }, "Name cannot contain numbers"),
+    nationality: z
+    .string()
+    .min(1, { message: "This field is required" })
+    .refine((value) => {
+      return !/\d/.test(value);
+    }, "Nationality cannot contain numbers"),
     country: z.string().min(1,{message: "This field is Required"}),
     dayOfBirth: z.string().min(1,{message: "This field is Required"}), 
     homeAddress: z.string().min(1,{message: "This field is Required"}),
@@ -32,30 +42,63 @@ export const validator = withZod(
     graduationDate: z.string().min(1,{message: "This field is Required"}), 
     interest: z.string().min(1,{message: "This field is Required"}),
     experience: z.string().min(1,{message: "This field is Required"}),
-    cvLink: z.string().url({message: "This field is Required"}).min(1),
+    cvLink: z
+    .string()
+    .refine(value => value.length > 0, "This field is required")
+    .refine(value => {
+      const urlPattern = /^https?:\/\/[^\s/$.?#].[^\s]*$/i;
+      return urlPattern.test(value);
+    }, "The URL has an invalid format. It must begin with 'http://' or 'https://'.")
+    .refine(value => value.length >= 10, "The url must have at least 10 characters"),
     interestedRoles: z.string().optional(),
     preferredTools: z.string().optional(),
-    startDate: z.string().min(1,{message: "This field is Required"}), 
-    endDate: z.string().min(1,{message: "This field is Required"}), 
+    startDate: z
+      .string()
+      .min(1, { message: "This field is Required" })
+      .refine((value) => {
+        const currentDate = new Date();
+        const currentDateString = currentDate.toISOString().split("T")[0];
+        return value >= currentDateString;
+      }, "Start date cannot be in the past"), 
+    endDate: z
+    .string()
+    .min(1, { message: "This field is Required" })
+    .refine((value) => {
+      const currentDate = new Date();
+      const currentDateString = currentDate.toISOString().split("T")[0];
+      return value >= currentDateString;
+    }, "End date cannot be in the past"), 
     hoursPerWeek: z.string().min(1,{message: "This field is Required"}), 
     howDidYouHearAboutUs: z.string().min(1,{message: "This field is Required"}),
     participatedAtWizeline: z.string().min(1,{message: "This field is Required"}),
     wizelinePrograms: z.string().optional(),
-    comments: z.string().optional(),
+    comments: z
+    .string()
+    .max(500, { message: "The comment cannot be longer than 500 characters" }).optional(),
   })
 );
+
+function getCurrentDate(): string {
+  const currentDate = new Date();
+  const year = currentDate.getFullYear();
+  const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+  const day = String(currentDate.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
   
   export default function FormPage() {
     return (
     <Container>
       <img src='/HeaderImage.png' alt='Wizeline' style={{width:"100%"}} />
-      <h1>Application Form</h1>
-      <h3>
+      <Typography component="div" variant='h2'> 
+        Application Form
+      </Typography>
+      <Typography component="div" variant="body1">
         Wizeline's Innovation Experience Program is a 3-6 month program designed to help students transition 
         from the theoretical to the practical and step into technical specialties.
         In this program, participants will immerse in innovation projects with Wizeline industry experts, 
         where they can make an impact and begin a successful career in technology.
-      </h3>
+      </Typography>
       <ValidatedForm 
         validator={validator}
         action='./createapplicant'
@@ -142,10 +185,10 @@ export const validator = withZod(
               type='text'
               style={{marginBottom: '20px'}}
             />
-            <p>
+            <Typography component="div" variant="body2">
               If your university is not listed here, 
               please contact us at internships@wizeline.com to work it out.
-            </p>
+            </Typography>
             <SelectField
               name="university"
               label="University or organization you belong to"
@@ -304,6 +347,9 @@ export const validator = withZod(
               fullWidth
               type='date'
               style={{marginBottom: '20px'}}
+              inputProps={{
+                min: getCurrentDate(), 
+              }}
             />
             <LabeledTextField
               label="Preferred end date"
@@ -311,6 +357,9 @@ export const validator = withZod(
               fullWidth
               type='date'
               style={{marginBottom: '20px'}}
+              inputProps={{
+                min: getCurrentDate(), 
+              }}
             />
             <LabeledTextField
               label="How many hours a week could you provide"

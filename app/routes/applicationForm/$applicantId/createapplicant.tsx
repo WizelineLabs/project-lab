@@ -1,6 +1,6 @@
 import type { ActionFunction } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
-import { createForm } from "~/models/applicant.server";
+import { createApplicant } from "~/models/applicant.server";
 import { validator } from ".";
 
 const parseDate = (dateString: string): Date => {
@@ -49,7 +49,7 @@ export const action: ActionFunction = async ({ request }) => {
     });
   }
 
-  await createForm(
+  await createApplicant(
     email,
     personalEmail,
     fullName,

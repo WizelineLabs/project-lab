@@ -1,6 +1,6 @@
 import { prisma as db } from "~/db.server";
 
-export async function createForm (
+export async function createApplicant (
   email: string,
   personalEmail: string, 
   fullName: string,
