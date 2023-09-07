@@ -33,7 +33,6 @@ import Link from "~/core/components/Link";
 import Header from "~/core/layouts/Header";
 import { searchProfilesFull } from "~/models/profile.server";
 import { useLoaderData, useNavigate, useSearchParams } from "@remix-run/react";
-import { bold } from "@uiw/react-md-editor";
 
 const stringToColor = (string: string) => {
   let hash = 0;
