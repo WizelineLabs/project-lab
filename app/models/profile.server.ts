@@ -213,7 +213,13 @@ interface SearchProfilesFullInput {
   businessUnit?: string[]
   benchStatus?: string[]
   employeeStatus?: string[]
+  skill?: string[]
   itemsPerPage: number
+}
+
+interface FacetOutput {
+  name: string;
+  count: number;
 }
 
 type whereClause = {
@@ -226,6 +232,7 @@ export async function searchProfilesFull({
   businessUnit = [],
   benchStatus = [],
   employeeStatus = [],
+  skill = [],
   itemsPerPage = 50,
 }: SearchProfilesFullInput) {
   if (page < 1) page = 1
@@ -238,35 +245,44 @@ export async function searchProfilesFull({
   if (department.length > 0) {
     where = {
       ...where,
-      department: {
-        in: department
-      }
+      department: { in: department }
     }
   }
 
   if (businessUnit.length > 0) {
     where = {
       ...where,
-      businessUnit: {
-        in: businessUnit
-      }
+      businessUnit: { in: businessUnit }
     }
   }
 
   if (benchStatus.length > 0) {
     where = {
       ...where,
-      benchStatus: {
-        in: benchStatus
-      }
+      benchStatus: { in: benchStatus }
     }
   }
 
   if (employeeStatus.length > 0) {
     where = {
       ...where,
-      employeeStatus: {
-        in: employeeStatus
+      employeeStatus: { in: employeeStatus }
+    }
+  }
+
+  if (skill.length > 0) {
+    where = {
+      ...where,
+      projectMembers: {
+        some: {
+          practicedSkills: {
+            some: {
+              name: {
+                in: skill
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -310,6 +326,9 @@ export async function searchProfilesFull({
           role: {
             select: { name: true }
           },
+          practicedSkills: {
+            select: { name: true }
+          }
         }
       }
     },
@@ -325,8 +344,6 @@ export async function searchProfilesFull({
       { firstName: 'asc' }
     ]
   })
-
-  // console.log(JSON.stringify(profiles, null, 2));
 
   const departments = await prisma.profiles.groupBy({
     by: ['department'],
@@ -400,6 +417,20 @@ export async function searchProfilesFull({
     }
   })
 
+  const profileIdsWhereSql = Prisma.sql`pm."profileId" IN (${Prisma.join(ids)})`;
+
+  const skills = await prisma.$queryRaw<FacetOutput[]>`
+    SELECT s.name, count(DISTINCT pm."profileId") as count
+    FROM "Skills" s
+    LEFT JOIN "_ProjectMembersToSkills" pmts ON pmts."B" = S.id
+    LEFT JOIN "ProjectMembers" pm on pmts."A" = pm.id 
+    WHERE ${profileIdsWhereSql} AND s.name NOT IN (${skill.length > 0 ? Prisma.join(skill) : ""
+    })
+    AND s.name IS NOT NULL
+    GROUP BY s.name
+    ORDER BY count DESC
+  `;
+
   return {
     profiles,
     count,
@@ -407,6 +438,7 @@ export async function searchProfilesFull({
     businessUnits: convertCountResult(businessUnits, "businessUnit"),
     employeeStatuses: convertCountResult(employeeStatuses, "employeeStatus"),
     benchStatuses: convertCountResult(benchStatuses, "benchStatus"),
+    skills
   }
 }
 

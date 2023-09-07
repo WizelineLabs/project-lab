@@ -143,7 +143,13 @@ const ProjectAssignment = ({ projectMember }: ProjectAssigmentProps) => {
 };
 
 const ITEMS_PER_PAGE = 50;
-const FILTERS = ["employeeStatus", "department", "businessUnit", "benchStatus"];
+const FILTERS = [
+  "employeeStatus",
+  "department",
+  "businessUnit",
+  "benchStatus",
+  "skill",
+];
 
 type LoaderData = {
   data: Awaited<ReturnType<typeof searchProfilesFull>>;
@@ -158,6 +164,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   const businessUnit = url.searchParams.getAll("businessUnit");
   const benchStatus = url.searchParams.getAll("benchStatus");
   const employeeStatus = url.searchParams.getAll("employeeStatus");
+  const skill = url.searchParams.getAll("skill");
 
   const data = await searchProfilesFull({
     searchTerm,
@@ -166,14 +173,20 @@ export const loader: LoaderFunction = async ({ request }) => {
     businessUnit,
     benchStatus,
     employeeStatus,
+    skill,
     itemsPerPage: ITEMS_PER_PAGE,
   });
 
-  return new Response(JSON.stringify({ data }), {
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-    },
-  });
+  return new Response(
+    JSON.stringify({ data }, (key, value) =>
+      typeof value === "bigint" ? value.toString() : value
+    ),
+    {
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+      },
+    }
+  );
 };
 
 const Profiles = () => {
@@ -189,6 +202,7 @@ const Profiles = () => {
       businessUnits,
       benchStatuses,
       employeeStatuses,
+      skills,
     },
   } = useLoaderData() as unknown as LoaderData;
   const theme = useTheme();
@@ -307,6 +321,7 @@ const Profiles = () => {
                 filter="benchStatus"
                 items={benchStatuses}
               />
+              <FilterAccordion title="Skill" filter="skill" items={skills} />
             </Paper>
           </Grid>
           <Grid item xs={12} md={9}>
