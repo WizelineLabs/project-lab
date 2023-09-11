@@ -1,7 +1,4 @@
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
   Avatar,
   Box,
   Button,
@@ -26,13 +23,13 @@ import { useState } from "react";
 import type { LoaderFunction } from "@remix-run/node";
 import CloseIcon from "@mui/icons-material/Close";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
-import ExpandMore from "@mui/icons-material/ExpandMore";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import SearchIcon from "@mui/icons-material/Search";
 import Link from "~/core/components/Link";
 import Header from "~/core/layouts/Header";
 import { searchProfilesFull } from "~/models/profile.server";
 import { useLoaderData, useNavigate, useSearchParams } from "@remix-run/react";
+import FilterAccordion from "~/core/components/FilterAccordion";
 
 const stringToColor = (string: string) => {
   let hash = 0;
@@ -52,60 +49,6 @@ const stringToColor = (string: string) => {
   /* eslint-enable no-bitwise */
 
   return color;
-};
-
-interface FilterAccordionProps {
-  filter: string;
-  title: string;
-  items: FilterAccordionItemProps[];
-}
-const FilterAccordion = ({ filter, title, items }: FilterAccordionProps) => {
-  return (
-    <Accordion disableGutters>
-      <AccordionSummary
-        expandIcon={<ExpandMore />}
-        aria-controls="panel3a-controls"
-        id="panel3a-header"
-      >
-        <strong>{title}</strong>
-      </AccordionSummary>
-      <AccordionDetails>
-        <ul>
-          {items.map((item) => (
-            <FilterAccordionItem
-              key={item.name}
-              name={item.name}
-              count={item.count}
-              filter={filter}
-            />
-          ))}
-        </ul>
-      </AccordionDetails>
-    </Accordion>
-  );
-};
-
-interface FilterAccordionItemProps {
-  name: string;
-  count: number;
-  filter?: string;
-}
-const FilterAccordionItem = ({
-  name,
-  count,
-  filter,
-}: FilterAccordionItemProps) => {
-  const [searchParams] = useSearchParams();
-  return (
-    <li>
-      <Link
-        color="#AF2E33"
-        to={`?${searchParams.toString()}&${filter}=${name}`}
-      >
-        {name} ({count ?? "0"})
-      </Link>
-    </li>
-  );
 };
 
 interface ProjectAssigmentProps {
@@ -217,13 +160,6 @@ const Profiles = () => {
     let newFilter = newParams.getAll(filter).filter((item) => item != value);
     newParams.delete(filter);
     newFilter.forEach((item) => newParams.append(filter, item));
-    if (filter === "resource") {
-      let newProviderFilter = newParams
-        .getAll("provider")
-        .filter((item) => !item.startsWith(value + " | "));
-      newParams.delete("provider");
-      newProviderFilter.forEach((item) => newParams.append("provider", item));
-    }
     return `?${newParams.toString()}`;
   };
 

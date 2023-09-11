@@ -431,6 +431,13 @@ export async function searchProfilesFull({
     ORDER BY count DESC
   `;
 
+  // Filter out invalid avatar urls
+  profiles.forEach(profile => {
+    if (profile.avatarUrl?.length && !profile.avatarUrl?.startsWith("https://")) {
+      profile.avatarUrl = null
+    }
+  })
+
   return {
     profiles,
     count,
