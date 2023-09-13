@@ -30,6 +30,7 @@ import Header from "~/core/layouts/Header";
 import { searchProfilesFull } from "~/models/profile.server";
 import { useLoaderData, useNavigate, useSearchParams } from "@remix-run/react";
 import FilterAccordion from "~/core/components/FilterAccordion";
+import NavAppBar from "~/core/components/NavAppBar";
 
 const stringToColor = (string: string) => {
   let hash = 0;
@@ -184,6 +185,7 @@ const Profiles = () => {
   return (
     <>
       <Header title="Profiles" />
+      <NavAppBar title="Profiles" />
       <Container>
         <Grid container spacing={2} alignItems="flex-start">
           <Grid
@@ -237,26 +239,34 @@ const Profiles = () => {
               <Box sx={{ paddingLeft: 2, paddingRight: 2 }}>
                 <h3>Filters</h3>
               </Box>
-              <FilterAccordion
-                title="Department"
-                filter="department"
-                items={departments}
-              />
-              <FilterAccordion
-                title="Business Unit"
-                filter="businessUnit"
-                items={businessUnits}
-              />
-              <FilterAccordion
-                title="Employee Status"
-                filter="employeeStatus"
-                items={employeeStatuses}
-              />
-              <FilterAccordion
-                title="Bench Status"
-                filter="benchStatus"
-                items={benchStatuses}
-              />
+              {departments.length > 0 && (
+                <FilterAccordion
+                  title="Department"
+                  filter="department"
+                  items={departments}
+                />
+              )}
+              {businessUnits.length > 0 && (
+                <FilterAccordion
+                  title="Business Unit"
+                  filter="businessUnit"
+                  items={businessUnits}
+                />
+              )}
+              {employeeStatuses.length > 0 && (
+                <FilterAccordion
+                  title="Employee Status"
+                  filter="employeeStatus"
+                  items={employeeStatuses}
+                />
+              )}
+              {benchStatuses.length > 0 && (
+                <FilterAccordion
+                  title="Bench Status"
+                  filter="benchStatus"
+                  items={benchStatuses}
+                />
+              )}
               <FilterAccordion title="Skill" filter="skill" items={skills} />
             </Paper>
           </Grid>
