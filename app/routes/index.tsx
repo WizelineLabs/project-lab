@@ -75,17 +75,32 @@ export default function Index() {
               Log In
             </Button>
           )}
-          <Button
-            href="/projects"
-            variant="contained"
-            sx={{
-              width: "240px",
-              height: "60px",
-              fontSize: "1.5em",
-            }}
-          >
-            View Projects
-          </Button>
+          {user && (
+            <Button
+              href="/projects"
+              variant="contained"
+              sx={{
+                width: "240px",
+                height: "60px",
+                fontSize: "1.5em",
+              }}
+            >
+              View Projects
+            </Button>
+          )}
+          {!user && (
+            <Button
+              href="/internshipProjects"
+              variant="contained"
+              sx={{
+                width: "240px",
+                height: "60px",
+                fontSize: "1.5em",
+              }}
+            >
+              View Projects
+            </Button>
+          )}
         </Stack>
       </HomePageContainer>
     </article>

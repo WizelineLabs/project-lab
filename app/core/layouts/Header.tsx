@@ -31,8 +31,11 @@ const Header = ({ title }: IProps) => {
   const submit = useSubmit();
 
   const handleClickProfile = async () => {
-    const { email } = currentUser;    
-    submit(null, { method: "get", action: `/profile/${encodeURIComponent(email)}` });
+    const { email } = currentUser;
+    submit(null, {
+      method: "get",
+      action: `/profile/${encodeURIComponent(email)}`,
+    });
   };
 
   const options: MenuItemArgs[] = [
