@@ -46,7 +46,11 @@ const auth0Strategy = new Auth0Strategy(
           await updateProfile(userProfile, userProfile.id);
         }
       }
-      if (!userProfile) {
+
+      const allowedDomains = ["@wizeline.com", "@in.wizeline.com", "@team.wizeline.com"];
+      const isAllowedDomain = allowedDomains.some(domain => email.endsWith(domain));
+      
+      if (!userProfile && isAllowedDomain) {
         const lakeProfile = await findProfileData(email);
         createProfile({
           id: String(lakeProfile.contact__employee_number),
@@ -66,7 +70,19 @@ const auth0Strategy = new Auth0Strategy(
           businessUnit: lakeProfile.contact__business_unit,
           benchStatus: lakeProfile.contact__status,
         });
+      } else if(!userProfile && !isAllowedDomain) {
+        const email = profile?.emails ? profile.emails[0].value : null;
+        const firstName = profile?.name?.givenName || "Unnamed";
+        const preferredName = profile?.name?.givenName as string;
+        const lastName = profile?.name?.familyName as string;
+        createProfile({
+          email: email !== null ? email : '',
+          firstName,
+          preferredName,
+          lastName,
+        });
       }
+      
       const userGitHubProfile = await getGitHubProfileByEmail(email);
       if (
         userGitHubProfile === null ||
@@ -102,9 +118,16 @@ const auth0Strategy = new Auth0Strategy(
         }
       }
       // Get the user data from your DB or API using the tokens and profile
+      let role;
+      if (isAllowedDomain){
+        role = "USER"
+      }else{
+        role = "APPLICANT"
+      }
       return findOrCreate({
         email: profile.emails[0].value,
         name: profile.displayName || "Unnamed",
+        role: role
       });
     } catch (e) {
       // eslint-disable-next-line no-console

@@ -28,6 +28,14 @@ export async function getSession(request: Request) {
   return sessionStorage.getSession(cookie);
 }
 
+export async function getUserRole(
+  request: Request
+): Promise<User["role"] | undefined> {
+  const session = await getSession(request);
+  const userRole = session.get(USER_SESSION_KEY);
+  return userRole;
+}
+
 export async function getUserId(
   request: Request
 ): Promise<User["id"] | undefined> {

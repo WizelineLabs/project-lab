@@ -15,6 +15,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
   const redirectTo = url.searchParams.get("redirectTo") || "/projects";
 
+  //const userRole = await getUserRole(request);
   const userId = await getUserId(request);
   if (userId) return redirect("/projects");
   return json(
