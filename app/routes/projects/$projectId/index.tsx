@@ -56,7 +56,6 @@ import { checkPermission } from "~/models/authorization.server";
 import type { Roles } from "~/models/authorization.server";
 import GitHub from '@mui/icons-material/GitHub';
 import { validateNavigationRedirect } from '~/utils';
-import GitHubActivity from "~/core/components/GitHub/GitHubActivity";
 
 export function links() {
   return [
@@ -473,7 +472,7 @@ export default function ProjectDetailsPage() {
 
             <Card>
             <CardHeader
-                title="Github Information" 
+                title="Github Stadistics" 
                 action={
                   <Button variant="contained" href={`/projects/${project.id}/github-info`} endIcon={<GitHub />}>
                     See Info
@@ -608,11 +607,6 @@ export default function ProjectDetailsPage() {
           project={project}
         />
       )}
-
-      <Container>
-        <GitHubActivity repoName="remix-project-lab" />
-      </Container>
-
     </>
   );
 }

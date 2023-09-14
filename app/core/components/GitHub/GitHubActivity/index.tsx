@@ -1,29 +1,47 @@
-import { Card, CardHeader, CardContent } from "@mui/material";
-import { useMemo, useState } from "react";
-import { getActivity } from "~/routes/api/github/get-proyectActivity";
+import { Card, CardContent, TableContainer, Table, TableHead, TableRow, TableCell, TableBody } from "@mui/material";
 
+interface gitHubActivitySchema {
+  id: string,
+  typeEvent: string,
+  created_at: Date,
+  author: string,
+  avatar_url:string,
+  projectId:string | null,
+}
 
-export default function GitHubActivity({ repoName }: { repoName: string }) {
-  const [activityList, setActivityList] = useState<any[]>();
-
-  useMemo(
-    () =>
-    getActivity(repoName)
-        .then((data) => {
-          const commitData = data.data;
-          console.log(data);
-          commitData ? setActivityList(commitData) : setActivityList([]);
-        })
-        .catch((error) => console.log(error)),
-    [repoName]
-  );
-
+export default function GitHubActivity({ repoName, projectId, activityData }: { repoName: string, projectId: string, activityData: gitHubActivitySchema[] }) {
   return (
-    <>
-      <Card>
-        <CardHeader title="Repo Activity" />
-        <CardContent></CardContent>
+      <Card sx={{ width: 1, overflowY: 'scroll', height: 600 }}>
+        <CardContent>
+          <TableContainer >
+            <Table>
+              <TableHead>
+                <TableRow>
+                   <TableCell align="left">Event Type</TableCell>
+                   <TableCell align="right">Author</TableCell>
+                   <TableCell align="right">Created At</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+               
+              {
+                activityData && activityData.map(event => (
+                  <TableRow
+                    key={event.id}
+                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                    >
+                      <TableCell component="th" scope="row">
+                        {event.typeEvent}
+                      </TableCell>
+                      <TableCell align="right">{event.author}</TableCell>
+                      <TableCell align="right">{ event.created_at.toDateString()}</TableCell>
+                  </TableRow>
+                ))
+              }
+            </TableBody>
+          </Table>
+          </TableContainer>
+        </CardContent>
       </Card>
-    </>
   );
 }

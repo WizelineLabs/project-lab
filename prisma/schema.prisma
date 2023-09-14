@@ -438,9 +438,9 @@ model Experience{
 }
 
 model GitHubActivity {
-  id            Int         @id @default(autoincrement())
+  id            String  @id
   typeEvent     String
-  created_at    String
+  created_at    DateTime
   author        String
   avatar_url    String
   projectId     String?

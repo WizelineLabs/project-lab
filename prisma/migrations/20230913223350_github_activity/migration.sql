@@ -1,8 +1,8 @@
 -- CreateTable
 CREATE TABLE "GitHubActivity" (
-    "id" SERIAL NOT NULL,
+    "id" TEXT NOT NULL,
     "typeEvent" TEXT NOT NULL,
-    "created_at" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL,
     "author" TEXT NOT NULL,
     "avatar_url" TEXT NOT NULL,
     "projectId" TEXT,
