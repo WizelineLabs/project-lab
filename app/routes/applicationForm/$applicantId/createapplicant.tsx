@@ -85,5 +85,5 @@ export const action: ActionFunction = async ({ request }) => {
     comments,
   );
 
-  return redirect('/applicants/'); //To carlos: Change to intershiprojects
+  return redirect('/projects'); //To carlos: Change to intershiprojects
 };

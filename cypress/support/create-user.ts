@@ -25,7 +25,7 @@ async function createAndLogin(email: string) {
   const user = await findOrCreate({
     name: email.replace("@example.com", ""),
     email,
-    role,
+    role: "USER",
   });
   // a profile is also needed on labs
   await createProfile({
