@@ -127,7 +127,7 @@ const auth0Strategy = new Auth0Strategy(
       return findOrCreate({
         email: profile.emails[0].value,
         name: profile.displayName || "Unnamed",
-        role: role
+        role: role,
       });
     } catch (e) {
       // eslint-disable-next-line no-console
