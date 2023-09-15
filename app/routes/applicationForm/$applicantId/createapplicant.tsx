@@ -2,6 +2,7 @@ import type { ActionFunction } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
 import { createApplicant } from "~/models/applicant.server";
 import { validator } from ".";
+import { requireProfile } from "~/session.server";
 
 const parseDate = (dateString: string): Date => {
   const [year, month, day] = dateString.split("-");
@@ -10,8 +11,9 @@ const parseDate = (dateString: string): Date => {
 
 export const action: ActionFunction = async ({ request }) => {
   const result = await validator.validate(await request.formData());
+  const profile = await requireProfile(request);
 
-  const email = result?.data?.email as string ?? 'DefaultEmailValue'; //For the moment this is for testing, once the login with LinkdIn is implemented, I will take the email with which you are logged in.
+  const email = profile?.email;
   const personalEmail = result?.data?.personalEmail as string ?? 'DefaultPersonalEmailValue';
   const fullName = result?.data?.fullName as string ?? 'DefaultFullNameValue';
   const nationality = result?.data?.nationality as string ?? 'DefaultNationalityValue';
@@ -83,5 +85,5 @@ export const action: ActionFunction = async ({ request }) => {
     comments,
   );
 
-  return redirect('/applicants/'); //This will be changed to /intershipProjects once the website flow is done.
+  return redirect('/applicants/'); //To carlos: Change to intershiprojects
 };

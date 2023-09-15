@@ -8,7 +8,6 @@ import SelectField from '~/core/components/FormFields/SelectField';
 
 export const validator = withZod(
   zfd.formData({
-    email: z.string().email({message: "This field is Required"}).min(1), //For the moment this is for testing, once the login with LinkdIn is implemented, I will take the email with which you are logged in.
     personalEmail: z.string().email({message: "This field is Required"}).min(1),
     fullName: z
     .string()
@@ -106,14 +105,6 @@ function getCurrentDate(): string {
         >
         <Grid container spacing={10}>
           <Grid item xs={6}>
-          <LabeledTextField
-              label="Email"
-              placeholder='Email'
-              name="email"
-              fullWidth
-              type='email'
-              style={{marginBottom: '20px'}}
-            />
           <LabeledTextField
               label="Personal email"
               placeholder='Personal email'

@@ -82,6 +82,15 @@ export async function searchApplicants() {
   });
 }
 
+export async function getApplicantByEmail(email: any) {
+  const existingApplicant = await db.applicant.findUnique({
+    where: {
+      email: email,
+    },
+  });
+  return !!existingApplicant;
+}
+
 export async function getApplicantById(id: any) {
   return await db.applicant.findUnique({
     where: { 
