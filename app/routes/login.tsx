@@ -9,7 +9,12 @@ import {
   Footer,
   LoginPageContainer,
 } from "./login.styles";
-import { getUserId, getUserRole, requireProfile, returnToCookie } from "~/session.server";
+import {
+  getUserId,
+  getUserRole,
+  requireProfile,
+  returnToCookie,
+} from "~/session.server";
 import { getApplicantByEmail } from "~/models/applicant.server";
 
 let roleRedirect: string;
@@ -20,30 +25,25 @@ export const loader: LoaderFunction = async ({ request }) => {
   const userRole = await getUserRole(request);
   if (userRole === "ADMIN" || userRole === "USER") {
     roleRedirect = "/projects";
-
   } else if (userRole === "APPLICANT") {
     const profile = await requireProfile(request);
     const existApplicant = await getApplicantByEmail(profile.email);
 
     if (existApplicant) {
-      roleRedirect = "/projects"; //To carlos: Change to intershiProjects
-
+      roleRedirect = "/internshipProjects";
     } else {
       roleRedirect = `/applicationForm/${profile.id}`;
-
     }
   } else {
     roleRedirect = "/login";
-
   }
 
-  const redirectTo = url.searchParams.get("redirectTo") || roleRedirect; 
+  const redirectTo = url.searchParams.get("redirectTo") || roleRedirect;
 
   const userId = await getUserId(request);
-  if (userId){
+  if (userId) {
     return redirect(roleRedirect);
-
-  } 
+  }
   return json(
     {},
     {
