@@ -11,6 +11,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   });
   return createUserSession({
     request,
+    userRole: user.role,
     userId: user.id,
     remember: false,
     redirectTo: returnTo || "/projects",
