@@ -29,13 +29,12 @@ export default function Index() {
 
   const justFour = shuffledInfo.slice(0, 4);
 
-  let navigate = "/internshipProjects";
-
+  let navigate;
   if (user) {
-    if (user.role === "ADMIN" || user.role === "USER") {
-      navigate = "/projects";
-    } else if (user.role === "APPLICANT") {
+    if (user.role === "APPLICANT") {
       navigate = "/internshipProjects";
+    } else {
+      navigate = "/projects";
     }
   }
 

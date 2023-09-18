@@ -42,15 +42,13 @@ export const ProposalCard = (props: IProps) => {
     if (user) {
       if (user.role === "ADMIN" || user.role === "USER") {
         navigate(`/projects/${props.id}`);
-      } else if (user.role === "APPLICANT") {
+      } else {
         navigate(`/internshipProjects/${props.id}`);
       }
-    } else {
-      navigate(`/internshipProjects/${props.id}`);
     }
   };
 
-  const showPicture = user?.role === "ADMIN" || user?.role === "USER";
+  const show = user?.role === "ADMIN" || user?.role === "USER";
 
   return (
     <>
@@ -59,7 +57,7 @@ export const ProposalCard = (props: IProps) => {
           <CardContent>
             <ProposalCardWrap>
               <div className="ProposalCard__head">
-                {user && showPicture && (
+                {user && show && (
                   <div className="ProposalCard__head__icon">
                     {props.picture ? (
                       <img
@@ -97,7 +95,7 @@ export const ProposalCard = (props: IProps) => {
                     />
                   ))}
               </div>
-              {user && showPicture && (
+              {user && show && (
                 <div className="ProposalCard__status">
                   <hr />
 

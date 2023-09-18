@@ -76,12 +76,11 @@ const Header = ({ title }: IProps) => {
   ];
 
   let linkTo = "/internshipProjects";
-
   if (currentUser) {
-    if (currentUser.role === "ADMIN" || currentUser.role === "USER") {
-      linkTo = "/projects";
-    } else if (currentUser.role === "APPLICANT") {
+    if (currentUser?.role === "APPLICANT") {
       linkTo = "/internshipProjects";
+    } else {
+      linkTo = "/projects";
     }
   }
 
