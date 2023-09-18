@@ -14,6 +14,7 @@ export async function getUserByEmail(email: User["email"]) {
 export async function findOrCreate(create: {
   email: User["email"];
   name: User["name"];
+  role: User["role"];
 }) {
   return prisma.user.upsert({
     where: { email: create.email },
