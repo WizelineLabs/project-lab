@@ -1,6 +1,6 @@
 import { Grid, IconButton, Pagination, Paper } from "@mui/material";
-import Header from "./components/Header";
-import ProposalCard from "./components/PoposalCard";
+import Header from "../../core/layouts/Header";
+import ProposalCard from "../../core/components/ProposalCard";
 import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
@@ -50,7 +50,7 @@ export default function ViewProjects() {
 
   return (
     <>
-      <Header />
+      <Header title="Intership Projects" />
       <Grid item xs={12} md={9}>
         <Paper elevation={0} sx={{ padding: 2, margin: 2 }}>
           <h2 style={{ marginTop: 0 }}>{getTitle() + ` (${count || 0})`}</h2>
@@ -77,16 +77,22 @@ export default function ViewProjects() {
                   <ProposalCard
                     id={item.id}
                     title={item.name}
+                    picture="/wizeline.png"
+                    initials="WZ"
                     date={new Intl.DateTimeFormat([], {
                       year: "numeric",
                       month: "long",
                       day: "2-digit",
                     }).format(new Date(item.createdAt))}
                     description={item.description}
+                    status={item.status}
+                    color={item.color}
+                    votesCount={Number(item.votesCount)}
                     skills={item.searchSkills
                       .trim()
                       .split(",")
                       .map((skill: string) => ({ name: skill }))}
+                    tierName="WZ"
                   />
                 </Grid>
               ))}

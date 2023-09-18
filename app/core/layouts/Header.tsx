@@ -1,5 +1,5 @@
 import { useSubmit } from "@remix-run/react";
-import { useUser } from "~/utils";
+import { useOptionalUser } from "~/utils";
 import DropDownButton from "../components/DropDownButton";
 import Search from "../components/Search";
 import { Button, Container, Grid, Paper, styled } from "@mui/material";
@@ -27,23 +27,31 @@ const StyledHeaderButton = styled(Button)(({ theme }) => ({
 }));
 
 const Header = ({ title }: IProps) => {
-  const currentUser = useUser();
+  const currentUser = useOptionalUser();
   const submit = useSubmit();
 
   const handleClickProfile = async () => {
-    const { email } = currentUser;
-    submit(null, {
-      method: "get",
-      action: `/profile/${encodeURIComponent(email)}`,
-    });
+    if (currentUser) {
+      const { email } = currentUser;
+      submit(null, {
+        method: "get",
+        action: `/profile/${encodeURIComponent(email)}`,
+      });
+    } else {
+      return;
+    }
   };
 
   const options: MenuItemArgs[] = [
-    {
-      onClick: handleClickProfile,
-      to: "/",
-      text: "Profile",
-    },
+    ...(currentUser?.role === "ADMIN" || currentUser?.role === "USER"
+      ? [
+          {
+            onClick: handleClickProfile,
+            to: "/",
+            text: "Profile",
+          },
+        ]
+      : []),
     {
       to: "/",
       text: "Home",
@@ -67,6 +75,19 @@ const Header = ({ title }: IProps) => {
       : []),
   ];
 
+  let linkTo = "/internshipProjects";
+
+  if (currentUser) {
+    if (currentUser.role === "ADMIN" || currentUser.role === "USER") {
+      linkTo = "/projects";
+    } else if (currentUser.role === "APPLICANT") {
+      linkTo = "/internshipProjects";
+    }
+  }
+
+  const showProposal =
+    currentUser?.role === "ADMIN" || currentUser?.role === "USER";
+
   return (
     <>
       <Paper elevation={0} sx={{ marginBottom: 2 }}>
@@ -79,7 +100,7 @@ const Header = ({ title }: IProps) => {
             padding={2}
           >
             <Grid item xs>
-              <Link to="/projects" className="no_decoration">
+              <Link to={linkTo} className="no_decoration">
                 <StyledHeaderButton
                   size="large"
                   startIcon={
@@ -101,24 +122,40 @@ const Header = ({ title }: IProps) => {
               </Link>
             </Grid>
             <Grid item sx={{ order: { md: 3 } }}>
-              <DropDownButton options={options}>
-                {currentUser?.email}
-              </DropDownButton>
-            </Grid>
-            <Grid item sx={{ marginRight: 2 }}>
-              <Search />
-              &nbsp;
-              <Link to="/projects/create" className="no_decoration">
+              {currentUser ? (
+                <DropDownButton options={options}>
+                  {currentUser.email}
+                </DropDownButton>
+              ) : (
                 <Button
-                  variant="contained"
-                  color="primary"
-                  startIcon={<AddIcon />}
-                  sx={{ fontWeight: "bolder", color: "#fff" }}
+                  href="/login"
+                  className="contained"
+                  sx={{
+                    width: "200px",
+                    height: "40px",
+                    fontSize: "1em",
+                  }}
                 >
-                  New Proposal
+                  Log In
                 </Button>
-              </Link>
+              )}
             </Grid>
+            {showProposal && (
+              <Grid item sx={{ marginRight: 2 }}>
+                <Search />
+                &nbsp;
+                <Link to="/projects/create" className="no_decoration">
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    startIcon={<AddIcon />}
+                    sx={{ fontWeight: "bolder", color: "#fff" }}
+                  >
+                    New Proposal
+                  </Button>
+                </Link>
+              </Grid>
+            )}
           </Grid>
         </Container>
       </Paper>

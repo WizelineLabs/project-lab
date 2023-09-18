@@ -29,6 +29,16 @@ export default function Index() {
 
   const justFour = shuffledInfo.slice(0, 4);
 
+  let navigate = "/internshipProjects";
+
+  if (user) {
+    if (user.role === "ADMIN" || user.role === "USER") {
+      navigate = "/projects";
+    } else if (user.role === "APPLICANT") {
+      navigate = "/internshipProjects";
+    }
+  }
+
   return (
     <article>
       <HomeHeader>
@@ -77,7 +87,7 @@ export default function Index() {
           )}
           {user && (
             <Button
-              href="/projects"
+              href={navigate}
               variant="contained"
               sx={{
                 width: "240px",

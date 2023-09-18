@@ -46,6 +46,8 @@ interface InternProjectOutput {
   createdAt: string;
   description: string;
   searchSkills: string;
+  updatedAt: string;
+  valueStatement: string;
 }
 
 interface ProjectWhereInput {
@@ -972,4 +974,17 @@ export async function getProjectsIntern() {
     ${having};
   `;
   return { projects, count: count.length };
+}
+
+export async function getProjectById(projectId: string) {
+  const where = Prisma.sql`AND p.id = ${projectId}`;
+
+  const project = await db.$queryRaw<InternProjectOutput[]>`
+    SELECT "id", "name", "createdAt", "description", "searchSkills", "updatedAt", "valueStatement"
+    FROM "Projects" p
+    WHERE "isArchived" = false
+    ${where}
+  `;
+
+  return project[0];
 }
