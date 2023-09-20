@@ -77,8 +77,6 @@ export default function ViewProjects() {
                   <ProposalCard
                     id={item.id}
                     title={item.name}
-                    picture="/wizeline.png"
-                    initials="WZ"
                     date={new Intl.DateTimeFormat([], {
                       year: "numeric",
                       month: "long",
@@ -92,7 +90,6 @@ export default function ViewProjects() {
                       .trim()
                       .split(",")
                       .map((skill: string) => ({ name: skill }))}
-                    tierName="WZ"
                   />
                 </Grid>
               ))}

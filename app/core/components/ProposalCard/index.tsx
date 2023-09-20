@@ -17,8 +17,8 @@ import { useOptionalUser } from "~/utils";
 interface IProps {
   id: string | number;
   title: string;
-  picture: string;
-  initials: string;
+  picture?: string;
+  initials?: string;
   date: string;
   description: string;
   status: string;
@@ -26,7 +26,7 @@ interface IProps {
   votesCount?: number | null;
   skills?: { name: string }[];
   isOwner?: boolean;
-  tierName: String;
+  tierName?: String;
   projectMembers?: number | null;
 }
 
@@ -45,6 +45,8 @@ export const ProposalCard = (props: IProps) => {
       } else {
         navigate(`/internshipProjects/${props.id}`);
       }
+    } else {
+      navigate(`/internshipProjects/${props.id}`);
     }
   };
 
