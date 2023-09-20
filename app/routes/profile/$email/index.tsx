@@ -212,6 +212,8 @@ export const ProfileInfo = () => {
                       variant="outlined"
                       style={{ width: "100%" }}
                       name={"comentario"}
+                      multiline
+                      rows={4}
                     ></TextField>
                     <Grid sx={{ display: "flex", justifyContent: "center" }}>
                       <Button
