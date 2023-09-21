@@ -240,6 +240,7 @@ jobs:
             npx prisma db seed
 
             echo "*** Step: *** Schedule cron to update profiles"
+            chmod +x /home/admin/projectlab/app/profilesmigration.sh
             echo "0 13 * * * /home/admin/projectlab/app/profilesmigration.sh" | crontab -
 
             echo "*** Step: *** Start pm2 service"
@@ -345,6 +346,7 @@ jobs:
             npx prisma db seed
 
             echo "*** Step: *** Schedule cron to update profiles"
+            chmod +x /home/admin/projectlab/app/profilesmigration.sh
             echo "0 13 * * * /home/admin/projectlab/app/profilesmigration.sh" | crontab -
 
             echo "*** Step: *** Start pm2 service"
