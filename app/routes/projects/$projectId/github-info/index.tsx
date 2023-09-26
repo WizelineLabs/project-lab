@@ -115,7 +115,7 @@
         };
 
         const changeChartData = (event: SelectChangeEvent<unknown>) =>{
-            console.log('change select', event.target.value);
+            // console.log('change select', event.target.value);
             
         }
         
