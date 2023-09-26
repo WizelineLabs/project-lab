@@ -1,5 +1,10 @@
 import { prisma } from "~/db.server";
 
+interface gitHubActivityChartType {
+    count: number,
+    typeEvent: string,
+}
+
 export async function saveACtivity(
     id: string,
     typeEvent: string,
@@ -30,5 +35,9 @@ export async function saveACtivity(
 
 export async function getGitActivityData(projectId: string) {
     return await prisma.gitHubActivity.findMany({ where: { projectId }, orderBy: { id: "desc" }});
+}
+
+export const getActivityStadistic = async () => {
+    return  await prisma.$queryRaw<gitHubActivityChartType[]>`SELECT Count(*), "typeEvent" FROM "GitHubActivity" where  date_part('week', "created_at")='36' GROUP BY "typeEvent"`;
 }
 
