@@ -54,7 +54,7 @@ const NavAppBar = ({ title }: Props) => {
     },
     {
       title: "Internship Applicants",
-      link: "#",
+      link: "/applicants",
     },
   ];
 

@@ -14,7 +14,7 @@ import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { searchApplicants } from "~/models/applicant.server";
 import Link from "~/core/components/Link";
 import { styled } from "@mui/material/styles";
-
+import NavAppBar from "~/core/components/NavAppBar";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const data = await searchApplicants();
@@ -31,38 +31,47 @@ const shortDateFormatter = (params: GridValueFormatterParams) => {
 };
 
 const getBackgroundColor = (color: string, mode: string) =>
-  mode === 'dark' ? darken(color, 0.7) : lighten(color, 0.7);
+  mode === "dark" ? darken(color, 0.7) : lighten(color, 0.7);
 
-  const getHoverBackgroundColor = (color: string, mode: string) =>
-  mode === 'dark' ? darken(color, 0.4) : lighten(color, 0.4);
+const getHoverBackgroundColor = (color: string, mode: string) =>
+  mode === "dark" ? darken(color, 0.4) : lighten(color, 0.4);
 
 const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
-  '& .status-HOLD': {
-    backgroundColor: getBackgroundColor(theme.palette.info.main, theme.palette.mode),
-    '&:hover': {
+  "& .status-HOLD": {
+    backgroundColor: getBackgroundColor(
+      theme.palette.info.main,
+      theme.palette.mode
+    ),
+    "&:hover": {
       backgroundColor: getHoverBackgroundColor(
         theme.palette.info.main,
-        theme.palette.mode,
+        theme.palette.mode
       ),
     },
   },
 
-  '& .status-ACCEPTED': {
-    backgroundColor: getBackgroundColor(theme.palette.success.main, theme.palette.mode),
-    '&:hover': {
+  "& .status-ACCEPTED": {
+    backgroundColor: getBackgroundColor(
+      theme.palette.success.main,
+      theme.palette.mode
+    ),
+    "&:hover": {
       backgroundColor: getHoverBackgroundColor(
         theme.palette.success.main,
-        theme.palette.mode,
+        theme.palette.mode
       ),
     },
   },
 
-  '& .status-REJECTED': {
-    backgroundColor: getBackgroundColor(theme.palette.warning.main, theme.palette.mode),
-    '&:hover': {
+  "& .status-REJECTED": {
+    backgroundColor: getBackgroundColor(
+      theme.palette.warning.main,
+      theme.palette.mode
+    ),
+    "&:hover": {
       backgroundColor: getHoverBackgroundColor(
         theme.palette.warning.main,
-        theme.palette.mode,
+        theme.palette.mode
       ),
     },
   },
@@ -128,28 +137,29 @@ export default function Projects() {
     { field: "appliedProjects", headerName: "Applied Projects", flex: 0.5, hide: true },
 
   ];
-  
+
   const filterModel: GridFilterModel = {
     items: [
       {
         id: 1,
         columnField: "status",
         operatorValue: "equals",
-        value: "DRAFT"
+        value: "DRAFT",
       },
       //Just the pro version allows more than one filter
     ],
   };
 
-  const selectRow = (id:string) => {
+  const selectRow = (id: string) => {
     navigate(`./${id}`);
-  }
+  };
 
-  const sortModel: GridSortModel = [{ field: "startDate", sort: "asc" }, ];
+  const sortModel: GridSortModel = [{ field: "startDate", sort: "asc" }];
 
   return (
     <>
       <Header title="Applicants" />
+      <NavAppBar title="Internship Applicants" />
       <Container>
         <Paper sx={{ p: 2 }}>
           <h1 style={{ marginTop: 0 }}>Applicants</h1>
@@ -165,7 +175,7 @@ export default function Projects() {
             components={{
               Toolbar: GridToolbar,
             }}
-            isRowSelectable={(e) => e.row.status !== 'HOLD'}
+            isRowSelectable={(e) => e.row.status !== "HOLD"}
             getRowClassName={(params) => `status-${params.row.status}`}
           />
         </Paper>

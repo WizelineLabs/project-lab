@@ -7,8 +7,8 @@ import { updateProjectActivity } from "~/models/project.server";
 export const action: ActionFunction = async ({ request }) => {
     const result = await validator.validate(await request.formData());
     const projectId = result.data?.projectId;
-    
-      const projectMembers = [{
+  
+    const projectMembers = [{
         id: result.data?.id as string,
         profileId: result.data?.profileId as string,
         hoursPerWeek: result.data?.hoursPerWeek,
