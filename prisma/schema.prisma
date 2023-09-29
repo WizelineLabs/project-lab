@@ -437,6 +437,7 @@ model Applicant {
   status                 String    @default("DRAFT")
   mentorId               String?
   comments               String?
+  appliedProjects        String?
   generalComments        internsComments[]
   projectId              String?
   mentor                 Profiles? @relation(fields: [mentorId], references: [id], onDelete: SetNull, onUpdate: Cascade)

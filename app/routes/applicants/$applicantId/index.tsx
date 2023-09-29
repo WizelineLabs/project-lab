@@ -287,6 +287,11 @@ export default function Applicant() {
               <strong>Relevant experience:</strong> {applicant.experience}
             </div>
           )}
+          {applicant.appliedProjects && (
+            <div>
+              <h3 style={{ marginBottom: 0 }}>Applied Projects</h3> {applicant.appliedProjects}
+            </div>
+          )}
           {applicant.interest && (
             <div>
               <h3 style={{ marginBottom: 0 }}>Interest</h3> {applicant.interest}

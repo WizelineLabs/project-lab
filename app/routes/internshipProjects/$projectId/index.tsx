@@ -1,7 +1,7 @@
 import Header from "../../../core/layouts/Header";
 import type { LoaderArgs } from "@remix-run/server-runtime";
 import { getProjectById } from "~/models/project.server";
-import { useLoaderData } from "@remix-run/react";
+import { Form, useLoaderData } from "@remix-run/react";
 import {
   Button,
   Card,
@@ -17,11 +17,15 @@ import { formatDistance } from "date-fns";
 import invariant from "tiny-invariant";
 import Markdown from "marked-react";
 import { useOptionalUser } from "~/utils";
+import { getAppliedProjectsByEmail } from "~/models/applicant.server";
+import { requireProfile } from "~/session.server";
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   invariant(params.projectId, "projectId not found");
 
+  const profile = await requireProfile(request);
   const projects = await getProjectById(params.projectId);
+  const appliedProjects = await getAppliedProjectsByEmail(profile.email);
 
   if (!projects.id) {
     throw new Error("project not found");
@@ -29,11 +33,12 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 
   return {
     projects,
+    appliedProjects,
   };
 };
 
 export default function ProjectDetail() {
-  const { projects } = useLoaderData();
+  const { projects, appliedProjects } = useLoaderData();
 
   const skills = projects.searchSkills
     ? projects.searchSkills
@@ -72,17 +77,24 @@ export default function ProjectDetail() {
           <p className="descriptionProposal">{projects.description}</p>
           {user && (
             <Grid style={{ position: "absolute", top: 0, right: 0 }}>
+              <Form
+              method="put"
+              action='./appliedproject'
+              >
               <Button
                 className="contained"
+                type='submit'
                 sx={{
                   width: "200px",
                   height: "40px",
                   fontSize: "1em",
                   margin: 2,
                 }}
+                disabled={appliedProjects.includes(projects.name)}
               >
                 APPLY
               </Button>
+              </Form>
             </Grid>
           )}
         </Paper>
