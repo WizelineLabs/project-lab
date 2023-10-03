@@ -8,9 +8,10 @@ import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import { useLoaderData, useSearchParams } from "@remix-run/react";
 import type { LoaderFunction } from "@remix-run/server-runtime";
-import { getProjectsIntern } from "~/models/project.server";
+import { getProjectsByRole } from "~/models/project.server";
 import ViewModuleIcon from "@mui/icons-material/ViewModule";
 import ViewListIcon from "@mui/icons-material/ViewList";
+import { searchDisciplineName } from "~/models/discipline.server";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -19,11 +20,13 @@ function getTitle() {
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const { projects, count } = await getProjectsIntern();
+  const id = await searchDisciplineName("Mentor");
+  const { projects, count } = await getProjectsByRole(id?.id as string);
 
   return {
     projects,
     count,
+    id,
   };
 };
 
