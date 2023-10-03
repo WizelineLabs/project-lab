@@ -10,7 +10,6 @@ import { zfd } from "zod-form-data";
 import { ModalText} from "./MemberModal.styles";
 import type { projectMembership } from "~/routes/projects";
 import { LabeledCheckbox } from "../LabeledCheckbox";
-import { Fragment } from "react";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 interface IProps {
@@ -31,14 +30,14 @@ export const multipleProjectsValidator = withZod (
                 id: z.string(),
                 name: z.string().optional(),
               })
-            ),
+            ).nonempty(),
           practicedSkills: z
             .array(
               z.object({
                 id: z.string(),
                 name: z.string().optional(),
               })
-            ),
+            ).nonempty(),
             active: zfd.checkbox(),
             profileId: z.string(),
             projectId: z.string(),
@@ -50,28 +49,27 @@ export const multipleProjectsValidator = withZod (
 export const validator = withZod( //this is the same of join project
   zfd.formData({
     id: z.string(),
-    hoursPerWeek: zfd.numeric(z.number().optional()),
+    hoursPerWeek: zfd.numeric(z.number()),
     role: z
       .array(
         z.object({
           id: z.string(),
           name: z.string().optional(),
         })
-      )
-      .optional(),
+      ).nonempty(),
     practicedSkills: z
       .array(
         z.object({
           id: z.string(),
           name: z.string().optional(),
         })
-      )
-      .optional(),
+      ).nonempty(),
       active: zfd.checkbox(),
       profileId: z.string(),
       projectId: z.string(),
   })
 );
+
 
 const MembershipModal = (props: IProps) => {
   const{ projects } = props;
