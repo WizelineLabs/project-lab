@@ -117,6 +117,21 @@ export default function Applicant() {
     }
   }, [navigation]);
 
+const appliedIdProjects = applicant.appliedProjectsId?.split(',');
+const appliedNameProjects = applicant.appliedProjects?.split(',');
+
+if (appliedIdProjects && appliedNameProjects) {
+  const projectMap: { [key: string]: string } = {};
+  
+  for (let i = 0; i < appliedNameProjects.length; i++) {
+    const projectName = appliedNameProjects[i];
+    const projectId = appliedIdProjects[i];
+    if (projectId) {
+      projectMap[projectName] = projectId;
+    }
+  }
+}
+
   const profileFetcher = useFetcher<ProfileValue[]>();
 
   const searchProfiles = (value: string, project:string | null = null) => {
@@ -252,6 +267,22 @@ export default function Applicant() {
                 </ExternalLink>
               </>
             )}
+            <hr />
+            <div>
+              <h3>Applied Projects</h3>
+              {appliedNameProjects && appliedNameProjects.length > 0 && appliedIdProjects && (
+                <ul>
+                  {appliedNameProjects.map((projectName: any, index) => {
+                    const projectId = appliedIdProjects[index];
+                    return (
+                      <li key={index}>
+                        <a href={`/projects/${projectId}`}>{projectName.trim()}</a>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
           </div>
           <hr />
           <div>
@@ -285,11 +316,6 @@ export default function Applicant() {
           {applicant.experience && (
             <div>
               <strong>Relevant experience:</strong> {applicant.experience}
-            </div>
-          )}
-          {applicant.appliedProjects && (
-            <div>
-              <h3 style={{ marginBottom: 0 }}>Applied Projects</h3> {applicant.appliedProjects}
             </div>
           )}
           {applicant.interest && (

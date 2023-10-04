@@ -10,11 +10,13 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   const profile = await requireProfile(request);
   const projects = await getProjectById(params.projectId);
+  const projectId = await projects.id;
 
   try {
     await addAppliedProject(
       profile.email,
       projects.name,
+      projectId,
     );
   } catch (e) {
     const session = await getSession(request);

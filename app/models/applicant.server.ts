@@ -72,7 +72,7 @@ export async function createApplicant (
 }
 
 
-export async function addAppliedProject(email: string, projectName: string) {
+export async function addAppliedProject(email: string, projectName: string, projectId: string) {
   const existingApplicant = await db.applicant.findUnique({
     where: {
       email: email,
@@ -85,10 +85,15 @@ export async function addAppliedProject(email: string, projectName: string) {
   const updatedProjectsString = appliedProjectsString.concat(
     appliedProjectsString ? `,${projectName}` : projectName
   );
+  const appliedProjectsIdString = existingApplicant.appliedProjectsId || '';
+  const updatedProjectsIdString = appliedProjectsIdString.concat(
+    appliedProjectsIdString ? `,${projectId}` : projectId
+  );
   await db.applicant.update({
     where: { email: email },
     data: {
       appliedProjects: updatedProjectsString,
+      appliedProjectsId: updatedProjectsIdString,
     },
   });
 }
