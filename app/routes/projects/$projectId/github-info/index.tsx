@@ -1,6 +1,6 @@
-    import { Button, Container, FormControl, Grid, InputLabel, MenuItem, Paper, Select, SelectChangeEvent, Typography } from "@mui/material";
-    import type { LoaderArgs } from "@remix-run/server-runtime";
-    import { typedjson, useTypedLoaderData } from "remix-typedjson";
+    import { Alert, Button, Container, Grid, InputLabel, MenuItem, Paper, Select, Stack, Typography } from "@mui/material";
+    import type { LoaderFunction } from "@remix-run/server-runtime";
+    import { json } from "@remix-run/node";
     import invariant from "tiny-invariant";
     import Header from "~/core/layouts/Header";
     import { getProject } from "~/models/project.server";
@@ -19,9 +19,11 @@
         Tooltip,
         Legend,
     } from 'chart.js';
-
-    // import { getActivity } from "~/routes/api/github/get-proyectActivity";
-
+import { ValidatedForm } from "remix-validated-form";
+import { withZod } from "@remix-validated-form/with-zod";
+import { zfd } from "zod-form-data";
+import { z } from "zod";
+import { useLoaderData, useSubmit } from "@remix-run/react";
     ChartJS.register(
         CategoryScale,
         LinearScale,
@@ -31,14 +33,37 @@
         Legend
     );
     
+    type LoaderData = {
+        project: Awaited<ReturnType<typeof getProject>>,
+        projectId: string,
+        activityData: Awaited<ReturnType<typeof getGitActivityData>>,
+        activityChartData: Awaited<ReturnType<typeof getActivityStadistic>>,
+        weekParams: number
+      };
 
     interface gitHubActivityChartType {
         count: number,
         typeEvent: string,
     }
 
-    export const loader = async ({ request, params }: LoaderArgs) => {
+    let currentdate:any = new Date();
+        let oneJan:any = new Date(currentdate.getFullYear(),0,1);
+        let numberOfDays = Math.floor((currentdate - oneJan) / (24 * 60 * 60 * 1000));
+        let week = Math.ceil(( currentdate.getDay() + 1 + numberOfDays) / 7);
+
+    export const validator = withZod(
+        zfd.formData({
+          body: z.string().min(1),
+          parentId: z.string().optional().nullable(),
+          id: z.string().optional(),
+        })
+      );
+
+    export const loader: LoaderFunction = async ({ request, params }) => {
         invariant(params.projectId, "projectId not found");
+        const url = new URL(request.url);
+        let weekParams = 0;
+        weekParams = parseInt(url.searchParams.get("week") as string);
         const projectId = params.projectId;
         const project = await getProject({ id: params.projectId });
         if (!project) {
@@ -46,12 +71,14 @@
         }
         // await getActivity('remix-project-lab',projectId);
         const activityData = await getGitActivityData(projectId);
-        const activityChartData:gitHubActivityChartType[] = await getActivityStadistic();
-        return typedjson({
-        project,
-        projectId,
-        activityData,
-        activityChartData
+        const activityChartData:gitHubActivityChartType[] = await getActivityStadistic(weekParams ? weekParams : week);
+
+        return json<LoaderData>({
+            project,
+            projectId,
+            activityData,
+            activityChartData,
+            weekParams
         });
     };
 
@@ -66,39 +93,40 @@
     }
 
     export default function GitHubInfo() {
+        const submit = useSubmit();
         let currentdate:any = new Date();
         let oneJan:any = new Date(currentdate.getFullYear(),0,1);
-        let numberOfDays = Math.floor((currentdate - oneJan) / (24 * 60 * 60 * 1000));
-        let week = Math.ceil(( currentdate.getDay() + 1 + numberOfDays) / 7);
+        let numberOfDays = Math.floor((currentdate - oneJan) / (24 * 60 * 60 * 1000));        
 
         const itemsSelect = [];
-
+                
+        const { project, projectId, activityData, activityChartData, weekParams } = useLoaderData();
+        
+        let week = Math.ceil(( currentdate.getDay() + 1 + numberOfDays) / 7);
+        let selectedWeek = weekParams ? weekParams : week;
+        
         for (let index = 1; index <= week; index++) {
-            itemsSelect.push(<MenuItem value={index}>{index}</MenuItem>)
-        }        
-
-        const {
-            project,projectId, activityData, activityChartData
-        } = useTypedLoaderData<typeof loader>();
+            itemsSelect.push(<MenuItem key={index} selected={index == selectedWeek} value={index}>{index}</MenuItem>)
+        }
 
         const dataChart = {
-                labels: activityChartData.map( activity => activity.typeEvent),
+                labels: activityChartData.map( (activity: { typeEvent: any; }) => activity.typeEvent),
                 datasets:  [ {
-                    data: activityChartData.map( activity => Number(activity.count)),
+                    data: activityChartData.map( (activity: { count: any; }) => Number(activity.count)),
                     backgroundColor: "#3B72A4",
                     borderColor: "#3B72A4",
                 }],
                 
-        };
+        };        
 
         const options = {
             responsive: true,
-            color: "#fff",
+            color: "#A7C7DC",
             plugins: {
             title: {
                 display: true,
-                text: 'Events per Week, Week #',
-                color: "#fff"
+                text: `Events per Week`,
+                color: "#A7C7DC"
                 },
                 legend: {
                     display: false,
@@ -106,18 +134,43 @@
                 },
             },
             scales: {
-                xAxes: {
-                    color: "white",
-                    display: false,
+                x: {
+                    title: {
+                        display: false
+                    },
+                    grid: {
+                        display:false
+                    },
+                    ticks: {
+                        color: "#A7C7DC"
+                    }
                 },
+                y: {
+                    title: {
+                        display: false
+                    },
+                    ticks: {
+                        color: "#4BA4E1",
+                    },
+                    grid: {
+                        color: '#6C7176'
+                    }
                 }
+            }
            
         };
 
-        const changeChartData = (event: SelectChangeEvent<unknown>) =>{
-            // console.log('change select', event.target.value);
+        const handleSubmit = async (event: any) => {
+
+            const body = {
+                week: event.target.value,
+            };
             
+            submit(body);
+
         }
+
+       
         
         
         return <> 
@@ -167,29 +220,45 @@
                         </Typography>
                     </Grid>
                     <Grid container sx={{ padding: 2, width: 1 }} >
-                        <FormControl fullWidth size="medium">
-
-                            <InputLabel id="demo-simple-select-label">
-                                Select a Week:
-                            </InputLabel>
-                            <Select
+                    <ValidatedForm
+                        action="./"
+                        method="post"
+                        validator={validator}
+                    >
+                        <InputLabel id="week-select-label">
+                             Select a Week:
+                        </InputLabel>
+                        <Select
                             id="actions-select"
                             label="Select a Week:"
-                            onChange={(e) => changeChartData(e)}
-                            >
-                                {
-                                    itemsSelect.map(item => {
-                                        return item
-                                    })
-                                   
-                                }
-                            </Select>
-                        </FormControl>
-                        <Bar
-                            options={options}
-                            data={dataChart}
-                        />
+                            style={{ width: "100%" }}
+                            value={selectedWeek}
+                            onChange={ (event) => handleSubmit(event) }
+                        >
+                        {
+                            itemsSelect.map((item) => item)     
+                        }
+                        </Select>
+                    </ValidatedForm>
+                    {
+                        ( activityChartData.length > 0 &&     
+                            <Bar
+                                options={options}
+                                data={dataChart}
+                            />
+                            
+                        )
+                    }
                     </Grid>
+                    {
+
+                        (
+                         activityChartData.length == 0 && 
+                         <Stack >
+                             <Alert severity="warning">There is no data to show.</Alert>
+                         </Stack>    
+                        )
+                    }
                 </Paper>
             </Container>
         </>

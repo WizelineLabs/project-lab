@@ -19,6 +19,7 @@
     "typecheck": "tsc -b && tsc -b cypress",
     "validate": "run-p \"test -- --run\" lint typecheck test:e2e:run",
     "migrate-profiles-lake": "ts-node --project ./ts-node.tsconfig.json ./tasks/ProfilesMigration/migrateProfilesLake.ts",
+    "get-gitprojects-activity": "ts-node --project ./ts-node.tsconfig.json ./tasks/GitHubDataManage/getGitHubActivityByProject.ts",
     "prepare": "husky install"
   },
   "eslintIgnore": [

@@ -34,7 +34,11 @@ export default function GitHubActivity({ repoName, projectId, activityData }: { 
                         {event.typeEvent}
                       </TableCell>
                       <TableCell align="right">{event.author}</TableCell>
-                      <TableCell align="right">{ event.created_at.toDateString()}</TableCell>
+                      <TableCell align="right">{ new Intl.DateTimeFormat([], {
+                            year: "numeric",
+                            month: "long",
+                            day: "2-digit",
+                          }).format(new Date(event.created_at))}</TableCell>
                   </TableRow>
                 ))
               }
