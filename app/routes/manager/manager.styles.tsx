@@ -1,10 +1,11 @@
-import styled from "@emotion/styled"
 import { Link } from "@remix-run/react"
 import { Box } from "@mui/material"
+import { styled } from '@mui/material/styles';
 
-export const LinkTabStyles = styled(Link)`
-  background-color: #ebebeb;
-  color: #1f1f1f;
+export const LinkTabStyles = styled(Link)(({ theme }) => `
+  background-color:  ${(theme.palette.mode === "dark"  ? "#1f1f1f;" : "#ebebeb;")}
+  background-color:  ${(theme.palette.mode === "dark"  ? "#1f1f1f;" : "#ebebeb;")}
+  color: ${(theme.palette.mode === "dark"  ? "#ebebeb;" : "#1f1f1f;")}
   font-family: Poppins, sans-serif;
   font-weight: 600;
   margin-right: 1em;
@@ -14,8 +15,10 @@ export const LinkTabStyles = styled(Link)`
   text-decoration: none;
   padding: 12px 16px;
 `
+);
 
-export const LinkStyles = styled(Link)`
+
+export const LinkStyles = styled(Link)(({ theme }) => `
   margin: 0 10px;
   padding: 0;
   align-self: center;
@@ -25,14 +28,15 @@ export const LinkStyles = styled(Link)`
   text-transform: initial;
   text-decoration: none;
   cursor: pointer;
-  color: #252a2f;
+  color: ${(theme.palette.mode === "dark"  ? "#fff;" : "#252a2f;")}   
 
   :hover {
     color: #e94d44;
   }
 `
+);
 
-export const EditPanelsStyles = styled.div`
+export const EditPanelsStyles = styled('div')`
   margin-top: -1em;
 
   .MuiBox-root {
@@ -54,8 +58,8 @@ export const EditPanelsStyles = styled.div`
   }
 `
 
-export const NavBarTabsStyles = styled.div`
-  background-color: #fff;
+export const NavBarTabsStyles = styled('div')(({ theme }) => `
+  background-color: ${(theme.palette.mode === "dark"  ? "#121212;" : "#fff;")}  
   height: 58px;
   border-radius: 4px;
   display: flex;
@@ -77,6 +81,7 @@ export const NavBarTabsStyles = styled.div`
     }
   }
 `
+);
 
 export const BoxStyles = styled(Box)`
   margin-top: 40px;
