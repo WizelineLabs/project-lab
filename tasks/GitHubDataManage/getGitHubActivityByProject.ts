@@ -10,7 +10,6 @@ async function task() {
     console.info(`Task github activity finished successfully`);
 }
 
-//close connection
 task().finally(() => {
     console.info(`Disconnecting DB connection`);
 });

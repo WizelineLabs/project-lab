@@ -69,7 +69,6 @@ import { useLoaderData, useSubmit } from "@remix-run/react";
         if (!project) {
         throw new Response("Not Found", { status: 404 });
         }
-        // await getActivity('remix-project-lab',projectId);
         const activityData = await getGitActivityData(projectId);
         const activityChartData:gitHubActivityChartType[] = await getActivityStadistic(weekParams ? weekParams : week);
 
