@@ -12,7 +12,7 @@ export async function searchDisciplines(searchTerm: string) {
   return disciplines;
 }
 
-export async function searchDisciplineName(disciplineName: string) {
+export async function searchDisciplineByName(disciplineName: string) {
   const disciplines = await prisma.disciplines.findUnique({
     where: { name: disciplineName },
   });
