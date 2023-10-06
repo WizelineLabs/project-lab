@@ -1,7 +1,8 @@
 import { getActivity } from "./routes/api/github/get-proyectActivity";
 import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
+const db = new PrismaClient();
+
 
 // export async function searchLastUpdateProjects() {
 
@@ -14,15 +15,23 @@ const prisma = new PrismaClient();
 
 // }
 
-export async function getGitHubActivity(db: PrismaClient) {
-
-    const projectsBoards = await prisma.$queryRaw<any[]>`
-        SELECT p."id", p."projectBoard" from "Projects" p
+export async function getGitHubActivity() {
+    // console.log('getGitHubActivity');
+    const projectsBoards = await db.$queryRaw<any[]>`
+        SELECT p."id", p."name", r."url" from "Projects" p
+        RIGHT JOIN "Repos" r on p."id" = r."projectId"
         WHERE p."isArchived" = FALSE and p."projectBoard" is not null
     `;
+    // console.log(projectsBoards[9].url, projectsBoards[9].id);
 
-    projectsBoards.forEach(async project => {
-        await getActivity(project.projectBoard, project.id);
-    })
+    try{
+        await getActivity(projectsBoards[9].url, projectsBoards[9].id).catch((e) => {throw(e)});
+    }catch(e){
+        throw (e);
+    }
+
+    // projectsBoards.forEach(async project => {
+    //     await getActivity(project.projectBoard, project.id, db);
+    // })
 
 }

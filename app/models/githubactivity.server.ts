@@ -1,5 +1,5 @@
-import { prisma } from "~/db.server";
-
+import { prisma } from "../db.server";
+import type { PrismaClient } from "@prisma/client";
 
 interface gitHubActivityChartType {
     count: number,
@@ -12,14 +12,17 @@ export async function saveACtivity(
     created_at: string,
     author: string,
     avatar_url: string,
-    projectId: string
+    projectId: string,
+    db?: PrismaClient
   ){
- 
-    const activityRegister = await prisma.gitHubActivity.findFirst({ where: { id } });
+    
+    const dbConnection = db ? db : prisma;
+    
+    const activityRegister = await dbConnection.gitHubActivity.findFirst({ where: { id } });
 
     if(!activityRegister) {
 
-        return await prisma.gitHubActivity.create({
+        return await dbConnection.gitHubActivity.create({
             data: {
                 id,
                 typeEvent,
@@ -29,7 +32,6 @@ export async function saveACtivity(
                 projectId
             }
         })
-
     }
   }
 
