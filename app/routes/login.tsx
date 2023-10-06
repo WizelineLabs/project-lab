@@ -9,14 +9,41 @@ import {
   Footer,
   LoginPageContainer,
 } from "./login.styles";
-import { getUserId, returnToCookie } from "~/session.server";
+import {
+  getUserId,
+  getUserRole,
+  requireProfile,
+  returnToCookie,
+} from "~/session.server";
+import { getApplicantByEmail } from "~/models/applicant.server";
+
+let roleRedirect: string;
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
-  const redirectTo = url.searchParams.get("redirectTo") || "/projects";
+
+  const userRole = await getUserRole(request);
+  if (userRole === "ADMIN" || userRole === "USER") {
+    roleRedirect = "/projects";
+  } else if (userRole === "APPLICANT") {
+    const profile = await requireProfile(request);
+    const existApplicant = await getApplicantByEmail(profile.email);
+
+    if (existApplicant) {
+      roleRedirect = "/internshipProjects";
+    } else {
+      roleRedirect = `/applicationForm/${profile.id}`;
+    }
+  } else {
+    roleRedirect = "/login";
+  }
+
+  const redirectTo = url.searchParams.get("redirectTo") || roleRedirect;
 
   const userId = await getUserId(request);
-  if (userId) return redirect("/projects");
+  if (userId) {
+    return redirect(roleRedirect);
+  }
   return json(
     {},
     {
@@ -35,7 +62,7 @@ export const meta: MetaFunction = () => {
 
 export default function LoginPage() {
   const [searchParams] = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") || "/projects";
+  const redirectTo = searchParams.get("redirectTo") || roleRedirect;
 
   return (
     <LoginPageContainer>

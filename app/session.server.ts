@@ -22,10 +22,19 @@ export const sessionStorage = createCookieSessionStorage({
 });
 
 const USER_SESSION_KEY = "userId";
+const USER_ROLE_SESSION_KEY = "userRole";
 
 export async function getSession(request: Request) {
   const cookie = request.headers.get("Cookie");
   return sessionStorage.getSession(cookie);
+}
+
+export async function getUserRole(
+  request: Request
+): Promise<User["role"] | undefined> {
+  const session = await getSession(request);
+  const userRole = session.get(USER_ROLE_SESSION_KEY);
+  return userRole;
 }
 
 export async function getUserId(
@@ -78,16 +87,19 @@ export async function requireProfile(request: Request) {
 
 export async function createUserSession({
   request,
+  userRole,
   userId,
   remember,
   redirectTo,
 }: {
   request: Request;
+  userRole: string;
   userId: string;
   remember: boolean;
   redirectTo: string;
 }) {
   const session = await getSession(request);
+  session.set(USER_ROLE_SESSION_KEY, userRole)
   session.set(USER_SESSION_KEY, userId);
   return redirect(redirectTo, {
     headers: {

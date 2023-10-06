@@ -40,6 +40,16 @@ interface SearchProjectsOutput {
   resourcesCount: number;
 }
 
+interface InternProjectOutput {
+  id: string;
+  name: string;
+  createdAt: string;
+  description: string;
+  searchSkills: string;
+  updatedAt: string;
+  valueStatement: string;
+}
+
 interface ProjectWhereInput {
   status?: string | null;
   tierName?: string | null;
@@ -756,8 +766,9 @@ export async function searchProjects({
   const statusFacets = await db.$queryRaw<FacetOutput[]>`
     SELECT p.status as name, COUNT(DISTINCT p.id) as count
     FROM "Projects" p
-    WHERE ${projectIdsWhere} AND p.status NOT IN (${status.length > 0 ? Prisma.join(status) : ""
-    })
+    WHERE ${projectIdsWhere} AND p.status NOT IN (${
+    status.length > 0 ? Prisma.join(status) : ""
+  })
     GROUP BY p.status
     ORDER BY count DESC;`;
 
@@ -766,8 +777,9 @@ export async function searchProjects({
     FROM "Projects" p
     LEFT JOIN "_ProjectsToSkills" _ps ON _ps."A" = p.id
     LEFT JOIN "Skills" ON _ps."B" = "Skills".id
-    WHERE ${projectIdsWhere} AND "Skills".name NOT IN (${skill.length > 0 ? Prisma.join(skill) : ""
-    })
+    WHERE ${projectIdsWhere} AND "Skills".name NOT IN (${
+    skill.length > 0 ? Prisma.join(skill) : ""
+  })
     AND "Skills".name IS NOT NULL
     AND "Skills".id IS NOT NULL
     GROUP BY "Skills".id
@@ -778,8 +790,9 @@ export async function searchProjects({
     SELECT DISTINCT r.type as name, count(DISTINCT r.id) as count
     FROM "Projects" p
     LEFT JOIN "Resource" r ON p."id" = r."projectId"
-    WHERE ${projectIdsWhere} AND r.type NOT IN (${resource.length > 0 ? Prisma.join(resource) : ""
-    })
+    WHERE ${projectIdsWhere} AND r.type NOT IN (${
+    resource.length > 0 ? Prisma.join(resource) : ""
+  })
     AND r.type IS NOT NULL
     GROUP BY r.type
     ORDER BY count DESC
@@ -822,8 +835,9 @@ export async function searchProjects({
     FROM "Projects" p
     LEFT JOIN "_DisciplinesToProjects" _dp ON _dp."B" = p.id
     LEFT JOIN "Disciplines" ON _dp."A" = "Disciplines".id
-    WHERE ${projectIdsWhere} AND "Disciplines".name NOT IN (${discipline.length > 0 ? Prisma.join(discipline) : ""
-    })
+    WHERE ${projectIdsWhere} AND "Disciplines".name NOT IN (${
+    discipline.length > 0 ? Prisma.join(discipline) : ""
+  })
     AND "Disciplines".name IS NOT NULL
     AND "Disciplines".id IS NOT NULL
     GROUP BY "Disciplines".id
@@ -835,8 +849,9 @@ export async function searchProjects({
     FROM "Projects" p
     LEFT JOIN "_LabelsToProjects" _lp ON _lp."B" = p.id
     LEFT JOIN "Labels" ON _lp."A" = "Labels".id
-    WHERE ${projectIdsWhere} AND "Labels".name NOT IN (${label.length > 0 ? Prisma.join(label) : ""
-    })
+    WHERE ${projectIdsWhere} AND "Labels".name NOT IN (${
+    label.length > 0 ? Prisma.join(label) : ""
+  })
     AND "Labels".name IS NOT NULL
     AND "Labels".id IS NOT NULL
     GROUP BY "Labels".id
@@ -846,8 +861,9 @@ export async function searchProjects({
   const tierFacets = await db.$queryRaw<FacetOutput[]>`
     SELECT p."tierName" as name, COUNT(DISTINCT p.id) as count
     FROM "Projects" p
-    WHERE ${projectIdsWhere} AND p."tierName" NOT IN (${tier.length > 0 ? Prisma.join(tier) : ""
-    })
+    WHERE ${projectIdsWhere} AND p."tierName" NOT IN (${
+    tier.length > 0 ? Prisma.join(tier) : ""
+  })
     GROUP BY p."tierName"
     ORDER BY count DESC, p."tierName"
   `;
@@ -858,8 +874,9 @@ export async function searchProjects({
     INNER JOIN "ProjectMembers" pm ON pm."projectId" = p.id
     INNER JOIN "Profiles" pr on pr.id = p."ownerId"
     LEFT JOIN "Locations" loc ON loc.id = pr."locationId"
-    WHERE ${projectIdsWhere} AND loc.name NOT IN (${location.length > 0 ? Prisma.join(location) : ""
-    })
+    WHERE ${projectIdsWhere} AND loc.name NOT IN (${
+    location.length > 0 ? Prisma.join(location) : ""
+  })
     AND loc.name IS NOT NULL
     AND loc.id IS NOT NULL
     GROUP BY loc.id
@@ -931,4 +948,41 @@ export async function getProjectsList() {
   return await db.$queryRaw<ProjectListOutput[]>`
    SELECT "id", "name" FROM "Projects" where "isArchived" = false
   `;
+}
+
+export async function getProjectById(projectId: string) {
+  const where = Prisma.sql`AND p.id = ${projectId}`;
+
+  const project = await db.$queryRaw<InternProjectOutput[]>`
+    SELECT "id", "name", "createdAt", "description", "searchSkills", "updatedAt", "valueStatement"
+    FROM "Projects" p
+    WHERE "isArchived" = false
+    ${where}
+  `;
+
+  return project[0];
+}
+
+export async function getProjectsByRole(roleId: string) {
+  const roleVar = `%${roleId}%`;
+
+  const projects = await db.$queryRaw<InternProjectOutput[]>`
+    SELECT DISTINCT ON (p."id") p."id", p."name", p."createdAt", p."description", p."searchSkills"
+    FROM "Projects" p
+    INNER JOIN (
+      SELECT 
+        pmv."profileId", 
+        pmv."role", 
+        pmv."projectId", 
+        ROW_NUMBER() OVER (PARTITION BY pmv."profileId" ORDER BY pmv."updatedAt" DESC) AS row_num
+      FROM "ProjectMembersVersions" pmv
+    ) AS latest_pmv
+    ON latest_pmv."projectId" = p."id"
+    WHERE p."isArchived" = false
+    AND latest_pmv."role" LIKE ${roleVar}
+    AND latest_pmv.row_num = 1
+    ORDER BY p."id"
+  `;
+
+  return { projects, count: projects.length };
 }

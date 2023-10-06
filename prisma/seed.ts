@@ -556,6 +556,17 @@ async function seed() {
     },
   });
   await db.profiles.upsert({
+    where: { email: "axel.uzetagomez@in.wizeline.com" },
+    update: {},
+    create: {
+      email: "axel.uzetagomez@in.wizeline.com",
+      firstName: "Axel",
+      preferredName: "Axel",
+      lastName: "Uzeta",
+      department: "Engineering"
+    },
+  });
+  await db.profiles.upsert({
     where: { email: "carlos.milanoduarte@in.wizeline.com" },
     update: {},
     create: {
@@ -564,6 +575,17 @@ async function seed() {
       preferredName: "Carlos",
       lastName: "Milano",
       department: "Engineering",
+    },
+  });
+  await db.profiles.upsert({
+    where: { email: "paola.santollo@wizeline.com" },
+    update: {},
+    create: {
+      email: "paola.santollo@wizeline.com",
+      firstName: "Paola",
+      preferredName: "Pao",
+      lastName: "Santollo",
+      department: "Engineering"
     },
   });
   console.info("Profiles created, starting projects upsert");
