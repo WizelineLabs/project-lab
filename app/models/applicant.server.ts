@@ -72,6 +72,52 @@ export async function createApplicant (
 }
 
 
+export async function addAppliedProject(email: string, projectName: string, projectId: string) {
+  const existingApplicant = await db.applicant.findUnique({
+    where: {
+      email: email,
+    },
+  });
+  if (!existingApplicant) {
+    throw new Error("Applicant not found");
+  }
+  const appliedProjectsString = existingApplicant.appliedProjects || '';
+  const updatedProjectsString = appliedProjectsString.concat(
+    appliedProjectsString ? `,${projectName}` : projectName
+  );
+  const appliedProjectsIdString = existingApplicant.appliedProjectsId || '';
+  const updatedProjectsIdString = appliedProjectsIdString.concat(
+    appliedProjectsIdString ? `,${projectId}` : projectId
+  );
+  await db.applicant.update({
+    where: { email: email },
+    data: {
+      appliedProjects: updatedProjectsString,
+      appliedProjectsId: updatedProjectsIdString,
+    },
+  });
+}
+
+
+export async function getAppliedProjectsByEmail(email: string) {
+  const existingApplicant = await db.applicant.findUnique({
+    where: {
+      email: email,
+    },
+    select: {
+      appliedProjects: true,
+    },
+  });
+
+  if (!existingApplicant) {
+    return [];
+  }
+
+  return existingApplicant.appliedProjects || []; 
+}
+
+
+
 export async function searchApplicants() {
   return await db.applicant.findMany({
     where : {

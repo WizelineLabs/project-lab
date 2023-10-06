@@ -30,7 +30,11 @@ import {
   Typography,
   CardHeader,
   Link,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from "@mui/material";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import EditSharp from "@mui/icons-material/EditSharp";
 import ThumbUpSharp from "@mui/icons-material/ThumbUpSharp";
 import ThumbDownSharp from "@mui/icons-material/ThumbDownSharp";
@@ -56,6 +60,7 @@ import { checkPermission } from "~/models/authorization.server";
 import type { Roles } from "~/models/authorization.server";
 import GitHub from '@mui/icons-material/GitHub';
 import { validateNavigationRedirect } from '~/utils';
+import { searchApplicants } from "~/models/applicant.server";
 
 export function links() {
   return [
@@ -94,6 +99,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   // Resources data
   const projectResources = await getProjectResources(params.projectId);
   const resourceData = await getDistinctResources();
+  const applicant = await searchApplicants();
 
   return typedjson({
     canEditProject,
@@ -107,6 +113,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
     comments,
     projectResources,
     resourceData,
+    applicant,
   });
 };
 
@@ -184,6 +191,12 @@ export const meta: TypedMetaFunction<typeof loader> = ({ data, params }) => {
   };
 };
 
+function filterApplicantsByProject(applicants: any, projectId: any) {
+  return applicants.filter((applicant: any) =>
+    applicant.appliedProjectsId?.split(',').includes(projectId)
+  );
+}
+
 export default function ProjectDetailsPage() {
   const {
     canEditProject,
@@ -197,6 +210,7 @@ export default function ProjectDetailsPage() {
     comments,
     projectResources,
     resourceData,
+    applicant,
   } = useTypedLoaderData<typeof loader>();
   const [showJoinModal, setShowJoinModal] = useState<boolean>(false);
   const [showMembershipModal, setShowMembershipModal] =
@@ -209,6 +223,8 @@ export default function ProjectDetailsPage() {
     await voteForProject(payload);
     return;
   };
+ 
+  const applicantsForCurrentProject = filterApplicantsByProject(applicant, projectId);
 
   const fetcher = useFetcher();
   const voteForProject = async (values: voteProject) => {
@@ -543,6 +559,43 @@ export default function ProjectDetailsPage() {
           <Grid item xs={12}></Grid>
         </Grid>
       </Container>
+
+      <Container sx={{ marginBottom: 2 }}>
+      <Card>
+        <CardHeader title="Applicants:" />
+        <CardContent>
+          {applicantsForCurrentProject.length > 0 && (
+            <ul>
+              {applicantsForCurrentProject.map((applicantData: any, index: any) => (
+                <li key={index}>
+                  <Accordion>
+                    <AccordionSummary
+                      expandIcon={<ExpandMoreIcon />}
+                      aria-controls={`panel${index + 1}-content`}
+                      id={`panel${index + 1}-header`}
+                    >
+                      <Link href={`/applicants/${applicantData.id}`}>
+                        <Typography>{applicantData.fullName}</Typography>
+                      </Link>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <Typography>
+                        <b>Experience:</b> {applicantData.experience}
+                      </Typography>
+                      <Typography>
+                        <b>CV Link:</b>{" "}
+                        <a href={applicantData.cvLink}> {applicantData.cvLink} </a>
+                      </Typography>
+                    </AccordionDetails>
+                  </Accordion>
+                </li>
+              ))}
+            </ul>
+          )}
+        </CardContent>
+      </Card>
+    </Container>
+
       {project.skills && project.skills.length > 0 && (
         <Container sx={{ marginBottom: 2 }}>
           <Card>

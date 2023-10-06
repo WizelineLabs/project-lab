@@ -134,6 +134,8 @@ export default function Projects() {
       hide: true,
     },
     { field: "status", headerName: "Status", flex: 0.4, hide: false },
+    { field: "appliedProjects", headerName: "Applied Projects", flex: 0.5, hide: true },
+
   ];
 
   const filterModel: GridFilterModel = {
