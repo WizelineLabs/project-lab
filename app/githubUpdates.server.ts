@@ -17,9 +17,9 @@ const db = new PrismaClient();
 
 export async function getGitHubActivity() {
     const projectsBoards = await db.$queryRaw<any[]>`
-        SELECT p."id", p."name", r."url" from "Projects" p
+        SELECT p."id", p."name", r.url from "Projects" p
         RIGHT JOIN "Repos" r on p."id" = r."projectId"
-        WHERE p."isArchived" = FALSE and p."projectBoard" is not null
+        WHERE p."isArchived" = FALSE and r."url" is not null
     `;
 
     try{
