@@ -240,7 +240,7 @@ export const ContributorPathReport = ({ project, canEditProject }: IProps) => {
                           {row.name}
                         </Button>
                       </TableCell>
-                      <TableCell align="center">{row.role}</TableCell>
+                      <TableCell align="left">{row.role.join("\n")}</TableCell>
                       <TableCell align="center">
                         <Grid
                           container

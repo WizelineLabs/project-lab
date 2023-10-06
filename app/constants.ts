@@ -1,5 +1,5 @@
-export const defaultStatus = "Idea Submitted"
-export const adminRoleName = "ADMIN"
+export const defaultStatus = "Idea Submitted";
+export const adminRoleName = "ADMIN";
 export const contributorPath = [
   {
     name: "Intro",
@@ -53,7 +53,8 @@ export const contributorPath = [
   {
     name: "Major Contributor",
     criteria: "You did your first contribution.",
-    mission: "To lead the development process and influence the project direction.",
+    mission:
+      "To lead the development process and influence the project direction.",
     tasks: [
       {
         name: "Participate in the project ceremonies and help keep track of the code sanity",
@@ -65,8 +66,13 @@ export const contributorPath = [
       },
     ],
   },
-]
+];
 
-export const ongoingStage =  "ongoing project"
-export const ideaStage =  "idea"
-export const stageOptions = [{ name: ideaStage }, { name: ongoingStage }, { name: "none" }]
+export const ongoingStage = "ongoing project";
+export const ideaStage = "idea";
+export const stageOptions = [
+  { name: ideaStage },
+  { name: ongoingStage },
+  { name: "none" },
+];
+export const mentorDiscipline = "Mentor";

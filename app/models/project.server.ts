@@ -950,32 +950,6 @@ export async function getProjectsList() {
   `;
 }
 
-export async function getProjectsIntern() {
-  const where = Prisma.sql`WHERE p.id IS NOT NULL`;
-  const having = Prisma.empty;
-
-  const projects = await db.$queryRaw<InternProjectOutput[]>`
-   SELECT "id", "name", "createdAt", "description", "searchSkills" FROM "Projects" where "isArchived" = false
-  `;
-  const count = await db.$queryRaw<SearchIdsOutput[]>`
-    SELECT DISTINCT p.id
-    FROM "Projects" p
-    INNER JOIN "ProjectStatus" s on s.name = p.status
-    INNER JOIN "Profiles" pr on pr.id = p."ownerId"
-    INNER JOIN "ProjectMembers" pm ON pm."projectId" = p.id
-    LEFT JOIN "Locations" loc ON loc.id = pr."locationId"
-    LEFT JOIN "_ProjectsToSkills" _ps ON _ps."A" = p.id
-    LEFT JOIN "Skills" ON _ps."B" = "Skills".id
-    LEFT JOIN "_LabelsToProjects" _lp ON _lp."B" = p.id
-    LEFT JOIN "Labels" ON _lp."A" = "Labels".id
-    LEFT JOIN "Resource" r ON p.id = r."projectId"
-    ${where}
-    GROUP BY p.id
-    ${having};
-  `;
-  return { projects, count: count.length };
-}
-
 export async function getProjectById(projectId: string) {
   const where = Prisma.sql`AND p.id = ${projectId}`;
 
@@ -987,4 +961,28 @@ export async function getProjectById(projectId: string) {
   `;
 
   return project[0];
+}
+
+export async function getProjectsByRole(roleId: string) {
+  const roleVar = `%${roleId}%`;
+
+  const projects = await db.$queryRaw<InternProjectOutput[]>`
+    SELECT DISTINCT ON (p."id") p."id", p."name", p."createdAt", p."description", p."searchSkills"
+    FROM "Projects" p
+    INNER JOIN (
+      SELECT 
+        pmv."profileId", 
+        pmv."role", 
+        pmv."projectId", 
+        ROW_NUMBER() OVER (PARTITION BY pmv."profileId" ORDER BY pmv."updatedAt" DESC) AS row_num
+      FROM "ProjectMembersVersions" pmv
+    ) AS latest_pmv
+    ON latest_pmv."projectId" = p."id"
+    WHERE p."isArchived" = false
+    AND latest_pmv."role" LIKE ${roleVar}
+    AND latest_pmv.row_num = 1
+    ORDER BY p."id"
+  `;
+
+  return { projects, count: projects.length };
 }
