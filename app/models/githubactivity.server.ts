@@ -6,7 +6,7 @@ interface gitHubActivityChartType {
     typeEvent: string,
 }
 
-export async function saveACtivity(
+export async function saveActivity(
     id: string,
     typeEvent: string,
     created_at: string,

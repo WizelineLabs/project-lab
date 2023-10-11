@@ -19,6 +19,7 @@
         Tooltip,
         Legend,
     } from 'chart.js';
+import { week, currentdate, numberOfDays } from "~/utils";
 import { ValidatedForm } from "remix-validated-form";
 import { withZod } from "@remix-validated-form/with-zod";
 import { zfd } from "zod-form-data";
@@ -32,6 +33,7 @@ import { useLoaderData, useSubmit } from "@remix-run/react";
         Tooltip,
         Legend
     );
+
     
     type LoaderData = {
         project: Awaited<ReturnType<typeof getProject>>,
@@ -45,11 +47,6 @@ import { useLoaderData, useSubmit } from "@remix-run/react";
         count: number,
         typeEvent: string,
     }
-
-    let currentdate:any = new Date();
-        let oneJan:any = new Date(currentdate.getFullYear(),0,1);
-        let numberOfDays = Math.floor((currentdate - oneJan) / (24 * 60 * 60 * 1000));
-        let week = Math.ceil(( currentdate.getDay() + 1 + numberOfDays) / 7);
 
     export const validator = withZod(
         zfd.formData({
@@ -92,10 +89,7 @@ import { useLoaderData, useSubmit } from "@remix-run/react";
     }
 
     export default function GitHubInfo() {
-        const submit = useSubmit();
-        let currentdate:any = new Date();
-        let oneJan:any = new Date(currentdate.getFullYear(),0,1);
-        let numberOfDays = Math.floor((currentdate - oneJan) / (24 * 60 * 60 * 1000));        
+        const submit = useSubmit();        
 
         const itemsSelect = [];
                 
