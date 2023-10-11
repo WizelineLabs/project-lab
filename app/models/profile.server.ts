@@ -28,6 +28,13 @@ export async function getProfileByUserId(id: User["id"]) {
 export async function getProfileByEmail(email: Profiles["email"]) {
   return prisma.profiles.findUnique({
     where: { email },
+    include: {
+      projectMembers: {
+        include: {
+          project: true
+        }
+      }
+    }
   });
 }
 
@@ -181,26 +188,6 @@ export async function consolidateProfilesByEmail(
     console.log(e);
   }
 }
-
-// interface SearchProfilesOutput {
-//   id: string
-//   email: string
-//   firstName: string
-//   lastName: string
-//   avatarUrl: string
-//   jobLevelTier: string
-//   jobLevelTitle: string
-//   department: string
-//   createdAt: string
-//   updatedAt: string
-//   country: string
-//   location: string
-//   preferredName: string
-//   benchStatus: string
-//   businessUnit: string
-//   employeeStatus: string
-//   githubUser: string
-// }
 
 function unaccent(text: string) {
   return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
