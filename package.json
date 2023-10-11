@@ -47,6 +47,7 @@
     "react-dom": "^17.0.2",
     "remix-auth": "^3.5.1",
     "remix-auth-auth0": "^1.7.0",
+    "remix-auth-oauth2": "^1.11.0",
     "remix-typedjson": "^0.1.6",
     "remix-validated-form": "^4.6.4",
     "tiny-invariant": "^1.2.0",

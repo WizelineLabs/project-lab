@@ -1,13 +1,12 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { createUserSession, returnToCookie } from "~/session.server";
-import { authenticator } from "~/auth.server";
+import { getAuthenticator } from "~/auth.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const returnTo =
-    (await returnToCookie.parse(request.headers.get("Cookie")));
+  const returnTo = await returnToCookie.parse(request.headers.get("Cookie"));
 
-  const user = await authenticator.authenticate("auth0", request, {
-    failureRedirect: "/login",
+  const user = await getAuthenticator().authenticate("auth0", request, {
+    failureRedirect: "/",
   });
   return createUserSession({
     request,
