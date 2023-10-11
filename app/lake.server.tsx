@@ -49,7 +49,7 @@ export async function findProfileData(email: string) {
   if (rows.length > 0) {
     return rows[0];
   } else {
-    throw new Error("Profile not found on lake");
+    throw new Error(`Profile ${email} not found on lake`);
   }
 }
 
