@@ -1,5 +1,5 @@
 import { useLoaderData } from "@remix-run/react";
-import { HomePageContainer, HomeHeader } from "./login.styles";
+import { HomePageContainer, HomeHeader } from "./index.styles";
 import { useOptionalUser } from "~/utils";
 import { Button, Stack } from "@mui/material";
 import ExperienceArea from "~/core/components/ExperienceComments";
