@@ -72,17 +72,30 @@ export default function Index() {
         </Stack>
         <Stack alignItems="center" spacing={2} sx={{ margin: "20px" }}>
           {!user && (
-            <Button
-              href="/login"
-              className="contained"
-              sx={{
-                width: "240px",
-                height: "60px",
-                fontSize: "1.5em",
-              }}
-            >
-              Log In
-            </Button>
+            <>
+              <Button
+                href="/login/wizeline"
+                className="contained"
+                sx={{
+                  width: "300px",
+                  height: "60px",
+                  fontSize: "1.5em",
+                }}
+              >
+                Wizeline Log In
+              </Button>
+              <Button
+                href="/login/linkedin"
+                className="contained"
+                sx={{
+                  width: "300px",
+                  height: "60px",
+                  fontSize: "1.5em",
+                }}
+              >
+                Applicant Log In
+              </Button>
+            </>
           )}
           {user && (
             <Button
