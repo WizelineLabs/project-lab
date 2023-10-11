@@ -362,14 +362,14 @@ export default function Projects() {
                 <FilterAccordion
                   title="Status"
                   filter="status"
-                  items={tierFacets}
+                  items={statusFacets}
                 />
               )}
               {tierFacets.length > 0 && (
                 <FilterAccordion
                   title="Innovation tiers"
                   filter="tier"
-                  items={statusFacets}
+                  items={tierFacets}
                 />
               )}
               {labelFacets.length > 0 && (
