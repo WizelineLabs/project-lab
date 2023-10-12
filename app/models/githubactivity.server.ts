@@ -40,8 +40,8 @@ export async function getGitActivityData(projectId: string) {
     return await prisma.gitHubActivity.findMany({ where: { projectId }, orderBy: { id: "desc" }});
 }
 
-export const getActivityStadistic = async (week: number) => {
-    return  await prisma.$queryRaw<gitHubActivityChartType[]>`SELECT Count(*)::int, "typeEvent" FROM "GitHubActivity" where  date_part('week', "created_at")=${week} GROUP BY "typeEvent"`;
+export const getActivityStadistic = async (week: number, projectId: string) => {
+    return  await prisma.$queryRaw<gitHubActivityChartType[]>`SELECT Count(*)::int, "typeEvent" FROM "GitHubActivity" where  date_part('week', "created_at")=${week} AND "projectId" = ${projectId}  GROUP BY "typeEvent"`;
 
 }
 
