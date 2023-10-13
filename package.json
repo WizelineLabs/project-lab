@@ -19,6 +19,7 @@
     "typecheck": "tsc -b && tsc -b cypress",
     "validate": "run-p \"test -- --run\" lint typecheck test:e2e:run",
     "migrate-profiles-lake": "ts-node --project ./ts-node.tsconfig.json ./tasks/ProfilesMigration/migrateProfilesLake.ts",
+    "get-gitprojects-activity": "ts-node --project ./ts-node.tsconfig.json ./tasks/GitHubDataManage/getGitHubActivityByProject.ts",
     "prepare": "husky install"
   },
   "eslintIgnore": [
@@ -34,19 +35,21 @@
     "@mui/material": "^5.8.3",
     "@mui/x-data-grid": "^5.17.26",
     "@prisma/client": "^4.3.1",
-    "@remix-run/node": "^1.18.1",
-    "@remix-run/react": "^1.18.1",
-    "@remix-run/serve": "^1.18.1",
-    "@remix-run/server-runtime": "^1.18.1",
+    "@remix-run/node": "^1.19.3",
+    "@remix-run/react": "^1.19.3",
+    "@remix-run/serve": "^1.19.3",
+    "@remix-run/server-runtime": "^1.19.3",
     "@remix-validated-form/with-zod": "^2.0.5",
     "@uiw/react-md-editor": "^3.20.1",
     "bcryptjs": "^2.4.3",
+    "chart.js": "^4.4.0",
     "date-fns": "^2.29.2",
     "marked-react": "^1.2.0",
     "react": "^17.0.2",
+    "react-chartjs-2": "^5.2.0",
     "react-dom": "^17.0.2",
-    "remix-auth": "^3.2.2",
-    "remix-auth-auth0": "^1.3.7",
+    "remix-auth": "^3.5.1",
+    "remix-auth-auth0": "^1.7.0",
     "remix-typedjson": "^0.1.6",
     "remix-validated-form": "^4.6.4",
     "tiny-invariant": "^1.2.0",
@@ -56,9 +59,9 @@
   "devDependencies": {
     "@faker-js/faker": "^7.6.0",
     "@octokit/core": "^4.2.0",
-    "@remix-run/dev": "^1.18.1",
-    "@remix-run/eslint-config": "^1.18.1",
-    "@remix-run/testing": "^1.18.1",
+    "@remix-run/dev": "^1.19.3",
+    "@remix-run/eslint-config": "^1.19.3",
+    "@remix-run/testing": "^1.19.3",
     "@testing-library/cypress": "^8.0.2",
     "@testing-library/dom": "^8.13.0",
     "@testing-library/jest-dom": "^5.16.4",
@@ -95,7 +98,7 @@
     "vitest": "^0.32.2"
   },
   "engines": {
-    "node": "16"
+    "node": "20"
   },
   "prisma": {
     "seed": "ts-node --require tsconfig-paths/register prisma/seed.ts"
