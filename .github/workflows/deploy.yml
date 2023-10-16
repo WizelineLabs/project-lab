@@ -245,7 +245,9 @@ jobs:
 
             echo "*** Cron job to get github activity ****"
             chmod +x /home/admin/projectlab/app/githubActivity.sh
-            echo "0 0 * * * /home/admin/projectlab/app/githubActivity.sh" | crontab -
+            crontab -l > /tmp/temp_crontab
+            cat 0 0 * * * /home/admin/projectlab/app/githubActivity.sh >> /tmp/temp_crontab
+            crontab /tmp/temp_crontab
 
             echo "*** Step: *** Start pm2 service"
             pm2 start ecosystem.config.js
