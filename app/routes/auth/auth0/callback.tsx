@@ -1,18 +1,43 @@
 import type { LoaderFunction } from "@remix-run/node";
-import { createUserSession, returnToCookie } from "~/session.server";
+import { createUserSession, getUserRole, requireProfile, returnToCookie } from "~/session.server";
 import { getAuthenticator } from "~/auth.server";
+import { getApplicantByEmail } from "~/models/applicant.server";
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader: LoaderFunction = async ({ request, params }) => {
   const returnTo = await returnToCookie.parse(request.headers.get("Cookie"));
 
   const user = await getAuthenticator().authenticate("auth0", request, {
     failureRedirect: "/",
   });
+
+  let roleRedirect: string;
+
+  const userRole = await getUserRole(request);
+
+  //Redirects according to user's role at login
+  if (userRole === "ADMIN" || userRole === "USER") {
+    roleRedirect = "/projects";
+  } else if (userRole === "APPLICANT") {
+    const profile = await requireProfile(request);
+    const existApplicant = await getApplicantByEmail(profile.email);
+  
+    //Check if the user has already answered the "aplicationform".
+    if (existApplicant) {
+      roleRedirect = "/internshipProjects";
+    } else {
+      roleRedirect = `/applicationForm/${profile.id}`;
+    }
+  } else {
+    roleRedirect = `/login/${params.connection}`;
+  }
+
+  const navigate = returnTo || roleRedirect;
+
   return createUserSession({
     request,
     userRole: user.role,
     userId: user.id,
     remember: false,
-    redirectTo: returnTo || "/projects",
+    redirectTo: navigate,
   });
 };
