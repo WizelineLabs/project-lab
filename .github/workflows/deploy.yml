@@ -243,6 +243,14 @@ jobs:
             chmod +x /home/admin/projectlab/app/profilesmigration.sh
             echo "0 13 * * * /home/admin/projectlab/app/profilesmigration.sh" | crontab -
 
+            echo "*** Cron job to get github activity ****"
+            chmod +x /home/admin/projectlab/app/githubActivity.sh
+            {
+                line="0 0 * * * /home/admin/projectlab/app/githubActivity.sh"
+                crontab -l | grep -Fv "$line"
+                echo "$line"
+            } | crontab -
+
             echo "*** Step: *** Start pm2 service"
             pm2 start ecosystem.config.js
             pm2 save
@@ -348,6 +356,14 @@ jobs:
             echo "*** Step: *** Schedule cron to update profiles"
             chmod +x /home/admin/projectlab/app/profilesmigration.sh
             echo "0 13 * * * /home/admin/projectlab/app/profilesmigration.sh" | crontab -
+
+            echo "*** Cron job to get github activity ****"
+            chmod +x /home/admin/projectlab/app/githubActivity.sh
+            {
+                line="0 0 * * * /home/admin/projectlab/app/githubActivity.sh"
+                crontab -l | grep -Fv "$line"
+                echo "$line"
+            } | crontab -
 
             echo "*** Step: *** Start pm2 service"
             pm2 start ecosystem.config.js
