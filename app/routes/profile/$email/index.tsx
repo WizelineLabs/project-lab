@@ -12,19 +12,24 @@ import {
   TextField,
   Button,
   Avatar,
+  Link,
+  Chip,
+  IconButton,
 } from "@mui/material";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import EmailIcon from "@mui/icons-material/Email";
 import GroupsIcon from "@mui/icons-material/Groups";
 import BusinessIcon from "@mui/icons-material/Business";
 import PlaceIcon from "@mui/icons-material/Place";
 import WorkIcon from "@mui/icons-material/Work";
 import GitHubIcon from "@mui/icons-material/GitHub";
+import EditSharp from "@mui/icons-material/EditSharp";
+import SaveIcon from "@mui/icons-material/Save";
 import {
   getGitHubProfileByEmail,
   getGitHubProjectsByEmail,
   getProfileByEmail,
+  updateProfile,
 } from "../../../models/profile.server";
 import { useLoaderData, useTransition } from "@remix-run/react";
 import type {
@@ -40,6 +45,7 @@ import { redirect } from "remix-typedjson";
 import { ValidatedForm } from "remix-validated-form";
 import { withZod } from "@remix-validated-form/with-zod";
 import { zfd } from "zod-form-data";
+import { useState } from "react";
 
 type LoaderData = {
   profileData: Awaited<ReturnType<typeof getProfileByEmail>>;
@@ -84,31 +90,57 @@ export const validator = withZod(
   })
 );
 
+const githubUserValidator = withZod(
+  zfd.formData({
+    githubUser: z.string().min(10),
+  })
+);
+
 export const action: ActionFunction = async ({ request }) => {
   const profile = await requireProfile(request);
-  const result = await validator.validate(await request.formData());
+  const form = await request.formData();
+  const subaction = form.get("subaction");
 
-  if (!result) {
-    throw new Response("Error", {
-      status: 400,
-    });
+  switch (subaction) {
+    case "CREATE_EXPERIENCE":
+      const result = await validator.validate(form);
+      if (!result) {
+        throw new Response("Error", {
+          status: 400,
+        });
+      }
+      await createExperience(result?.data?.comentario as string, profile.id);
+      return redirect(`/profile/${profile.email}`);
+    case "UPDATE_GITHUB_USER":
+      const githubUserResult = await githubUserValidator.validate(form);
+      if (!githubUserResult) {
+        throw new Response("Error", {
+          status: 400,
+        });
+      }
+      await updateProfile(
+        { githubUser: githubUserResult.data?.githubUser },
+        profile.id
+      );
+      return redirect(`/profile/${profile.email}`);
+    default: {
+      throw new Error("Something went wrong");
+    }
   }
-  await createExperience(result?.data?.comentario as string, profile.id);
-  return redirect(`/profile/${profile.email}`);
 };
 
 export const ProfileInfo = () => {
-  const { profileData, githubProfileData, githubProjects } =
-    useLoaderData<LoaderData>();
+  const { profileData, githubProjects } = useLoaderData<LoaderData>();
   const theme = useTheme();
   const lessThanMd = useMediaQuery(theme.breakpoints.down("md"));
   const trasition = useTransition();
+  const [isEditGithubUserActive, setIsEditGithubUserActive] = useState(false);
 
-  /*
-  githubProfileData === undefined ||
-    githubProjects === undefined ||
-    githubProfileData === null
-  */
+  const handleUpdateGithubUser = async (data: any, event: any) => {
+    setIsEditGithubUserActive(false);
+    console.log(data);
+  };
+
   if (profileData === null) {
     return (
       <>
@@ -129,12 +161,6 @@ export const ProfileInfo = () => {
     );
   }
 
-  // Work with Github data
-  // let username = githubProfileData?.username;
-  // let avatarUrl = githubProfileData?.avatarUrl;
-  // let firstName = githubProfileData?.firstName;
-  // let lastName = githubProfileData?.lastName;
-  let githubProjectsLink = githubProjects;
   return (
     <>
       <Header title="Profile" />
@@ -171,17 +197,21 @@ export const ProfileInfo = () => {
                   />
                 </Box>
                 <Box textAlign="center">
-                  <h1> {profileData.firstName + " " + profileData.lastName}</h1>
+                  <Typography variant="h5">
+                    {profileData.firstName + " " + profileData.lastName}
+                  </Typography>
+                  <Link variant="body2" href={`mailto:${profileData.email}`}>
+                    {profileData.email}
+                  </Link>
                 </Box>
                 <Box
-                  sx={{ display: "flex", flexDirection: "column", gap: "8px" }}
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "8px",
+                    marginTop: "2rem",
+                  }}
                 >
-                  <Box
-                    sx={{ display: "flex", flexDirection: "row", gap: "8px" }}
-                  >
-                    <EmailIcon />
-                    <Typography>{profileData.email}</Typography>
-                  </Box>
                   <Box
                     sx={{ display: "flex", flexDirection: "row", gap: "8px" }}
                   >
@@ -206,31 +236,108 @@ export const ProfileInfo = () => {
                     <PlaceIcon />
                     <Typography>{profileData.location}</Typography>
                   </Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "row",
-                      gap: "8px",
-                      alignItems: "center",
+                  <ValidatedForm
+                    id="updateGithubUserForm"
+                    method="post"
+                    subaction="UPDATE_GITHUB_USER"
+                    validator={githubUserValidator}
+                    onSubmit={handleUpdateGithubUser}
+                    defaultValues={{
+                      githubUser: profileData.githubUser || "",
                     }}
                   >
-                    <GitHubIcon />
-                    <Typography>
-                      {profileData.githubUser || "<Not Set>"}
-                    </Typography>
-                  </Box>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        gap: "8px",
+                        alignItems: "center",
+                      }}
+                    >
+                      <GitHubIcon />
+                      {isEditGithubUserActive ? (
+                        <>
+                          <TextField
+                            variant="outlined"
+                            name="githubUser"
+                            size="small"
+                            value={profileData.githubUser}
+                          />{" "}
+                          <IconButton type="submit">
+                            <SaveIcon />
+                          </IconButton>
+                        </>
+                      ) : (
+                        <>
+                          {profileData.githubUser || "<Not set>"}
+                          <EditSharp
+                            onClick={() => {
+                              setIsEditGithubUserActive(true);
+                            }}
+                          />
+                        </>
+                      )}
+                    </Box>
+                  </ValidatedForm>
                 </Box>
               </Box>
             </Paper>
           </Grid>
+          {profileData.projectMembers?.length > 0 && (
+            <Grid item xs={12} md={9}>
+              <Paper elevation={0} sx={{ padding: 2 }}>
+                <h2 style={{ marginTop: 0, paddingLeft: 20 }}>Projects</h2>
+                <Grid container sx={{ p: 2 }}>
+                  {profileData.projectMembers.map((projectMember) => (
+                    <Grid item xs={12} key={projectMember.id}>
+                      <Card
+                        key={projectMember.id}
+                        sx={{ marginBottom: 3, display: "block" }}
+                      >
+                        <CardContent>
+                          <Typography gutterBottom variant="h5" component="div">
+                            {projectMember.project.name}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {projectMember.project.description}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {projectMember.role
+                              .map((role: { name: string }) => role.name)
+                              .join("/")}
+                            {" - "}
+                            {projectMember.hoursPerWeek} hours per week
+                          </Typography>
+                          {projectMember.practicedSkills?.length > 0 && (
+                            <Box
+                              sx={{
+                                display: "flex",
+                                flexDirection: "row",
+                                gap: "8px",
+                                marginTop: "1rem",
+                              }}
+                            >
+                              {projectMember.practicedSkills.map((skill) => (
+                                <Chip label={skill.name} key={skill.id}></Chip>
+                              ))}
+                            </Box>
+                          )}
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  ))}
+                </Grid>
+              </Paper>
+            </Grid>
+          )}
           {githubProjects && githubProjects.length > 0 && (
             <Grid item xs={12} md={9}>
               <Paper elevation={0} sx={{ padding: 2 }}>
                 <h2 style={{ marginTop: 0, paddingLeft: 20 }}>
-                  Active Projects
+                  Github Active Projects
                 </h2>
                 <Grid container sx={{ p: 2 }}>
-                  {githubProjectsLink.map((project) => (
+                  {githubProjects.map((project) => (
                     <Grid item xs={12} key={project.id}>
                       <Card
                         key={project.id}
@@ -260,7 +367,8 @@ export const ProfileInfo = () => {
                     defaultValues={{
                       comentario: "",
                     }}
-                    method="POST"
+                    subaction="CREATE_EXPERIENCE"
+                    method="post"
                   >
                     <TextField
                       id="outlined-basic"

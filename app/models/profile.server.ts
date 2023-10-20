@@ -31,7 +31,9 @@ export async function getProfileByEmail(email: Profiles["email"]) {
     include: {
       projectMembers: {
         include: {
-          project: true
+          project: true,
+          role: true,
+          practicedSkills: true,
         }
       }
     }
