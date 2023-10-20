@@ -127,7 +127,7 @@ const Header = ({ title }: IProps) => {
                 </DropDownButton>
               ) : (
                 <Button
-                  href="/login"
+                  href="/"
                   className="contained"
                   sx={{
                     width: "200px",
@@ -135,7 +135,7 @@ const Header = ({ title }: IProps) => {
                     fontSize: "1em",
                   }}
                 >
-                  Log In
+                  Home
                 </Button>
               )}
             </Grid>
