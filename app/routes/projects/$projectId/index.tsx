@@ -488,7 +488,7 @@ export default function ProjectDetailsPage() {
 
             <Card>
             <CardHeader
-                title="Github Information" 
+                title="Github Stadistics" 
                 action={
                   <Button variant="contained" href={`/projects/${project.id}/github-info`} endIcon={<GitHub />}>
                     See Info

@@ -99,3 +99,10 @@ export const validateNavigationRedirect = (navigation: Navigation) => {
     // navigation.formAction !== navigation.location.pathname
   );
 };
+
+
+    export const currentdate:any = new Date();
+    export const oneJan:any = new Date(currentdate.getFullYear(),0,1);
+    export const numberOfDays = Math.floor((currentdate - oneJan) / (24 * 60 * 60 * 1000));
+    export const week = Math.ceil(( currentdate.getDay() + 1 + numberOfDays) / 7);
+

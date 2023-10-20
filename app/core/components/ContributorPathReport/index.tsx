@@ -19,6 +19,7 @@ import {
   TableRow,
   TableSortLabel,
   Button,
+  Chip,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 
@@ -240,7 +241,20 @@ export const ContributorPathReport = ({ project, canEditProject }: IProps) => {
                           {row.name}
                         </Button>
                       </TableCell>
-                      <TableCell align="left">{row.role.join("\n")}</TableCell>
+                      <TableCell align="left" sx={{width: ""}}>
+                        {
+                          row.role.map((item, index) => (
+                            <Chip
+                              key={index}
+                              component="a"
+                              href={`/projects?role=${item}`}
+                              clickable
+                              label={item}
+                              sx={{ marginRight: 1, marginBottom: 1 }}
+                            />
+                          ))
+                        }
+                      </TableCell>
                       <TableCell align="center">
                         <Grid
                           container
