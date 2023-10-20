@@ -5,12 +5,13 @@ import {
   Chip,
   Link,
   useMediaQuery,
+  CardActions,
 } from "@mui/material";
 import EllipsisText from "app/core/components/EllipsisText";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import PersonIcon from "@mui/icons-material/Person";
 import HelpIcon from "@mui/icons-material/Help";
-import { ProposalCardWrap } from "./ProposalCard.styles";
+import { ProposalCardSkills, ProposalCardStatus, ProposalCardWrap } from "./ProposalCard.styles";
 import { useNavigate } from "@remix-run/react";
 import { useOptionalUser } from "~/utils";
 
@@ -49,14 +50,13 @@ export const ProposalCard = (props: IProps) => {
       navigate(`/internshipProjects/${props.id}`);
     }
   };
-
   const show = user?.role === "ADMIN" || user?.role === "USER";
 
   return (
     <>
       <Card>
-        <CardActionArea sx={{ height: "100%" }} onClick={handleCardClick}>
-          <CardContent>
+        <CardActionArea sx={{ height: "100%" }}>
+          <CardContent sx={{height: "170px"}} onClick={handleCardClick}>
             <ProposalCardWrap>
               <div className="ProposalCard__head">
                 {user && show && (
@@ -86,75 +86,72 @@ export const ProposalCard = (props: IProps) => {
                 </div>
               </div>
               <EllipsisText text={props.description || ""} length={200} />
-              <div className="ProposalCard__skills">
-                {props.skills &&
-                  props.skills[0].name != "" &&
-                  props.skills.map((skill) => (
-                    <Chip
-                      key={skill.name}
-                      label={skill.name}
-                      sx={{ marginRight: 1, marginBottom: 1 }}
-                    />
-                  ))}
-              </div>
-              {user && show && (
-                <div className="ProposalCard__status">
-                  <hr />
-
+            </ProposalCardWrap>
+          </CardContent>
+          <CardActions sx={{display: "flex", alignItems: "baseline", flexDirection: "column", cursor: "auto"}}>
+            <ProposalCardSkills>
+              {props.skills &&
+                props.skills[0].name != "" &&
+                props.skills.map((skill) => (
+                  <Chip
+                    key={skill.name}
+                    component="a"
+                    label={skill.name}
+                    sx={{ marginRight: 1, marginBottom: 1 }}
+                    clickable
+                    href={`/projects?discipline=${skill.name}`}
+                  />
+                ))}
+            </ProposalCardSkills>
+            {user && show && (
+              <ProposalCardStatus> 
+                <div>
                   <div>
-                    <div>
-                      <span className="ProposalCard__status--display">
-                        {props.status}
-                      </span>
-                      <div className="ProposalCard__tier">
-                        <Link
-                          href="https://wizeline.atlassian.net/wiki/spaces/wiki/pages/3075342381/Innovation+Tiers"
-                          target="_blank"
-                          rel="noreferrer"
-                          onClick={stopEvent}
-                          underline="hover"
-                        >
-                          <label className="ProposalCard__head__description--tier">
-                            {props.tierName}
-                          </label>
-                        </Link>
-                        <label
-                          className="ProposalCard__head__description--tier--extra"
-                          title="Maturation framework for innovation projects"
-                        >
-                          <HelpIcon />
+                    <span className="ProposalCard__status--display">
+                      {props.status}
+                    </span>
+                    <div className="ProposalCard__tier">
+                      <Link
+                        href="https://wizeline.atlassian.net/wiki/spaces/wiki/pages/3075342381/Innovation+Tiers"
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={stopEvent}
+                        underline="hover"
+                      >
+                        <label className="ProposalCard__head__description--tier">
+                          {props.tierName}
                         </label>
+                      </Link>
+                      <label
+                        className="ProposalCard__head__description--tier--extra"
+                        title="Maturation framework for innovation projects"
+                      >
+                        <HelpIcon sx={{width: "17px", height: "17px", color: prefersDarkMode ? "#7f7c7c" : "#00000066", marginLeft: "5px"}}/>
+                      </label>
+                    </div>
+                  </div>
+                  <div className="ProposalCard__status">
+                    <div className="ProposalCard__status--icons">
+                      <ThumbUpIcon
+                          sx={{
+                            color: prefersDarkMode ? "#999999" : "#00000066", width: "20px", height: "20px", marginRight: "3px"
+                          }}
+                        />
+                      <div className="ProposalCard__display">
+                        <span>{props.votesCount}</span>
                       </div>
                     </div>
-                    <div>
-                      <div className="ProposalCard__status--like">
-                        <span
-                          style={{
-                            color: prefersDarkMode ? "#FFFF" : "#111823",
-                          }}
-                        >
-                          {props.votesCount}{" "}
-                        </span>
-                        <span>
-                          <ThumbUpIcon
-                            sx={{
-                              color: prefersDarkMode ? "#FFFF" : "#111823",
-                            }}
-                          />
-                        </span>
-                      </div>
-                      <div className="ProposalCard__status--members">
-                        <span>{props.projectMembers} </span>
-                        <span>
-                          <PersonIcon />
-                        </span>
+                    <div className="ProposalCard__status--icons">
+                      <PersonIcon sx={{color: prefersDarkMode ? "#999999" : "#00000066", width: "23px", height: "23px", marginRight: "-3px"}}/>
+                      <div className="ProposalCard__display">
+                        <span>{props.projectMembers}</span>
                       </div>
                     </div>
                   </div>
                 </div>
-              )}
-            </ProposalCardWrap>
-          </CardContent>
+              </ProposalCardStatus>
+            )}
+          </CardActions>
         </CardActionArea>
       </Card>
     </>

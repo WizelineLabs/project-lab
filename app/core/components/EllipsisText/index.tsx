@@ -1,4 +1,5 @@
 import type { PropsWithoutRef } from "react";
+import { TitleText } from "./EllipsisText.styles";
 
 interface IProps {
   text: string;
@@ -30,12 +31,12 @@ export const EllipsisText = ({
     }
 
     return (
-      <p title={text} {...outerProps}>
+      <TitleText title={text} {...outerProps}>
         {displayText}
         <span style={tailStyle} className={tailClassName}>
           {tail}
         </span>
-      </p>
+      </TitleText>
     );
   }
 };
