@@ -2,7 +2,12 @@ import { formatDistance } from "date-fns";
 import Markdown from "marked-react";
 import type { ActionFunction, LoaderArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
-import { useFetcher, useNavigation, useRouteError, isRouteErrorResponse } from "@remix-run/react";
+import {
+  useFetcher,
+  useNavigation,
+  useRouteError,
+  isRouteErrorResponse,
+} from "@remix-run/react";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import type { TypedMetaFunction } from "remix-typedjson";
 import invariant from "tiny-invariant";
@@ -34,7 +39,7 @@ import {
   AccordionSummary,
   AccordionDetails,
 } from "@mui/material";
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import EditSharp from "@mui/icons-material/EditSharp";
 import ThumbUpSharp from "@mui/icons-material/ThumbUpSharp";
 import ThumbDownSharp from "@mui/icons-material/ThumbDownSharp";
@@ -58,8 +63,8 @@ import { validationError } from "remix-validated-form";
 import Resources, { validator } from "~/routes/projects/components/resources";
 import { checkPermission } from "~/models/authorization.server";
 import type { Roles } from "~/models/authorization.server";
-import GitHub from '@mui/icons-material/GitHub';
-import { validateNavigationRedirect } from '~/utils';
+import GitHub from "@mui/icons-material/GitHub";
+import { validateNavigationRedirect } from "~/utils";
 import { searchApplicants } from "~/models/applicant.server";
 
 export function links() {
@@ -193,7 +198,7 @@ export const meta: TypedMetaFunction<typeof loader> = ({ data, params }) => {
 
 function filterApplicantsByProject(applicants: any, projectId: any) {
   return applicants.filter((applicant: any) =>
-    applicant.appliedProjectsId?.split(',').includes(projectId)
+    applicant.appliedProjectsId?.split(",").includes(projectId)
   );
 }
 
@@ -223,8 +228,11 @@ export default function ProjectDetailsPage() {
     await voteForProject(payload);
     return;
   };
- 
-  const applicantsForCurrentProject = filterApplicantsByProject(applicant, projectId);
+
+  const applicantsForCurrentProject = filterApplicantsByProject(
+    applicant,
+    projectId
+  );
 
   const fetcher = useFetcher();
   const voteForProject = async (values: voteProject) => {
@@ -241,7 +249,7 @@ export default function ProjectDetailsPage() {
 
   const navigation = useNavigation();
   useEffect(() => {
-    const isActionRedirect = validateNavigationRedirect(navigation)
+    const isActionRedirect = validateNavigationRedirect(navigation);
     if (isActionRedirect) {
       setShowJoinModal(false);
       setShowMembershipModal(false);
@@ -487,17 +495,21 @@ export default function ProjectDetailsPage() {
             </Card>
 
             <Card>
-            <CardHeader
-                title="Github Stadistics" 
+              <CardHeader
+                title="Github Stadistics"
                 action={
-                  <Button variant="contained" href={`/projects/${project.id}/github-info`} endIcon={<GitHub />}>
+                  <Button
+                    variant="contained"
+                    href={`/projects/${project.id}/github-info`}
+                    endIcon={<GitHub />}
+                  >
                     See Info
-                </Button>
-                }/>
-                
+                  </Button>
+                }
+              />
             </Card>
           </Grid>
-   
+
           <Grid item xs={12} md={4}>
             <Stack direction="column" spacing={1}>
               {project.disciplines && project.disciplines.length > 0 && (
@@ -561,40 +573,45 @@ export default function ProjectDetailsPage() {
       </Container>
 
       <Container sx={{ marginBottom: 2 }}>
-      <Card>
-        <CardHeader title="Applicants:" />
-        <CardContent>
-          {applicantsForCurrentProject.length > 0 && (
-            <ul>
-              {applicantsForCurrentProject.map((applicantData: any, index: any) => (
-                <li key={index}>
-                  <Accordion>
-                    <AccordionSummary
-                      expandIcon={<ExpandMoreIcon />}
-                      aria-controls={`panel${index + 1}-content`}
-                      id={`panel${index + 1}-header`}
-                    >
-                      <Link href={`/applicants/${applicantData.id}`}>
-                        <Typography>{applicantData.fullName}</Typography>
-                      </Link>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <Typography>
-                        <b>Experience:</b> {applicantData.experience}
-                      </Typography>
-                      <Typography>
-                        <b>CV Link:</b>{" "}
-                        <a href={applicantData.cvLink}> {applicantData.cvLink} </a>
-                      </Typography>
-                    </AccordionDetails>
-                  </Accordion>
-                </li>
-              ))}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
-    </Container>
+        <Card>
+          <CardHeader title="Applicants:" />
+          <CardContent>
+            {applicantsForCurrentProject.length > 0 && (
+              <ul>
+                {applicantsForCurrentProject.map(
+                  (applicantData: any, index: any) => (
+                    <li key={index}>
+                      <Accordion>
+                        <AccordionSummary
+                          expandIcon={<ExpandMoreIcon />}
+                          aria-controls={`panel${index + 1}-content`}
+                          id={`panel${index + 1}-header`}
+                        >
+                          <Link href={`/applicants/${applicantData.id}`}>
+                            <Typography>{applicantData.fullName}</Typography>
+                          </Link>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                          <Typography>
+                            <b>Experience:</b> {applicantData.experience}
+                          </Typography>
+                          <Typography>
+                            <b>CV Link:</b>{" "}
+                            <a href={applicantData.cvLink}>
+                              {" "}
+                              {applicantData.cvLink}{" "}
+                            </a>
+                          </Typography>
+                        </AccordionDetails>
+                      </Accordion>
+                    </li>
+                  )
+                )}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+      </Container>
 
       {project.skills && project.skills.length > 0 && (
         <Container sx={{ marginBottom: 2 }}>
@@ -665,7 +682,7 @@ export default function ProjectDetailsPage() {
 }
 
 export function ErrorBoundary() {
-  const error = useRouteError() as Error
+  const error = useRouteError() as Error;
 
   if (isRouteErrorResponse(error) && error.status === 404) {
     return <div>Project not found</div>;

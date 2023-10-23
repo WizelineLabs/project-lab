@@ -1,6 +1,22 @@
 import LinkedIn from "@mui/icons-material/LinkedIn";
 import ArrowBack from "@mui/icons-material/ArrowBack";
-import { Container, Paper, Link as ExternalLink, Button, TextField, Autocomplete, debounce, Stack, FormControl, InputLabel, Select, MenuItem, type SelectChangeEvent, Typography, type AutocompleteChangeReason } from "@mui/material";
+import {
+  Container,
+  Paper,
+  Link as ExternalLink,
+  Button,
+  TextField,
+  Autocomplete,
+  debounce,
+  Stack,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  type SelectChangeEvent,
+  Typography,
+  type AutocompleteChangeReason,
+} from "@mui/material";
 import type { LoaderArgs } from "@remix-run/server-runtime";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import invariant from "tiny-invariant";
@@ -20,9 +36,13 @@ import { withZod } from "@remix-validated-form/with-zod";
 import { zfd } from "zod-form-data";
 import { z } from "zod";
 import { getProjectsList } from "~/models/project.server";
-import { type SubmitOptions, useFetcher, useNavigation } from "@remix-run/react";
+import {
+  type SubmitOptions,
+  useFetcher,
+  useNavigation,
+} from "@remix-run/react";
 import RegularSelect from "~/core/components/RegularSelect";
-import { validateNavigationRedirect } from '~/utils'
+import { validateNavigationRedirect } from "~/utils";
 import AplicantComments from "~/core/components/ApplicantComments";
 import { getCommentsApplicant } from "~/models/applicantComment.server";
 
@@ -32,7 +52,6 @@ export function links() {
     { rel: "stylesheet", href: MarkdownStyles },
   ];
 }
-
 
 type ProfileValue = {
   id: string;
@@ -44,12 +63,12 @@ type ProjectValue = {
   name: string;
 };
 
-type ApplicantValue ={
-  applicantId: string,
-  projectId: string,
-  mentorId: string,
-  status: string,
-}
+type ApplicantValue = {
+  applicantId: string;
+  projectId: string;
+  mentorId: string;
+  status: string;
+};
 
 const profileFetcherOptions: SubmitOptions = {
   method: "get",
@@ -58,22 +77,23 @@ const profileFetcherOptions: SubmitOptions = {
 
 export const validator = withZod(
   zfd.formData({
-      applicantId: z.string().min(1),
-      project:
-        z.object({
-          id: z.string().optional(),
-          name: z.string().optional(),
-        }).optional(),
-      mentorId: z.string(),
-      mentorName: z.string().optional(),
-      status: z.string(),
-      projectId: z.string().optional(),
-    })
+    applicantId: z.string().min(1),
+    project: z
+      .object({
+        id: z.string().optional(),
+        name: z.string().optional(),
+      })
+      .optional(),
+    mentorId: z.string(),
+    mentorName: z.string().optional(),
+    status: z.string(),
+    projectId: z.string().optional(),
+  })
 );
 
 export const loader = async ({ params, request }: LoaderArgs) => {
   invariant(params.applicantId, "projectId not found");
-  
+
   const projects = await getProjectsList();
   const applicantId = params.applicantId;
   const comments = await getCommentsApplicant(parseInt(applicantId as string));
@@ -94,11 +114,25 @@ export const loader = async ({ params, request }: LoaderArgs) => {
     applicant
   );
 
-  return typedjson({ applicant, projects, canEditProject, applicantId, profileId, comments });
+  return typedjson({
+    applicant,
+    projects,
+    canEditProject,
+    applicantId,
+    profileId,
+    comments,
+  });
 };
 
 export default function Applicant() {
-  const { applicant, projects, canEditProject, applicantId, profileId, comments } = useTypedLoaderData<typeof loader>();
+  const {
+    applicant,
+    projects,
+    canEditProject,
+    applicantId,
+    profileId,
+    comments,
+  } = useTypedLoaderData<typeof loader>();
   const [openManageModal, setOpenManageModal] = useState(false);
   const [mentorSelected, setMentorSelected] = useState<ProfileValue | null>({
     id: "",
@@ -111,31 +145,31 @@ export default function Applicant() {
   const navigation = useNavigation();
 
   useEffect(() => {
-    const isActionRedirect = validateNavigationRedirect(navigation)
+    const isActionRedirect = validateNavigationRedirect(navigation);
     if (isActionRedirect) {
       setOpenManageModal(false);
     }
   }, [navigation]);
 
-const appliedIdProjects = applicant.appliedProjectsId?.split(',');
-const appliedNameProjects = applicant.appliedProjects?.split(',');
+  const appliedIdProjects = applicant.appliedProjectsId?.split(",");
+  const appliedNameProjects = applicant.appliedProjects?.split(",");
 
-if (appliedIdProjects && appliedNameProjects) {
-  const projectMap: { [key: string]: string } = {};
-  
-  for (let i = 0; i < appliedNameProjects.length; i++) {
-    const projectName = appliedNameProjects[i];
-    const projectId = appliedIdProjects[i];
-    if (projectId) {
-      projectMap[projectName] = projectId;
+  if (appliedIdProjects && appliedNameProjects) {
+    const projectMap: { [key: string]: string } = {};
+
+    for (let i = 0; i < appliedNameProjects.length; i++) {
+      const projectName = appliedNameProjects[i];
+      const projectId = appliedIdProjects[i];
+      if (projectId) {
+        projectMap[projectName] = projectId;
+      }
     }
   }
-}
 
   const profileFetcher = useFetcher<ProfileValue[]>();
 
-  const searchProfiles = (value: string, project:string | null = null) => {
-    const queryProject = project ?? projectSelected?.id
+  const searchProfiles = (value: string, project: string | null = null) => {
+    const queryProject = project ?? projectSelected?.id;
     profileFetcher.submit(
       {
         q: value,
@@ -146,15 +180,18 @@ if (appliedIdProjects && appliedNameProjects) {
   };
 
   const changeStatus = (event: SelectChangeEvent) => {
-    const body= {
+    const body = {
       applicantId: applicant.id as unknown as string,
       projectId: applicant.projectId as string,
       mentorId: applicant.mentorId as string,
-      status: event.target.value
+      status: event.target.value,
     };
-   
-     fetcher.submit(body, { method: "post", action: `/applicants/${applicant.id}/hold`})
-  }
+
+    fetcher.submit(body, {
+      method: "post",
+      action: `/applicants/${applicant.id}/hold`,
+    });
+  };
 
   const searchProfilesDebounced = debounce(searchProfiles, 500);
 
@@ -165,17 +202,17 @@ if (appliedIdProjects && appliedNameProjects) {
   }, [profileFetcher]);
 
   const handleSelectProject = (project: ProjectValue) => {
-    setProjectSelected(project)
-    searchProfiles("", project.id)
-    setMentorSelected({id: "", name: ""})
-  }
+    setProjectSelected(project);
+    searchProfiles("", project.id);
+    setMentorSelected({ id: "", name: "" });
+  };
 
   const handleCloseModal = () => {
-    setOpenManageModal(false)
-    setProjectSelected(null)
-    setMentorSelected({id: "", name: ""})
-    searchProfiles("", "")
-  }
+    setOpenManageModal(false);
+    setProjectSelected(null);
+    setMentorSelected({ id: "", name: "" });
+    searchProfiles("", "");
+  };
 
   return (
     <>
@@ -270,18 +307,22 @@ if (appliedIdProjects && appliedNameProjects) {
             <hr />
             <div>
               <h3>Applied Projects</h3>
-              {appliedNameProjects && appliedNameProjects.length > 0 && appliedIdProjects && (
-                <ul>
-                  {appliedNameProjects.map((projectName: any, index) => {
-                    const projectId = appliedIdProjects[index];
-                    return (
-                      <li key={index}>
-                        <a href={`/projects/${projectId}`}>{projectName.trim()}</a>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
+              {appliedNameProjects &&
+                appliedNameProjects.length > 0 &&
+                appliedIdProjects && (
+                  <ul>
+                    {appliedNameProjects.map((projectName: any, index) => {
+                      const projectId = appliedIdProjects[index];
+                      return (
+                        <li key={index}>
+                          <a href={`/projects/${projectId}`}>
+                            {projectName.trim()}
+                          </a>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
             </div>
           </div>
           <hr />
@@ -330,18 +371,23 @@ if (appliedIdProjects && appliedNameProjects) {
           )}
         </Paper>
       </Container>
-    
+
       <Container>
         <AplicantComments
-            comments={comments}
-            applicantId={applicantId}
-            profileId={profileId}
-          />
+          comments={comments}
+          applicantId={applicantId}
+          profileId={profileId}
+        />
       </Container>
-      
+
       <ModalBox close={handleCloseModal} open={openManageModal}>
         <h2>Select project and mentor</h2>
-        <ValidatedForm validator={validator} method="post" action="./hold" defaultValues={{project: {id: "", name: ""}}}>
+        <ValidatedForm
+          validator={validator}
+          method="post"
+          action="./hold"
+          defaultValues={{ project: { id: "", name: "" } }}
+        >
           <input type="hidden" name="applicantId" value={applicant.id} />
           <input type="hidden" name="status" value="HOLD" />
 

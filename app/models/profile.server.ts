@@ -165,14 +165,14 @@ export async function consolidateProfilesByEmail(
       console.info(`Terminate users not found on data lake from DB`);
       const result = await db.profiles.updateMany({
         data: {
-          employeeStatus: 'Terminated'
+          employeeStatus: "Terminated",
         },
         where: {
           email: {
-            notIn: profileMails
-          }
-        }
-      })
+            notIn: profileMails,
+          },
+        },
+      });
       // eslint-disable-next-line no-console
       console.info(`${result.count} affected profiles`);
     });
@@ -203,18 +203,21 @@ export async function consolidateProfilesByEmail(
 // }
 
 function unaccent(text: string) {
-  return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
 }
 
 interface SearchProfilesFullInput {
-  searchTerm: string
-  page: number
-  department?: string[]
-  businessUnit?: string[]
-  benchStatus?: string[]
-  employeeStatus?: string[]
-  skill?: string[]
-  itemsPerPage: number
+  searchTerm: string;
+  page: number;
+  department?: string[];
+  businessUnit?: string[];
+  benchStatus?: string[];
+  employeeStatus?: string[];
+  skill?: string[];
+  itemsPerPage: number;
 }
 
 interface FacetOutput {
@@ -224,7 +227,7 @@ interface FacetOutput {
 
 type whereClause = {
   [key: string]: any;
-}
+};
 export async function searchProfilesFull({
   searchTerm,
   page = 1,
@@ -235,39 +238,39 @@ export async function searchProfilesFull({
   skill = [],
   itemsPerPage = 50,
 }: SearchProfilesFullInput) {
-  if (page < 1) page = 1
+  if (page < 1) page = 1;
   let where: whereClause = {
     searchCol: {
-      contains: unaccent(searchTerm)
-    }
-  }
+      contains: unaccent(searchTerm),
+    },
+  };
 
   if (department.length > 0) {
     where = {
       ...where,
-      department: { in: department }
-    }
+      department: { in: department },
+    };
   }
 
   if (businessUnit.length > 0) {
     where = {
       ...where,
-      businessUnit: { in: businessUnit }
-    }
+      businessUnit: { in: businessUnit },
+    };
   }
 
   if (benchStatus.length > 0) {
     where = {
       ...where,
-      benchStatus: { in: benchStatus }
-    }
+      benchStatus: { in: benchStatus },
+    };
   }
 
   if (employeeStatus.length > 0) {
     where = {
       ...where,
-      employeeStatus: { in: employeeStatus }
-    }
+      employeeStatus: { in: employeeStatus },
+    };
   }
 
   if (skill.length > 0) {
@@ -278,24 +281,24 @@ export async function searchProfilesFull({
           practicedSkills: {
             some: {
               name: {
-                in: skill
-              }
-            }
-          }
-        }
-      }
-    }
+                in: skill,
+              },
+            },
+          },
+        },
+      },
+    };
   }
 
   // Get ids
   const profileIds = await prisma.profiles.findMany({
     select: {
-      id: true
+      id: true,
     },
-    where
-  })
+    where,
+  });
 
-  const ids = profileIds.map(id => id.id)
+  const ids = profileIds.map((id) => id.id);
   const count = ids.length;
 
   // final query
@@ -321,122 +324,125 @@ export async function searchProfilesFull({
       projectMembers: {
         select: {
           project: {
-            select: { id: true, name: true }
+            select: { id: true, name: true },
           },
           role: {
-            select: { name: true }
+            select: { name: true },
           },
           practicedSkills: {
-            select: { name: true }
-          }
-        }
-      }
+            select: { name: true },
+          },
+        },
+      },
     },
     take: itemsPerPage,
     skip: (page - 1) * itemsPerPage,
     where: {
       id: {
-        in: ids
-      }
+        in: ids,
+      },
     },
-    orderBy: [
-      { lastName: 'asc' },
-      { firstName: 'asc' }
-    ]
-  })
+    orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
+  });
 
   const departments = await prisma.profiles.groupBy({
-    by: ['department'],
+    by: ["department"],
     where: {
       id: {
-        in: ids
+        in: ids,
       },
       department: {
-        not: null
-      }
+        not: null,
+      },
     },
     orderBy: {
-      department: 'asc'
+      department: "asc",
     },
     _count: {
-      department: true
-    }
-  })
+      department: true,
+    },
+  });
 
   const businessUnits = await prisma.profiles.groupBy({
-    by: ['businessUnit'],
+    by: ["businessUnit"],
     where: {
       id: {
-        in: ids
+        in: ids,
       },
       businessUnit: {
-        not: null
-      }
+        not: null,
+      },
     },
     orderBy: {
-      businessUnit: 'asc'
+      businessUnit: "asc",
     },
     _count: {
-      businessUnit: true
-    }
-  })
+      businessUnit: true,
+    },
+  });
 
   const employeeStatuses = await prisma.profiles.groupBy({
-    by: ['employeeStatus'],
+    by: ["employeeStatus"],
     where: {
       id: {
-        in: ids
+        in: ids,
       },
       employeeStatus: {
-        not: null
-      }
+        not: null,
+      },
     },
     orderBy: {
-      employeeStatus: 'asc'
+      employeeStatus: "asc",
     },
     _count: {
-      employeeStatus: true
-    }
-  })
+      employeeStatus: true,
+    },
+  });
 
   const benchStatuses = await prisma.profiles.groupBy({
-    by: ['benchStatus'],
+    by: ["benchStatus"],
     where: {
       id: {
-        in: ids
+        in: ids,
       },
       benchStatus: {
-        not: null
-      }
+        not: null,
+      },
     },
     orderBy: {
-      benchStatus: 'asc'
+      benchStatus: "asc",
     },
     _count: {
-      benchStatus: true
-    }
-  })
+      benchStatus: true,
+    },
+  });
 
-  const profileIdsWhereSql = Prisma.sql`pm."profileId" IN (${Prisma.join(ids)})`;
+  const profileIdsWhereSql = Prisma.sql`pm."profileId" IN (${Prisma.join(
+    ids
+  )})`;
 
   const skills = await prisma.$queryRaw<FacetOutput[]>`
     SELECT s.name, count(DISTINCT pm."profileId") as count
     FROM "Skills" s
     LEFT JOIN "_ProjectMembersToSkills" pmts ON pmts."B" = S.id
     LEFT JOIN "ProjectMembers" pm on pmts."A" = pm.id 
-    WHERE ${profileIdsWhereSql} AND s.name NOT IN (${skill.length > 0 ? Prisma.join(skill) : ""
-    })
+    WHERE ${profileIdsWhereSql} AND s.name NOT IN (${
+    skill.length > 0 ? Prisma.join(skill) : ""
+  })
     AND s.name IS NOT NULL
     GROUP BY s.name
     ORDER BY count DESC
   `;
 
   // Filter out invalid avatar urls
-  profiles.forEach(profile => {
-    if (profile.avatarUrl?.length && !profile.avatarUrl?.startsWith("https://")) {
-      profile.avatarUrl = null
+  profiles.forEach((profile) => {
+    if (
+      profile.avatarUrl?.length &&
+      !profile.avatarUrl?.startsWith("https://")
+    ) {
+      profile.avatarUrl = null;
     }
-  })
+  });
 
   return {
     profiles,
@@ -445,18 +451,18 @@ export async function searchProfilesFull({
     businessUnits: convertCountResult(businessUnits, "businessUnit"),
     employeeStatuses: convertCountResult(employeeStatuses, "employeeStatus"),
     benchStatuses: convertCountResult(benchStatuses, "benchStatus"),
-    skills
-  }
+    skills,
+  };
 }
 
 const convertCountResult = (countResult: any[], countField: string) => {
-  return countResult.map(item => {
+  return countResult.map((item) => {
     return {
       name: item[countField],
-      count: item._count[countField]
-    }
-  })
-}
+      count: item._count[countField],
+    };
+  });
+};
 
 export async function searchProfiles(
   searchTerm: string,
@@ -506,4 +512,19 @@ export async function hasProject(profileId: string) {
   });
 
   return searchTemMember ? true : false;
+}
+
+export async function getProfileEmailById(ids: string[]) {
+  const emails = await prisma.profiles.findMany({
+    where: {
+      id: {
+        in: ids,
+      },
+    },
+    select: {
+      email: true,
+    },
+  });
+
+  return emails.map((profile) => profile.email);
 }

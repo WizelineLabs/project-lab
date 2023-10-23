@@ -77,23 +77,20 @@ export default function ProjectDetail() {
           <p className="descriptionProposal">{projects.description}</p>
           {user && (
             <Grid style={{ position: "absolute", top: 0, right: 0 }}>
-              <Form
-              method="put"
-              action='./appliedproject'
-              >
-              <Button
-                className="contained"
-                type='submit'
-                sx={{
-                  width: "200px",
-                  height: "40px",
-                  fontSize: "1em",
-                  margin: 2,
-                }}
-                disabled={appliedProjects.includes(projects.name)}
-              >
-                APPLY
-              </Button>
+              <Form method="put" action="./appliedproject">
+                <Button
+                  className="contained"
+                  type="submit"
+                  sx={{
+                    width: "200px",
+                    height: "40px",
+                    fontSize: "1em",
+                    margin: 2,
+                  }}
+                  disabled={appliedProjects.includes(projects.name)}
+                >
+                  APPLY
+                </Button>
               </Form>
             </Grid>
           )}
