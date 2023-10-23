@@ -31,7 +31,7 @@ export const getActivity = async (repo: string, projectId: string) => {
 
       if(repoActivity.status != 404){
         // eslint-disable-next-line no-console
-        console.log( repo , repoUrlClean , repoActivity.status, repoActivity.headers["x-ratelimit-limit"], repoActivity.data.length);
+        console.log( repo , repoUrlClean , repoActivity.status, repoActivity.headers["x-ratelimit-limit"], repoActivity.headers["x-ratelimit-remaining"],repoActivity.data.length);
         repoActivity.data?.forEach( (activity: { id: string; type: string; created_at: string; actor: { display_login: string; avatar_url: string; }; }) => {
             saveActivity(activity.id , 
             activity.type?.replace(/([a-z0-9])([A-Z])/g, '$1 $2') as string, //this is for separe the string with camel case into pieces 
