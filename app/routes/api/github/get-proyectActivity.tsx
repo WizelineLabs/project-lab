@@ -23,15 +23,14 @@ export const getActivity = async (repo: string, projectId: string) => {
     try{
       const repoActivity = await octokit.request(`GET /repos/${owner}/${repoUrlClean}/events`, {
         owner,
-        repo,
+        repoUrlClean,
       });
-  
       console.log('limit ', repoActivity.headers["x-ratelimit-limit"]);
       console.log('ratelimit-remaining ', repoActivity.headers["x-ratelimit-remaining"]);
 
       if(repoActivity.status != 404){
         // eslint-disable-next-line no-console
-        console.log( repo , repoUrlClean , repoActivity.status, repoActivity.headers["x-ratelimit-limit"], repoActivity.headers["x-ratelimit-remaining"],repoActivity.data.length);
+        console.log( repoUrlClean , repoUrlClean , repoActivity.status, repoActivity.headers["x-ratelimit-limit"], repoActivity.headers["x-ratelimit-remaining"],repoActivity.data.length);
         repoActivity.data?.forEach( (activity: { id: string; type: string; created_at: string; actor: { display_login: string; avatar_url: string; }; }) => {
             saveActivity(activity.id , 
             activity.type?.replace(/([a-z0-9])([A-Z])/g, '$1 $2') as string, //this is for separe the string with camel case into pieces 
