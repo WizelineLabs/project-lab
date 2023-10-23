@@ -199,7 +199,7 @@ jobs:
           AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
           AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-          GITHUB_KEY: ${{ secrets.GITHUB_KEY }}
+          GITHUB_KEY: ${{ secrets.API_GITHUB_KEY }}
         with:
           timeout: 60s
           command_timeout: 30m
@@ -318,7 +318,7 @@ jobs:
           AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
           AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-          GITHUB_KEY: ${{ secrets.GITHUB_KEY }}
+          GITHUB_KEY: ${{ secrets.API_GITHUB_KEY }}
         with:
           timeout: 60s
           command_timeout: 30m
