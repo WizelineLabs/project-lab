@@ -69,10 +69,6 @@ export const ProposalCardWrap = styled('div')`
     font-weight: 700;
     line-height: 25px;
   }
-  .ProposalCard__head__description--tier {
-    font-weight: 700;
-    cursor: pointer;
-  }
   .ProposalCard__tier {
     display: flex;
     align-items: center;

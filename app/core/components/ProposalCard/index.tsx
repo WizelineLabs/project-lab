@@ -56,7 +56,7 @@ export const ProposalCard = (props: IProps) => {
     <>
       <Card>
         <CardActionArea sx={{ height: "100%" }}>
-          <CardContent sx={{height: "170px"}} onClick={handleCardClick}>
+          <CardContent onClick={handleCardClick}>
             <ProposalCardWrap>
               <div className="ProposalCard__head">
                 {user && show && (
@@ -118,9 +118,7 @@ export const ProposalCard = (props: IProps) => {
                         onClick={stopEvent}
                         underline="hover"
                       >
-                        <label className="ProposalCard__head__description--tier">
-                          {props.tierName}
-                        </label>
+                        {props.tierName}
                       </Link>
                       <label
                         className="ProposalCard__head__description--tier--extra"
