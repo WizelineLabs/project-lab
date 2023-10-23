@@ -39,7 +39,7 @@ export const getActivity = async (repo: string, projectId: string) => {
   
     
     }catch(e){
-      console.error('no existe la pagina', repoUrlClean);
+      console.error('the repo url doesnt exit', repoUrlClean);
     }
 
   }else{
