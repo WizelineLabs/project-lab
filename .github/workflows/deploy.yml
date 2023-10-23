@@ -199,6 +199,7 @@ jobs:
           AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
           AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+          GITHUB_KEY: ${{ secrets.GITHUB_KEY }}
         with:
           timeout: 60s
           command_timeout: 30m
@@ -225,6 +226,7 @@ jobs:
             echo AUTH0_DOMAIN="$AUTH0_DOMAIN" >> .env
             echo AUTH0_CLIENT_SECRET="$AUTH0_CLIENT_SECRET" >> .env
             echo GOOGLE_APPLICATION_CREDENTIALS="$GOOGLE_APPLICATION_CREDENTIALS" >> .env
+            echo GITHUB_KEY="$GITHUB_KEY" >> .env
 
             echo "*** Step: *** npm ci and build"
             npm ci # install
@@ -316,6 +318,7 @@ jobs:
           AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
           AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+          GITHUB_KEY: ${{ secrets.GITHUB_KEY }}
         with:
           timeout: 60s
           command_timeout: 30m
@@ -343,6 +346,7 @@ jobs:
             echo AUTH0_DOMAIN="$AUTH0_DOMAIN" >> .env
             echo AUTH0_CLIENT_SECRET="$AUTH0_CLIENT_SECRET" >> .env
             echo GOOGLE_APPLICATION_CREDENTIALS="$GOOGLE_APPLICATION_CREDENTIALS" >> .env
+            echo GITHUB_KEY="$GITHUB_KEY" >> .env
 
             echo "*** Step: *** npm ci and build"
             npm ci # install
