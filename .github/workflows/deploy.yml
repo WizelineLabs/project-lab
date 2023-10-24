@@ -364,7 +364,7 @@ jobs:
             echo "*** Cron job to get github activity ****"
             chmod +x /home/admin/projectlab/app/githubActivity.sh
             {
-                line="0 0 * * * /home/admin/projectlab/app/githubActivity.sh"
+                line="0 9,21 * * * /home/admin/projectlab/app/githubActivity.sh"
                 crontab -l | grep -Fv "$line"
                 echo "$line"
             } | crontab -
