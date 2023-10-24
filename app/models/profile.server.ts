@@ -27,6 +27,12 @@ export async function getProfileByUserId(id: User["id"]) {
 
 export async function getProfileByEmail(email: Profiles["email"]) {
   return prisma.profiles.findUnique({
+    where: { email }
+  });
+}
+
+export async function getFullProfileByEmail(email: Profiles["email"]) {
+  return prisma.profiles.findUnique({
     where: { email },
     include: {
       projectMembers: {

@@ -28,7 +28,7 @@ import SaveIcon from "@mui/icons-material/Save";
 import {
   getGitHubProfileByEmail,
   getGitHubProjectsByEmail,
-  getProfileByEmail,
+  getFullProfileByEmail,
   updateProfile,
 } from "../../../models/profile.server";
 import { useLoaderData, useTransition } from "@remix-run/react";
@@ -48,7 +48,7 @@ import { zfd } from "zod-form-data";
 import { useState } from "react";
 
 type LoaderData = {
-  profileData: Awaited<ReturnType<typeof getProfileByEmail>>;
+  profileData: Awaited<ReturnType<typeof getFullProfileByEmail>>;
   githubProfileData: Awaited<ReturnType<typeof getGitHubProfileByEmail>> & {
     githubProfileData?: {
       username: string;
@@ -66,7 +66,7 @@ export const loader: LoaderFunction = async ({ params }: LoaderArgs) => {
     const email = params.email;
 
     const [profileData, githubProfileData, githubProjects] = await Promise.all([
-      getProfileByEmail(email),
+      getFullProfileByEmail(email),
       getGitHubProfileByEmail(email),
       getGitHubProjectsByEmail(email),
     ]);
@@ -255,27 +255,23 @@ export const ProfileInfo = () => {
                       }}
                     >
                       <GitHubIcon />
+                      fsdfsdf
+                      <TextField
+                        variant="outlined"
+                        name="githubUser"
+                        size="small"
+                        disabled={isEditGithubUserActive ? false : true}
+                      />
                       {isEditGithubUserActive ? (
-                        <>
-                          <TextField
-                            variant="outlined"
-                            name="githubUser"
-                            size="small"
-                            value={profileData.githubUser}
-                          />{" "}
-                          <IconButton type="submit">
-                            <SaveIcon />
-                          </IconButton>
-                        </>
+                        <IconButton type="submit">
+                          <SaveIcon />
+                        </IconButton>
                       ) : (
-                        <>
-                          {profileData.githubUser || "<Not set>"}
-                          <EditSharp
-                            onClick={() => {
-                              setIsEditGithubUserActive(true);
-                            }}
-                          />
-                        </>
+                        <EditSharp
+                          onClick={() => {
+                            setIsEditGithubUserActive(true);
+                          }}
+                        />
                       )}
                     </Box>
                   </ValidatedForm>
