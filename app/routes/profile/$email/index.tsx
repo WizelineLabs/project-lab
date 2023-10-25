@@ -95,7 +95,7 @@ const githubUserValidator = withZod(
     githubUser: z
       .string()
       .regex(
-        /^(^$)|[a-zA-Z0-9]{1}[a-zA-Z0-9\-]{0,37}[a-zA-Z0-9]{1}$/,
+        /^(^$)|[a-zA-Z0-9]{1}[a-zA-Z0-9-]{0,37}[a-zA-Z0-9]{1}$/,
         "Github username is invalid"
       ),
   })
