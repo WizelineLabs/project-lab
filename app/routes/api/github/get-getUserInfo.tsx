@@ -4,13 +4,23 @@ import { env } from "process";
 const octokit = new Octokit({ USERNAME: env.AUTH0_CLIENT_SECRET });
 
 export const getUserInfo = async (email: string) => {
-  try{
+  try {
     return await octokit.request(`GET /search/users?q=${email}`);
-  }
-  catch (e){
-    console.log('unable to get the github user');
+  } catch (e) {
+    console.log("unable to get the github user");
     return {
-      data: null
+      data: null,
+    };
+  }
+};
+
+export const getUserByUsername = async (username: string) => {
+  try {
+    return await octokit.request(`GET /users/${username}`);
+  } catch (e) {
+    console.log("unable to get the github user");
+    return {
+      data: null,
     };
   }
 };
@@ -21,7 +31,7 @@ export const getUserRepos = async (username: string) => {
   } catch (e) {
     console.log(`Unable to get user repos`);
     return {
-      data: null
+      data: null,
     };
   }
 };
