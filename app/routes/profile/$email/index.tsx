@@ -29,7 +29,7 @@ import {
   getGitHubProfileByEmail,
   getGitHubProjectsByEmail,
   getFullProfileByEmail,
-  updateProfile,
+  updateGithubUser,
 } from "../../../models/profile.server";
 import { useLoaderData, useSubmit, useTransition } from "@remix-run/react";
 import type {
@@ -42,7 +42,7 @@ import { z } from "zod";
 import { requireProfile } from "~/session.server";
 import { createExperience } from "~/models/experience.server";
 import { redirect } from "remix-typedjson";
-import { ValidatedForm } from "remix-validated-form";
+import { ValidatedForm, useField, validationError } from "remix-validated-form";
 import { withZod } from "@remix-validated-form/with-zod";
 import { zfd } from "zod-form-data";
 import { useState } from "react";
@@ -92,7 +92,12 @@ export const validator = withZod(
 
 const githubUserValidator = withZod(
   zfd.formData({
-    githubUser: z.string().min(10),
+    githubUser: z
+      .string()
+      .regex(
+        /^(^$)|[a-zA-Z0-9]{1}[a-zA-Z0-9\-]{0,37}[a-zA-Z0-9]{1}$/,
+        "Github username is invalid"
+      ),
   })
 );
 
@@ -113,15 +118,10 @@ export const action: ActionFunction = async ({ request }) => {
       return redirect(`/profile/${profile.email}`);
     case "UPDATE_GITHUB_USER":
       const githubUserResult = await githubUserValidator.validate(form);
-      if (!githubUserResult) {
-        throw new Response("Error", {
-          status: 400,
-        });
+      if (githubUserResult?.error) {
+        return validationError(githubUserResult.error);
       }
-      await updateProfile(
-        { githubUser: githubUserResult.data?.githubUser },
-        profile.id
-      );
+      await updateGithubUser(profile, githubUserResult.data?.githubUser);
       return redirect(`/profile/${profile.email}`);
     default: {
       throw new Error("Something went wrong");
@@ -135,13 +135,21 @@ export const ProfileInfo = () => {
   const lessThanMd = useMediaQuery(theme.breakpoints.down("md"));
   const trasition = useTransition();
   const submit = useSubmit();
+  const { error: githubUsererror, getInputProps } = useField("githubUser", {
+    formId: "updateGithubUserForm",
+  });
   const [isEditGithubUserActive, setIsEditGithubUserActive] = useState(false);
 
   const handleUpdateGithubUser = async () => {
-    setIsEditGithubUserActive(false);
     const form = document.getElementById(
       "updateGithubUserForm"
     ) as HTMLFormElement;
+    const result = await githubUserValidator.validate(new FormData(form));
+    if (result.error != undefined) {
+      setIsEditGithubUserActive(true);
+      return validationError(result.error);
+    }
+    setIsEditGithubUserActive(false);
     submit(form);
   };
 
@@ -173,7 +181,7 @@ export const ProfileInfo = () => {
           <Grid
             item
             xs={12}
-            md={3}
+            md={4}
             sx={{
               position: { xs: "inherit", md: "inherit" },
               left: { xs: 0, md: undefined },
@@ -263,9 +271,11 @@ export const ProfileInfo = () => {
                           variant="outlined"
                           name="githubUser"
                           size="small"
+                          defaultValue={profileData.githubUser}
+                          {...getInputProps({ id: "githubUser" })}
                         />
                         <IconButton
-                          type="button"
+                          type="submit"
                           onClick={() => {
                             handleUpdateGithubUser();
                           }}
@@ -273,6 +283,9 @@ export const ProfileInfo = () => {
                           <SaveIcon />
                         </IconButton>
                       </Box>
+                      {githubUsererror && (
+                        <p style={{ color: "red" }}>{githubUsererror}</p>
+                      )}
                     </ValidatedForm>
                   ) : (
                     <Box
@@ -284,7 +297,11 @@ export const ProfileInfo = () => {
                       }}
                     >
                       <GitHubIcon />
-                      <Typography>{profileData.githubUser}</Typography>
+                      <Typography>
+                        {profileData.githubUser?.length
+                          ? profileData.githubUser
+                          : "<Not specified>"}
+                      </Typography>
                       <IconButton
                         type="button"
                         onClick={() => {
@@ -299,8 +316,8 @@ export const ProfileInfo = () => {
               </Box>
             </Paper>
           </Grid>
-          {profileData.projectMembers?.length > 0 && (
-            <Grid item xs={12} md={9}>
+          <Grid item xs={12} md={8}>
+            {profileData.projectMembers?.length > 0 && (
               <Paper elevation={0} sx={{ padding: 2 }}>
                 <h2 style={{ marginTop: 0, paddingLeft: 20 }}>Projects</h2>
                 <Grid container sx={{ p: 2 }}>
@@ -344,10 +361,8 @@ export const ProfileInfo = () => {
                   ))}
                 </Grid>
               </Paper>
-            </Grid>
-          )}
-          {githubProjects && githubProjects.length > 0 && (
-            <Grid item xs={12} md={9}>
+            )}
+            {githubProjects && githubProjects.length > 0 && (
               <Paper elevation={0} sx={{ padding: 2 }}>
                 <h2 style={{ marginTop: 0, paddingLeft: 20 }}>
                   Github Active Projects
@@ -375,48 +390,48 @@ export const ProfileInfo = () => {
                   ))}
                 </Grid>
               </Paper>
-              <Grid sx={{ paddingTop: 2, paddingBottom: 2 }}>
-                <Paper elevation={0} sx={{ padding: 2 }}>
-                  <h2 style={{ marginTop: 0, paddingLeft: 20 }}>Experience</h2>
-                  <ValidatedForm
-                    validator={validator}
-                    defaultValues={{
-                      comentario: "",
-                    }}
-                    subaction="CREATE_EXPERIENCE"
-                    method="post"
-                  >
-                    <TextField
-                      id="outlined-basic"
-                      label="Your Experience"
-                      variant="outlined"
-                      style={{ width: "100%" }}
-                      name={"comentario"}
-                      multiline
-                      rows={4}
-                    ></TextField>
-                    <Grid sx={{ display: "flex", justifyContent: "center" }}>
-                      <Button
-                        type="submit"
-                        className="contained"
-                        sx={{
-                          width: "220px",
-                          height: "50px",
-                          fontSize: "1em",
-                          marginTop: "15px",
-                        }}
-                        disabled={!!trasition.submission}
-                      >
-                        {trasition.submission
-                          ? "Addign experience..."
-                          : "Add experience"}
-                      </Button>
-                    </Grid>
-                  </ValidatedForm>
-                </Paper>
-              </Grid>
+            )}
+            <Grid sx={{ paddingTop: 2, paddingBottom: 2 }}>
+              <Paper elevation={0} sx={{ padding: 2 }}>
+                <h2 style={{ marginTop: 0, paddingLeft: 20 }}>Experience</h2>
+                <ValidatedForm
+                  validator={validator}
+                  defaultValues={{
+                    comentario: "",
+                  }}
+                  subaction="CREATE_EXPERIENCE"
+                  method="post"
+                >
+                  <TextField
+                    id="outlined-basic"
+                    label="Your Experience"
+                    variant="outlined"
+                    style={{ width: "100%" }}
+                    name={"comentario"}
+                    multiline
+                    rows={4}
+                  ></TextField>
+                  <Grid sx={{ display: "flex", justifyContent: "center" }}>
+                    <Button
+                      type="submit"
+                      className="contained"
+                      sx={{
+                        width: "220px",
+                        height: "50px",
+                        fontSize: "1em",
+                        marginTop: "15px",
+                      }}
+                      disabled={!!trasition.submission}
+                    >
+                      {trasition.submission
+                        ? "Saving experience..."
+                        : "Save experience"}
+                    </Button>
+                  </Grid>
+                </ValidatedForm>
+              </Paper>
             </Grid>
-          )}
+          </Grid>
         </Grid>
       </Container>
     </>

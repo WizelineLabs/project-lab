@@ -7,6 +7,7 @@ import type {
 } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../db.server";
+import { getUserByUsername, getUserRepos } from "~/routes/api/github/get-getUserInfo";
 
 interface UserProfile extends Profiles {
   role: string;
@@ -105,6 +106,55 @@ export async function updateProfile(
   };
 
   return prisma.profiles.update({ where: { id }, data: data });
+}
+
+export async function updateGithubUser(userProfile: UserProfile, githubUser: string = '') {
+  if (userProfile.githubUser === githubUser) return null
+  const { data: userInfo } = await getUserByUsername(githubUser)
+  if (githubUser.length > 0 || userInfo) {
+    const githubProfile = await getGitHubProfileByEmail(userProfile.email);
+    const { data: repos } = await getUserRepos(userInfo.login);
+    if (githubProfile) {
+      await prisma.gitHubProfile.update({
+        where: { id: githubProfile.id },
+        data: {
+          username: githubUser,
+          email: userProfile.email,
+          avatarUrl: userInfo.avatar_url,
+          reposUrl: userInfo.repos_url
+        }
+      })
+      await prisma.gitHubProjects.deleteMany({
+        where: { owner_email: userProfile.email }
+      })
+    } else {
+      await createGitHubProfile(
+        userProfile.email,
+        githubUser,
+        userInfo.avatar_url,
+        userInfo.repos_url,
+        userProfile?.firstName ?? "Default Name",
+        userProfile?.lastName ?? "Default LastName"
+      )
+    }
+    for (const repo of repos) {
+      const date = new Date(repo.updated_at);
+      const formattedDate = date.toLocaleString();
+      const name = repo.name ? repo.name : "No name available";
+      const description = repo.description
+        ? repo.description
+        : "No description available";
+
+      await createGitHubProject(userProfile.email, name, description, formattedDate);
+    }
+  }
+  else {
+    await prisma.gitHubProfile.delete({ where: { email: userProfile.email } })
+    await prisma.gitHubProjects.deleteMany({
+      where: { owner_email: userProfile.email }
+    })
+  }
+  return prisma.profiles.update({ where: { id: userProfile.id }, data: { githubUser } });
 }
 
 export async function createGitHubProfile(
