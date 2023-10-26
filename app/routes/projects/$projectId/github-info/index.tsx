@@ -209,7 +209,7 @@ import { useLoaderData, useSubmit } from "@remix-run/react";
                 <Paper sx={{ padding: 2, width: 1 }} >   
                     <Grid container sx={{ margin: 2}} justifyContent="space-between" >
                         <Typography color="text.primary">
-                            Stadistics
+                            Statistics
                         </Typography>
                     </Grid>
                     <Grid container sx={{ padding: 2, width: 1 }} >

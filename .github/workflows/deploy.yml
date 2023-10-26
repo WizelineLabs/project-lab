@@ -199,10 +199,11 @@ jobs:
           AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
           AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+          GITHUB_KEY: ${{ secrets.API_GITHUB_KEY }}
         with:
           timeout: 60s
           command_timeout: 30m
-          envs: DB_URL,DATABASE_URL,SESSION_SECRET,BASE_URL,AUTH0_CLIENT_ID,AUTH0_DOMAIN,AUTH0_CLIENT_SECRET,GOOGLE_APPLICATION_CREDENTIALS
+          envs: DB_URL,DATABASE_URL,SESSION_SECRET,BASE_URL,AUTH0_CLIENT_ID,AUTH0_DOMAIN,AUTH0_CLIENT_SECRET,GOOGLE_APPLICATION_CREDENTIALS,GITHUB_KEY
           host: ${{ secrets.LIGHTSAIL_IP }}
           username: ${{ secrets.LIGHTSAIL_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -225,6 +226,7 @@ jobs:
             echo AUTH0_DOMAIN="$AUTH0_DOMAIN" >> .env
             echo AUTH0_CLIENT_SECRET="$AUTH0_CLIENT_SECRET" >> .env
             echo GOOGLE_APPLICATION_CREDENTIALS="$GOOGLE_APPLICATION_CREDENTIALS" >> .env
+            echo GITHUB_KEY="$GITHUB_KEY" >> .env
 
             echo "*** Step: *** npm ci and build"
             npm ci # install
@@ -316,10 +318,11 @@ jobs:
           AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
           AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+          GITHUB_KEY: ${{ secrets.API_GITHUB_KEY }}
         with:
           timeout: 60s
           command_timeout: 30m
-          envs: DB_URL,DATABASE_URL,SESSION_SECRET,BASE_URL,AUTH0_CLIENT_ID,AUTH0_DOMAIN,AUTH0_CLIENT_SECRET,GOOGLE_APPLICATION_CREDENTIALS
+          envs: DB_URL,DATABASE_URL,SESSION_SECRET,BASE_URL,AUTH0_CLIENT_ID,AUTH0_DOMAIN,AUTH0_CLIENT_SECRET,GOOGLE_APPLICATION_CREDENTIALS,GITHUB_KEY
           host: ${{ secrets.LIGHTSAIL_IP }}
           username: ${{ secrets.LIGHTSAIL_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -343,6 +346,7 @@ jobs:
             echo AUTH0_DOMAIN="$AUTH0_DOMAIN" >> .env
             echo AUTH0_CLIENT_SECRET="$AUTH0_CLIENT_SECRET" >> .env
             echo GOOGLE_APPLICATION_CREDENTIALS="$GOOGLE_APPLICATION_CREDENTIALS" >> .env
+            echo GITHUB_KEY="$GITHUB_KEY" >> .env
 
             echo "*** Step: *** npm ci and build"
             npm ci # install
@@ -360,7 +364,7 @@ jobs:
             echo "*** Cron job to get github activity ****"
             chmod +x /home/admin/projectlab/app/githubActivity.sh
             {
-                line="0 0 * * * /home/admin/projectlab/app/githubActivity.sh"
+                line="0 9,21 * * * /home/admin/projectlab/app/githubActivity.sh"
                 crontab -l | grep -Fv "$line"
                 echo "$line"
             } | crontab -
