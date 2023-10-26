@@ -99,7 +99,7 @@ export const ProposalCard = (props: IProps) => {
                     label={skill.name}
                     sx={{ marginRight: 1, marginBottom: 1 }}
                     clickable
-                    href={`/projects?&skill=${skill.name}`}
+                    href={`/projects?&skill=${skill.name.trim()}`}
                   />
                 ))}
             </ProposalCardSkills>
