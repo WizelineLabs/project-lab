@@ -111,7 +111,7 @@ export async function updateProfile(
 export async function updateGithubUser(userProfile: UserProfile, githubUser: string = '') {
   if (userProfile.githubUser === githubUser) return null
   const { data: userInfo } = await getUserByUsername(githubUser)
-  if (githubUser.length > 0 || userInfo) {
+  if (githubUser.length > 0 && userInfo) {
     const githubProfile = await getGitHubProfileByEmail(userProfile.email);
     const { data: repos } = await getUserRepos(userInfo.login);
     if (githubProfile) {
@@ -149,7 +149,7 @@ export async function updateGithubUser(userProfile: UserProfile, githubUser: str
     }
   }
   else {
-    await prisma.gitHubProfile.delete({ where: { email: userProfile.email } })
+    await prisma.gitHubProfile.deleteMany({ where: { email: userProfile.email } })
     await prisma.gitHubProjects.deleteMany({
       where: { owner_email: userProfile.email }
     })
