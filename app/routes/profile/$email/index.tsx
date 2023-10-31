@@ -15,6 +15,8 @@ import {
   Link,
   Chip,
   IconButton,
+  CardActionArea,
+  CardActions,
 } from "@mui/material";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
@@ -31,6 +33,7 @@ import {
   getFullProfileByEmail,
   updateGithubUser,
 } from "../../../models/profile.server";
+import { adminRoleName } from "app/constants";
 import { useLoaderData, useSubmit, useTransition } from "@remix-run/react";
 import type {
   LoaderArgs,
@@ -39,7 +42,7 @@ import type {
 } from "@remix-run/node";
 import invariant from "tiny-invariant";
 import { z } from "zod";
-import { requireProfile } from "~/session.server";
+import { requireProfile, requireUser } from "~/session.server";
 import { createExperience } from "~/models/experience.server";
 import { redirect } from "remix-typedjson";
 import { ValidatedForm, useField, validationError } from "remix-validated-form";
@@ -58,22 +61,31 @@ type LoaderData = {
     };
   };
   githubProjects: Awaited<ReturnType<typeof getGitHubProjectsByEmail>>;
+  canEdit: boolean;
 };
 
-export const loader: LoaderFunction = async ({ params }: LoaderArgs) => {
+export const loader: LoaderFunction = async ({
+  request,
+  params,
+}: LoaderArgs) => {
   try {
     invariant(params.email, "email could not be found");
     const email = params.email;
+    const profile = await requireProfile(request);
+    const user = await requireUser(request);
+    const isAdmin = user.role == adminRoleName;
 
     const [profileData, githubProfileData, githubProjects] = await Promise.all([
       getFullProfileByEmail(email),
       getGitHubProfileByEmail(email),
       getGitHubProjectsByEmail(email),
     ]);
+    const canEdit = isAdmin || profileData?.id.toString() === profile.id;
     return {
       profileData,
       githubProfileData,
       githubProjects,
+      canEdit,
     };
   } catch (Error) {
     console.error("Error loading Github data:", Error);
@@ -98,13 +110,25 @@ const githubUserValidator = withZod(
         /^(^$)|[a-zA-Z0-9]{1}[a-zA-Z0-9-]{0,37}[a-zA-Z0-9]{1}$/,
         "Github username is invalid"
       ),
+    profileId: z.string().min(1),
   })
 );
 
 export const action: ActionFunction = async ({ request }) => {
   const profile = await requireProfile(request);
+  const user = await requireUser(request);
+  const isAdmin = user.role == adminRoleName;
   const form = await request.formData();
   const subaction = form.get("subaction");
+  const canPerformAction =
+    isAdmin || form.get("profileId")?.toString() === profile.id;
+
+  const email = (form.get("profileEmail") as string) || profile.email;
+
+  if (!canPerformAction)
+    throw new Response("Not authorized", {
+      status: 403,
+    });
 
   switch (subaction) {
     case "CREATE_EXPERIENCE":
@@ -115,14 +139,17 @@ export const action: ActionFunction = async ({ request }) => {
         });
       }
       await createExperience(result?.data?.comentario as string, profile.id);
-      return redirect(`/profile/${profile.email}`);
+      return redirect(`/profile/${email}`);
     case "UPDATE_GITHUB_USER":
       const githubUserResult = await githubUserValidator.validate(form);
       if (githubUserResult?.error) {
         return validationError(githubUserResult.error);
       }
-      await updateGithubUser(profile, githubUserResult.data?.githubUser);
-      return redirect(`/profile/${profile.email}`);
+      await updateGithubUser(
+        githubUserResult.data.profileId,
+        githubUserResult.data?.githubUser
+      );
+      return redirect(`/profile/${email}`);
     default: {
       throw new Error("Something went wrong");
     }
@@ -130,7 +157,7 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 export const ProfileInfo = () => {
-  const { profileData, githubProjects } = useLoaderData<LoaderData>();
+  const { profileData, githubProjects, canEdit } = useLoaderData<LoaderData>();
   const theme = useTheme();
   const lessThanMd = useMediaQuery(theme.breakpoints.down("md"));
   const trasition = useTransition();
@@ -274,6 +301,16 @@ export const ProfileInfo = () => {
                           defaultValue={profileData.githubUser}
                           {...getInputProps({ id: "githubUser" })}
                         />
+                        <input
+                          type="hidden"
+                          name="profileId"
+                          value={profileData.id}
+                        />
+                        <input
+                          type="hidden"
+                          name="profileEmail"
+                          value={profileData.email}
+                        />
                         <IconButton
                           type="submit"
                           onClick={() => {
@@ -302,14 +339,16 @@ export const ProfileInfo = () => {
                           ? profileData.githubUser
                           : "<Not specified>"}
                       </Typography>
-                      <IconButton
-                        type="button"
-                        onClick={() => {
-                          setIsEditGithubUserActive(true);
-                        }}
-                      >
-                        <EditSharp />
-                      </IconButton>
+                      {canEdit && (
+                        <IconButton
+                          type="button"
+                          onClick={() => {
+                            setIsEditGithubUserActive(true);
+                          }}
+                        >
+                          <EditSharp />
+                        </IconButton>
+                      )}
                     </Box>
                   )}
                 </Box>
@@ -327,35 +366,49 @@ export const ProfileInfo = () => {
                         key={projectMember.id}
                         sx={{ marginBottom: 3, display: "block" }}
                       >
-                        <CardContent>
-                          <Typography gutterBottom variant="h5" component="div">
-                            {projectMember.project.name}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            {projectMember.project.description}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            {projectMember.role
-                              .map((role: { name: string }) => role.name)
-                              .join("/")}
-                            {" - "}
-                            {projectMember.hoursPerWeek} hours per week
-                          </Typography>
-                          {projectMember.practicedSkills?.length > 0 && (
-                            <Box
-                              sx={{
-                                display: "flex",
-                                flexDirection: "row",
-                                gap: "8px",
-                                marginTop: "1rem",
-                              }}
+                        <CardActionArea
+                          href={`/projects/${projectMember.projectId}`}
+                        >
+                          <CardContent>
+                            <Typography
+                              gutterBottom
+                              variant="h5"
+                              component="div"
                             >
-                              {projectMember.practicedSkills.map((skill) => (
-                                <Chip label={skill.name} key={skill.id}></Chip>
-                              ))}
-                            </Box>
-                          )}
-                        </CardContent>
+                              {projectMember.project.name}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              {projectMember.project.description}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              {projectMember.role
+                                .map((role: { name: string }) => role.name)
+                                .join("/")}
+                              {" - "}
+                              {projectMember.hoursPerWeek} hours per week
+                            </Typography>
+                          </CardContent>
+                        </CardActionArea>
+                        {projectMember.practicedSkills?.length > 0 && (
+                          <CardActions
+                            sx={{
+                              display: "flex",
+                              flexDirection: "row",
+                              marginLeft: "0.5rem",
+                              marginBottom: "0.5rem",
+                            }}
+                          >
+                            {projectMember.practicedSkills.map((skill) => (
+                              <Chip
+                                label={skill.name}
+                                key={skill.id}
+                                component="a"
+                                clickable
+                                href={`/projects?&skill=${skill.name}`}
+                              />
+                            ))}
+                          </CardActions>
+                        )}
                       </Card>
                     </Grid>
                   ))}
@@ -374,17 +427,26 @@ export const ProfileInfo = () => {
                         key={project.id}
                         sx={{ marginBottom: 3, display: "block" }}
                       >
-                        <CardContent>
-                          <Typography gutterBottom variant="h5" component="div">
-                            {project.name}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            {project.description}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            {project.updated_at}
-                          </Typography>
-                        </CardContent>
+                        <CardActionArea
+                          href={`https://github.com/${profileData.githubUser}/${project.name}`}
+                          target="_blank"
+                        >
+                          <CardContent>
+                            <Typography
+                              gutterBottom
+                              variant="h5"
+                              component="div"
+                            >
+                              {project.name}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              {project.description}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              {project.updated_at}
+                            </Typography>
+                          </CardContent>
+                        </CardActionArea>
                       </Card>
                     </Grid>
                   ))}

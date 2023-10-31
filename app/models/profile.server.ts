@@ -32,6 +32,12 @@ export async function getProfileByEmail(email: Profiles["email"]) {
   });
 }
 
+export async function getProfileById(id: Profiles["id"]) {
+  return prisma.profiles.findUnique({
+    where: { id },
+  })
+}
+
 export async function getFullProfileByEmail(email: Profiles["email"]) {
   return prisma.profiles.findUnique({
     where: { email },
@@ -108,8 +114,9 @@ export async function updateProfile(
   return prisma.profiles.update({ where: { id }, data: data });
 }
 
-export async function updateGithubUser(userProfile: UserProfile, githubUser: string = '') {
-  if (userProfile.githubUser === githubUser) return null
+export async function updateGithubUser(id: Profiles["id"], githubUser: string = '') {
+  const userProfile = await getProfileById(id)
+  if (!userProfile || userProfile.githubUser === githubUser) return null
   const { data: userInfo } = await getUserByUsername(githubUser)
   if (githubUser.length > 0 && userInfo) {
     const githubProfile = await getGitHubProfileByEmail(userProfile.email);
