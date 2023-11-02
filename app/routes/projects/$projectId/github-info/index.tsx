@@ -254,5 +254,21 @@ import { useLoaderData, useSubmit } from "@remix-run/react";
                     }
                 </Paper>
             </Container>
+
+            <Container>
+                <Paper sx={{ padding: 2, width: 1 }} >
+                    <Grid sx={{margin: 2}}>
+                        <Grid container justifyContent="space-between" >
+                            <Typography color="text.primary">
+                                    Project Releases
+                            </Typography>
+                            <Button variant="contained" endIcon={<Refresh />} />
+                        </Grid>
+                        <Grid container sx={{ padding: 2, width: 1 }} >
+                            
+                        </Grid>
+                    </Grid>
+                </Paper>
+            </Container>
         </>
     }
