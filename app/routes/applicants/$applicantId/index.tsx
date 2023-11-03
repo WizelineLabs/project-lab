@@ -210,7 +210,7 @@ if (appliedIdProjects && appliedNameProjects) {
                   </Button>
                 </>
               )}
-              {canEditProject && applicant.status === "HOLD" && (
+              {(canEditProject) && (applicant.status != "DRAFT") && (
                 <Stack direction="column" spacing={1}>
                   <FormControl fullWidth size="medium">
                     <InputLabel id="demo-simple-select-label">
@@ -222,8 +222,8 @@ if (appliedIdProjects && appliedNameProjects) {
                       onChange={changeStatus}
                       value={applicant.status}
                     >
-                      <MenuItem value="HOLD">HOLD</MenuItem>
                       <MenuItem value="DRAFT">DRAFT</MenuItem>
+                      <MenuItem value="HOLD">HOLD</MenuItem>
                       <MenuItem value="ACCEPTED">ACCEPTED</MenuItem>
                       <MenuItem value="REJECTED">REJECTED</MenuItem>
                     </Select>
