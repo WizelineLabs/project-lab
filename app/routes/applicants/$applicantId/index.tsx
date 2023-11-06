@@ -153,7 +153,7 @@ if (appliedIdProjects && appliedNameProjects) {
       status: event.target.value
     };
    
-     fetcher.submit(body, { method: "post", action: `/applicants/${applicant.id}/hold`})
+     fetcher.submit(body, { method: "post", action: `/applicants/${applicant.id}/status`})
   }
 
   const searchProfilesDebounced = debounce(searchProfiles, 500);
@@ -341,7 +341,7 @@ if (appliedIdProjects && appliedNameProjects) {
       
       <ModalBox close={handleCloseModal} open={openManageModal}>
         <h2>Select project and mentor</h2>
-        <ValidatedForm validator={validator} method="post" action="./hold" defaultValues={{project: {id: "", name: ""}}}>
+        <ValidatedForm validator={validator} method="post" action="./status" defaultValues={{project: {id: "", name: ""}}}>
           <input type="hidden" name="applicantId" value={applicant.id} />
           <input type="hidden" name="status" value="HOLD" />
 

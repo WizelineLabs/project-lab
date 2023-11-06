@@ -23,8 +23,3 @@ export const action: ActionFunction = async ({ request, params }) => {
   
     return redirect(`/applicants/${applicantId}`);
   };
-
-
-export default function holdIntern(){
-
-}
