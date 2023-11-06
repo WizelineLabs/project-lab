@@ -153,7 +153,7 @@ if (appliedIdProjects && appliedNameProjects) {
       status: event.target.value
     };
    
-     fetcher.submit(body, { method: "post", action: `/applicants/${applicant.id}/hold`})
+     fetcher.submit(body, { method: "post", action: `/applicants/${applicant.id}/status`})
   }
 
   const searchProfilesDebounced = debounce(searchProfiles, 500);
@@ -210,7 +210,7 @@ if (appliedIdProjects && appliedNameProjects) {
                   </Button>
                 </>
               )}
-              {canEditProject && applicant.status === "HOLD" && (
+              {(canEditProject) && (applicant.status != "DRAFT") && (
                 <Stack direction="column" spacing={1}>
                   <FormControl fullWidth size="medium">
                     <InputLabel id="demo-simple-select-label">
@@ -222,8 +222,8 @@ if (appliedIdProjects && appliedNameProjects) {
                       onChange={changeStatus}
                       value={applicant.status}
                     >
-                      <MenuItem value="HOLD">HOLD</MenuItem>
                       <MenuItem value="DRAFT">DRAFT</MenuItem>
+                      <MenuItem value="HOLD">HOLD</MenuItem>
                       <MenuItem value="ACCEPTED">ACCEPTED</MenuItem>
                       <MenuItem value="REJECTED">REJECTED</MenuItem>
                     </Select>
@@ -341,7 +341,7 @@ if (appliedIdProjects && appliedNameProjects) {
       
       <ModalBox close={handleCloseModal} open={openManageModal}>
         <h2>Select project and mentor</h2>
-        <ValidatedForm validator={validator} method="post" action="./hold" defaultValues={{project: {id: "", name: ""}}}>
+        <ValidatedForm validator={validator} method="post" action="./status" defaultValues={{project: {id: "", name: ""}}}>
           <input type="hidden" name="applicantId" value={applicant.id} />
           <input type="hidden" name="status" value="HOLD" />
 
