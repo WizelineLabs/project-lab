@@ -339,9 +339,13 @@ const Profiles = () => {
                           <Box
                             sx={{ display: "flex", flexDirection: "column" }}
                           >
-                            <Typography
-                              sx={{ fontWeight: "bold" }}
-                            >{`${item.preferredName} ${item.lastName}`}</Typography>
+                            <Link
+                              to={`/profile/${encodeURIComponent(item.email)}`}
+                            >
+                              <Typography
+                                sx={{ fontWeight: "bold" }}
+                              >{`${item.preferredName} ${item.lastName}`}</Typography>
+                            </Link>
                             <Typography variant="caption">
                               {item.jobLevelTitle}
                             </Typography>
