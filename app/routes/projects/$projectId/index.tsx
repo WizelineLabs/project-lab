@@ -30,7 +30,6 @@ import {
   Typography,
   CardHeader,
   Link,
-  Avatar,
 } from "@mui/material";
 import EditSharp from "@mui/icons-material/EditSharp";
 import ThumbUpSharp from "@mui/icons-material/ThumbUpSharp";
@@ -58,6 +57,7 @@ import type { Roles } from "~/models/authorization.server";
 import GitHub from '@mui/icons-material/GitHub';
 import { validateNavigationRedirect } from '~/utils';
 import { searchApplicants } from "~/models/applicant.server";
+import ApplicantsSection from "~/core/components/ApplicantsSection";
 
 export function links() {
   return [
@@ -605,44 +605,9 @@ export default function ProjectDetailsPage() {
         handleCloseModal={() => setShowJoinModal(false)}
       />
 
-      <Container sx={{ marginBottom: 2 }}>
-              <Typography variant="h5" gutterBottom>
-                Applicants
-              </Typography>
-              <Grid container spacing={2}>
-                {applicantsForCurrentProject.map((applicantData: any, index: any) => (
-                  <Grid item xs={12} sm={6} md={6} lg={6} xl={6} key={index}>
-                    <Card variant="outlined" sx={{ height: '100%' }}>
-                      <CardHeader
-                        avatar={<Avatar alt={applicantData.fullName} src={applicantData.avatarApplicant} />}
-                        title={
-                          <Link href={`/applicants/${applicantData.id}`} underline="none">
-                            <Typography variant="h6" component="div">
-                              {applicantData.fullName}
-                            </Typography>
-                          </Link>
-                        }
-                        subheader={
-                          <Typography variant="body2" color="text.secondary">
-                            {applicantData.university}
-                          </Typography>
-                        }
-                      />
-                      <CardContent>
-                        <Typography sx={{ textAlign: 'justify', marginBottom: '15px', marginX:'5px' }}>
-                          {applicantData.experience}
-                        </Typography>
-                        <Typography sx={{ textAlign: 'center'}}>
-                          <Link href={applicantData.cvLink} underline="none">
-                            {applicantData.cvLink}
-                          </Link>
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                ))}
-              </Grid>
-      </Container>
+      <ApplicantsSection 
+        applicantsForCurrentProject={applicantsForCurrentProject} 
+      />
 
       <Container>
         <Comments
