@@ -1,6 +1,6 @@
-import styled from "@emotion/styled";
+import { styled } from '@mui/material/styles';
 
-export const ProposalCardWrap = styled.div`
+export const ProposalCardWrap = styled('div')`
   display: flex;
   flex-direction: column;
   position: relative;
@@ -46,15 +46,6 @@ export const ProposalCardWrap = styled.div`
     font-size: 15px;
     text-decoration: underline;
   }
-  .ProposalCard--description {
-    height: 40px;
-    font-family: Poppins;
-    font-size: 12px;
-    letter-spacing: 0;
-    line-height: 21px;
-    margin-top: 10px;
-    margin-bottom: 30px;
-  }
   .ProposalCard__status {
     width: 100%;
     bottom: 5px;
@@ -78,31 +69,6 @@ export const ProposalCardWrap = styled.div`
     font-weight: 700;
     line-height: 25px;
   }
-  .ProposalCard__status--like {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    color: #e94d44;
-    margin-right: 10px;
-
-    & span {
-      margin-left: 3px;
-    }
-  }
-  .ProposalCard__status--members {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    margin-right: 10px;
-
-    & span {
-      margin-left: 3px;
-    }
-  }
-  .ProposalCard__head__description--tier {
-    font-weight: 700;
-    cursor: pointer;
-  }
   .ProposalCard__tier {
     display: flex;
     align-items: center;
@@ -117,3 +83,42 @@ export const ProposalCardWrap = styled.div`
     color: #ececec;
   }
 `;
+
+export const ProposalCardSkills = styled('div')`
+   padding-top: 10px;
+`;
+
+export const ProposalCardStatus = styled('div')(({ theme }) => `
+  border-top: 1px solid #ececec;
+  padding-top: 10px;
+  width: 95%;
+
+  .ProposalCard__status{
+    display: flex;
+    justify-content: end;
+    padding-top: 5px;
+    flex-direction: row;
+  }
+  .ProposalCard__display{
+    color: #111823;
+    background: ${(theme.palette.mode === "dark"  ? "#999999;" : "#00000066;")} 
+    border-radius: 50%;
+    width: 14px;
+    height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -3px;
+  }
+  .ProposalCard__status--icons {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+
+    & span {
+      color: ${(theme.palette.mode === "dark"  ? "#000;" : "#fff;")}
+      font-size: 10px;
+      font-weight: 800;
+    }
+  }
+`);
