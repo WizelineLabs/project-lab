@@ -7,6 +7,7 @@ import type {
 } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../db.server";
+import { getUserByUsername, getUserRepos } from "~/routes/api/github/get-getUserInfo";
 
 interface UserProfile extends Profiles {
   role: string;
@@ -28,6 +29,27 @@ export async function getProfileByUserId(id: User["id"]) {
 export async function getProfileByEmail(email: Profiles["email"]) {
   return prisma.profiles.findUnique({
     where: { email },
+  });
+}
+
+export async function getProfileById(id: Profiles["id"]) {
+  return prisma.profiles.findUnique({
+    where: { id },
+  })
+}
+
+export async function getFullProfileByEmail(email: Profiles["email"]) {
+  return prisma.profiles.findUnique({
+    where: { email },
+    include: {
+      projectMembers: {
+        include: {
+          project: true,
+          role: true,
+          practicedSkills: true,
+        }
+      }
+    }
   });
 }
 
@@ -90,6 +112,56 @@ export async function updateProfile(
   };
 
   return prisma.profiles.update({ where: { id }, data: data });
+}
+
+export async function updateGithubUser(id: Profiles["id"], githubUser: string = '') {
+  const userProfile = await getProfileById(id)
+  if (!userProfile || userProfile.githubUser === githubUser) return null
+  const { data: userInfo } = await getUserByUsername(githubUser)
+  if (githubUser.length > 0 && userInfo) {
+    const githubProfile = await getGitHubProfileByEmail(userProfile.email);
+    const { data: repos } = await getUserRepos(userInfo.login);
+    if (githubProfile) {
+      await prisma.gitHubProfile.update({
+        where: { id: githubProfile.id },
+        data: {
+          username: githubUser,
+          email: userProfile.email,
+          avatarUrl: userInfo.avatar_url,
+          reposUrl: userInfo.repos_url
+        }
+      })
+      await prisma.gitHubProjects.deleteMany({
+        where: { owner_email: userProfile.email }
+      })
+    } else {
+      await createGitHubProfile(
+        userProfile.email,
+        githubUser,
+        userInfo.avatar_url,
+        userInfo.repos_url,
+        userProfile?.firstName ?? "Default Name",
+        userProfile?.lastName ?? "Default LastName"
+      )
+    }
+    for (const repo of repos) {
+      const date = new Date(repo.updated_at);
+      const formattedDate = date.toLocaleString();
+      const name = repo.name ? repo.name : "No name available";
+      const description = repo.description
+        ? repo.description
+        : "No description available";
+
+      await createGitHubProject(userProfile.email, name, description, formattedDate);
+    }
+  }
+  else {
+    await prisma.gitHubProfile.deleteMany({ where: { email: userProfile.email } })
+    await prisma.gitHubProjects.deleteMany({
+      where: { owner_email: userProfile.email }
+    })
+  }
+  return prisma.profiles.update({ where: { id: userProfile.id }, data: { githubUser } });
 }
 
 export async function createGitHubProfile(
@@ -181,26 +253,6 @@ export async function consolidateProfilesByEmail(
     console.log(e);
   }
 }
-
-// interface SearchProfilesOutput {
-//   id: string
-//   email: string
-//   firstName: string
-//   lastName: string
-//   avatarUrl: string
-//   jobLevelTier: string
-//   jobLevelTitle: string
-//   department: string
-//   createdAt: string
-//   updatedAt: string
-//   country: string
-//   location: string
-//   preferredName: string
-//   benchStatus: string
-//   businessUnit: string
-//   employeeStatus: string
-//   githubUser: string
-// }
 
 function unaccent(text: string) {
   return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
