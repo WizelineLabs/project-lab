@@ -20,7 +20,7 @@ import { withZod } from "@remix-validated-form/with-zod";
 import { zfd } from "zod-form-data";
 import { z } from "zod";
 import { getProjectsList } from "~/models/project.server";
-import { type SubmitOptions, useFetcher, useNavigation } from "@remix-run/react";
+import { type SubmitOptions, useFetcher, useNavigation, useSubmit } from "@remix-run/react";
 import RegularSelect from "~/core/components/RegularSelect";
 import { validateNavigationRedirect } from '~/utils'
 import AplicantComments from "~/core/components/ApplicantComments";
@@ -43,13 +43,6 @@ type ProjectValue = {
   id: string;
   name: string;
 };
-
-type ApplicantValue ={
-  applicantId: string,
-  projectId: string,
-  mentorId: string,
-  status: string,
-}
 
 const profileFetcherOptions: SubmitOptions = {
   method: "get",
@@ -106,7 +99,7 @@ export default function Applicant() {
   });
   const [projectSelected, setProjectSelected] = useState<ProjectValue | null>();
 
-  const fetcher = useFetcher<ApplicantValue>();
+  const submit = useSubmit();        
 
   const navigation = useNavigation();
 
@@ -145,7 +138,7 @@ if (appliedIdProjects && appliedNameProjects) {
     );
   };
 
-  const changeStatus = (event: SelectChangeEvent) => {
+  const changeStatus = async (event: SelectChangeEvent) => {
     const body= {
       applicantId: applicant.id as unknown as string,
       projectId: applicant.projectId as string,
@@ -153,7 +146,7 @@ if (appliedIdProjects && appliedNameProjects) {
       status: event.target.value
     };
    
-     fetcher.submit(body, { method: "post", action: `/applicants/${applicant.id}/status`})
+    await submit(body, { method: "post", action: `/applicants/${applicant.id}/status`})
   }
 
   const searchProfilesDebounced = debounce(searchProfiles, 500);
