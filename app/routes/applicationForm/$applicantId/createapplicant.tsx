@@ -68,6 +68,7 @@ export const action: ActionFunction = async ({ request }) => {
     (result?.data?.wizelinePrograms as string) ??
     "DefaultWizelineProgramsValue";
   const comments = (result?.data?.comments as string) ?? "DefaultCommentsValue";
+  const avatarApplicant = profile?.avatarUrl as string;
 
   if (!result) {
     throw new Response("Error", {
@@ -106,7 +107,8 @@ export const action: ActionFunction = async ({ request }) => {
     howDidYouHearAboutUs,
     participatedAtWizeline,
     wizelinePrograms,
-    comments
+    comments,
+    avatarApplicant
   );
 
   return redirect("/internshipProjects");
