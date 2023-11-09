@@ -20,7 +20,7 @@ import { withZod } from "@remix-validated-form/with-zod";
 import { zfd } from "zod-form-data";
 import { z } from "zod";
 import { getProjectsList } from "~/models/project.server";
-import { type SubmitOptions, useFetcher, useNavigation, useSubmit } from "@remix-run/react";
+import { type SubmitOptions, useFetcher, useNavigation } from "@remix-run/react";
 import RegularSelect from "~/core/components/RegularSelect";
 import { validateNavigationRedirect } from '~/utils'
 import AplicantComments from "~/core/components/ApplicantComments";
@@ -99,8 +99,8 @@ export default function Applicant() {
   });
   const [projectSelected, setProjectSelected] = useState<ProjectValue | null>();
 
-  const submit = useSubmit();        
-
+  const fetcher = useFetcher();        
+  
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -146,7 +146,7 @@ if (appliedIdProjects && appliedNameProjects) {
       status: event.target.value
     };
    
-    await submit(body, { method: "post", action: `/applicants/${applicant.id}/status`})
+    await fetcher.submit(body, { method: "post", action: `/applicants/${applicant.id}/status`})
   }
 
   const searchProfilesDebounced = debounce(searchProfiles, 500);
@@ -193,7 +193,7 @@ if (appliedIdProjects && appliedNameProjects) {
               </h1>{" "}
             </Grid>
             <Grid xs={4} sx={{ textAlign: "right" }}>
-              {canEditProject && applicant.status === "DRAFT" && (
+              {navigation.state != "loading" && canEditProject && applicant.status === "DRAFT" && (
                 <>
                   <Button
                     onClick={() => setOpenManageModal(true)}
@@ -214,6 +214,7 @@ if (appliedIdProjects && appliedNameProjects) {
                       label="Status"
                       onChange={changeStatus}
                       value={applicant.status}
+                      disabled={fetcher.state === 'loading'}
                     >
                       <MenuItem value="DRAFT">DRAFT</MenuItem>
                       <MenuItem value="HOLD">HOLD</MenuItem>
