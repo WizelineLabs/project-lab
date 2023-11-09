@@ -1,6 +1,6 @@
 import LinkedIn from "@mui/icons-material/LinkedIn";
 import ArrowBack from "@mui/icons-material/ArrowBack";
-import { Container, Paper, Link as ExternalLink, Button, TextField, Autocomplete, debounce, Stack, FormControl, InputLabel, Select, MenuItem, type SelectChangeEvent, Typography, type AutocompleteChangeReason } from "@mui/material";
+import { Container, Paper, Link as ExternalLink, Button, TextField, Autocomplete, debounce, Stack, FormControl, InputLabel, Select, MenuItem, type SelectChangeEvent, Typography, type AutocompleteChangeReason, Avatar } from "@mui/material";
 import type { LoaderArgs } from "@remix-run/server-runtime";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import invariant from "tiny-invariant";
@@ -245,6 +245,15 @@ if (appliedIdProjects && appliedNameProjects) {
               )}
             </Grid>
           </Grid>
+          <div>
+          {applicant.avatarApplicant && (
+            <Avatar
+              alt={applicant.fullName}
+              src={applicant.avatarApplicant}
+              sx={{ width: 150, height: 150, borderRadius: '50%', margin: '15px' }}
+            />
+          )}
+          </div>
           <div>
             {applicant.university} / <strong>{applicant.major}</strong> /{" "}
             {applicant.semester} / {applicant.englishLevel}
