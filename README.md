@@ -62,12 +62,13 @@ If you set a password in the installation of postgres, you should use this forma
 DATABASE_URL=postgresql://[username]:[password]@localhost:5432/[database]?schema=public
 ```
 
-2. Ask in `#team-wizelabs-io` channel on _Slack_
-   for the environment values for `.env` and access to the keybase team.
+2. Join [Keybase](https://keybase.io/) if you dont have an account yet.
 
-For the `GOOGLE_APPLICATION_CREDENTIALS=` there will be a file named `wizelake-prod-wizelabs.json` in the files of the keybase team, you need to save it and use it's route as your `GOOGLE_APPLICATION_CREDENTIALS=`. There's a example of it in `.env.example`.
+3. Ask in `#team-wizelabs-io` channel on _Slack_ to join the keybase team to access the `.env (remix)` file with the environment values for `.env`.
 
-3. Edit `prisma/seeds.ts` file and add your user at the very bottom, make sure to replace with your data:
+For the `GOOGLE_APPLICATION_CREDENTIALS=` there will be a file named `wizelake-prod-wizelabs.json` in the files of the keybase team, you need to save it (outside of the project) and use it's absolute path as your `GOOGLE_APPLICATION_CREDENTIALS=`. There's a example of how to do this in `.env.example`.
+
+4. Edit `prisma/seeds.ts` file and add your user at the very bottom, make sure to replace with your data:
 
 ```
   await db.profiles.upsert({
@@ -78,17 +79,24 @@ For the `GOOGLE_APPLICATION_CREDENTIALS=` there will be a file named `wizelake-p
       firstName: "[YOUR_FIRNAME]",
       lastName: "[YOUR_LASTNAME]",
       department: "[YOUR_DEPARTMENT]",
+      preferredName: "[YOUR_PREFERED_NAME]"
     },
   })
 ```
 
-4. (Only dev environment) Set the project's node version with NVM. If you don't have NVM installed read the [documentation](https://github.com/nvm-sh/nvm):
+5. (Only dev environment) Set the project's node version (see "engines" > "node" in "package.json") with NVM. If you don't have NVM installed read the [documentation](https://github.com/nvm-sh/nvm):
 
 ```
-nvm use
+nvm use [NODE VERSION TO USE]
 ```
 
 ## Development
+
+- Install dependencies
+
+  ```sh
+  npm install
+  ```
 
 - Initial database setup:
 

@@ -71,11 +71,14 @@ const verifyCallback: StrategyVerifyCallback<
       const firstName = profile?.name?.givenName || "Unnamed";
       const preferredName = profile?.name?.givenName as string;
       const lastName = profile?.name?.familyName as string;
+      const avatarUrl = profile?.photos ? profile.photos[0].value : null;
+
       createProfile({
         email: email !== null ? email : "",
         firstName,
         preferredName,
         lastName,
+        avatarUrl,
       });
     }
 

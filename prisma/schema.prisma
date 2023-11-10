@@ -443,6 +443,7 @@ model Applicant {
   appliedProjectsId      String?
   generalComments        internsComments[]
   projectId              String?
+  avatarApplicant        String?
   mentor                 Profiles? @relation(fields: [mentorId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   project                Projects? @relation(fields: [projectId], references: [id], onDelete: SetNull, onUpdate: Cascade)
 

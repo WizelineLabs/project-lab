@@ -32,6 +32,7 @@ export async function createApplicant (
   participatedAtWizeline: boolean, 
   wizelinePrograms: string,
   comments: string, 
+  avatarApplicant: string,
   ){
   const result = await db.applicant.create({
     data: {
@@ -66,6 +67,7 @@ export async function createApplicant (
       participatedAtWizeline: participatedAtWizeline,
       wizelinePrograms: wizelinePrograms,
       comments: comments,
+      avatarApplicant: avatarApplicant,
     },
   });
   return result;
