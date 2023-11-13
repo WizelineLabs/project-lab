@@ -4,7 +4,7 @@ import {
   TextField,
   Autocomplete,
 } from "@mui/material";
-import { useField } from "remix-validated-form";
+import { useControlField, useField } from "remix-validated-form";
 import type { SubmitOptions } from "@remix-run/react";
 import { useFetcher } from "@remix-run/react";
 
@@ -12,6 +12,7 @@ type universityValue = {
   id: string;
   name: string;
 };
+
 
 interface universitiesSelectProps {
   name: string;
@@ -27,19 +28,27 @@ const universitiesOptions: SubmitOptions = {
 export const UniversitySelect = ({ name, label, selected = ""} : universitiesSelectProps) => {
   const universityFetcher = useFetcher<universityValue[]>();
   const { error } = useField(name);
-
   useEffect(() => {
     if (universityFetcher.type === "init") {
       universityFetcher.submit({}, universitiesOptions);
     }
   }, [universityFetcher]);
+  const options = universityFetcher.data?.map((a) => {
+    return a.name;
+  }) ?? [];
+  const [value, setValue] = useControlField<String>(selected);
   return (
     <>
       <Autocomplete
-        options={universityFetcher.data?.map((a) => {
-          return a.name;
-        }) ?? []}
-        value={selected}
+        options={options}
+        defaultValue={value}
+        value={value}
+        onChange={(event, newValue) => {
+          if (options.filter(o => o==newValue).length == 1){
+            setValue(newValue != undefined ? newValue : "");            
+          }
+        }}
+        filterSelectedOptions
         renderInput={(params) => (
           <TextField
             {...params}
