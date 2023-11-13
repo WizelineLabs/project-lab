@@ -1,10 +1,15 @@
-import { Button, Checkbox, Container, FormControlLabel, Grid, Typography, } from '@mui/material';
+import { Button, Checkbox, Container, FormControlLabel, Grid, Typography } from '@mui/material';
 import LabeledTextField from '~/core/components/LabeledTextField';
 import { withZod } from '@remix-validated-form/with-zod';
 import { z } from "zod";
 import { ValidatedForm } from "remix-validated-form";
 import { zfd } from "zod-form-data";
 import SelectField from '~/core/components/FormFields/SelectField';
+import { getUniversities } from '~/models/university.server';
+import type { LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { searchPointOfContact } from '~/models/pointsOfContact.server';
+import { useLoaderData, useFetcher } from "@remix-run/react";
 
 export const validator = withZod(
   zfd.formData({
@@ -85,7 +90,33 @@ function getCurrentDate(): string {
   return `${year}-${month}-${day}`;
 }
   
-  export default function FormPage() {
+type LoaderData = {
+  universities: Awaited<ReturnType<typeof getUniversities>>;
+  contacts : Awaited<ReturnType<typeof searchPointOfContact>>| [];
+};
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const universities = await getUniversities();
+  const uni = new URL(request.url).searchParams.get('university');
+
+  if (uni){
+    const contacts = await searchPointOfContact(uni);
+    return json<LoaderData>({
+      universities,
+      contacts,
+    });
+  } else {
+    return json<LoaderData>({
+      universities,
+      contacts : [],
+    });
+  }
+};
+
+export default function FormPage() {
+  const fetcher = useFetcher();
+  const { universities, contacts } = useLoaderData() as LoaderData;
+  
     return (
     <Container>
       <img src='/HeaderImage.png' alt='Wizeline' style={{width:"100%"}} />
@@ -180,28 +211,21 @@ function getCurrentDate(): string {
               If your university is not listed here, 
               please contact us at internships@wizeline.com to work it out.
             </Typography>
+
             <SelectField
               name="university"
               label="University or organization you belong to"
-              options={[
-                "Instituto Tecnológico Superior de Ciudad Hidalgo",
-                "Instituto Tecnológico Superior Zacatecas Sur",
-                "Tecnológico de Monterrey",
-                "UNIVA",
-                "Universidad Autónoma de San Luis Potosí",
-                "Universidad de Guadalajara (CUNORTE)",
-                "Universidad Politécnica de Quintana Roo",
-              ]}
+              options={universities.map(u=> u.name)}
+              onChange={ (e : any)=> fetcher.load(`./?university=${e.target.value}`)}
               style={{ width: '100%', marginBottom: '20px' }}
             />
-            <LabeledTextField
-              label="Campus"
-              placeholder='Campus, if applicable'
-              name='campus'
-              fullWidth
-              type='text'
-              style={{marginBottom: '20px'}}
-            />
+            <SelectField
+              name="contacts"
+              label="Contact from your university"
+              options={contacts.map(u=> u.fullName)}
+              style={{ width: '100%', marginBottom: '20px' }}
+            />   
+            
             <LabeledTextField
               label="Organization or University Email"
               placeholder='Organization or University Email'

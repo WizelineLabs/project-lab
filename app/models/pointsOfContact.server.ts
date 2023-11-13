@@ -42,14 +42,6 @@ export async function getPointsOfContact() {
   });
 }
 
-export async function getPointOfContactById(id: string) {
-  const pointofContact = await db.universityPointsOfContact.findUnique({
-    where: {
-      id: id,
-    }
-  });
-  return !!pointofContact;
-}
 async function validatePointOfContact(id: string) {
   const pointofContact = await db.universityPointsOfContact.findFirst({
     where: { id },
@@ -71,4 +63,28 @@ export async function updatePointOfContact({ id, fullName, university}: { id: st
   });
   await db.universityPointsOfContact.update({ where: { id }, data: { fullName: fullName,
   universityId: uni?.id } });
+}
+
+export async function searchPointOfContact(university: string) {
+  const pointsOfContact = await db.universityPointsOfContact.findMany({
+    where: { 
+      university:{
+        name : university
+      }
+    },
+    select: {
+      fullName: true,
+      university: {
+        select:{
+          name: true,
+          id: true
+        }
+      },
+      id: true
+    },
+    orderBy: {
+      fullName: "asc",
+    },
+  });
+  return pointsOfContact;
 }

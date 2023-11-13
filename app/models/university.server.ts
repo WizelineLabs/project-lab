@@ -17,17 +17,7 @@ export async function getUniversities() {
   });
 }
 
-export async function getUniversityById(id: string) {
-  const university = await db.universities.findUnique({
-    where: {
-      id: id,
-    },
-    include:{
-      pointsOfContact: true
-    }
-  });
-  return !!university;
-}
+
 async function validateUniversity(id: string) {
   const innovationTier = await db.universities.findFirst({
     where: { id },
@@ -48,6 +38,10 @@ export async function updateUniversity({ id, name }: { id: string; name: string 
 export async function searchUniversities(searchTerm: string) {
   const universities = await db.universities.findMany({
     where: { name: { contains: searchTerm, mode: "insensitive" }},
+    select: {
+      name: true,
+      id: true
+    },
     orderBy: {
       name: "asc",
     },
