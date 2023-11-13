@@ -19,6 +19,7 @@ import Markdown from "marked-react";
 import { useOptionalUser } from "~/utils";
 import { getAppliedProjectsByEmail } from "~/models/applicant.server";
 import { requireProfile } from "~/session.server";
+import { useState } from "react";
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   invariant(params.projectId, "projectId not found");
@@ -40,6 +41,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 export default function ProjectDetail() {
   const { projects, appliedProjects } = useLoaderData();
   const fetcher = useFetcher();
+  const [isApplying, setIsApplying] = useState(false);
 
   const skills = projects.searchSkills
     ? projects.searchSkills
@@ -51,7 +53,13 @@ export default function ProjectDetail() {
   const user = useOptionalUser();
 
   const handleApply = async () => {
+    if (isApplying) {
+      return;
+    }
+
     try {
+      setIsApplying(true);
+
       await fetcher.submit({}, { method: "put", action: './appliedproject' });
 
     } catch (error) {
@@ -97,11 +105,14 @@ export default function ProjectDetail() {
                     height: "40px",
                     fontSize: "1em",
                     margin: 2,
+                    '&:disabled': {
+                      color: 'rgba(255, 255, 255, 0.7)', 
+                    },
                   }}
                   onClick={handleApply} 
-                  disabled={fetcher.state === 'loading' || appliedProjects.includes(projects.name)}
+                  disabled={fetcher.state === 'loading' || appliedProjects.includes(projects.name) || isApplying}
               >
-                {appliedProjects.includes(projects.name) ? 'APPLIED' : 'APPLY'}
+                {appliedProjects.includes(projects.name) && fetcher.state !== 'loading' ? 'APPLIED' : 'APPLY'}
               </Button>
               </Form>
             </Grid>
