@@ -42,19 +42,19 @@ export async function getPointsOfContact() {
   });
 }
 
-export async function getUniversityById(id: string) {
-  const university = await db.universityPointsOfContact.findUnique({
+export async function getPointOfContactById(id: string) {
+  const pointofContact = await db.universityPointsOfContact.findUnique({
     where: {
       id: id,
     }
   });
-  return !!university;
+  return !!pointofContact;
 }
 async function validatePointOfContact(id: string) {
-  const innovationTier = await db.universityPointsOfContact.findFirst({
+  const pointofContact = await db.universityPointsOfContact.findFirst({
     where: { id },
   });
-  if (!innovationTier) {
+  if (!pointofContact) {
     const error: ResponseError = new Error("Point of Contact not found in DB");
     error.code = "NOT_FOUND";
     throw error;
@@ -62,7 +62,13 @@ async function validatePointOfContact(id: string) {
   return;
 }
 
-export async function updatePointOfContact({ id, fullName}: { id: string; fullName: string; }) {
+export async function updatePointOfContact({ id, fullName, university}: { id: string; fullName: string; university: string}) {
   await validatePointOfContact(id);
-  await db.universityPointsOfContact.update({ where: { id }, data: { fullName } });
+  const uni = await db.universities.findUnique({
+    where: {
+      name : university
+    }
+  });
+  await db.universityPointsOfContact.update({ where: { id }, data: { fullName: fullName,
+  universityId: uni?.id } });
 }

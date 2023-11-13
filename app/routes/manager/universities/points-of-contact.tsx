@@ -93,7 +93,7 @@ export const action: ActionFunction = async ({ request }) => {
   if( request.method == 'PUT') {
     if(id){
       try{
-        await updatePointOfContact({id, fullName : name})
+        await updatePointOfContact({id, fullName : name, university})
         return redirect("./");
       } catch (e) {
         throw e;
