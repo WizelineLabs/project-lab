@@ -1,7 +1,7 @@
 import Header from "../../../core/layouts/Header";
 import type { LoaderArgs } from "@remix-run/server-runtime";
 import { getProjectById } from "~/models/project.server";
-import { Form, useLoaderData } from "@remix-run/react";
+import { Form, useFetcher, useLoaderData } from "@remix-run/react";
 import {
   Button,
   Card,
@@ -39,6 +39,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 
 export default function ProjectDetail() {
   const { projects, appliedProjects } = useLoaderData();
+  const fetcher = useFetcher();
 
   const skills = projects.searchSkills
     ? projects.searchSkills
@@ -48,6 +49,16 @@ export default function ProjectDetail() {
     : [];
 
   const user = useOptionalUser();
+
+  const handleApply = async () => {
+    try {
+      await fetcher.submit({}, { method: "put", action: './appliedproject' });
+
+    } catch (error) {
+      console.error("Error processing the application:", error);
+    }
+  };
+  
 
   return (
     <>
@@ -77,22 +88,20 @@ export default function ProjectDetail() {
           <p className="descriptionProposal">{projects.description}</p>
           {user && (
             <Grid style={{ position: "absolute", top: 0, right: 0 }}>
-              <Form
-              method="put"
-              action='./appliedproject'
+              <Form method="put" action='./appliedproject'>
+                <Button
+                  className="contained"
+                  type='submit'
+                  sx={{
+                    width: "200px",
+                    height: "40px",
+                    fontSize: "1em",
+                    margin: 2,
+                  }}
+                  onClick={handleApply} 
+                  disabled={fetcher.state === 'loading' || appliedProjects.includes(projects.name)}
               >
-              <Button
-                className="contained"
-                type='submit'
-                sx={{
-                  width: "200px",
-                  height: "40px",
-                  fontSize: "1em",
-                  margin: 2,
-                }}
-                disabled={appliedProjects.includes(projects.name)}
-              >
-                APPLY
+                {appliedProjects.includes(projects.name) ? 'APPLIED' : 'APPLY'}
               </Button>
               </Form>
             </Grid>
