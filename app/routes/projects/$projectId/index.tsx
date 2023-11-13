@@ -30,11 +30,7 @@ import {
   Typography,
   CardHeader,
   Link,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
 } from "@mui/material";
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import EditSharp from "@mui/icons-material/EditSharp";
 import ThumbUpSharp from "@mui/icons-material/ThumbUpSharp";
 import ThumbDownSharp from "@mui/icons-material/ThumbDownSharp";
@@ -61,6 +57,7 @@ import type { Roles } from "~/models/authorization.server";
 import GitHub from '@mui/icons-material/GitHub';
 import { validateNavigationRedirect } from '~/utils';
 import { searchApplicants } from "~/models/applicant.server";
+import ApplicantsSection from "~/core/components/ApplicantsSection";
 
 export function links() {
   return [
@@ -558,43 +555,7 @@ export default function ProjectDetailsPage() {
           </Grid>
           <Grid item xs={12}></Grid>
         </Grid>
-      </Container>
-
-      <Container sx={{ marginBottom: 2 }}>
-      <Card>
-        <CardHeader title="Applicants:" />
-        <CardContent>
-          {applicantsForCurrentProject.length > 0 && (
-            <ul>
-              {applicantsForCurrentProject.map((applicantData: any, index: any) => (
-                <li key={index}>
-                  <Accordion>
-                    <AccordionSummary
-                      expandIcon={<ExpandMoreIcon />}
-                      aria-controls={`panel${index + 1}-content`}
-                      id={`panel${index + 1}-header`}
-                    >
-                      <Link href={`/applicants/${applicantData.id}`}>
-                        <Typography>{applicantData.fullName}</Typography>
-                      </Link>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <Typography>
-                        <b>Experience:</b> {applicantData.experience}
-                      </Typography>
-                      <Typography>
-                        <b>CV Link:</b>{" "}
-                        <a href={applicantData.cvLink}> {applicantData.cvLink} </a>
-                      </Typography>
-                    </AccordionDetails>
-                  </Accordion>
-                </li>
-              ))}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
-    </Container>
+      </Container>  
 
       {project.skills && project.skills.length > 0 && (
         <Container sx={{ marginBottom: 2 }}>
@@ -642,6 +603,10 @@ export default function ProjectDetailsPage() {
         projectId={projectId}
         open={showJoinModal}
         handleCloseModal={() => setShowJoinModal(false)}
+      />
+
+      <ApplicantsSection 
+        applicantsForCurrentProject={applicantsForCurrentProject} 
       />
 
       <Container>
