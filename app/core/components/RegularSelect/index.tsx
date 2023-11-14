@@ -20,6 +20,7 @@ import {
     helperText?: string;
     disabled?: boolean;
     onChange?: (e: SelectValue) => void;
+    style?: any;
   }
   
   export const RegularSelect = ({
@@ -29,6 +30,7 @@ import {
     helperText,
     disabled,
     onChange,
+    style,
   }: InputSelectProps) => {
     const { error } = useField(name);
     
@@ -44,6 +46,7 @@ import {
           label={label}
           value={selectValue}
           error={!!error}
+          style={style ? style : { margin: "1em 0" }}
           onChange={(event) => {
             
             const newValue = valuesList.find(

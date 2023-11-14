@@ -65,12 +65,24 @@ export async function updatePointOfContact({ id, fullName, university}: { id: st
   universityId: uni?.id } });
 }
 
-export async function searchPointOfContact(university: string) {
+export async function searchPointOfContact(q : string, universityId: string) {
   const pointsOfContact = await db.universityPointsOfContact.findMany({
     where: { 
-      university:{
-        name : university
-      }
+      AND:[
+        {
+          university:{
+            id : universityId
+          },
+        },
+        {
+          university:{
+            name: { 
+              contains: q, 
+              mode: "insensitive" 
+            }
+          },
+        }
+      ]
     },
     select: {
       fullName: true,
