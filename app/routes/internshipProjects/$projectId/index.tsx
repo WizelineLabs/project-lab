@@ -35,11 +35,12 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   return {
     projects,
     appliedProjects,
+    profile,
   };
 };
 
 export default function ProjectDetail() {
-  const { projects, appliedProjects } = useLoaderData();
+  const { projects, appliedProjects, profile, } = useLoaderData();
   const submit = useSubmit();
   const navigation = useNavigation();
   const [isApplying, setIsApplying] = useState(false);
@@ -54,13 +55,15 @@ export default function ProjectDetail() {
   const user = useOptionalUser();
 
   const handleApply = async () => {
-    if (isApplying) {
-      return;
-    }
-
+    const body = {
+      profileEmail: profile.email as string,
+      projectName: projects.name as string,
+      projectId: projects.id as string,
+    };
+  
     try {
       setIsApplying(true);
-      await submit({}, { method: "put", action: './appliedproject' });
+      await submit(body, { method: "put", action: './appliedproject' });
 
     } catch (error) {
       console.error("Error processing the application:", error);
@@ -112,7 +115,7 @@ export default function ProjectDetail() {
                   onClick={handleApply} 
                   disabled={navigation.state === 'loading' || appliedProjects.includes(projects.name) || isApplying}
               >
-                {appliedProjects.includes(projects.name) && navigation.state != "loading" ? 'APPLIED' : 'APPLY'}
+                {appliedProjects.includes(projects.name) && navigation.state != 'loading' ? 'APPLIED' : 'APPLY'}
               </Button>
               </Form>
             </Grid>
