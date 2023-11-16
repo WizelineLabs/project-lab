@@ -10,18 +10,17 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   const profile = await requireProfile(request);
   const projects = await getProjectById(params.projectId);
-  const projectId = await projects.id;
 
   try {
     await addAppliedProject(
       profile.email,
       projects.name,
-      projectId,
+      projects.id,
     );
   } catch (e) {
     const session = await getSession(request);
     session.flash("warning", "error while applying a project");
   }
 
-  return redirect("/internshipProjects");
+  return redirect(`/internshipProjects/${projects.id}`);
 };
