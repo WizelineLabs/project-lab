@@ -1,4 +1,4 @@
-    import { Accordion, AccordionDetails, AccordionSummary, Alert, Button, Container, Grid, InputLabel, List, ListItem, ListItemText, MenuItem, Paper, Select, Stack, Typography } from "@mui/material";
+    import { Accordion, AccordionDetails, AccordionSummary, Alert, Button, Container, Grid, InputLabel, List, ListItem, MenuItem, Paper, Select, Stack, Typography } from "@mui/material";
     import type { LoaderFunction } from "@remix-run/server-runtime";
     import { json } from "@remix-run/node";
     import invariant from "tiny-invariant";
@@ -172,6 +172,11 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
         }
 
+        const createReleaseItems = (textList:string) => {
+            
+            return  textList.split('*');
+        }
+
        
         
         
@@ -219,14 +224,24 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
                                     <Typography>{release.name + " Author: " + release.author}</Typography>
                                         <List >
                                             <ListItem sx={{ alignContent: 'center', alignItems: 'center'}}>
-                                            <ListItemText
-                                                primary=""
-                                            />
+                                                
                                             </ListItem>
                                         </List>
                                     </AccordionSummary>
                                     <AccordionDetails>
-                                    
+                                        <ul>
+                                            {
+                                                createReleaseItems(release.body).map(
+                                                    (item, id) => {
+                                                        return (
+                                                            <li key={id}>
+                                                                {item}
+                                                            </li>
+                                                        )
+                                                    } 
+                                                )
+                                            }
+                                         </ul>
                                     </AccordionDetails>
                                 </Accordion>
                             )
