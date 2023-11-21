@@ -1,11 +1,24 @@
 import styled from "@emotion/styled";
 
+interface SecondaryHeaderProps {
+  open: boolean;
+}
+
 export const HomePageContainer = styled.div`
   width: 100vw;
   display: flex;
   flex-direction: column;
   align-items: center;
   background-color: rgb(218, 218, 218);
+  overflow-y: auto;
+`;
+
+export const MiddleHomePageContainer = styled.div`
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: rgb(231, 231, 231);
   overflow-y: auto;
 `;
 
@@ -16,20 +29,51 @@ export const HomeHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  position: fixed;
+  z-index: 1;
+  top: 0;
 `;
 
-export const SecondaryHeader = styled.div`
+export const IconButton = styled.div`
+  color: white;
+  display: none;
+  @media screen and (max-width: 768px) {
+    display: block;
+    position: fixed;
+    right: 20px;
+    top: 25px;
+    z-index: 2;
+  }
+`;
+
+export const SecondaryHeader = styled.div<SecondaryHeaderProps>`
   width: 100vw;
-  height: 90px;
+  height: 80px;
+  margin-top: 80px;
   background-color: rgba(255, 255, 255, 0.5);
   display: flex;
   align-items: center;
   justify-content: space-between;
   z-index: 1;
   padding: 10px;
-  position: absolute;
-  @media screen and (max-width: 600px) {
-    display: none;
+  position: fixed;
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
+    height: 100%;
+    width: 240px;
+    right: 0;
+    justify-content: space-evenly;
+    background-color: rgba(255, 255, 255);
+    transform: ${({ open }) => (open ? "translateX(0)" : "translateX(100%)")};
+    transition: transform 0.3s ease-in-out;
+  }
+`;
+
+export const StackContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  @media screen and (max-width: 768px) {
+    flex-direction: column;
   }
 `;
 
