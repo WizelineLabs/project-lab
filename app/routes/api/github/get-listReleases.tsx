@@ -1,9 +1,11 @@
 import { Octokit } from "@octokit/core";
 import { env } from "process";
-import { saveRelease } from "~/models/githubReleases.server";
-import { cleanUrlRepo } from "~/utils";
+import { saveRelease } from "../../../models/githubReleases.server";
+import { cleanUrlRepo } from "../../../utils";
+import { PrismaClient } from "@prisma/client";
 const octokit = new Octokit({ auth: env.GITHUB_KEY });
 
+const db = new PrismaClient();
 
 export const getReleasesList = async (repo: string, projectId: string) => {
     const owner = "wizeline";
@@ -21,7 +23,7 @@ export const getReleasesList = async (repo: string, projectId: string) => {
                 // eslint-disable-next-line no-console
                 console.log( repoUrlClean , repoUrlClean , repoReleases.status, repoReleases.headers["x-ratelimit-limit"], repoReleases.headers["x-ratelimit-remaining"],repoReleases.data.length);
                 repoReleases.data?.forEach( (data: { id: string; body: string; name: string; tag_name: string; author: { login: string; }; prerelease: boolean; published_at: string; }) => {
-                    saveRelease(data.id.toString(), data.body, data.name , data.tag_name, data.author?.login, data.prerelease, data.published_at, projectId)
+                    saveRelease(data.id.toString(), data.body, data.name , data.tag_name, data.author?.login, data.prerelease, data.published_at, projectId, db)
                 return;
                 });
             }

@@ -3,7 +3,7 @@ import { Octokit } from "@octokit/core";
 import { env } from "process";
 import { saveActivity } from "../../../models/githubactivity.server";
 import { PrismaClient } from "@prisma/client";
-import { cleanUrlRepo } from "~/utils";
+import { cleanUrlRepo } from "../../../utils";
 const octokit = new Octokit({ auth: env.GITHUB_KEY });
 
 const db = new PrismaClient();

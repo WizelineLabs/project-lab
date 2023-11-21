@@ -1,4 +1,5 @@
 import { prisma } from "../db.server";
+import type { PrismaClient } from "@prisma/client";
 
 export async function saveRelease(
     id: string,
@@ -9,16 +10,16 @@ export async function saveRelease(
     prerealease: boolean,
     created_at: string,
     projectId: string,
-    // db?: PrismaClient
+    db?: PrismaClient
   ){
 
-    // const dbConnection = db ? db : prisma;
+    const dbConnection = db ? db : prisma;
     
-    const releaseRegister = await prisma.gitHubReleases.findFirst({ where: { id } });
+    const releaseRegister = await dbConnection.gitHubReleases.findFirst({ where: { id } });
 
     if(!releaseRegister) {
 
-        return await prisma.gitHubReleases.create({
+        return await dbConnection.gitHubReleases.create({
             data: {
                 id,
                 body,
