@@ -111,13 +111,12 @@ export async function getAppliedProjectsByEmail(email: string) {
     },
   });
 
-  if (!existingApplicant) {
+  if (!existingApplicant || !existingApplicant.appliedProjects) {
     return [];
   }
-
-  return existingApplicant.appliedProjects || []; 
+  
+  return existingApplicant.appliedProjects.split(',');
 }
-
 
 
 export async function searchApplicants() {
