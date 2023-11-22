@@ -47,8 +47,10 @@ fs.createReadStream(csvFileName)
                 update: {}
             })
             .then(u => console.log("Upserted university: " + u.name))
-            .catch(e => console.error("Failed to upsert university: "+ uni))
-            .catch(e => console.error(e));
+            .catch(e => {
+                console.error("Failed to upsert university: "+ uni);
+                console.error(e);
+            });
         });
     });
 
@@ -92,8 +94,10 @@ fs.createReadStream(csvFileName)
                         }
                     })
                     .then(c=>console.log('Upserted contact: '+c.fullName+'. University: '+c.university.name))
-                    .catch(e=> console.error(">>> Failed to upsert contact: "+contact.fullName))
-                    .catch(e=> console.error(e));
+                    .catch(e=> {
+                        console.error(">>> Failed to upsert contact: "+contact.fullName)
+                        console.error(e);
+                    });
                 } else {
                     // CREATE CONTACT
                     await tx.universityPointsOfContact.create({
@@ -115,8 +119,10 @@ fs.createReadStream(csvFileName)
                         }
                     })
                     .then(c=>console.log('Created contact: '+c.fullName+'. University: '+c.university.name))
-                    .catch(e=> console.error(">>> Failed to create contact: "+contact.fullName))
-                    .catch(e=> console.error(e));
+                    .catch(e=> {
+                        console.error(">>> Failed to create contact: "+contact.fullName);
+                        console.error(e);
+                    })
                 }
                 
             });
