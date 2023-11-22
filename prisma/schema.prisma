@@ -477,5 +477,6 @@ model GitHubReleases {
   prerealease   Boolean
   created_at    DateTime
   projectId     String?
+  link          String
   project       Projects? @relation(fields: [projectId], references: [id], onDelete: SetNull, onUpdate: Cascade)
 }

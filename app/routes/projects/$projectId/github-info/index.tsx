@@ -20,6 +20,7 @@
         Legend,
     } from 'chart.js';
 import { week, currentdate, numberOfDays } from "~/utils";
+import LinkIcon from '@mui/icons-material/Link';
 import { ValidatedForm } from "remix-validated-form";
 import { withZod } from "@remix-validated-form/with-zod";
 import { zfd } from "zod-form-data";
@@ -37,7 +38,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
         Legend
     );
     
-    interface releaseList { id: string; body: string; name: string; tag_name: string; author: { login: string; }; prerelease: boolean; published_at: string; }
+    interface releaseList { id: string; body: string; name: string; tag_name: string; author: { login: string; }; prerelease: boolean; published_at: string; link: string;}
     
     type LoaderData = {
         project: Awaited<ReturnType<typeof getProject>>,
@@ -228,7 +229,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
                                             </ListItem>
                                         </List>
                                     </AccordionSummary>
-                                    <AccordionDetails>
+                                    <AccordionDetails> 
+                                        <Button target="_blank" href={release.link} variant="outlined" endIcon={<LinkIcon />}>Go to the release</Button>
                                         <ul>
                                             {
                                                 createReleaseItems(release.body).map(

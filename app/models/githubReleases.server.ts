@@ -10,6 +10,7 @@ export async function saveRelease(
     prerealease: boolean,
     created_at: string,
     projectId: string,
+    link: string,
     db?: PrismaClient
   ){
 
@@ -29,6 +30,7 @@ export async function saveRelease(
                 prerealease,
                 created_at: new Date(created_at),
                 projectId,
+                link,
             }
         })
     }

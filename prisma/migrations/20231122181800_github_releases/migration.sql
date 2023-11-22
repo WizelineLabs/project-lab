@@ -8,6 +8,7 @@ CREATE TABLE "GitHubReleases" (
     "prerealease" BOOLEAN NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL,
     "projectId" TEXT,
+    "link" TEXT NOT NULL,
 
     CONSTRAINT "GitHubReleases_pkey" PRIMARY KEY ("id")
 );
