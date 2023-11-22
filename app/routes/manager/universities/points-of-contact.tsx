@@ -156,6 +156,7 @@ function PointOfContactDataGrid() {
     id: keyof PointOfContactRecord;
     label: string;
     numeric: boolean;
+    align: "left" | "right" | "inherit" | "center" | "justify" | undefined;
   }
 
   const headCells: HeadUniversitiesData[] = [
@@ -163,16 +164,19 @@ function PointOfContactDataGrid() {
       id: "fullName",
       numeric: false,
       label: "Name",
+      align: "left"
     },
     {
       id: "university",
       numeric: false,
       label: "University",
+      align: "left"
     },
     {
       id: "id",
       numeric: false,
       label: "Actions",
+      align: "right"
     },
   ];
 
@@ -201,7 +205,7 @@ function PointOfContactDataGrid() {
           <TableHead>
             <TableRow>
               {headCells.map((cell) => (
-                  <TableCell key={cell.id} align="center" padding="normal">
+                  <TableCell key={cell.id} align={cell.align} padding="normal">
                     <TableSortLabel >
                       {cell.label}
                     </TableSortLabel>
@@ -221,7 +225,7 @@ function PointOfContactDataGrid() {
                           component="th"
                           id={pointOfContactId}
                           scope="row"
-                          align="center"
+                          align="left"
                         >
                           {row.fullName}
                         </TableCell>
@@ -229,14 +233,14 @@ function PointOfContactDataGrid() {
                           component="th"
                           id={pointOfContactId}
                           scope="row"
-                          align="center"
+                          align="left"
                         >
                           {row.university}
                         </TableCell>
                         <TableCell
                          component="th"
                          scope="row"
-                         align="center">
+                         align="right">
                             <Button
                             variant="contained"
                             size="small"
