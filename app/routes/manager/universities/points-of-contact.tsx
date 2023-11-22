@@ -16,11 +16,12 @@ import { z } from "zod";
 import { withZod } from "@remix-validated-form/with-zod";
 import ModalBox from "~/core/components/ModalBox";
 import LabeledTextField from "~/core/components/LabeledTextField";
-import UniversitySelect from "app/core/components/UniversitySelect";
 import { Stack } from "@mui/system";
 import { redirect } from "remix-typedjson";
 import invariant from "tiny-invariant";
 import { validateNavigationRedirect } from '~/utils'
+import { getUniversities } from "~/models/university.server";
+import InputSelect from "~/core/components/InputSelect";
 
 declare module "@mui/material/Button" {
   interface ButtonPropsColorOverrides {
@@ -35,7 +36,9 @@ export const validator = withZod(
     fullName: z
       .string()
       .min(1, { message: "Name is required" }),
-    university: z.string().min(1, { message: "University is required" }),
+    university: z.object({
+      name: z.string()
+    })
   })
 );
 
@@ -53,15 +56,17 @@ type PointOfContactRecord = {
   university: string
 };
 
-
 type LoaderData = {
   pointsOfContact: Awaited<ReturnType<typeof getPointsOfContact>>;
+  universities: Awaited<ReturnType<typeof getUniversities>>;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
   const pointsOfContact = await getPointsOfContact();
+  const universities = await getUniversities();
   return json<LoaderData>({
     pointsOfContact,
+    universities
   });
 };
 
@@ -70,7 +75,7 @@ export const action: ActionFunction = async ({ request }) => {
   const result = await validator.validate(await request.formData());
   const id = result.data?.id;
   const name = result.data?.fullName as string;
-  const university = result.data?.university as string;
+  const university = result.data?.university as {id: string, name:string};
   if (result.error != undefined) return validationError(result.error);
 
   if(request.method == "POST") {   
@@ -78,12 +83,12 @@ export const action: ActionFunction = async ({ request }) => {
         fullName: name,
         university: {
           connectOrCreate: {
-            where: {
-              name: university
-            }, 
             create: {
-              name: university,
-            }
+              name: university?.name ?? "",
+            },
+            where: {
+              name: university?.name
+            }, 
           }
         }
       });
@@ -93,7 +98,7 @@ export const action: ActionFunction = async ({ request }) => {
   if( request.method == 'PUT') {
     if(id){
       try{
-        await updatePointOfContact({id, fullName : name, university})
+        await updatePointOfContact({id, fullName : name, university: university.name})
         return redirect("./");
       } catch (e) {
         throw e;
@@ -106,7 +111,7 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 function PointOfContactDataGrid() {
-  const { pointsOfContact } = useLoaderData() as LoaderData;
+  const { pointsOfContact, universities } = useLoaderData() as LoaderData;
   const createButtonText = "Add New Point of Contact";
   const [rows, setRows] = useState<PointOfContactRecord[]>([]);
 
@@ -140,7 +145,7 @@ function PointOfContactDataGrid() {
     setOpenCreateModal(() => true);
   };
 
-  const handleModifyClick = (id: string, name: string, university : string) => {
+  const handleModifyClick = (id: string, name: string, university : any) => {
     setSelectedRowID(() => id);
     setSelectedName(() => name);
     setSelectedUniversity(() => university);
@@ -261,12 +266,16 @@ function PointOfContactDataGrid() {
  
         <ValidatedForm action='./' method="put" validator={validator} defaultValues={{
               fullName:selectedName,
-              university: selectedUniversity
+              university: {name: selectedUniversity}
             }}>
           <Stack spacing={2}>
             <input type="hidden" name="id" value={selectedRowID} />
             <LabeledTextField fullWidth name="fullName" label="Name" placeholder="Name" />
-            <UniversitySelect name="university" label="University"  selected={selectedUniversity}/>
+            <InputSelect
+              valuesList={universities || []}
+              name="university"
+              label="University"
+            />
 
             <div>
               <Button variant="contained" onClick={() => setOpenModifyModal(false)}>
@@ -290,7 +299,11 @@ function PointOfContactDataGrid() {
         <ValidatedForm action='./' method="post" validator={validator}>
           <Stack spacing={2}>
             <LabeledTextField fullWidth name="fullName" label="Name" placeholder="Name" />
-            <UniversitySelect name="university" label="University" />
+            <InputSelect
+              valuesList={universities || []}
+              name="university"
+              label="University"
+            />
             <div>
               <Button variant="contained" onClick={() => setOpenCreateModal(false)}>
                 Cancel
