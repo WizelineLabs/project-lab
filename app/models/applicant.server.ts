@@ -16,7 +16,7 @@ export async function createApplicant (
   gender: string, 
   englishLevel: string, 
   university: string,
-  campus: string,
+  pointOfContactId: string | undefined,
   major: string,
   semester: string, 
   graduationDate: Date, 
@@ -50,8 +50,16 @@ export async function createApplicant (
       emergencyRelationship: emergencyRelationship,
       gender: gender,
       englishLevel: englishLevel,
-      university: university,
-      campus: campus,
+      university: {
+        connect: {
+          name: university
+        }
+      },
+      universityPointOfContact: {
+        connect: {
+          id : pointOfContactId
+        }
+      },
       major: major,
       semester: semester,
       graduationDate: graduationDate,
@@ -125,7 +133,20 @@ export async function searchApplicants() {
       startDate: {
         gte: new Date(Date.now() - 60 * 60 * 24 * 30 * 3 /** months **/ * 1000).toISOString()
       }
+    },
+    include:{
+      university:{
+        select: {
+          name: true
+        }
+      },
+      universityPointOfContact:{
+        select: {
+          fullName: true
+        }
+      }
     }
+    
   });
 }
 
@@ -144,6 +165,18 @@ export async function getApplicantById(id: any) {
       id: parseInt(id)
     },
     include: {
+      university: {
+        select: {
+          id: true,
+          name: true,
+        }
+      },
+      universityPointOfContact:{
+        select:{
+          id: true,
+          fullName: true
+        }
+      },
       project: {
         select: {
           name: true,
