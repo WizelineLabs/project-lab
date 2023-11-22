@@ -419,8 +419,10 @@ model Applicant {
   emergencyRelationship  String?
   gender                 String
   englishLevel           String
-  university             String
-  campus                 String?
+  universityId           String
+  university             Universities @relation(fields: [universityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  universityPointOfContactId  String?
+  universityPointOfContact    UniversityPointsOfContact? @relation(fields: [universityPointOfContactId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   major                  String
   semester               String
   graduationDate         DateTime
@@ -472,6 +474,7 @@ model Universities {
   name              String   @unique
   active            Boolean  @default(true)
   pointsOfContact   UniversityPointsOfContact[]
+  applicants        Applicant[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -483,6 +486,7 @@ model UniversityPointsOfContact {
   active        Boolean       @default(true)
   university    Universities  @relation(fields: [universityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   universityId  String
+  applicants    Applicant[]
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
