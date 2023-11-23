@@ -44,11 +44,7 @@ export const validator = withZod(
       id: z.string(),
       name: z.string()
     }).required(),
-    /*universityContact: z.object({
-      id:z.string(),
-      name: z.string()
-    }).optional(),
-    contact_id: z.string().optional(),*/
+    universityContactId: z.string().optional(),
     major: z.string().min(1,{message: "This field is Required"}),
     semester: z.string().min(1,{message: "This field is Required"}),
     graduationDate: z.string().min(1,{message: "This field is Required"}), 
@@ -254,9 +250,38 @@ export default function FormPage() {
               style={{ width: '100%', marginBottom: '20px' }}
             />
             
+            <input type="hidden" name="universityContactId" value={selectedContact?.id} />
+            <Autocomplete
+              multiple={false}
+              style={{ width: '100%', marginBottom: '20px' }}
+              options={contactFetcher.data ?? []}
+              value={selectedContact?.id ? selectedContact : null}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
+              id="contact"
+              getOptionLabel={(option) => option.name}
+              onInputChange={(_, value) => searchContactsDebounced(value)}
+              renderTags={() => null}
+              onChange={(
+                event,
+                value: { id: string; name: string } | null,
+                reason: AutocompleteChangeReason
+              ) =>
+                reason === "clear"
+                  ? setSelectedContact({ id: "", name: "" })
+                  : setSelectedContact(value)
+              }
+              filterSelectedOptions
+              renderInput={(params) => (
+                <TextField
+                  name="universityContact"
+                  label="Select a university point of contact"
+                  {...params}
+                  placeholder="Select a university point of contact..."
+                  value={selectedContact?.name}
+                />
+              )}
+            />
 
-            <pre>ContactGoesHere</pre>
-            
             <LabeledTextField
               label="Organization or University Email"
               placeholder='Organization or University Email'
