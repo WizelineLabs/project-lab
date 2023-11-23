@@ -39,9 +39,10 @@ export const action: ActionFunction = async ({ request }) => {
   const gender = (result?.data?.gender as string) ?? "DefaultGenderValue";
   const englishLevel =
     (result?.data?.englishLevel as string) ?? "DefaultEnglishLevelValue";
-  const university =
-    (result?.data?.university as string) ?? "DefaultUniversityValue";
-  const campus = (result?.data?.campus as string) ?? "DefaultCampusValue";
+  
+  const universityId = (result?.data?.university.id as string) ?? "DefaultUniversityValue";
+  const pointOfContactId = undefined; //(result?.data?.contact_id as string) ?? undefined;
+  
   const major = (result?.data?.major as string) ?? "DefaultMajorValue";
   const semester = (result?.data?.semester as string) ?? "DefaultSemesterValue";
   const graduationDate =
@@ -91,8 +92,8 @@ export const action: ActionFunction = async ({ request }) => {
     emergencyRelationship,
     gender,
     englishLevel,
-    university,
-    campus,
+    universityId,
+    pointOfContactId, 
     major,
     semester,
     graduationDate,

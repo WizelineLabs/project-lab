@@ -15,7 +15,7 @@ export async function createApplicant (
   emergencyRelationship: string, 
   gender: string, 
   englishLevel: string, 
-  university: string,
+  universityId: string,
   pointOfContactId: string | undefined,
   major: string,
   semester: string, 
@@ -34,7 +34,7 @@ export async function createApplicant (
   comments: string, 
   avatarApplicant: string,
   ){
-  const result = await db.applicant.create({
+  let result = await db.applicant.create({
     data: {
       email: email,
       personalEmail: personalEmail,
@@ -52,12 +52,7 @@ export async function createApplicant (
       englishLevel: englishLevel,
       university: {
         connect: {
-          name: university
-        }
-      },
-      universityPointOfContact: {
-        connect: {
-          id : pointOfContactId
+          id: universityId
         }
       },
       major: major,
@@ -78,6 +73,20 @@ export async function createApplicant (
       avatarApplicant: avatarApplicant,
     },
   });
+  if (pointOfContactId !== undefined){
+    result = await db.applicant.update({
+      where: {
+        id: result.id
+      },
+      data:{
+        universityPointOfContact: {
+          connect: {
+            id : pointOfContactId
+          }
+        }
+      }
+    });
+  }
   return result;
 }
 
