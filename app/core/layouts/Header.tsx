@@ -5,9 +5,11 @@ import Search from "../components/Search";
 import { Button, Container, Grid, Paper, styled } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import Link from "../components/Link";
+import { useLocation } from 'react-router-dom';
 
 interface IProps {
   title: String;
+  existApplicant?: boolean;
 }
 export interface MenuItemArgs {
   text: string;
@@ -26,9 +28,10 @@ const StyledHeaderButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-const Header = ({ title }: IProps) => {
+const Header = ({ title, existApplicant }: IProps) => {
   const currentUser = useOptionalUser();
   const submit = useSubmit();
+  const location = useLocation();
 
   const handleClickProfile = async () => {
     if (currentUser) {
@@ -121,23 +124,44 @@ const Header = ({ title }: IProps) => {
               </Link>
             </Grid>
             <Grid item sx={{ order: { md: 3 } }}>
-              {currentUser ? (
-                <DropDownButton options={options}>
-                  {currentUser.email}
-                </DropDownButton>
-              ) : (
-                <Button
-                  href="/"
-                  className="contained"
-                  sx={{
-                    width: "200px",
-                    height: "40px",
-                    fontSize: "1em",
-                  }}
-                >
-                  Home
-                </Button>
-              )}
+            {currentUser && !location.pathname.includes('/internshipProjects') ? (
+            // Logic for any path verifying that it does not interfere with /intershipProject
+            <DropDownButton options={options}>
+              {currentUser.email}
+            </DropDownButton>
+
+            // Logic for /intershipProjects if form is answered
+          ) : location.pathname.includes('/internshipProjects') && currentUser && existApplicant ? (
+            <DropDownButton options={options}>
+              {currentUser?.email}
+            </DropDownButton>
+
+            // Logic for /intershipProjects if form is not answered
+          ) : location.pathname.includes('/internshipProjects') && currentUser && !existApplicant ? (
+            <Button
+              href="/"
+              className="contained"
+              sx={{
+                width: "200px",
+                height: "40px",
+                fontSize: "1em",
+              }}
+            >
+              Home
+            </Button>
+          ) : (
+            <Button
+              href="/"
+              className="contained"
+              sx={{
+                width: "200px",
+                height: "40px",
+                fontSize: "1em",
+              }}
+            >
+              Home
+            </Button>
+          )}
             </Grid>
             {showProposal && (
               <Grid item sx={{ marginRight: 2 }}>

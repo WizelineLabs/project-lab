@@ -13,6 +13,8 @@ import ViewModuleIcon from "@mui/icons-material/ViewModule";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import { searchDisciplineByName } from "~/models/discipline.server";
 import { mentorDiscipline } from "~/constants";
+import { getApplicantByEmail } from "~/models/applicant.server";
+import { requireProfile } from "~/session.server";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -23,16 +25,19 @@ function getTitle() {
 export const loader: LoaderFunction = async ({ request }) => {
   const id = await searchDisciplineByName(mentorDiscipline);
   const { projects, count } = await getProjectsByRole(id?.id as string);
+  const profile = await requireProfile(request);
+  const existApplicant = await getApplicantByEmail(profile.email);
 
   return {
     projects,
     count,
     id,
+    existApplicant,
   };
 };
 
 export default function ViewProjects() {
-  const { projects, count } = useLoaderData();
+  const { projects, count, existApplicant } = useLoaderData();
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -54,7 +59,10 @@ export default function ViewProjects() {
 
   return (
     <>
-      <Header title="Intership Projects" />
+      <Header 
+      title="Internship Projects" 
+      existApplicant={existApplicant}
+      />
       <Grid item xs={12} md={9}>
         <Paper elevation={0} sx={{ padding: 2, margin: 2 }}>
           <h2 style={{ marginTop: 0 }}>{getTitle() + ` (${count || 0})`}</h2>

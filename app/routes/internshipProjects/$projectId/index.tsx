@@ -17,7 +17,7 @@ import { formatDistance } from "date-fns";
 import invariant from "tiny-invariant";
 import Markdown from "marked-react";
 import { useOptionalUser } from "~/utils";
-import { getAppliedProjectsByEmail } from "~/models/applicant.server";
+import { getApplicantByEmail, getAppliedProjectsByEmail } from "~/models/applicant.server";
 import { requireProfile } from "~/session.server";
 import { useState } from "react";
 
@@ -27,6 +27,7 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   const profile = await requireProfile(request);
   const projects = await getProjectById(params.projectId);
   const appliedProjects = await getAppliedProjectsByEmail(profile.email);
+  const existApplicant = await getApplicantByEmail(profile.email);
 
   if (!projects.id) {
     throw new Error("project not found");
@@ -35,11 +36,12 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   return {
     projects,
     appliedProjects,
+    existApplicant,
   };
 };
 
 export default function ProjectDetail() {
-  const { projects, appliedProjects } = useLoaderData();
+  const { projects, appliedProjects, existApplicant } = useLoaderData();
   const fetcher = useFetcher();
   const [isApplying, setIsApplying] = useState(false);
 
@@ -70,7 +72,10 @@ export default function ProjectDetail() {
 
   return (
     <>
-      <Header title={projects.name || ""} />
+      <Header 
+      title={projects.name || ""} 
+      existApplicant={existApplicant}
+      />
 
       <Container sx={{ marginBottom: 2 }}>
         <Paper
@@ -94,7 +99,7 @@ export default function ProjectDetail() {
             </Grid>
           </Grid>
           <p className="descriptionProposal">{projects.description}</p>
-          {user && (
+          {user && existApplicant && (
             <Grid style={{ position: "absolute", top: 0, right: 0 }}>
               <Form method="put" action='./appliedproject'>
                 <Button
@@ -115,6 +120,22 @@ export default function ProjectDetail() {
                 {appliedProjects.includes(projects.name) && fetcher.state !== 'loading' ? 'APPLIED' : 'APPLY'}
               </Button>
               </Form>
+            </Grid>
+          )}
+          {user && !existApplicant && (
+            <Grid style={{ position: "absolute", top: 0, right: 0 }}>
+              <Button
+                href="/login/linkedin"
+                className="contained"
+                sx={{
+                  width: "200px",
+                  height: "40px",
+                  fontSize: "1em",
+                  margin: 2,
+                }}
+              >
+                Complete the form
+              </Button>
             </Grid>
           )}
         </Paper>
