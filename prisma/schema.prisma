@@ -482,6 +482,7 @@ model GitHubReleases {
   link          String
   project       Projects? @relation(fields: [projectId], references: [id], onDelete: SetNull, onUpdate: Cascade)
 }
+
 model Universities {
   id                String   @id @default(cuid())
   name              String   @unique
