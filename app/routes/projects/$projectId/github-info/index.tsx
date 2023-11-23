@@ -1,4 +1,4 @@
-    import { Alert, Button, Container, Grid, InputLabel, MenuItem, Paper, Select, Stack, Typography } from "@mui/material";
+    import { Accordion, AccordionDetails, AccordionSummary, Alert, Button, Container, Grid, InputLabel, List, ListItem, MenuItem, Paper, Select, Stack, Typography } from "@mui/material";
     import type { LoaderFunction } from "@remix-run/server-runtime";
     import { json } from "@remix-run/node";
     import invariant from "tiny-invariant";
@@ -20,11 +20,15 @@
         Legend,
     } from 'chart.js';
 import { week, currentdate, numberOfDays } from "~/utils";
+import LinkIcon from '@mui/icons-material/Link';
 import { ValidatedForm } from "remix-validated-form";
 import { withZod } from "@remix-validated-form/with-zod";
 import { zfd } from "zod-form-data";
 import { z } from "zod";
 import { useLoaderData, useSubmit } from "@remix-run/react";
+import { getReleasesListData } from "~/models/githubReleases.server";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
     ChartJS.register(
         CategoryScale,
         LinearScale,
@@ -33,14 +37,16 @@ import { useLoaderData, useSubmit } from "@remix-run/react";
         Tooltip,
         Legend
     );
-
+    
+    interface releaseList { id: string; body: string; name: string; tag_name: string; author: { login: string; }; prerelease: boolean; published_at: string; link: string;}
     
     type LoaderData = {
         project: Awaited<ReturnType<typeof getProject>>,
         projectId: string,
         activityData: Awaited<ReturnType<typeof getGitActivityData>>,
         activityChartData: Awaited<ReturnType<typeof getActivityStadistic>>,
-        weekParams: number
+        weekParams: number,
+        realeasesList: Awaited<ReturnType<typeof getReleasesListData>>
       };
 
     interface gitHubActivityChartType {
@@ -66,6 +72,9 @@ import { useLoaderData, useSubmit } from "@remix-run/react";
         if (!project) {
         throw new Response("Not Found", { status: 404 });
         }
+
+        const realeasesList = await getReleasesListData(projectId);
+
         const activityData = await getGitActivityData(projectId);
         const activityChartData:gitHubActivityChartType[] = await getActivityStadistic(weekParams ? weekParams : week, projectId);
 
@@ -74,7 +83,8 @@ import { useLoaderData, useSubmit } from "@remix-run/react";
             projectId,
             activityData,
             activityChartData,
-            weekParams
+            weekParams,
+            realeasesList
         });
     };
 
@@ -93,7 +103,7 @@ import { useLoaderData, useSubmit } from "@remix-run/react";
 
         const itemsSelect = [];
                 
-        const { project, projectId, activityData, activityChartData, weekParams } = useLoaderData();
+        const { project, projectId, activityData, activityChartData, weekParams, realeasesList } = useLoaderData();
         
         let week = Math.ceil(( currentdate.getDay() + 1 + numberOfDays) / 7);
         let selectedWeek = weekParams ? weekParams : week;
@@ -163,6 +173,11 @@ import { useLoaderData, useSubmit } from "@remix-run/react";
 
         }
 
+        const createReleaseItems = (textList:string) => {
+            
+            return  textList.split('*');
+        }
+
        
         
         
@@ -185,6 +200,56 @@ import { useLoaderData, useSubmit } from "@remix-run/react";
                         </Typography>
                         </Grid>
                         
+                    </Grid>
+                </Paper>
+            </Container>
+
+            <Container>
+                <Paper sx={{ padding: 2, width: 1 }} >
+                    <Grid sx={{margin: 2}}>
+                        <Grid container justifyContent="space-between" >
+                            <Typography color="text.primary">
+                                    Project Releases
+                            </Typography>
+                        </Grid>
+                        <Grid container sx={{ padding: 2, width: 1 }} >
+                        
+                        {
+                            realeasesList.map( (release: releaseList) => (
+                                <Accordion key={release.id} sx={{ width: '50%' }}>
+                                    <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                    aria-controls="panel1a-content"
+                                    id="panel1a-header"
+                                    >
+                                    <Typography>{release.name + " Author: " + release.author}</Typography>
+                                        <List >
+                                            <ListItem sx={{ alignContent: 'center', alignItems: 'center'}}>
+                                                
+                                            </ListItem>
+                                        </List>
+                                    </AccordionSummary>
+                                    <AccordionDetails> 
+                                        <Button target="_blank" href={release.link} variant="outlined" endIcon={<LinkIcon />}>Go to the release</Button>
+                                        <ul>
+                                            {
+                                                createReleaseItems(release.body).map(
+                                                    (item, id) => {
+                                                        return (
+                                                            <li key={id}>
+                                                                {item}
+                                                            </li>
+                                                        )
+                                                    } 
+                                                )
+                                            }
+                                         </ul>
+                                    </AccordionDetails>
+                                </Accordion>
+                            )
+                            )
+                        }
+                        </Grid>
                     </Grid>
                 </Paper>
             </Container>
@@ -254,5 +319,6 @@ import { useLoaderData, useSubmit } from "@remix-run/react";
                     }
                 </Paper>
             </Container>
+
         </>
     }
