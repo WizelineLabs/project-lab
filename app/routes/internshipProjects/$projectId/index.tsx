@@ -1,7 +1,7 @@
 import Header from "../../../core/layouts/Header";
 import type { LoaderArgs } from "@remix-run/server-runtime";
 import { getProjectById } from "~/models/project.server";
-import { Form, useLoaderData } from "@remix-run/react";
+import { Form, useLoaderData, useNavigation, useSubmit } from "@remix-run/react";
 import {
   Button,
   Card,
@@ -19,6 +19,7 @@ import Markdown from "marked-react";
 import { useOptionalUser } from "~/utils";
 import { getAppliedProjectsByEmail } from "~/models/applicant.server";
 import { requireProfile } from "~/session.server";
+import { useState } from "react";
 
 export const loader = async ({ request, params }: LoaderArgs) => {
   invariant(params.projectId, "projectId not found");
@@ -34,11 +35,15 @@ export const loader = async ({ request, params }: LoaderArgs) => {
   return {
     projects,
     appliedProjects,
+    profile,
   };
 };
 
 export default function ProjectDetail() {
-  const { projects, appliedProjects } = useLoaderData();
+  const { projects, appliedProjects, profile, } = useLoaderData();
+  const submit = useSubmit();
+  const navigation = useNavigation();
+  const [isApplying, setIsApplying] = useState(false);
 
   const skills = projects.searchSkills
     ? projects.searchSkills
@@ -48,6 +53,23 @@ export default function ProjectDetail() {
     : [];
 
   const user = useOptionalUser();
+
+  const handleApply = async () => {
+    const body = {
+      profileEmail: profile.email as string,
+      projectName: projects.name as string,
+      projectId: projects.id as string,
+    };
+  
+    try {
+      setIsApplying(true);
+      await submit(body, { method: "put", action: './appliedproject' });
+
+    } catch (error) {
+      console.error("Error processing the application:", error);
+    }
+  };
+  
 
   return (
     <>
@@ -77,22 +99,23 @@ export default function ProjectDetail() {
           <p className="descriptionProposal">{projects.description}</p>
           {user && (
             <Grid style={{ position: "absolute", top: 0, right: 0 }}>
-              <Form
-              method="put"
-              action='./appliedproject'
+              <Form method="put" action='./appliedproject'>
+                <Button
+                  className="contained"
+                  type='submit'
+                  sx={{
+                    width: "200px",
+                    height: "40px",
+                    fontSize: "1em",
+                    margin: 2,
+                    '&:disabled': {
+                      color: 'rgba(255, 255, 255, 0.7)', 
+                    },
+                  }}
+                  onClick={handleApply} 
+                  disabled={navigation.state === 'loading' || appliedProjects.includes(projects.name) || isApplying}
               >
-              <Button
-                className="contained"
-                type='submit'
-                sx={{
-                  width: "200px",
-                  height: "40px",
-                  fontSize: "1em",
-                  margin: 2,
-                }}
-                disabled={appliedProjects.includes(projects.name)}
-              >
-                APPLY
+                {appliedProjects.includes(projects.name) && navigation.state != 'loading' ? 'APPLIED' : 'APPLY'}
               </Button>
               </Form>
             </Grid>

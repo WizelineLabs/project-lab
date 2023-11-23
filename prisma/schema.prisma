@@ -225,6 +225,7 @@ model Projects {
   projectBoard           String?
   applicants             Applicant[]
   githubActivity         GitHubActivity[]
+  githubReleases         GitHubReleases[]
 
   // here also the change of name for map
   @@index([ownerId], map: "projects_owner_id_idx")
@@ -466,6 +467,19 @@ model GitHubActivity {
   author        String
   avatar_url    String
   projectId     String?
+  project       Projects? @relation(fields: [projectId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+}
+
+model GitHubReleases {
+  id            String  @id
+  body          String
+  name          String
+  tagName       String
+  author        String
+  prerealease   Boolean
+  created_at    DateTime
+  projectId     String?
+  link          String
   project       Projects? @relation(fields: [projectId], references: [id], onDelete: SetNull, onUpdate: Cascade)
 }
 
