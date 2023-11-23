@@ -41,7 +41,7 @@ export const action: ActionFunction = async ({ request }) => {
     (result?.data?.englishLevel as string) ?? "DefaultEnglishLevelValue";
   
   const universityId = (result?.data?.university.id as string) ?? "DefaultUniversityValue";
-  const pointOfContactId = undefined; //(result?.data?.contact_id as string) ?? undefined;
+  const pointOfContactId = (result?.data?.universityContactId as string) ?? undefined;
   
   const major = (result?.data?.major as string) ?? "DefaultMajorValue";
   const semester = (result?.data?.semester as string) ?? "DefaultSemesterValue";
