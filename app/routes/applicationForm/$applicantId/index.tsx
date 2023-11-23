@@ -40,8 +40,15 @@ export const validator = withZod(
     emergencyRelationship: z.string().optional(),
     gender: z.string().min(1,{message: "This field is Required"}),
     englishLevel: z.string().min(1,{message: "This field is Required"}),
-    university: z.string().min(1,{message: "This field is Required"}),
-    campus: z.string().optional(),
+    university: z.object({
+      id: z.string(),
+      name: z.string()
+    }).required(),
+    /*universityContact: z.object({
+      id:z.string(),
+      name: z.string()
+    }).optional(),
+    contact_id: z.string().optional(),*/
     major: z.string().min(1,{message: "This field is Required"}),
     semester: z.string().min(1,{message: "This field is Required"}),
     graduationDate: z.string().min(1,{message: "This field is Required"}), 
@@ -141,7 +148,7 @@ export default function FormPage() {
     setSelectedContact({id: "", name: ""})
   }
   const contactFetcher = useFetcher<UniversityValue[]>();
-  const searchContactsDebounced = debounce(searchContacts, 500);
+  const searchContactsDebounced = debounce(searchContacts, 50);
 
   
     return (
@@ -246,38 +253,9 @@ export default function FormPage() {
               onChange={handleSelectUniversity}
               style={{ width: '100%', marginBottom: '20px' }}
             />
+            
 
-            <input type="hidden" name="contact_id" value={selectedContact?.id} />
-            <Autocomplete
-              multiple={false}
-              style={{ width: '100%', marginBottom: '20px' }}
-              options={contactFetcher.data ?? []}
-              value={selectedContact?.id ? selectedContact : null}
-              isOptionEqualToValue={(option, value) => option.id === value.id}
-              id="mentor"
-              getOptionLabel={(option) => option.name}
-              onInputChange={(_, value) => searchContactsDebounced(value)}
-              renderTags={() => null}
-              onChange={(
-                event,
-                value: { id: string; name: string } | null,
-                reason: AutocompleteChangeReason
-              ) =>
-                reason === "clear"
-                  ? setSelectedContact({ id: "", name: "" })
-                  : setSelectedContact(value)
-              }
-              filterSelectedOptions
-              renderInput={(params) => (
-                <TextField
-                  name="mentorName"
-                  label="Select a mentor"
-                  {...params}
-                  placeholder="Select a mentor..."
-                  value={selectedContact?.name}
-                />
-              )}
-            />
+            <pre>ContactGoesHere</pre>
             
             <LabeledTextField
               label="Organization or University Email"
