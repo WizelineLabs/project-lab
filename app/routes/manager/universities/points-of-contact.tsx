@@ -22,6 +22,9 @@ import invariant from "tiny-invariant";
 import { validateNavigationRedirect } from '~/utils'
 import { getUniversities } from "~/models/university.server";
 import InputSelect from "~/core/components/InputSelect";
+import ToggleOffIcon from "@mui/icons-material/ToggleOff";
+import ToggleOnIcon from "@mui/icons-material/ToggleOn";
+import { LabeledCheckbox } from "~/core/components/LabeledCheckbox";
 
 declare module "@mui/material/Button" {
   interface ButtonPropsColorOverrides {
@@ -37,8 +40,9 @@ export const validator = withZod(
       .string()
       .min(1, { message: "Name is required" }),
     university: z.object({
-      name: z.string()
-    })
+      name: z.string(),
+    }).required(),
+    active: z.string().optional()
   })
 );
 
@@ -47,13 +51,15 @@ type PointOfContact = {
   fullName: string;
   university: {
     name: string
-  }
+  };
+  active: boolean;
 };
 
 type PointOfContactRecord = {
   id: string ;
   fullName: string;
-  university: string
+  university: string;
+  active: boolean;
 };
 
 type LoaderData = {
@@ -75,6 +81,7 @@ export const action: ActionFunction = async ({ request }) => {
   const result = await validator.validate(await request.formData());
   const id = result.data?.id;
   const name = result.data?.fullName as string;
+  const active = (result.data?.active as string) == "on";
   const university = result.data?.university as {id: string, name:string};
   if (result.error != undefined) return validationError(result.error);
 
@@ -98,7 +105,7 @@ export const action: ActionFunction = async ({ request }) => {
   if( request.method == 'PUT') {
     if(id){
       try{
-        await updatePointOfContact({id, fullName : name, university: university.name})
+        await updatePointOfContact({id, fullName : name, university: university.name, active})
         return redirect("./");
       } catch (e) {
         throw e;
@@ -120,7 +127,8 @@ function PointOfContactDataGrid() {
       pointsOfContact.map((item: PointOfContact) => ({
         id: item.id,
         fullName: item.fullName,
-        university: item.university.name        
+        university: item.university.name,
+        active: item.active              
       }))
     );
   }, [pointsOfContact]);  
@@ -129,6 +137,7 @@ function PointOfContactDataGrid() {
   const [openModifyModal, setOpenModifyModal] = useState<boolean>(false);
   const [selectedRowID, setSelectedRowID] = useState("");
   const [selectedName, setSelectedName] = useState("");
+  const [selectedActive, setSelectedActive] = useState(true);
   const [selectedUniversity, setSelectedUniversity] = useState("");
 
   const navigation = useNavigation();
@@ -145,9 +154,10 @@ function PointOfContactDataGrid() {
     setOpenCreateModal(() => true);
   };
 
-  const handleModifyClick = (id: string, name: string, university : any) => {
+  const handleModifyClick = (id: string, name: string, university : any, active: boolean) => {
     setSelectedRowID(() => id);
     setSelectedName(() => name);
+    setSelectedActive(() => active);
     setSelectedUniversity(() => university);
     setOpenModifyModal(() => true);
   }
@@ -157,6 +167,7 @@ function PointOfContactDataGrid() {
     label: string;
     numeric: boolean;
     align: "left" | "right" | "inherit" | "center" | "justify" | undefined;
+    hide?: boolean;
   }
 
   const headCells: HeadUniversitiesData[] = [
@@ -171,6 +182,13 @@ function PointOfContactDataGrid() {
       numeric: false,
       label: "University",
       align: "left"
+    },
+    {
+      id: "active",
+      numeric: false,
+      label: "Active",
+      align: "center",
+      hide: true,
     },
     {
       id: "id",
@@ -238,13 +256,21 @@ function PointOfContactDataGrid() {
                           {row.university}
                         </TableCell>
                         <TableCell
+                          component="th"
+                          id={pointOfContactId}
+                          scope="row"
+                          align="center"
+                        >
+                          {row.active ? <ToggleOnIcon color="inherit"></ToggleOnIcon> : <ToggleOffIcon color="inherit"></ToggleOffIcon>}
+                        </TableCell>
+                        <TableCell
                          component="th"
                          scope="row"
                          align="right">
                             <Button
                             variant="contained"
                             size="small"
-                            onClick={() => handleModifyClick(row.id, row.fullName, row.university)}
+                            onClick={() => handleModifyClick(row.id, row.fullName, row.university, row.active)}
                             style={{ marginLeft: 16 }}
                             data-testid="testPointOfContactEdit"
                           >
@@ -270,6 +296,7 @@ function PointOfContactDataGrid() {
  
         <ValidatedForm action='./' method="put" validator={validator} defaultValues={{
               fullName:selectedName,
+              active: selectedActive ? "on" : "",
               university: {name: selectedUniversity}
             }}>
           <Stack spacing={2}>
@@ -280,6 +307,7 @@ function PointOfContactDataGrid() {
               name="university"
               label="University"
             />
+            <LabeledCheckbox name="active" label="Active"/>
 
             <div>
               <Button variant="contained" onClick={() => setOpenModifyModal(false)}>

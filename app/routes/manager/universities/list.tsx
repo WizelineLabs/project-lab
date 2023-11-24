@@ -5,6 +5,11 @@ import { json } from "@remix-run/node";
 import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
+import ToggleOffIcon from "@mui/icons-material/ToggleOff";
+import ToggleOnIcon from "@mui/icons-material/ToggleOn";
+import { LabeledCheckbox } from "~/core/components/LabeledCheckbox";
+
+
 import {
   getUniversities,
   addUniversity,
@@ -35,12 +40,14 @@ export const validator = withZod(
     name: z
       .string()
       .min(1, { message: "Name is required" }),
+    active: z.string().optional()
   })
 );
 
 type UniversityRecord = {
   id: string ;
   name: string;
+  active: boolean;
 };
 
 type LoaderData = {
@@ -59,6 +66,7 @@ export const action: ActionFunction = async ({ request }) => {
   const result = await validator.validate(await request.formData());
   const id = result.data?.id;
   const name = result.data?.name as string;
+  const active = (result.data?.active as string) == 'on';
   if (result.error != undefined) return validationError(result.error);
 
   if(request.method == "POST") {   
@@ -69,7 +77,7 @@ export const action: ActionFunction = async ({ request }) => {
   if( request.method == 'PUT') {
     if(id){
       try{
-        await updateUniversity({id, name})
+        await updateUniversity({id, name, active})
         return redirect("./");
       } catch (e) {
         throw e;
@@ -92,6 +100,7 @@ function UniversitiesDataGrid() {
       universities.map((item: UniversityRecord) => ({
         id: item.id,
         name: item.name,
+        active: item.active
       }))
     );
   }, [universities]);  
@@ -100,6 +109,7 @@ function UniversitiesDataGrid() {
   const [openModifyModal, setOpenModifyModal] = useState<boolean>(false);
   const [selectedRowID, setSelectedRowID] = useState("");
   const [selectedName, setSelectedName] = useState("");
+  const [selectedActive, setSelectedActive] = useState(true);
 
   const navigation = useNavigation();
 
@@ -115,9 +125,10 @@ function UniversitiesDataGrid() {
     setOpenCreateModal(() => true);
   };
 
-  const handleModifyClick = (id: string, name: string) => {
+  const handleModifyClick = (id: string, name: string, active: boolean) => {
     setSelectedRowID(() => id);
     setSelectedName(() => name)
+    setSelectedActive(() => active)
     setOpenModifyModal(() => true)
   }
 
@@ -126,6 +137,7 @@ function UniversitiesDataGrid() {
     label: string;
     numeric: boolean;
     align: "left" | "right" | "inherit" | "center" | "justify" | undefined;
+    hide?: boolean;
   }
 
   const headCells: HeadUniversitiesData[] = [
@@ -134,6 +146,13 @@ function UniversitiesDataGrid() {
       numeric: false,
       label: "Name",
       align: "left"
+    },
+    {
+      id: "active",
+      numeric: false,
+      label: "Active",
+      align: "center",
+      hide: true,
     },
     {
       id: "id",
@@ -193,13 +212,21 @@ function UniversitiesDataGrid() {
                           {row.name}
                         </TableCell>
                         <TableCell
+                          component="th"
+                          id={universityId}
+                          scope="row"
+                          align="center"
+                        >
+                          {row.active ? <ToggleOnIcon color="inherit"></ToggleOnIcon> : <ToggleOffIcon color="inherit"></ToggleOffIcon>}
+                        </TableCell>
+                        <TableCell
                          component="th"
                          scope="row"
                          align="right">
                             <Button
                             variant="contained"
                             size="small"
-                            onClick={() => handleModifyClick(row.id, row.name)}
+                            onClick={() => handleModifyClick(row.id, row.name, row.active)}
                             style={{ marginLeft: 16 }}
                             data-testid="testUniversityEdit"
                           >
@@ -224,11 +251,12 @@ function UniversitiesDataGrid() {
         </h2>
  
         <ValidatedForm action='./' method="put" validator={validator} defaultValues={{
-              name:selectedName
+              name:selectedName, active:selectedActive ? "on" : ""
             }}>
           <Stack spacing={2}>
             <input type="hidden" name="id" value={selectedRowID} />
             <LabeledTextField fullWidth name="name" label="Name" />
+            <LabeledCheckbox name="active" label="Active"/>
             <div>
               <Button variant="contained" onClick={() => setOpenModifyModal(false)}>
                   Cancel

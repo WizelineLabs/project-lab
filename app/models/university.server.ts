@@ -10,7 +10,7 @@ export async function addUniversity(input: { name: string }) {
 
 export async function getUniversities() {
   return await db.universities.findMany({
-    select: { id: true, name: true },
+    select: { id: true, name: true, active: true },
     orderBy: {
       name: "asc",
     },
@@ -30,9 +30,9 @@ async function validateUniversity(id: string) {
   return;
 }
 
-export async function updateUniversity({ id, name }: { id: string; name: string }) {
+export async function updateUniversity({ id, name, active}: { id: string; name: string, active: boolean }) {
   await validateUniversity(id);
-  await db.universities.update({ where: { id }, data: { name } });
+  await db.universities.update({ where: { id }, data: { name, active } });
 }
 
 export async function searchUniversities(searchTerm: string) {
