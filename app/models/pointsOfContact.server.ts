@@ -29,7 +29,7 @@ export async function addPointOfContact(input: newPointOfContact) {
 
 export async function getPointsOfContact() {
   return await db.universityPointsOfContact.findMany({
-    select: { id: true, fullName: true, university: 
+    select: { id: true, fullName: true, active:true, university: 
       {
         select: {
           name: true
@@ -54,14 +54,14 @@ async function validatePointOfContact(id: string) {
   return;
 }
 
-export async function updatePointOfContact({ id, fullName, university}: { id: string; fullName: string; university: string}) {
+export async function updatePointOfContact({ id, fullName, university, active}: { id: string; fullName: string; university: string, active: boolean}) {
   await validatePointOfContact(id);
   const uni = await db.universities.findUnique({
     where: {
       name : university
     }
   });
-  await db.universityPointsOfContact.update({ where: { id }, data: { fullName: fullName,
+  await db.universityPointsOfContact.update({ where: { id }, data: { fullName, active,
   universityId: uni?.id } });
 }
 
