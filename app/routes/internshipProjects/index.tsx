@@ -23,17 +23,30 @@ function getTitle() {
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const id = await searchDisciplineByName(mentorDiscipline);
-  const { projects, count } = await getProjectsByRole(id?.id as string);
-  const profile = await requireProfile(request);
-  const existApplicant = await getApplicantByEmail(profile.email);
+  try {
+    const id = await searchDisciplineByName(mentorDiscipline);
+    const { projects, count } = await getProjectsByRole(id?.id as string);
+    const profile = await requireProfile(request);
+    const existApplicant = await getApplicantByEmail(profile.email);
 
-  return {
-    projects,
-    count,
-    id,
-    existApplicant,
-  };
+    return {
+      projects,
+      count,
+      id,
+      existApplicant,
+    };
+  } catch (error) {
+    console.error("Error loading data:", error);
+    const id = await searchDisciplineByName(mentorDiscipline);
+    const { projects, count } = await getProjectsByRole(id?.id as string);
+
+    return {
+      projects,
+      count,
+      id,
+      existApplicant: false, 
+    };
+  }
 };
 
 export default function ViewProjects() {

@@ -45,6 +45,10 @@ const Header = ({ title, existApplicant }: IProps) => {
     }
   };
 
+  const handleLogout = async () => {
+    await submit(null, { method: "post", action: "/logout" });
+  };
+
   const options: MenuItemArgs[] = [
     ...(currentUser?.role === "ADMIN" || currentUser?.role === "USER"
       ? [
@@ -139,25 +143,25 @@ const Header = ({ title, existApplicant }: IProps) => {
             // Logic for /intershipProjects if form is not answered
           ) : location.pathname.includes('/internshipProjects') && currentUser && !existApplicant ? (
             <Button
-              href="/"
               className="contained"
               sx={{
                 width: "200px",
                 height: "40px",
                 fontSize: "1em",
               }}
+            onClick={handleLogout}
             >
               Home
             </Button>
           ) : (
             <Button
-              href="/"
               className="contained"
               sx={{
                 width: "200px",
                 height: "40px",
                 fontSize: "1em",
               }}
+              onClick={handleLogout} 
             >
               Home
             </Button>
