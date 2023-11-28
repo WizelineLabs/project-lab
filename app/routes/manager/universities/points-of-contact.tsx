@@ -22,8 +22,7 @@ import invariant from "tiny-invariant";
 import { validateNavigationRedirect } from '~/utils'
 import { getUniversities } from "~/models/university.server";
 import InputSelect from "~/core/components/InputSelect";
-import ToggleOffIcon from "@mui/icons-material/ToggleOff";
-import ToggleOnIcon from "@mui/icons-material/ToggleOn";
+import Chip from '@mui/material/Chip';
 import { LabeledCheckbox } from "~/core/components/LabeledCheckbox";
 
 declare module "@mui/material/Button" {
@@ -261,7 +260,7 @@ function PointOfContactDataGrid() {
                           scope="row"
                           align="center"
                         >
-                          {row.active ? <ToggleOnIcon color="inherit"></ToggleOnIcon> : <ToggleOffIcon color="inherit"></ToggleOffIcon>}
+                          <Chip label={row.active ? "ACTIVE" : "INACTIVE"} disabled={!row.active}></Chip>
                         </TableCell>
                         <TableCell
                          component="th"

@@ -5,8 +5,7 @@ import { json } from "@remix-run/node";
 import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
-import ToggleOffIcon from "@mui/icons-material/ToggleOff";
-import ToggleOnIcon from "@mui/icons-material/ToggleOn";
+import Chip from '@mui/material/Chip';
 import { LabeledCheckbox } from "~/core/components/LabeledCheckbox";
 
 
@@ -217,7 +216,8 @@ function UniversitiesDataGrid() {
                           scope="row"
                           align="center"
                         >
-                          {row.active ? <ToggleOnIcon color="inherit"></ToggleOnIcon> : <ToggleOffIcon color="inherit"></ToggleOffIcon>}
+                          <Chip label={row.active ? "ACTIVE" : "INACTIVE"} disabled={!row.active}></Chip>
+
                         </TableCell>
                         <TableCell
                          component="th"
