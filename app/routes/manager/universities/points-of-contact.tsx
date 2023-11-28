@@ -39,7 +39,7 @@ export const validator = withZod(
       .string()
       .min(1, { message: "Name is required" }),
     university: z.object({
-      name: z.string(),
+      name: z.string().min(1),
     }).required(),
     active: z.string().optional()
   })
