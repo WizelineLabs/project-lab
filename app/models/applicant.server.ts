@@ -160,6 +160,15 @@ export async function searchApplicants() {
 }
 
 export async function getApplicantByEmail(email: any) {
+  const applicant = await db.applicant.findUnique({
+    where: {
+      email: email,
+    },
+  });
+  return applicant;
+}
+
+export async function existApplicant(email: any) {
   const existingApplicant = await db.applicant.findUnique({
     where: {
       email: email,

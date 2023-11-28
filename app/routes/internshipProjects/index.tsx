@@ -13,8 +13,8 @@ import ViewModuleIcon from "@mui/icons-material/ViewModule";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import { searchDisciplineByName } from "~/models/discipline.server";
 import { mentorDiscipline } from "~/constants";
-import { getApplicantByEmail } from "~/models/applicant.server";
 import { requireProfile } from "~/session.server";
+import { getApplicantByEmail } from "~/models/applicant.server";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -28,12 +28,14 @@ export const loader: LoaderFunction = async ({ request }) => {
     const { projects, count } = await getProjectsByRole(id?.id as string);
     const profile = await requireProfile(request);
     const existApplicant = await getApplicantByEmail(profile.email);
+    const applicant = await getApplicantByEmail(profile.email);
 
     return {
       projects,
       count,
       id,
       existApplicant,
+      applicant
     };
   } catch (error) {
     console.error("Error loading data:", error);
@@ -50,7 +52,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export default function ViewProjects() {
-  const { projects, count, existApplicant } = useLoaderData();
+  const { projects, count, existApplicant, applicant} = useLoaderData();
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -70,12 +72,20 @@ export default function ViewProjects() {
     return `?${newParams.toString()}`;
   };
 
+  console.log(applicant);
+
   return (
     <>
       <Header 
       title="Internship Projects" 
       existApplicant={existApplicant}
       />
+
+      <Grid item xs={12} md={9}>
+        <Paper elevation={0} sx={{ padding: 2, margin: 2 }}>
+            <h2>Personal Information</h2>
+        </Paper>
+      </Grid>
       <Grid item xs={12} md={9}>
         <Paper elevation={0} sx={{ padding: 2, margin: 2 }}>
           <h2 style={{ marginTop: 0 }}>{getTitle() + ` (${count || 0})`}</h2>
