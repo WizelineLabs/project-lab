@@ -18,7 +18,21 @@ import NavAppBar from "~/core/components/NavAppBar";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const data = await searchApplicants();
-  return data;
+  return data.map(a => ({
+    id: a.id,
+    fullName : a.fullName,
+    email: a.personalEmail,
+    phone: a.phone,
+    startDate: a.startDate,
+    endDate: a.endDate,
+    graduationDate: a.graduationDate,
+    hoursPerWeek: a.hoursPerWeek,
+    university: a.university.name,
+    semester: a.semester,
+    participatedAtWizeline: a.participatedAtWizeline,
+    status: a.status,
+    appliedProjects: a.appliedProjects
+  }));
 };
 
 const shortDateFormatter = (params: GridValueFormatterParams) => {
@@ -124,7 +138,6 @@ export default function Projects() {
     },
     { field: "hoursPerWeek", headerName: "Hour/w", flex: 0.2 },
     { field: "university", headerName: "University", flex: 1 },
-    { field: "campus", headerName: "Campus", flex: 0.5, hide: true },
     { field: "semester", headerName: "Semester", flex: 1, hide: true },
     {
       field: "participatedAtWizeline",

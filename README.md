@@ -114,7 +114,41 @@ This starts your app in development mode, rebuilding assets on file changes.
 
 The database seed script creates a new user with some data you can use to get started, now you can login with your gmail user from wizeline that you added on the seeds file.
 
+
+### Database
+
 If you pull code changes that affect the schema (a new migration), you will need to run:
+
+```sh
+npx prisma migrate deploy # run any pending migrations
+npx prisma generate # update your prisma client code with any changes to the schema
+```
+To reset your database run
+
+```sh
+npx prisma migrate reset 
+```
+
+To add a new migration update the `prisma/schema.prisma` file with the new tables and columns. Then run:
+
+```sh
+npx prisma migrate dev --name [DESCRIPTIVE_MIGRATION_FILE_NAME]
+```
+**IMPORTANT**
+The previous script will generate a new file in the `prisma/migrations` folder with the name you provided. It will contain the migration instructions for the database but it will include a few additional lines that you will need to remove:
+
+```
+-- AlterTable
+ALTER TABLE "Profiles" ALTER COLUMN "searchCol" DROP DEFAULT;
+
+-- AlterTable
+ALTER TABLE "Projects" ALTER COLUMN "tsColumn" DROP DEFAULT;
+
+-- CreateIndex
+CREATE INDEX "profiles_search_col_idx" ON "Profiles" USING GIN ("searchCol" gin_trgm_ops);
+```
+
+Please, remove these lines and then run:
 
 ```sh
 npx prisma migrate deploy # run any pending migrations
