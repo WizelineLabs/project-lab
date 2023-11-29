@@ -10,7 +10,6 @@ interface SelectFieldProps {
   name: string;
   label: string;
   options: string[];
-  onChange?: Function;
   style?: any;
 }
 
@@ -18,7 +17,7 @@ const errorStyle = {
   color: 'red',
 };
 
-const SelectField: React.FC<SelectFieldProps> = ({ name, label, options, style, onChange }) => {
+const SelectField: React.FC<SelectFieldProps> = ({ name, label, options, style }) => {
   const { error } = useField(name);
   const [selectedValue, setSelectedValue] = useControlField<string>(name);
 
@@ -35,12 +34,7 @@ const SelectField: React.FC<SelectFieldProps> = ({ name, label, options, style, 
           name={name}
           id={name}
           value={selectedValue || ''}
-          onChange={e => {
-            handleChange(e); 
-            if (onChange != undefined){
-              onChange(e);
-            }
-          }}
+          onChange={handleChange}
         >
           {options.map((option, index) => (
             <MenuItem key={index} value={option}>

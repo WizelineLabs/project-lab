@@ -255,7 +255,7 @@ if (appliedIdProjects && appliedNameProjects) {
           )}
           </div>
           <div>
-            {applicant.university.name} / <strong>{applicant.major}</strong> /{" "}
+            {applicant.university} / <strong>{applicant.major}</strong> /{" "}
             {applicant.semester} / {applicant.englishLevel}
           </div>
           <div>
@@ -270,7 +270,6 @@ if (appliedIdProjects && appliedNameProjects) {
                 </ExternalLink>
               </>
             )}
-            {applicant.universityPointOfContact && " / University contact: " + applicant.universityPointOfContact.fullName }
             <hr />
             <div>
               <h3>Applied Projects</h3>
