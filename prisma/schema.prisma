@@ -420,10 +420,8 @@ model Applicant {
   emergencyRelationship  String?
   gender                 String
   englishLevel           String
-  universityId           String
-  university             Universities @relation(fields: [universityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  universityPointOfContactId  String?
-  universityPointOfContact    UniversityPointsOfContact? @relation(fields: [universityPointOfContactId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  university             String
+  campus                 String?
   major                  String
   semester               String
   graduationDate         DateTime
@@ -481,27 +479,4 @@ model GitHubReleases {
   projectId     String?
   link          String
   project       Projects? @relation(fields: [projectId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-}
-
-model Universities {
-  id                String   @id @default(cuid())
-  name              String   @unique
-  active            Boolean  @default(true)
-  pointsOfContact   UniversityPointsOfContact[]
-  applicants        Applicant[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model UniversityPointsOfContact {
-  id            String      @id @default(cuid())
-  fullName      String
-  active        Boolean       @default(true)
-  university    Universities  @relation(fields: [universityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  universityId  String
-  applicants    Applicant[]
-
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
 }

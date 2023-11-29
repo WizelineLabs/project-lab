@@ -59,16 +59,9 @@ export default function ManagerPage() {
               Filter Tags
             </LinkStyles>
             <LinkStyles
-              to="/manager/universities/list"
-              onClick={() => handleChangeTab(1, "Universities")}
-              className={tabIndex === 1 ? "linkSelected" : undefined}
-            >
-              Universities
-            </LinkStyles>
-            <LinkStyles
               to="/manager/admins"
-              onClick={() => handleChangeTab(2, "Admins")}
-              className={tabIndex === 2 ? "linkSelected" : undefined}
+              onClick={() => handleChangeTab(1, "Admins")}
+              className={tabIndex === 1 ? "linkSelected" : undefined}
             >
               Admins
             </LinkStyles>
