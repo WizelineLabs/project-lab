@@ -93,7 +93,7 @@ fs.createReadStream(csvFileName)
                             }
                         }
                     })
-                    .then(c=>console.log('Upserted contact: '+c.fullName+'. University: '+c.university.name))
+                    .then(c=>console.log('Upserted contact: '+c.fullName+'. University: '+c.university?.name))
                     .catch(e=> {
                         console.error(">>> Failed to upsert contact: "+contact.fullName)
                         console.error(e);
@@ -118,7 +118,7 @@ fs.createReadStream(csvFileName)
                             }
                         }
                     })
-                    .then(c=>console.log('Created contact: '+c.fullName+'. University: '+c.university.name))
+                    .then(c=>console.log('Created contact: '+c.fullName+'. University: '+c.university?.name))
                     .catch(e=> {
                         console.error(">>> Failed to create contact: "+contact.fullName);
                         console.error(e);
