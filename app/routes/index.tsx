@@ -8,6 +8,7 @@ import {
   StackContainer,
   IconButton,
   MiddleHomePageContainer,
+  Logo,
 } from "./index.styles";
 import { useOptionalUser } from "~/utils";
 import { Button, Stack } from "@mui/material";
@@ -79,11 +80,14 @@ export default function Index() {
         )}
       </IconButton>
       <SecondaryHeader open={menu}>
-        <img
-          src="/wizeline.png"
-          alt="Wizeline logo for homepage header"
-          width={70}
-        />
+        <Logo>
+          <img
+            src="/wizeline.png"
+            alt="Wizeline logo for homepage header"
+            width={70}
+          />
+        </Logo>
+
         <a href="https://www.wizeline.com/contact/">
           <HomeTitle>Contact</HomeTitle>
         </a>

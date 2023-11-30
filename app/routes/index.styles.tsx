@@ -62,8 +62,10 @@ export const SecondaryHeader = styled.div<SecondaryHeaderProps>`
     height: 100%;
     width: 240px;
     right: 0;
-    justify-content: space-evenly;
-    background-color: rgba(255, 255, 255);
+    gap: 40px;
+    justify-content: flex-start;
+    align-items: flex-start;
+    background-color: rgb(231, 231, 231);
     transform: ${({ open }) => (open ? "translateX(0)" : "translateX(100%)")};
     transition: transform 0.3s ease-in-out;
   }
@@ -74,6 +76,16 @@ export const StackContainer = styled.div`
   flex-direction: row;
   @media screen and (max-width: 768px) {
     flex-direction: column;
+    width: 100%;
+    align-items: center;
+  }
+`;
+
+export const Logo = styled.div`
+  @media screen and (max-width: 768px) {
+    display: flex;
+    width: 100%;
+    justify-content: center;
   }
 `;
 
@@ -83,6 +95,13 @@ export const HomeTitle = styled.button`
   color: rgb(175, 46, 51);
   background-color: transparent;
   border: none;
+  transition: all 0.3s ease-in-out;
+
+  &:hover {
+    color: #fff;
+    background-color: rgb(175, 46, 51, 0.3);
+    border-radius: 5px;
+  }
 `;
 
 export const PageContainerTitle = styled.h1`
