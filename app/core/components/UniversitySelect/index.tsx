@@ -24,7 +24,7 @@ const universitiesOptions: SubmitOptions = {
   action: "/api/universities-search",
 };
 
-export const UniversitySelect = ({ name, label, selected } : universitiesSelectProps) => {
+export const UniversitySelect = ({ name, label, selected = ""} : universitiesSelectProps) => {
   const universityFetcher = useFetcher<universityValue[]>();
   const { error } = useField(name);
 

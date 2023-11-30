@@ -47,7 +47,7 @@ export async function updateUniversity({ id, name }: { id: string; name: string 
 
 export async function searchUniversities(searchTerm: string) {
   const universities = await db.universities.findMany({
-    where: { name: { contains: searchTerm, mode: "insensitive" } },
+    where: { name: { contains: searchTerm, mode: "insensitive" }},
     orderBy: {
       name: "asc",
     },
