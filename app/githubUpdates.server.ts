@@ -1,3 +1,4 @@
+import { getReleasesList } from "./routes/api/github/get-listReleases";
 import { getActivity } from "./routes/api/github/get-proyectActivity";
 import { PrismaClient } from "@prisma/client";
 
@@ -23,7 +24,8 @@ export async function getGitHubActivity() {
     `;
 
     try{
-        projectsBoards.map(async board => await getActivity(board.url, board.id).catch((e) => {throw(e)}) )
+        projectsBoards.map(async board => await getActivity(board.url, board.id).catch((e) => {throw(e)}) );
+        projectsBoards.map(async board => await getReleasesList(board.url, board.id).catch((e) => {throw(e)}) );
     }catch(e){
         throw (e);
     }
