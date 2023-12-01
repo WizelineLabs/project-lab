@@ -9,7 +9,7 @@
 -- AlterTable
 ALTER TABLE "Applicant" DROP COLUMN "campus",
 DROP COLUMN "university",
-ADD COLUMN     "universityId" TEXT NOT NULL,
+ADD COLUMN     "universityId" TEXT,
 ADD COLUMN     "universityPointOfContactId" TEXT;
 
 -- CreateTable
@@ -28,7 +28,7 @@ CREATE TABLE "UniversityPointsOfContact" (
     "id" TEXT NOT NULL,
     "fullName" TEXT NOT NULL,
     "active" BOOLEAN NOT NULL DEFAULT true,
-    "universityId" TEXT NOT NULL,
+    "universityId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -39,10 +39,10 @@ CREATE TABLE "UniversityPointsOfContact" (
 CREATE UNIQUE INDEX "Universities_name_key" ON "Universities"("name");
 
 -- AddForeignKey
-ALTER TABLE "Applicant" ADD CONSTRAINT "Applicant_universityId_fkey" FOREIGN KEY ("universityId") REFERENCES "Universities"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Applicant" ADD CONSTRAINT "Applicant_universityId_fkey" FOREIGN KEY ("universityId") REFERENCES "Universities"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Applicant" ADD CONSTRAINT "Applicant_universityPointOfContactId_fkey" FOREIGN KEY ("universityPointOfContactId") REFERENCES "UniversityPointsOfContact"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Applicant" ADD CONSTRAINT "Applicant_universityPointOfContactId_fkey" FOREIGN KEY ("universityPointOfContactId") REFERENCES "UniversityPointsOfContact"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "UniversityPointsOfContact" ADD CONSTRAINT "UniversityPointsOfContact_universityId_fkey" FOREIGN KEY ("universityId") REFERENCES "Universities"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "UniversityPointsOfContact" ADD CONSTRAINT "UniversityPointsOfContact_universityId_fkey" FOREIGN KEY ("universityId") REFERENCES "Universities"("id") ON DELETE SET NULL ON UPDATE CASCADE;

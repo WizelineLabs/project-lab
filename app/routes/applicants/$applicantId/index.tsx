@@ -255,7 +255,7 @@ if (appliedIdProjects && appliedNameProjects) {
           )}
           </div>
           <div>
-            {applicant.university.name} / <strong>{applicant.major}</strong> /{" "}
+            {applicant.university?.name} / <strong>{applicant.major}</strong> /{" "}
             {applicant.semester} / {applicant.englishLevel}
           </div>
           <div>

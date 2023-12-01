@@ -50,14 +50,14 @@ type PointOfContact = {
   fullName: string;
   university: {
     name: string
-  };
+  } | null;
   active: boolean;
 };
 
 type PointOfContactRecord = {
   id: string ;
   fullName: string;
-  university: string;
+  university: string | null;
   active: boolean;
 };
 
@@ -126,7 +126,7 @@ function PointOfContactDataGrid() {
       pointsOfContact.map((item: PointOfContact) => ({
         id: item.id,
         fullName: item.fullName,
-        university: item.university.name,
+        university: item.university ? item.university.name : null,
         active: item.active              
       }))
     );
