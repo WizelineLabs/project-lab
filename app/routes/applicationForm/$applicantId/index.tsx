@@ -11,6 +11,7 @@ import { json } from "@remix-run/node";
 import { type SubmitOptions, useLoaderData, useFetcher } from "@remix-run/react";
 import { useState } from 'react';
 import RegularSelect from "~/core/components/RegularSelect";
+import { requireProfile } from '~/session.server';
 
 export const validator = withZod(
   zfd.formData({
@@ -93,9 +94,15 @@ function getCurrentDate(): string {
   const day = String(currentDate.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 }
+
+type UserProfile = {
+  email: string; 
+  name: string;
+};
   
 type LoaderData = {
   universities: Awaited<ReturnType<typeof getUniversities>>;
+  profile: UserProfile;
 };
 
 type UniversityValue = {
@@ -112,14 +119,16 @@ const profileFetcherOptions: SubmitOptions = {
 
 export const loader: LoaderFunction = async ({ request }) => {
   const universities = await getUniversities();
+  const profile = await requireProfile(request);
 
   return json<LoaderData>({
-    universities
+    universities,
+    profile,
   });
 };
 
 export default function FormPage() {
-  const { universities } = useLoaderData() as LoaderData;
+  const { universities, profile } = useLoaderData() as LoaderData;
 
   const [selectedUniversity, setSelectedUniversity] = useState<UniversityValue | null>({
     id: "",
@@ -173,6 +182,7 @@ export default function FormPage() {
               fullWidth
               type='email'
               style={{marginBottom: '20px'}}
+              defaultValue={profile.email}
             />
             <SelectField
               name="gender"
@@ -192,6 +202,7 @@ export default function FormPage() {
               fullWidth
               type='text'
               style={{marginBottom: '20px'}}
+              defaultValue={profile.name}
             />
             <LabeledTextField
               label="Nationality"
