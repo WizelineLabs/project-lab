@@ -85,14 +85,14 @@ jobs:
           postgresql user: lab_user
           postgresql password: lab_pass
 
-      - name: 🛠 Setup Database
-        run: npx prisma migrate reset --force
-
       - name: 🛠 check memory
         run: cat /proc/meminfo
 
       - name: 🛠 Setup Database
         run: npx prisma migrate reset --force
+
+      - name: 🛠 check memory
+        run: cat /proc/meminfo
 
       - name: ⚡ Run vitest
         run: npm run test --coverage
