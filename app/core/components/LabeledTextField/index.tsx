@@ -16,6 +16,7 @@ interface LabeledTextFieldProps {
   rows?: number;
   outerProps?: PropsWithoutRef<JSX.IntrinsicElements["div"]>;
   inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
+  defaultValue?: string;
 }
 
 export const LabeledTextField = ({
@@ -26,8 +27,9 @@ export const LabeledTextField = ({
   size,
   outerProps,
   inputProps,
+  defaultValue,
   ...props
-}: LabeledTextFieldProps) => {
+}: LabeledTextFieldProps & { defaultValue?: string }) => {
   const { error } = useField(name);
 
   const [value, setValue] = useControlField<string>(name);
@@ -38,7 +40,7 @@ export const LabeledTextField = ({
         id={name}
         name={name}
         label={label}
-        value={value || ""}
+        value={value || defaultValue || ""}
         onChange={(e) => setValue(e.target.value)}
         type={type}
         size={size}

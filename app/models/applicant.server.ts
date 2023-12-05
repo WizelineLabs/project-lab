@@ -15,8 +15,8 @@ export async function createApplicant (
   emergencyRelationship: string, 
   gender: string, 
   englishLevel: string, 
-  university: string,
-  campus: string,
+  universityId: string,
+  pointOfContactId: string | undefined,
   major: string,
   semester: string, 
   graduationDate: Date, 
@@ -34,7 +34,7 @@ export async function createApplicant (
   comments: string, 
   avatarApplicant: string,
   ){
-  const result = await db.applicant.create({
+  let result = await db.applicant.create({
     data: {
       email: email,
       personalEmail: personalEmail,
@@ -50,8 +50,11 @@ export async function createApplicant (
       emergencyRelationship: emergencyRelationship,
       gender: gender,
       englishLevel: englishLevel,
-      university: university,
-      campus: campus,
+      university: {
+        connect: {
+          id: universityId
+        }
+      },
       major: major,
       semester: semester,
       graduationDate: graduationDate,
@@ -70,6 +73,20 @@ export async function createApplicant (
       avatarApplicant: avatarApplicant,
     },
   });
+  if (pointOfContactId !== undefined){
+    result = await db.applicant.update({
+      where: {
+        id: result.id
+      },
+      data:{
+        universityPointOfContact: {
+          connect: {
+            id : pointOfContactId
+          }
+        }
+      }
+    });
+  }
   return result;
 }
 
@@ -125,7 +142,20 @@ export async function searchApplicants() {
       startDate: {
         gte: new Date(Date.now() - 60 * 60 * 24 * 30 * 3 /** months **/ * 1000).toISOString()
       }
+    },
+    include:{
+      university:{
+        select: {
+          name: true
+        }
+      },
+      universityPointOfContact:{
+        select: {
+          fullName: true
+        }
+      }
     }
+    
   });
 }
 
@@ -144,6 +174,18 @@ export async function getApplicantById(id: any) {
       id: parseInt(id)
     },
     include: {
+      university: {
+        select: {
+          id: true,
+          name: true,
+        }
+      },
+      universityPointOfContact:{
+        select:{
+          id: true,
+          fullName: true
+        }
+      },
       project: {
         select: {
           name: true,

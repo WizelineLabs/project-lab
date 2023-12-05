@@ -1,10 +1,17 @@
-import { Button, Checkbox, Container, FormControlLabel, Grid, Typography, } from '@mui/material';
+import { Autocomplete, Button, Checkbox, Container, FormControlLabel, type AutocompleteChangeReason, Grid, Typography, TextField, debounce } from '@mui/material';
 import LabeledTextField from '~/core/components/LabeledTextField';
 import { withZod } from '@remix-validated-form/with-zod';
 import { z } from "zod";
 import { ValidatedForm } from "remix-validated-form";
 import { zfd } from "zod-form-data";
 import SelectField from '~/core/components/FormFields/SelectField';
+import { getUniversities } from '~/models/university.server';
+import type { LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { type SubmitOptions, useLoaderData, useFetcher } from "@remix-run/react";
+import { useState } from 'react';
+import RegularSelect from "~/core/components/RegularSelect";
+import { requireProfile } from '~/session.server';
 
 export const validator = withZod(
   zfd.formData({
@@ -34,8 +41,11 @@ export const validator = withZod(
     emergencyRelationship: z.string().optional(),
     gender: z.string().min(1,{message: "This field is Required"}),
     englishLevel: z.string().min(1,{message: "This field is Required"}),
-    university: z.string().min(1,{message: "This field is Required"}),
-    campus: z.string().optional(),
+    university: z.object({
+      id: z.string(),
+      name: z.string()
+    }).required(),
+    universityContactId: z.string().optional(),
     major: z.string().min(1,{message: "This field is Required"}),
     semester: z.string().min(1,{message: "This field is Required"}),
     graduationDate: z.string().min(1,{message: "This field is Required"}), 
@@ -84,8 +94,68 @@ function getCurrentDate(): string {
   const day = String(currentDate.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 }
+
+type UserProfile = {
+  email: string; 
+  name: string;
+};
   
-  export default function FormPage() {
+type LoaderData = {
+  universities: Awaited<ReturnType<typeof getUniversities>>;
+  profile: UserProfile;
+};
+
+type UniversityValue = {
+  id: string;
+  name: string;
+};
+
+
+const profileFetcherOptions: SubmitOptions = {
+  method: "get",
+  action: "/api/contact-search",
+};
+
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const universities = await getUniversities();
+  const profile = await requireProfile(request);
+
+  return json<LoaderData>({
+    universities,
+    profile,
+  });
+};
+
+export default function FormPage() {
+  const { universities, profile } = useLoaderData() as LoaderData;
+
+  const [selectedUniversity, setSelectedUniversity] = useState<UniversityValue | null>({
+    id: "",
+    name: "",
+  });
+  const [selectedContact, setSelectedContact] = useState<UniversityValue | null>();
+
+  const searchContacts = (value: string, university:string | null = null) => {
+    const queryUniversity = university ?? selectedUniversity?.id
+    contactFetcher.submit(
+      {
+        q: value,
+        ...(queryUniversity ? { universityId: queryUniversity } : null),
+      },
+      profileFetcherOptions
+    );
+  };
+
+  const handleSelectUniversity = (university: UniversityValue) => {
+    setSelectedUniversity(university)
+    searchContacts("", university.id)
+    setSelectedContact({id: "", name: ""})
+  }
+  const contactFetcher = useFetcher<UniversityValue[]>();
+  const searchContactsDebounced = debounce(searchContacts, 50);
+
+  
     return (
     <Container>
       <img src='/HeaderImage.png' alt='Wizeline' style={{width:"100%"}} />
@@ -112,6 +182,7 @@ function getCurrentDate(): string {
               fullWidth
               type='email'
               style={{marginBottom: '20px'}}
+              defaultValue={profile.email}
             />
             <SelectField
               name="gender"
@@ -131,6 +202,7 @@ function getCurrentDate(): string {
               fullWidth
               type='text'
               style={{marginBottom: '20px'}}
+              defaultValue={profile.name}
             />
             <LabeledTextField
               label="Nationality"
@@ -176,32 +248,51 @@ function getCurrentDate(): string {
               type='text'
               style={{marginBottom: '20px'}}
             />
-            <Typography component="div" variant="body2">
+            <Typography component="div" variant="body2" style={{ marginBottom: '20px'}}>
               If your university is not listed here, 
               please contact us at internships@wizeline.com to work it out.
             </Typography>
-            <SelectField
+
+            <RegularSelect
+              valuesList={universities}
               name="university"
               label="University or organization you belong to"
-              options={[
-                "Instituto Tecnológico Superior de Ciudad Hidalgo",
-                "Instituto Tecnológico Superior Zacatecas Sur",
-                "Tecnológico de Monterrey",
-                "UNIVA",
-                "Universidad Autónoma de San Luis Potosí",
-                "Universidad de Guadalajara (CUNORTE)",
-                "Universidad Politécnica de Quintana Roo",
-              ]}
+              onChange={handleSelectUniversity}
               style={{ width: '100%', marginBottom: '20px' }}
             />
-            <LabeledTextField
-              label="Campus"
-              placeholder='Campus, if applicable'
-              name='campus'
-              fullWidth
-              type='text'
-              style={{marginBottom: '20px'}}
+            
+            <input type="hidden" name="universityContactId" value={selectedContact?.id} />
+            <Autocomplete
+              multiple={false}
+              style={{ width: '100%', marginBottom: '20px' }}
+              options={contactFetcher.data ?? []}
+              value={selectedContact?.id ? selectedContact : null}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
+              id="contact"
+              getOptionLabel={(option) => option.name}
+              onInputChange={(_, value) => searchContactsDebounced(value)}
+              renderTags={() => null}
+              onChange={(
+                event,
+                value: { id: string; name: string } | null,
+                reason: AutocompleteChangeReason
+              ) =>
+                reason === "clear"
+                  ? setSelectedContact({ id: "", name: "" })
+                  : setSelectedContact(value)
+              }
+              filterSelectedOptions
+              renderInput={(params) => (
+                <TextField
+                  name="universityContact"
+                  label="Select a university point of contact"
+                  {...params}
+                  placeholder="Select a university point of contact..."
+                  value={selectedContact?.name}
+                />
+              )}
             />
+
             <LabeledTextField
               label="Organization or University Email"
               placeholder='Organization or University Email'
