@@ -17,6 +17,8 @@ interface LabeledTextFieldProps {
   outerProps?: PropsWithoutRef<JSX.IntrinsicElements["div"]>;
   inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
   defaultValue?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  disabled?: boolean;
 }
 
 export const LabeledTextField = ({
@@ -28,11 +30,20 @@ export const LabeledTextField = ({
   outerProps,
   inputProps,
   defaultValue,
+  onChange,
+  disabled,
   ...props
 }: LabeledTextFieldProps & { defaultValue?: string }) => {
   const { error } = useField(name);
 
   const [value, setValue] = useControlField<string>(name);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(e.target.value);
+    if (onChange) {
+      onChange(e);
+    }
+  };
 
   return (
     <div {...outerProps}>
@@ -40,12 +51,13 @@ export const LabeledTextField = ({
         id={name}
         name={name}
         label={label}
-        value={value || defaultValue || ""}
-        onChange={(e) => setValue(e.target.value)}
+        value={value || ""}
+        onChange={handleChange}
         type={type}
         size={size}
         helperText={error || helperText}
         error={!!error}
+        disabled={disabled}
         {...props}
         InputLabelProps={
           type === "date" ? { shrink: true } : undefined

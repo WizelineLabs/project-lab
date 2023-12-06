@@ -43,9 +43,9 @@ export const validator = withZod(
     englishLevel: z.string().min(1,{message: "This field is Required"}),
     university: z.object({
       id: z.string(),
-      name: z.string()
+      name: z.string().min(1,{message: "This field is Required"}),
     }).required(),
-    universityContactId: z.string().optional(),
+    universityContactId: z.string().min(1,{message: "This field is Required"}),
     major: z.string().min(1,{message: "This field is Required"}),
     semester: z.string().min(1,{message: "This field is Required"}),
     graduationDate: z.string().min(1,{message: "This field is Required"}), 
@@ -70,8 +70,8 @@ export const validator = withZod(
         return value >= currentDateString;
       }, "Start date cannot be in the past"), 
     endDate: z
-    .string()
-    .min(1, { message: "This field is Required" })
+      .string()
+      .min(1, { message: "This field is Required" })
     .refine((value) => {
       const currentDate = new Date();
       const currentDateString = currentDate.toISOString().split("T")[0];
@@ -155,6 +155,7 @@ export default function FormPage() {
   const contactFetcher = useFetcher<UniversityValue[]>();
   const searchContactsDebounced = debounce(searchContacts, 50);
 
+  const [startDate, setStartDate] = useState(getCurrentDate());
   
     return (
     <Container>
@@ -432,6 +433,7 @@ export default function FormPage() {
               inputProps={{
                 min: getCurrentDate(), 
               }}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStartDate(e.target.value)}
             />
             <LabeledTextField
               label="Preferred end date"
@@ -440,8 +442,9 @@ export default function FormPage() {
               type='date'
               style={{marginBottom: '20px'}}
               inputProps={{
-                min: getCurrentDate(), 
+                min: startDate, 
               }}
+              disabled={startDate === getCurrentDate()}
             />
             <LabeledTextField
               label="How many hours a week could you provide"
