@@ -70,8 +70,8 @@ export const validator = withZod(
         return value >= currentDateString;
       }, "Start date cannot be in the past"), 
     endDate: z
-      .string()
-      .min(1, { message: "This field is Required" })
+    .string()
+    .min(1, { message: "This field is Required" })
     .refine((value) => {
       const currentDate = new Date();
       const currentDateString = currentDate.toISOString().split("T")[0];
