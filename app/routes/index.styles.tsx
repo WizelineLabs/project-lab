@@ -96,11 +96,12 @@ export const HomeTitle = styled.button`
   background-color: transparent;
   border: none;
   transition: all 0.3s ease-in-out;
+  width: 100%;
+  height: 80px;
 
   &:hover {
     color: #fff;
     background-color: rgb(175, 46, 51, 0.3);
-    border-radius: 5px;
   }
 `;
 
