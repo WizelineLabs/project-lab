@@ -13,7 +13,7 @@ interface Applicant {
   id: string;
   fullName: string;
   avatarApplicant: string;
-  university: string;
+  personalEmail: string;
   experience: string;
   cvLink: string;
 }
@@ -45,7 +45,7 @@ const ApplicantsComponent = ({ applicantsForCurrentProject }: Props) => {
                 }
                 subheader={
                   <Typography variant="body2" color="text.secondary">
-                    {applicantData.university}
+                    {applicantData.personalEmail}
                   </Typography>
                 }
               />
