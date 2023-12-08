@@ -53,7 +53,7 @@ export const SecondaryHeader = styled.div<SecondaryHeaderProps>`
   background-color: rgba(255, 255, 255, 0.5);
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   z-index: 1;
   padding: 10px;
   position: fixed;
@@ -82,10 +82,12 @@ export const StackContainer = styled.div`
 `;
 
 export const Logo = styled.div`
+  margin-right: 25px;
   @media screen and (max-width: 768px) {
     display: flex;
     width: 100%;
     justify-content: center;
+    margin-right: 0;
   }
 `;
 
@@ -96,12 +98,13 @@ export const HomeTitle = styled.button`
   background-color: transparent;
   border: none;
   transition: all 0.3s ease-in-out;
-  width: 100%;
+  width: 200px;
   height: 80px;
 
   &:hover {
     color: #fff;
     background-color: rgb(175, 46, 51, 0.3);
+    cursor: pointer;
   }
 
   @media screen and (max-width: 768px) {
