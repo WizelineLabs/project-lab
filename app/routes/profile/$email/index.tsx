@@ -360,7 +360,7 @@ export const ProfileInfo = () => {
               <Paper elevation={0} sx={{ padding: 2 }}>
                 <h2 style={{ marginTop: 0, paddingLeft: 20 }}>Projects</h2>
                 <Grid container sx={{ p: 2 }}>
-                  {profileData.projectMembers.map((projectMember) => (
+                  {profileData.projectMembers.map((projectMember: any) => (
                     <Grid item xs={12} key={projectMember.id}>
                       <Card
                         key={projectMember.id}
@@ -398,7 +398,7 @@ export const ProfileInfo = () => {
                               marginBottom: "0.5rem",
                             }}
                           >
-                            {projectMember.practicedSkills.map((skill) => (
+                            {projectMember.practicedSkills.map((skill: any) => (
                               <Chip
                                 label={skill.name}
                                 key={skill.id}
@@ -421,7 +421,7 @@ export const ProfileInfo = () => {
                   Github Active Projects
                 </h2>
                 <Grid container sx={{ p: 2 }}>
-                  {githubProjects.map((project) => (
+                  {githubProjects.map((project: any) => (
                     <Grid item xs={12} key={project.id}>
                       <Card
                         key={project.id}
