@@ -103,6 +103,13 @@ export const HomeTitle = styled.button`
     color: #fff;
     background-color: rgb(175, 46, 51, 0.3);
   }
+
+  @media screen and (max-width: 768px) {
+    &:hover {
+      color: rgb(175, 46, 51);
+      background-color: transparent;
+    }
+  }
 `;
 
 export const PageContainerTitle = styled.h1`
