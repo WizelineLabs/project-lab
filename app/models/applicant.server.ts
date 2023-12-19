@@ -160,12 +160,39 @@ export async function searchApplicants() {
 }
 
 export async function getApplicantByEmail(email: any) {
-  const applicant = await db.applicant.findUnique({
+  return await db.applicant.findUnique({
     where: {
       email: email,
     },
+    include: {
+      university: {
+        select: {
+          id: true,
+          name: true,
+        }
+      },
+      universityPointOfContact:{
+        select:{
+          id: true,
+          fullName: true
+        }
+      },
+      project: {
+        select: {
+          name: true,
+          ownerId: true,
+          projectMembers: {
+            select: {
+              profileId: true,
+            },
+          },
+        },
+      },
+      mentor: {
+        select: { preferredName: true, lastName: true },
+      },
+    },
   });
-  return applicant;
 }
 
 export async function existApplicant(email: any) {
@@ -173,6 +200,7 @@ export async function existApplicant(email: any) {
     where: {
       email: email,
     },
+    
   });
   return !!existingApplicant;
 }

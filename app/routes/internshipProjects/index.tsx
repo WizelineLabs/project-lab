@@ -1,4 +1,4 @@
-import { Grid, IconButton, Pagination, Paper } from "@mui/material";
+import { Avatar, Grid, IconButton, List, ListItem, ListItemAvatar, ListItemText, Pagination, Paper } from "@mui/material";
 import Header from "../../core/layouts/Header";
 import ProposalCard from "../../core/components/ProposalCard";
 import TableCell from "@mui/material/TableCell";
@@ -15,6 +15,11 @@ import { searchDisciplineByName } from "~/models/discipline.server";
 import { mentorDiscipline } from "~/constants";
 import { requireProfile } from "~/session.server";
 import { getApplicantByEmail } from "~/models/applicant.server";
+import WorkIcon from '@mui/icons-material/Work';
+import SportsIcon from '@mui/icons-material/SportsScore';
+import FaceIcon from '@mui/icons-material/Face5';
+import PhoneIcon from '@mui/icons-material/Phone';
+import EmailIcon from '@mui/icons-material/EmailRounded';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -72,8 +77,6 @@ export default function ViewProjects() {
     return `?${newParams.toString()}`;
   };
 
-  console.log(applicant);
-
   return (
     <>
       <Header 
@@ -84,6 +87,57 @@ export default function ViewProjects() {
       <Grid item xs={12} md={9}>
         <Paper elevation={0} sx={{ padding: 2, margin: 2 }}>
             <h2>Personal Information</h2>
+
+            <List
+             sx={{ display: "flex"}}
+              aria-labelledby="nested-list-subheader"
+            >
+              <ListItem>
+                <ListItemAvatar>
+                  <Avatar>
+                    <FaceIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText primary="Full Name" secondary={ applicant.fullName } />
+              </ListItem>
+              
+              <ListItem>
+                <ListItemAvatar>
+                  <Avatar>
+                    <WorkIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText primary="Start Date" secondary={new Date(applicant.startDate).toLocaleDateString()} />
+              </ListItem>
+
+              <ListItem>
+                <ListItemAvatar>
+                  <Avatar>
+                    <SportsIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText primary="End Date" secondary={new Date(applicant.startDate).toLocaleDateString()} />
+              </ListItem>
+
+              <ListItem>
+                <ListItemAvatar>
+                  <Avatar>
+                    <PhoneIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText primary="Contact Phone" secondary={applicant.phone} />
+              </ListItem>
+
+              <ListItem>
+                <ListItemAvatar>
+                  <Avatar>
+                    <EmailIcon />
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText primary="Email" secondary={applicant.universityEmail} />
+              </ListItem>
+
+            </List>
         </Paper>
       </Grid>
       <Grid item xs={12} md={9}>
