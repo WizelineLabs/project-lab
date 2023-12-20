@@ -160,10 +160,47 @@ export async function searchApplicants() {
 }
 
 export async function getApplicantByEmail(email: any) {
+  return await db.applicant.findUnique({
+    where: {
+      email: email,
+    },
+    include: {
+      university: {
+        select: {
+          id: true,
+          name: true,
+        }
+      },
+      universityPointOfContact:{
+        select:{
+          id: true,
+          fullName: true
+        }
+      },
+      project: {
+        select: {
+          name: true,
+          ownerId: true,
+          projectMembers: {
+            select: {
+              profileId: true,
+            },
+          },
+        },
+      },
+      mentor: {
+        select: { preferredName: true, lastName: true },
+      },
+    },
+  });
+}
+
+export async function existApplicant(email: any) {
   const existingApplicant = await db.applicant.findUnique({
     where: {
       email: email,
     },
+    
   });
   return !!existingApplicant;
 }
