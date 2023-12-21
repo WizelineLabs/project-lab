@@ -89,10 +89,10 @@ export default function ViewProjects() {
             <h2>Personal Information</h2>
 
             <List
-             sx={{ display: "flex"}}
+             sx={{ display: 'flex', flexWrap: 'wrap' }}
               aria-labelledby="nested-list-subheader"
             >
-              <ListItem>
+              <ListItem  sx={{ flexGrow: 1 ,  width:' 50%',  height: '100px' }}>
                 <ListItemAvatar>
                   <Avatar>
                     <FaceIcon />
@@ -101,7 +101,7 @@ export default function ViewProjects() {
                 <ListItemText primary="Full Name" secondary={ applicant.fullName } />
               </ListItem>
               
-              <ListItem>
+              <ListItem sx={{ flexGrow: 1 ,  width:' 50%',  height: '100px' }}>
                 <ListItemAvatar>
                   <Avatar>
                     <WorkIcon />
@@ -110,7 +110,7 @@ export default function ViewProjects() {
                 <ListItemText primary="Start Date" secondary={new Date(applicant.startDate).toLocaleDateString()} />
               </ListItem>
 
-              <ListItem>
+              <ListItem sx={{ flexGrow: 1 ,  width:' 50%',  height: '100px' }}>
                 <ListItemAvatar>
                   <Avatar>
                     <SportsIcon />
@@ -119,7 +119,7 @@ export default function ViewProjects() {
                 <ListItemText primary="End Date" secondary={new Date(applicant.startDate).toLocaleDateString()} />
               </ListItem>
 
-              <ListItem>
+              <ListItem sx={{ flexGrow: 1 ,  width:' 50%',  height: '100px' }}>
                 <ListItemAvatar>
                   <Avatar>
                     <PhoneIcon />
@@ -128,7 +128,7 @@ export default function ViewProjects() {
                 <ListItemText primary="Contact Phone" secondary={applicant.phone} />
               </ListItem>
 
-              <ListItem>
+              <ListItem sx={{ flexGrow: 1 ,  width:' 50%',  height: '100px'}}>
                 <ListItemAvatar>
                   <Avatar>
                     <EmailIcon />
