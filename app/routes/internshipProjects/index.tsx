@@ -58,7 +58,6 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export default function ViewProjects() {
   const { projects, count, existApplicant, applicant} = useLoaderData();
-
   const [searchParams, setSearchParams] = useSearchParams();
 
   const viewOption = searchParams.get("view") || "card";
@@ -84,7 +83,9 @@ export default function ViewProjects() {
       existApplicant={existApplicant}
       />
 
-      <Grid item xs={12} md={9}>
+      {
+        existApplicant &&
+        <Grid item xs={12} md={9}>
         <Paper elevation={0} sx={{ padding: 2, margin: 2 }}>
             <h2>Personal Information</h2>
 
@@ -98,7 +99,7 @@ export default function ViewProjects() {
                     <FaceIcon />
                   </Avatar>
                 </ListItemAvatar>
-                <ListItemText primary="Full Name" secondary={ applicant.fullName } />
+                <ListItemText primary="Full Name" secondary={ applicant?.fullName } />
               </ListItem>
               
               <ListItem sx={{ flexGrow: 1 ,  width:' 50%',  height: '100px' }}>
@@ -107,7 +108,7 @@ export default function ViewProjects() {
                     <WorkIcon />
                   </Avatar>
                 </ListItemAvatar>
-                <ListItemText primary="Start Date" secondary={new Date(applicant.startDate).toLocaleDateString()} />
+                <ListItemText primary="Start Date" secondary={new Date(applicant?.startDate).toLocaleDateString()} />
               </ListItem>
 
               <ListItem sx={{ flexGrow: 1 ,  width:' 50%',  height: '100px' }}>
@@ -116,7 +117,7 @@ export default function ViewProjects() {
                     <SportsIcon />
                   </Avatar>
                 </ListItemAvatar>
-                <ListItemText primary="End Date" secondary={new Date(applicant.startDate).toLocaleDateString()} />
+                <ListItemText primary="End Date" secondary={new Date(applicant?.startDate).toLocaleDateString()} />
               </ListItem>
 
               <ListItem sx={{ flexGrow: 1 ,  width:' 50%',  height: '100px' }}>
@@ -125,7 +126,7 @@ export default function ViewProjects() {
                     <PhoneIcon />
                   </Avatar>
                 </ListItemAvatar>
-                <ListItemText primary="Contact Phone" secondary={applicant.phone} />
+                <ListItemText primary="Contact Phone" secondary={applicant?.phone} />
               </ListItem>
 
               <ListItem sx={{ flexGrow: 1 ,  width:' 50%',  height: '100px'}}>
@@ -134,12 +135,13 @@ export default function ViewProjects() {
                     <EmailIcon />
                   </Avatar>
                 </ListItemAvatar>
-                <ListItemText primary="Email" secondary={applicant.universityEmail} />
+                <ListItemText primary="Email" secondary={applicant?.universityEmail} />
               </ListItem>
 
             </List>
         </Paper>
-      </Grid>
+        </Grid>
+      }
       <Grid item xs={12} md={9}>
         <Paper elevation={0} sx={{ padding: 2, margin: 2 }}>
           <h2 style={{ marginTop: 0 }}>{getTitle() + ` (${count || 0})`}</h2>
