@@ -17,6 +17,18 @@ export async function getUniversities() {
   });
 }
 
+export async function geActivetUniversities() {
+  return await db.universities.findMany({
+    select: { id: true, name: true, active: true },
+    orderBy: {
+      name: "asc",
+    },
+    where: {
+      active: true,
+    }
+  });
+}
+
 
 async function validateUniversity(id: string) {
   const innovationTier = await db.universities.findFirst({
