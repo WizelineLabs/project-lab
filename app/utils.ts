@@ -114,3 +114,22 @@ export function cleanUrlRepo(repoInfo: string) {
   }
 }
 
+export function getCurrentDate(): string {
+  const currentDate = new Date();
+  const year = currentDate.getFullYear();
+  const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+  const day = String(currentDate.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+export function formatDate(date: Date) { //format to yy-mm-dd
+  const year = date.toLocaleString('default', {year: 'numeric'});
+  const month = date.toLocaleString('default', {
+    month: '2-digit',
+  });
+  const day = date.toLocaleString('default', {day: '2-digit'});
+
+  return [year, month, day].join('-');
+}
+
+
