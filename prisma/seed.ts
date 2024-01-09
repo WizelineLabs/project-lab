@@ -256,6 +256,17 @@ async function seed() {
       department: "Engineering",
     },
   });
+  await db.profiles.upsert({
+    where: { email: "pablo.aversa@wizeline.com" },
+    update: {},
+    create: {
+      email: "pablo.aversa@wizeline.com",
+      firstName: "Pablo",
+      preferredName: "Pablo",
+      lastName: "Aversa",
+      department: "Engineering",
+    },
+  });
   const b = await db.profiles.upsert({
     where: { email: "b.neha@wizeline.com" },
     update: {},
