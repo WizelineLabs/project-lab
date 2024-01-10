@@ -5,7 +5,7 @@ import { z } from "zod";
 import { ValidatedForm } from "remix-validated-form";
 import { zfd } from "zod-form-data";
 import SelectField from '~/core/components/FormFields/SelectField';
-import { getUniversities } from '~/models/university.server';
+import { geActivetUniversities } from '~/models/university.server';
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { type SubmitOptions, useLoaderData, useFetcher } from "@remix-run/react";
@@ -101,7 +101,7 @@ type UserProfile = {
 };
   
 type LoaderData = {
-  universities: Awaited<ReturnType<typeof getUniversities>>;
+  universities: Awaited<ReturnType<typeof geActivetUniversities>>;
   profile: UserProfile;
 };
 
@@ -118,7 +118,7 @@ const profileFetcherOptions: SubmitOptions = {
 
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const universities = await getUniversities();
+  const universities = await geActivetUniversities();
   const profile = await requireProfile(request);
 
   return json<LoaderData>({
