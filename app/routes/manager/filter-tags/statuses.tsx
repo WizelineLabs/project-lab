@@ -26,8 +26,7 @@ import {
 import type { ProjectStatus } from "~/models/status.server";
 import { getProjects } from "~/models/project.server";
 import { stageOptions } from "~/constants";
-import { Container } from "@mui/system";
-import { Card, CardContent, CardHeader, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel } from "@mui/material";
+import { Card, CardContent, CardHeader, Container, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel } from "@mui/material";
 import LabeledTextField from "~/core/components/LabeledTextField";
 import { z } from "zod";
 import { validateNavigationRedirect } from '~/utils'
@@ -384,7 +383,7 @@ function ProjectStatusDataGrid() {
             {isMergeAction && (
               <InputSelect
                 valuesList={statuses.filter(
-                  (status) => status.name !== selectedRowID
+                  (status: { name: string; }) => status.name !== selectedRowID
                 )}
                 name="status"
                 label="Status to merge with"

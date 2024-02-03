@@ -3,7 +3,7 @@ import { useFetcher, useLoaderData, useRouteError, isRouteErrorResponse } from "
 import type {
   LoaderFunction,
   ActionFunction,
-  MetaFunction,
+  V2_MetaFunction,
 } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { GridRenderCellParams } from "@mui/x-data-grid";
@@ -47,11 +47,11 @@ export const loader: LoaderFunction = async () => {
   });
 };
 
-export const meta: MetaFunction = () => {
-  return {
-    title: "Wizelabs - Admins",
-    description: "This is the Manager's Admin Tab",
-  };
+export const meta: V2_MetaFunction = () => {
+  return [
+    { title: "Wizelabs - Admins" },
+    { name: "description", content: "This is the Manager's Admin Tab" },
+  ];
 };
 
 export const action: ActionFunction = async ({ request }) => {

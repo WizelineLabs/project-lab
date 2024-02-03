@@ -1,10 +1,9 @@
 import { formatDistance } from "date-fns";
 import Markdown from "marked-react";
-import type { ActionFunction, LoaderArgs } from "@remix-run/node";
+import type { ActionFunction, LoaderArgs, V2_MetaFunction } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import { useFetcher, useNavigation, useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
-import type { TypedMetaFunction } from "remix-typedjson";
 import invariant from "tiny-invariant";
 import { requireProfile, requireUser } from "~/session.server";
 import {
@@ -173,19 +172,24 @@ export const action: ActionFunction = async ({ request, params }) => {
   }
 };
 
-export const meta: TypedMetaFunction<typeof loader> = ({ data, params }) => {
+export const meta: V2_MetaFunction<typeof loader> = ({ data, params }) => {
   if (!data) {
-    return {
-      title: "Missing Project",
-      description: `There is no Project with the ID of ${params.projectId}. 😢`,
-    };
+    return [
+      {
+        title: "Missing Project",
+      },
+      {
+        name: "description",
+        content: `There is no Project with the ID of ${params.projectId}. 😢`,
+      }
+    ];
   }
 
   const { project } = data;
-  return {
-    title: project?.name,
-    description: project?.description,
-  };
+  return [
+    { title: project?.name },
+    { name: "description", content: project?.description },
+  ];
 };
 
 function filterApplicantsByProject(applicants: any, projectId: any) {

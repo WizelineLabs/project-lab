@@ -14,13 +14,12 @@ import {
   addUniversity,
   updateUniversity,
 } from "~/models/university.server";
-import { Card, CardContent, CardHeader, Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel } from "@mui/material";
+import { Card, CardContent, CardHeader, Container, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel } from "@mui/material";
 import { ValidatedForm, validationError } from "remix-validated-form";
 import { z } from "zod";
 import { withZod } from "@remix-validated-form/with-zod";
 import ModalBox from "~/core/components/ModalBox";
 import LabeledTextField from "~/core/components/LabeledTextField";
-import { Stack } from "@mui/system";
 import { redirect } from "remix-typedjson";
 import invariant from "tiny-invariant";
 import { validateNavigationRedirect } from '~/utils'

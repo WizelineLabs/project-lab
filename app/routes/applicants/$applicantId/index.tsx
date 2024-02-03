@@ -14,7 +14,7 @@ import { requireProfile, requireUser } from "~/session.server";
 import MDEditorStyles from "@uiw/react-md-editor/markdown-editor.css";
 import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
 import ModalBox from "~/core/components/ModalBox";
-import { useEffect, useState } from "react";
+import { Key, useEffect, useState } from "react";
 import { ValidatedForm } from "remix-validated-form";
 import { withZod } from "@remix-validated-form/with-zod";
 import { zfd } from "zod-form-data";
@@ -276,7 +276,7 @@ if (appliedIdProjects && appliedNameProjects) {
               <h3>Applied Projects</h3>
               {appliedNameProjects && appliedNameProjects.length > 0 && appliedIdProjects && (
                 <ul>
-                  {appliedNameProjects.map((projectName: any, index) => {
+                  {appliedNameProjects.map((projectName: any, index: number) => { // Explicitly specify the type of index as number
                     const projectId = appliedIdProjects[index];
                     return (
                       <li key={index}>
