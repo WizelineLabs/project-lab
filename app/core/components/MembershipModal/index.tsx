@@ -8,7 +8,7 @@ import { withZod } from "@remix-validated-form/with-zod";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 import { ModalText} from "./MemberModal.styles";
-import type { projectMembership } from "~/routes/projects";
+import type { projectMembership } from "~/routes/projects._index";
 import { LabeledCheckbox } from "../LabeledCheckbox";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
