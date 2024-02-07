@@ -14,7 +14,7 @@ import { requireProfile, requireUser } from "~/session.server";
 import MDEditorStyles from "@uiw/react-md-editor/markdown-editor.css";
 import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
 import ModalBox from "~/core/components/ModalBox";
-import { Key, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ValidatedForm } from "remix-validated-form";
 import { withZod } from "@remix-validated-form/with-zod";
 import { zfd } from "zod-form-data";
