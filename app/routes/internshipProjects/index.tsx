@@ -1,4 +1,4 @@
-import { Avatar, Grid, IconButton, List, ListItem, ListItemAvatar, ListItemText, Pagination, Paper } from "@mui/material";
+import { Alert, Avatar, Button, Grid, IconButton, List, ListItem, ListItemAvatar, ListItemText, Pagination, Paper } from "@mui/material";
 import Header from "../../core/layouts/Header";
 import ProposalCard from "../../core/components/ProposalCard";
 import TableCell from "@mui/material/TableCell";
@@ -20,6 +20,7 @@ import SportsIcon from '@mui/icons-material/SportsScore';
 import FaceIcon from '@mui/icons-material/Face5';
 import PhoneIcon from '@mui/icons-material/Phone';
 import EmailIcon from '@mui/icons-material/EmailRounded';
+import EditIcon from "@mui/icons-material/Edit";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -86,9 +87,17 @@ export default function ViewProjects() {
       {
         existApplicant &&
         <Grid item xs={12} md={9}>
+          
+        <Alert sx={{ margin: 2 }} severity="info">Make sure your start and end dates are correct!</Alert>
+         
         <Paper elevation={0} sx={{ padding: 2, margin: 2 }}>
             <h2>Personal Information</h2>
-
+            <Paper elevation={0} sx={{width: '100%', display:'flex', flexDirection: 'column', alignItems:'flex-end' }}>
+              
+              <Button  href={`/internshipProjects/interInformation/${applicant.id}`} variant="contained" endIcon={<EditIcon/>}>
+                Edit info
+              </Button>
+            </Paper>
             <List
              sx={{ display: 'flex', flexWrap: 'wrap' }}
               aria-labelledby="nested-list-subheader"
@@ -143,6 +152,7 @@ export default function ViewProjects() {
         </Grid>
       }
       <Grid item xs={12} md={9}>
+        
         <Paper elevation={0} sx={{ padding: 2, margin: 2 }}>
           <h2 style={{ marginTop: 0 }}>{getTitle() + ` (${count || 0})`}</h2>
           <IconButton
