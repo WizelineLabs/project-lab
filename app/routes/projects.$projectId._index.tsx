@@ -19,6 +19,7 @@ import {
   CardHeader,
   Link,
 } from "@mui/material";
+import { Prisma } from "@prisma/client";
 import type {
   ActionFunction,
   LoaderFunctionArgs,
@@ -125,59 +126,53 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 export const action: ActionFunction = async ({ request, params }) => {
   const form = await request.formData();
   const subaction = form.get("subaction");
-  try {
-    invariant(params.projectId, "projectId could not be found");
-    const projectId = params.projectId;
-    switch (subaction) {
-      case "POST_VOTE":
-        const profileId = form.get("profileId") as string;
-        const isVote = await checkUserVote(projectId, profileId);
-        const haveIVoted = isVote > 0 ? true : false;
-        if (!haveIVoted) {
-          await upvoteProject(projectId, profileId);
-        } else {
-          await unvoteProject(projectId, profileId);
-        }
-        return typedjson({ error: "" }, { status: 200 });
-      case "UPDATE_RESOURCES":
-        const profile = await requireProfile(request);
-        const user = await requireUser(request);
-        const project = await getProject({ id: params.projectId });
-        const canEditProject = checkPermission(
-          profile.id,
-          user.role as Roles,
-          "edit",
-          "project",
-          project
-        );
-
-        if (!canEditProject) {
-          return validationError({
-            fieldErrors: {
-              formError: "Operation not allowed",
-            },
-          });
-        }
-
-        const result = await validator.validate(form);
-        if (result.error != undefined) return validationError(result.error);
-
-        try {
-          await updateProjectResources(projectId, result.data.resources);
-          return redirect(`/projects/${projectId}`);
-        } catch (e) {
-          return validationError({
-            fieldErrors: {
-              formError: "Server failed",
-            },
-          });
-        }
-      default: {
-        throw new Error("Something went wrong");
-      }
+  invariant(params.projectId, "projectId could not be found");
+  const projectId = params.projectId;
+  if (subaction === "POST_VOTE") {
+    const profileId = form.get("profileId") as string;
+    const isVote = await checkUserVote(projectId, profileId);
+    const haveIVoted = isVote > 0 ? true : false;
+    if (!haveIVoted) {
+      await upvoteProject(projectId, profileId);
+    } else {
+      await unvoteProject(projectId, profileId);
     }
-  } catch (error: any) {
-    throw error;
+    return typedjson({ error: "" }, { status: 200 });
+  } else if (subaction === "UPDATE_RESOURCES") {
+    const profile = await requireProfile(request);
+    const user = await requireUser(request);
+    const project = await getProject({ id: params.projectId });
+    const canEditProject = checkPermission(
+      profile.id,
+      user.role as Roles,
+      "edit",
+      "project",
+      project
+    );
+
+    if (!canEditProject) {
+      return validationError({
+        fieldErrors: {
+          formError: "Operation not allowed",
+        },
+      });
+    }
+
+    const result = await validator.validate(form);
+    if (result.error != undefined) return validationError(result.error);
+
+    try {
+      await updateProjectResources(projectId, result.data.resources);
+      return redirect(`/projects/${projectId}`);
+    } catch (e) {
+      return validationError({
+        fieldErrors: {
+          formError: "Server failed",
+        },
+      });
+    }
+  } else {
+    throw new Error("Something went wrong");
   }
 };
 
@@ -201,8 +196,13 @@ export const meta: MetaFunction<typeof loader> = ({ data, params }) => {
   ];
 };
 
-function filterApplicantsByProject(applicants: any, projectId: any) {
-  return applicants.filter((applicant: any) =>
+function filterApplicantsByProject(
+  applicants: (Omit<Prisma.ApplicantUncheckedCreateInput, "id"> & {
+    id: number;
+  })[],
+  projectId: string
+) {
+  return applicants.filter((applicant) =>
     applicant.appliedProjectsId?.split(",").includes(projectId)
   );
 }
@@ -241,15 +241,11 @@ export default function ProjectDetailsPage() {
 
   const fetcher = useFetcher();
   const voteForProject = async (values: voteProject) => {
-    try {
-      const body = {
-        ...values,
-        subaction: "POST_VOTE",
-      };
-      fetcher.submit(body, { method: "post" });
-    } catch (error: any) {
-      console.error(error);
-    }
+    const body = {
+      ...values,
+      subaction: "POST_VOTE",
+    };
+    fetcher.submit(body, { method: "post" });
   };
 
   const navigation = useNavigation();

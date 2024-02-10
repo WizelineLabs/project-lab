@@ -10,8 +10,11 @@ interface SelectFieldProps {
   name: string;
   label: string;
   options: string[];
-  onChange?: Function;
-  style?: any;
+  onChange?: (
+    event?: SelectChangeEvent<string>,
+    child?: React.ReactNode
+  ) => void;
+  style?: React.CSSProperties;
 }
 
 const errorStyle = {

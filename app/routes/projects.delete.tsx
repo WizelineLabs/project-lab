@@ -9,12 +9,8 @@ export const action: ActionFunction = async ({ request }) => {
   const isAdmin = user.role == adminRoleName;
   const formData = await request.formData();
   const id: string = formData.get("projectId") as string;
-  try {
-    await deleteProject(id, isAdmin);
-    return redirect("/projects");
-  } catch (e) {
-    throw e;
-  }
+  await deleteProject(id, isAdmin);
+  return redirect("/projects");
 };
 export const DeleteProject = () => {
   return (

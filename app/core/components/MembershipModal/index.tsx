@@ -24,7 +24,7 @@ import type { projectMembership } from "~/routes/projects._index";
 
 interface IProps {
   open: boolean;
-  handleCloseModal: Function;
+  handleCloseModal?: React.MouseEventHandler;
   projects: projectMembership[];
 }
 
@@ -87,22 +87,20 @@ export const validator = withZod(
 
 const MembershipModal = (props: IProps) => {
   const { projects } = props;
-  const [items, { push, remove }] = useFieldArray<projectMembership>(
-    "projects",
-    { formId: "projectMembershipForm" }
-  );
+  const [items] = useFieldArray<projectMembership>("projects", {
+    formId: "projectMembershipForm",
+  });
   const projectsCount = projects.length;
 
   return (
     <ModalBox
       open={props.open}
       close={props.handleCloseModal}
-      handleClose={() => {}}
       boxStyle={{ width: "950px" }}
     >
       <ModalText>
-        Hey!, it seems like you haven't been involved in these projects in a
-        while. Are you still working on it?
+        Hey!, it seems like you haven&apos;t been involved in these projects in
+        a while. Are you still working on it?
       </ModalText>
       {projectsCount == 1
         ? projects.map((project, id) => {

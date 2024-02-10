@@ -123,29 +123,27 @@ export const action: ActionFunction = async ({ request }) => {
       status: 403,
     });
 
-  switch (subaction) {
-    case "CREATE_EXPERIENCE":
-      const result = await validator.validate(form);
-      if (!result) {
-        throw new Response("Error", {
-          status: 400,
-        });
-      }
-      await createExperience(result?.data?.comentario as string, profile.id);
-      return redirect(`/profile/${email}`);
-    case "UPDATE_GITHUB_USER":
-      const githubUserResult = await githubUserValidator.validate(form);
-      if (githubUserResult?.error) {
-        return validationError(githubUserResult.error);
-      }
-      await updateGithubUser(
-        githubUserResult.data.profileId,
-        githubUserResult.data?.githubUser
-      );
-      return redirect(`/profile/${email}`);
-    default: {
-      throw new Error("Something went wrong");
+  if (subaction === "CREATE_EXPERIENCE") {
+    const result = await validator.validate(form);
+    if (!result) {
+      throw new Response("Error", {
+        status: 400,
+      });
     }
+    await createExperience(result?.data?.comentario as string, profile.id);
+    return redirect(`/profile/${email}`);
+  } else if (subaction === "UPDATE_GITHUB_USER") {
+    const githubUserResult = await githubUserValidator.validate(form);
+    if (githubUserResult?.error) {
+      return validationError(githubUserResult.error);
+    }
+    await updateGithubUser(
+      githubUserResult.data.profileId,
+      githubUserResult.data?.githubUser
+    );
+    return redirect(`/profile/${email}`);
+  } else {
+    throw new Error("Something went wrong");
   }
 };
 

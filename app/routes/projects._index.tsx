@@ -574,8 +574,7 @@ export default function Projects() {
         </Grid>
       </Container>
       <MembershipModal
-        open={projectMembership.length > 0 ? membershipCookie == null : null}
-        handleCloseModal={() => {}}
+        open={projectMembership.length > 0 ? membershipCookie == null : false}
         projects={projectMembership}
       />
     </>

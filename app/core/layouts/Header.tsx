@@ -27,7 +27,7 @@ const StyledHeaderButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-const Header = ({ title, existApplicant }: IProps) => {
+const Header = ({ existApplicant }: IProps) => {
   const currentUser = useOptionalUser();
   const submit = useSubmit();
   const location = useLocation();

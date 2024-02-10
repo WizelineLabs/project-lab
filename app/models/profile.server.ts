@@ -228,38 +228,36 @@ export async function consolidateProfilesByEmail(
   console.info(`Starting upsert profiles to DB`);
 
   try {
-    await prisma.$transaction(async (tx) => {
-      data.forEach(async (profile) => {
-        try {
-          await db.profiles.upsert({
-            where: { email: profile.email },
-            update: {
-              ...profile,
-            },
-            create: {
-              ...profile,
-            },
-          });
-        } catch (e) {
-          // eslint-disable-next-line no-console
-          console.log(e, profile);
-        }
-      });
-      // eslint-disable-next-line no-console
-      console.info(`Terminate users not found on data lake from DB`);
-      const result = await db.profiles.updateMany({
-        data: {
-          employeeStatus: "Terminated",
-        },
-        where: {
-          email: {
-            notIn: profileMails,
+    data.forEach(async (profile) => {
+      try {
+        await db.profiles.upsert({
+          where: { email: profile.email },
+          update: {
+            ...profile,
           },
-        },
-      });
-      // eslint-disable-next-line no-console
-      console.info(`${result.count} affected profiles`);
+          create: {
+            ...profile,
+          },
+        });
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.log(e, profile);
+      }
     });
+    // eslint-disable-next-line no-console
+    console.info(`Terminate users not found on data lake from DB`);
+    const result = await db.profiles.updateMany({
+      data: {
+        employeeStatus: "Terminated",
+      },
+      where: {
+        email: {
+          notIn: profileMails,
+        },
+      },
+    });
+    // eslint-disable-next-line no-console
+    console.info(`${result.count} affected profiles`);
   } catch (e) {
     // eslint-disable-next-line no-console
     console.log(e);
@@ -289,7 +287,7 @@ interface FacetOutput {
   count: number;
 }
 
-type whereClause = Record<string, any>;
+type whereClause = Prisma.ProfilesWhereInput;
 export async function searchProfilesFull({
   searchTerm,
   page = 1,

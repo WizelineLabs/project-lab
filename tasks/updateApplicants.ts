@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Prisma, PrismaClient } from "@prisma/client";
 import csv from "csv-parser";
 import fs from "fs";

@@ -10,9 +10,9 @@ import {
 } from "@mui/material";
 
 interface Applicant {
-  id: string;
+  id: number;
   fullName: string;
-  avatarApplicant: string;
+  avatarApplicant?: string | null;
   personalEmail: string;
   experience: string;
   cvLink: string;
@@ -38,7 +38,7 @@ const ApplicantsComponent = ({ applicantsForCurrentProject }: Props) => {
                 avatar={
                   <Avatar
                     alt={applicantData.fullName}
-                    src={applicantData.avatarApplicant}
+                    src={applicantData.avatarApplicant || undefined}
                   />
                 }
                 title={

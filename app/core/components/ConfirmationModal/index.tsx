@@ -7,6 +7,7 @@ interface IProps {
   children: React.ReactNode;
   open: boolean;
   handleClose?: React.MouseEventHandler;
+  // eslint-disable-next-line @typescript-eslint/ban-types
   close: Function;
   label: string;
   onClick: React.MouseEventHandler;

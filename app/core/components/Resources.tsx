@@ -102,7 +102,7 @@ export default function Resources({
               isEditActive ? (
                 <IconButton
                   type="reset"
-                  onClick={(event) => {
+                  onClick={() => {
                     const form = document.getElementById(
                       "projectResourcesForm"
                     ) as HTMLFormElement;

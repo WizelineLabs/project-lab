@@ -15,26 +15,24 @@ const db = new PrismaClient();
 // } I will use it later jeje
 
 export async function getGitHubActivity() {
-  const projectsBoards = await db.$queryRaw<any[]>`
+  const projectsBoards = await db.$queryRaw<
+    { id: string; name: string; url: string }[]
+  >`
         SELECT p."id", p."name", r.url from "Projects" p
         RIGHT JOIN "Repos" r on p."id" = r."projectId"
         WHERE p."isArchived" = FALSE and r."url" is not null
     `;
 
-  try {
-    projectsBoards.map(
-      async (board) =>
-        await getActivity(board.url, board.id).catch((e) => {
-          throw e;
-        })
-    );
-    projectsBoards.map(
-      async (board) =>
-        await getReleasesList(board.url, board.id).catch((e) => {
-          throw e;
-        })
-    );
-  } catch (e) {
-    throw e;
-  }
+  projectsBoards.map(
+    async (board) =>
+      await getActivity(board.url, board.id).catch((e) => {
+        throw e;
+      })
+  );
+  projectsBoards.map(
+    async (board) =>
+      await getReleasesList(board.url, board.id).catch((e) => {
+        throw e;
+      })
+  );
 }

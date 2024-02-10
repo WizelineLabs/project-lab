@@ -5,6 +5,10 @@ function HomeInfo({
   icon = <HomeIcon />,
   title = "Information",
   description = "Description",
+}: {
+  icon?: JSX.Element;
+  title?: string;
+  description?: string;
 }) {
   return (
     <Grid

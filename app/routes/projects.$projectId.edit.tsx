@@ -1,7 +1,6 @@
 import { ProjectForm } from "../core/components/ProjectForm";
 import { validator } from "./projects.create";
 import {
-  Box,
   Button,
   Container,
   Dialog,
@@ -9,8 +8,6 @@ import {
   DialogContent,
   DialogTitle,
   Paper,
-  Tabs,
-  Tab,
 } from "@mui/material";
 import type {
   ActionFunction,
@@ -18,23 +15,20 @@ import type {
   MetaFunction,
 } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
-import { Form, Link } from "@remix-run/react";
+import { Form } from "@remix-run/react";
 import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
 import MDEditorStyles from "@uiw/react-md-editor/markdown-editor.css";
-import type { SyntheticEvent } from "react";
 import { useState } from "react";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import { ValidatedForm, validationError } from "remix-validated-form";
 import invariant from "tiny-invariant";
 import GoBack from "~/core/components/GoBack";
-import TabPanel from "~/core/components/TabPanel";
 import Header from "~/core/layouts/Header";
 import { checkPermission } from "~/models/authorization.server";
 import type { Roles } from "~/models/authorization.server";
 import { getInnovationTiers } from "~/models/innovationTier.server";
 import { getProject, updateProjects } from "~/models/project.server";
 import { getProjectStatuses } from "~/models/status.server";
-import { EditPanelsStyles } from "~/routes/manager.styles";
 import { requireProfile, requireUser } from "~/session.server";
 
 export function links() {
@@ -123,10 +117,6 @@ export default function EditProjectPage() {
   const { project, projectId, statuses, tiers, canDeleteProject } =
     useTypedLoaderData<typeof loader>();
 
-  const [tabIndex, setTabIndex] = useState(0);
-  const handleTabChange = (event: SyntheticEvent, tabNumber: number) =>
-    setTabIndex(tabNumber);
-
   const [open, setOpen] = useState(false);
   const [isButtonDisabled, setisButtonDisabled] = useState(true);
 
@@ -158,33 +148,28 @@ export default function EditProjectPage() {
         >
           <GoBack title="Back to project" href={`/projects/${projectId}`} />
 
-          <EditPanelsStyles>
-            <TabPanel value={tabIndex} index={0}>
-              <ValidatedForm
-                validator={validator}
-                defaultValues={{
-                  name: project.name,
-                  projectStatus: project.projectStatus || undefined,
-                  innovationTiers: project.innovationTiers || undefined,
-                  description: project.description || "",
-                  valueStatement: project.valueStatement || "",
-                  helpWanted: project.helpWanted,
-                  disciplines: project.disciplines,
-                  owner: project.owner || undefined,
-                  target: project.target || "",
-                  repoUrls: project.repoUrls || [],
-                  slackChannel: project.slackChannel || "",
-                  skills: project.skills,
-                  labels: project.labels,
-                  projectBoard: project.projectBoard || "",
-                }}
-                method="post"
-              >
-                <ProjectForm statuses={statuses} tiers={tiers} />
-              </ValidatedForm>
-            </TabPanel>
-            <TabPanel value={tabIndex} index={1}></TabPanel>
-          </EditPanelsStyles>
+          <ValidatedForm
+            validator={validator}
+            defaultValues={{
+              name: project.name,
+              projectStatus: project.projectStatus || undefined,
+              innovationTiers: project.innovationTiers || undefined,
+              description: project.description || "",
+              valueStatement: project.valueStatement || "",
+              helpWanted: project.helpWanted,
+              disciplines: project.disciplines,
+              owner: project.owner || undefined,
+              target: project.target || "",
+              repoUrls: project.repoUrls || [],
+              slackChannel: project.slackChannel || "",
+              skills: project.skills,
+              labels: project.labels,
+              projectBoard: project.projectBoard || "",
+            }}
+            method="post"
+          >
+            <ProjectForm statuses={statuses} tiers={tiers} />
+          </ValidatedForm>
           {canDeleteProject ? (
             <Button
               onClick={handleClickOpen}

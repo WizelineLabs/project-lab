@@ -183,7 +183,7 @@ export async function createProject(input: any, profileId: string) {
     where: { defaultRow: true },
   });
 
-  const { projectMembers, ...formInput } = input;
+  const { ...formInput } = input;
 
   const project = await db.projects.create({
     data: {
@@ -220,10 +220,10 @@ export async function createProject(input: any, profileId: string) {
     const position = i + 1;
     const projectTasks: any = [];
 
-    for (let j = 0; j < tasks.length; j++) {
+    for (const task of tasks) {
       projectTasks.push({
-        description: tasks[j]?.name,
-        position: tasks[j]?.position,
+        description: task?.name,
+        position: task?.position,
       });
     }
 
@@ -300,13 +300,13 @@ export async function updateMembers(
   const activeMembers: any = [];
 
   // Loop Project Members
-  for (let i = 0; i < projectMembers.length; i++) {
+  for (const projectMember of projectMembers) {
     // Create only the members that don't exist in this project
     const previousMember = previousMembers.find(
-      (element) => element.profileId == projectMembers[i].profileId
+      (element) => element.profileId == projectMember.profileId
     );
     if (previousMember !== undefined) {
-      activeMembers.push(projectMembers[i].profileId);
+      activeMembers.push(projectMember.profileId);
       // Just disconnects ALL related practicedSkills and roles, so it can UPDATE just the new selected ones after...
       await db.$queryRaw`DELETE FROM "_ProjectMembersToSkills" WHERE "A" = ${previousMember.id}`;
       await db.$queryRaw`DELETE FROM "_DisciplinesToProjectMembers" WHERE "B" = ${previousMember.id}`;
@@ -314,10 +314,10 @@ export async function updateMembers(
       await db.projectMembers.update({
         where: { id: previousMember.id },
         data: {
-          hoursPerWeek: projectMembers[i].hoursPerWeek,
-          role: { connect: projectMembers[i].role },
-          active: projectMembers[i].active,
-          practicedSkills: { connect: projectMembers[i].practicedSkills },
+          hoursPerWeek: projectMember.hoursPerWeek,
+          role: { connect: projectMember.role },
+          active: projectMember.active,
+          practicedSkills: { connect: projectMember.practicedSkills },
           updatedAt: new Date(),
         },
         include: {
@@ -328,20 +328,20 @@ export async function updateMembers(
       await db.projectMembers.create({
         data: {
           project: { connect: { id: projectId } },
-          profile: { connect: { id: projectMembers[i].profileId } },
-          hoursPerWeek: projectMembers[i].hoursPerWeek,
-          role: { connect: projectMembers[i].role },
-          practicedSkills: { connect: projectMembers[i].practicedSkills },
+          profile: { connect: { id: projectMember.profileId } },
+          hoursPerWeek: projectMember.hoursPerWeek,
+          role: { connect: projectMember.role },
+          practicedSkills: { connect: projectMember.practicedSkills },
         },
       });
     }
   }
 
   // Delete previous members who are no longer in activeMembers array of ids
-  for (let j = 0; j < previousMembers.length; j++) {
-    if (!activeMembers.includes(previousMembers[j].profileId)) {
+  for (const previousMember of previousMembers) {
+    if (!activeMembers.includes(previousMember.profileId)) {
       await db.projectMembers.deleteMany({
-        where: { profileId: previousMembers[j].profileId, projectId },
+        where: { profileId: previousMember.profileId, projectId },
       });
     }
   }
@@ -486,17 +486,17 @@ export async function updateRelatedProjects({
     // Create related Projects
     const createResponse = [];
     let response;
-    for (let i = 0; i < data.relatedProjects.length; i++) {
+    for (const relatedProject of data.relatedProjects) {
       const relationExist = await tx.relatedProjects.count({
         where: {
           OR: [
             {
-              projectAId: data.relatedProjects[i].id,
+              projectAId: relatedProject.id,
               projectBId: id,
             },
             {
               projectAId: id,
-              projectBId: data.relatedProjects[i].id,
+              projectBId: relatedProject.id,
             },
           ],
         },
@@ -506,12 +506,12 @@ export async function updateRelatedProjects({
         response = await tx.relatedProjects.create({
           data: {
             projectAId: id,
-            projectBId: data.relatedProjects[i].id,
+            projectBId: relatedProject.id,
           },
         });
         if (!response) {
           throw new Error(
-            `Error when acreating relation for: ${data.relatedProjects[i].id}`
+            `Error when creating relation for: ${relatedProject.id}`
           );
         }
         createResponse.push(response);
@@ -566,14 +566,14 @@ export async function updateProjectActivity(
     active: boolean;
   }[]
 ) {
-  for (let i = 0; i < projects.length; i++) {
+  for (const project of projects) {
     await db.projectMembers.update({
-      where: { id: projects[i].id as string },
+      where: { id: project.id as string },
       data: {
-        hoursPerWeek: projects[i].hoursPerWeek,
-        role: { connect: projects[i].role },
-        active: projects[i].active,
-        practicedSkills: { connect: projects[i].practicedSkills },
+        hoursPerWeek: project.hoursPerWeek,
+        role: { connect: project.role },
+        active: project.active,
+        practicedSkills: { connect: project.practicedSkills },
         updatedAt: new Date(),
       },
       include: {

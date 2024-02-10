@@ -15,6 +15,7 @@ import { zfd } from "zod-form-data";
 
 interface IProps {
   open: boolean;
+  // eslint-disable-next-line @typescript-eslint/ban-types
   handleCloseModal: Function;
   projectId: string;
 }
@@ -46,7 +47,6 @@ const JoinProjectModal = (props: IProps) => {
     <ModalBox
       open={props.open}
       close={props.handleCloseModal}
-      handleClose={() => {}}
       boxStyle={{ width: "800px" }}
     >
       <ValidatedForm method="post" action="./joinProject" validator={validator}>
@@ -57,7 +57,7 @@ const JoinProjectModal = (props: IProps) => {
             <p className="question">What role will you be playing?</p>
             <DisciplinesSelect name="role" label="Role(s)" />
 
-            <p className="question">What's your availability?</p>
+            <p className="question">What&apos;s your availability?</p>
             <LabeledTextField
               name="hoursPerWeek"
               fullWidth

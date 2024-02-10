@@ -29,16 +29,12 @@ export const action: ActionFunction = async ({ request }) => {
     },
   ];
 
-  try {
-    await updateProjectActivity(projectMembers);
-    return redirect("/projects", {
-      headers: {
-        "Set-Cookie": await hasCheckMembership.serialize({}),
-      },
-    });
-  } catch (e) {
-    throw e;
-  }
+  await updateProjectActivity(projectMembers);
+  return redirect("/projects", {
+    headers: {
+      "Set-Cookie": await hasCheckMembership.serialize({}),
+    },
+  });
 };
 
 const singleManageMembership = () => {

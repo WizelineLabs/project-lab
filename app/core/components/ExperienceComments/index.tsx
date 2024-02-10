@@ -1,6 +1,12 @@
 import { Avatar, Typography, Grid } from "@mui/material";
 
-function ExperienceArea({ imag = "/wizeline.png", text = "Comentario" }) {
+function ExperienceArea({
+  imag = "/wizeline.png",
+  text = "Comentario",
+}: {
+  imag?: string;
+  text?: string;
+}) {
   return (
     <Grid
       display="flex"

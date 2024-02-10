@@ -16,7 +16,7 @@ import Link from "~/core/components/Link";
 import NavAppBar from "~/core/components/NavAppBar";
 import { searchApplicants } from "~/models/applicant.server";
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader: LoaderFunction = async () => {
   const data = await searchApplicants();
   return data.map((a) => ({
     id: a.id,

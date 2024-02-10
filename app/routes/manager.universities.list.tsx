@@ -65,7 +65,7 @@ interface LoaderData {
   universities: Awaited<ReturnType<typeof getUniversities>>;
 }
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader: LoaderFunction = async () => {
   const universities = await getUniversities();
   return json<LoaderData>({
     universities,
@@ -86,12 +86,8 @@ export const action: ActionFunction = async ({ request }) => {
 
   if (request.method == "PUT") {
     if (id) {
-      try {
-        await updateUniversity({ id, name, active });
-        return redirect("./");
-      } catch (e) {
-        throw e;
-      }
+      await updateUniversity({ id, name, active });
+      return redirect("./");
     } else {
       invariant(id, "University Id is required");
     }

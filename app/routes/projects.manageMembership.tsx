@@ -9,16 +9,12 @@ export const action: ActionFunction = async ({ request }) => {
   );
   const projects = result.data?.projects;
   if (projects) {
-    try {
-      await updateProjectActivity(projects);
-      return redirect("/projects", {
-        headers: {
-          "Set-Cookie": await hasCheckMembership.serialize({}),
-        },
-      });
-    } catch (e) {
-      throw e;
-    }
+    await updateProjectActivity(projects);
+    return redirect("/projects", {
+      headers: {
+        "Set-Cookie": await hasCheckMembership.serialize({}),
+      },
+    });
   } else {
     throw console.error("Empty data for projects");
   }

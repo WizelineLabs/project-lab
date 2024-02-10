@@ -83,7 +83,7 @@ interface LoaderData {
   universities: Awaited<ReturnType<typeof getUniversities>>;
 }
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader: LoaderFunction = async () => {
   const pointsOfContact = await getPointsOfContact();
   const universities = await getUniversities();
   return json<LoaderData>({
@@ -119,17 +119,13 @@ export const action: ActionFunction = async ({ request }) => {
 
   if (request.method == "PUT") {
     if (id) {
-      try {
-        await updatePointOfContact({
-          id,
-          fullName: name,
-          university: university.name,
-          active,
-        });
-        return redirect("./");
-      } catch (e) {
-        throw e;
-      }
+      await updatePointOfContact({
+        id,
+        fullName: name,
+        university: university.name,
+        active,
+      });
+      return redirect("./");
     } else {
       invariant(id, "University Id is required");
     }

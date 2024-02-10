@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { prisma as db } from "~/db.server";
 
 export async function createApplicant(
@@ -161,7 +162,7 @@ export async function searchApplicants() {
   });
 }
 
-export async function getApplicantByEmail(email: any) {
+export async function getApplicantByEmail(email: string) {
   return await db.applicant.findUnique({
     where: {
       email: email,
@@ -197,7 +198,7 @@ export async function getApplicantByEmail(email: any) {
   });
 }
 
-export async function existApplicant(email: any) {
+export async function existApplicant(email: string) {
   const existingApplicant = await db.applicant.findUnique({
     where: {
       email: email,
@@ -206,7 +207,7 @@ export async function existApplicant(email: any) {
   return !!existingApplicant;
 }
 
-export async function getApplicantById(id: any) {
+export async function getApplicantById(id: string) {
   return await db.applicant.findUnique({
     where: {
       id: parseInt(id),
@@ -242,7 +243,10 @@ export async function getApplicantById(id: any) {
   });
 }
 
-export async function editApplicant(data: any, id: number) {
+export async function editApplicant(
+  data: Prisma.ApplicantUncheckedUpdateInput,
+  id: number
+) {
   // eslint-disable-next-line no-console
   console.log("test edit");
   return await db.applicant.update({ data, where: { id } });

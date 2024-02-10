@@ -17,12 +17,8 @@ export const action: ActionFunction = async ({ request }) => {
   if (result.error) return validationError(result.error);
   const ids = result.data.ids as string[];
   const tierName = result.data.name?.name;
-  try {
-    await updateManyProjects({ ids, data: { tierName } });
-    return redirect("/manager/filter-tags/innovation-tiers");
-  } catch (e) {
-    throw e;
-  }
+  await updateManyProjects({ ids, data: { tierName } });
+  return redirect("/manager/filter-tags/innovation-tiers");
 };
 const MergeTiers = () => {
   return <></>;

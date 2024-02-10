@@ -19,8 +19,6 @@ interface gitHubActivitySchema {
 }
 
 export default function GitHubActivity({
-  repoName,
-  projectId,
   activityData,
 }: {
   repoName: string;

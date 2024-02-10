@@ -27,7 +27,7 @@ interface IProps {
   date: string;
   description: string;
   status: string;
-  color: any;
+  color?: string;
   votesCount?: number | null;
   skills?: { name: string }[];
   isOwner?: boolean;
@@ -131,7 +131,7 @@ export const ProposalCard = (props: IProps) => {
                       >
                         {props.tierName}
                       </Link>
-                      <label
+                      <span
                         className="ProposalCard__head__description--tier--extra"
                         title="Maturation framework for innovation projects"
                       >
@@ -143,7 +143,7 @@ export const ProposalCard = (props: IProps) => {
                             marginLeft: "5px",
                           }}
                         />
-                      </label>
+                      </span>
                     </div>
                   </div>
                   <div className="ProposalCard__status">

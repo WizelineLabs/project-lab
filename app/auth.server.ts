@@ -20,7 +20,7 @@ import { sessionStorage } from "~/session.server";
 const verifyCallback: StrategyVerifyCallback<
   User,
   OAuth2StrategyVerifyParams<Auth0Profile, Auth0ExtraParams>
-> = async ({ accessToken, refreshToken, extraParams, profile }) => {
+> = async ({ profile }) => {
   try {
     if (profile.emails == undefined || !profile.emails[0]) {
       throw new Error("we need an email to login");

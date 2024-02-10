@@ -25,7 +25,7 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
     theme.palette.mode === "dark" ? "#121212" : theme.palette.common.white,
 }));
 
-const StyledToolbar = styled(Toolbar)(({ theme }) => ({
+const StyledToolbar = styled(Toolbar)(() => ({
   padding: "0 !important",
   minHeight: "30.75px !important",
 }));

@@ -24,7 +24,8 @@ interface IProps {
   children: React.ReactNode;
   open: boolean;
   handleClose?: React.MouseEventHandler;
-  close: Function;
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  close?: Function;
   boxStyle?: React.CSSProperties;
 }
 
@@ -39,7 +40,7 @@ export const ModalBox = ({ children, boxStyle, ...props }: IProps) => {
       <ModalContainer>
         <BoxContainer style={boxStyle}>
           <Action>
-            <IconButton onClick={() => props.close()}>
+            <IconButton onClick={() => props.close && props.close()}>
               <CloseIcon />
             </IconButton>
           </Action>

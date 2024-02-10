@@ -27,7 +27,7 @@ import {
   isRouteErrorResponse,
 } from "@remix-run/react";
 import { withZod } from "@remix-validated-form/with-zod";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { redirect } from "remix-typedjson";
 import { ValidatedForm, validationError } from "remix-validated-form";
 import invariant from "tiny-invariant";
@@ -65,7 +65,7 @@ interface LoaderData {
   labels: Awaited<ReturnType<typeof getLabels>>;
 }
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader: LoaderFunction = async () => {
   const labels = await getLabels();
   return json<LoaderData>({
     labels,
@@ -85,12 +85,8 @@ export const action: ActionFunction = async ({ request }) => {
 
   if (request.method == "PUT") {
     if (id) {
-      try {
-        await updateLabel({ id, name });
-        return redirect("./");
-      } catch (e) {
-        throw e;
-      }
+      await updateLabel({ id, name });
+      return redirect("./");
     } else {
       invariant(id, "Label Id is required");
     }
@@ -98,12 +94,8 @@ export const action: ActionFunction = async ({ request }) => {
 
   if (request.method == "DELETE") {
     if (id) {
-      try {
-        await removeLabel({ id });
-        return redirect("./");
-      } catch (e) {
-        throw e;
-      }
+      await removeLabel({ id });
+      return redirect("./");
     }
   }
 };

@@ -14,5 +14,3 @@ export async function getExperience() {
   });
   return result;
 }
-
-export async function updateExperience() {}

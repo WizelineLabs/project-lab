@@ -49,7 +49,7 @@ function RelatedProjectsSection({
   projectId,
 }: IProps) {
   const [isEditActive, setIsEditActive] = useState(false);
-  const handleChangeEditView = (val: boolean) => setIsEditActive(!isEditActive);
+  const handleChangeEditView = (val: boolean) => setIsEditActive(val);
   const [selectedRelatedProjects, setSelectedRelatedProjects] =
     useState(relatedProjects);
   const { error } = useField("relatedProjects", {

@@ -166,13 +166,11 @@ export const ContributorPathReport = ({ project, canEditProject }: IProps) => {
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
-  const createSortHandler =
-    (property: keyof ContributiorRecord) =>
-    (event: React.MouseEvent<unknown>) => {
-      const isAsc = orderBy === property && order === "asc";
-      setOrder(isAsc ? "desc" : "asc");
-      setOrderBy(property);
-    };
+  const createSortHandler = (property: keyof ContributiorRecord) => () => {
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
+  };
 
   return (
     <Card>

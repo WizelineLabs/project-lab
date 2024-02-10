@@ -357,7 +357,7 @@ export default function Applicant() {
           <hr />
           {applicant.interestedRoles ? (
             <div>
-              <strong>Roles I'm interested in</strong>{" "}
+              <strong>Roles I&apos;m interested in</strong>{" "}
               {applicant.interestedRoles}
             </div>
           ) : null}

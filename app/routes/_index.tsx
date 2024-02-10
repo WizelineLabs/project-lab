@@ -26,7 +26,7 @@ import HomeInfo from "~/core/components/HomeInfo";
 import { getExperience } from "~/models/experience.server";
 import { useOptionalUser } from "~/utils";
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader: LoaderFunction = async () => {
   const info = await getExperience();
 
   return {

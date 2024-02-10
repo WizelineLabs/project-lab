@@ -196,11 +196,12 @@ export default function FormPage() {
         Application Form
       </Typography>
       <Typography component="div" variant="body1">
-        Wizeline's Innovation Experience Program is a 3-6 month program designed
-        to help students transition from the theoretical to the practical and
-        step into technical specialties. In this program, participants will
-        immerse in innovation projects with Wizeline industry experts, where
-        they can make an impact and begin a successful career in technology.
+        Wizeline&rsquo;s Innovation Experience Program is a 3-6 month program
+        designed to help students transition from the theoretical to the
+        practical and step into technical specialties. In this program,
+        participants will immerse in innovation projects with Wizeline industry
+        experts, where they can make an impact and begin a successful career in
+        technology.
       </Typography>
       <ValidatedForm
         validator={validator}
@@ -539,7 +540,7 @@ export default function FormPage() {
               control={<Checkbox name="acceptPrivacy" required />}
               label={
                 <span>
-                  I have read, understand, and accept Wizeline's{" "}
+                  I have read, understand, and accept Wizeline&apos;s{" "}
                   <a href="https://www.wizeline.com/privacy-policy/">
                     privacy notice
                   </a>

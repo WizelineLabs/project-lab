@@ -17,12 +17,8 @@ export const action: ActionFunction = async ({ request }) => {
   if (updateResult.error) return validationError(updateResult.error);
   const ids = updateResult.data.ids as string[];
   const projectStatus = updateResult.data.status?.name;
-  try {
-    await updateManyProjects({ ids, data: { status: projectStatus } });
-    return redirect("/manager/filter-tags/statuses");
-  } catch (e) {
-    throw e;
-  }
+  await updateManyProjects({ ids, data: { status: projectStatus } });
+  return redirect("/manager/filter-tags/statuses");
 };
 const MergeStatus = () => {
   return <></>;
