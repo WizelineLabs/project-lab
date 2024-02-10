@@ -1,24 +1,8 @@
 // Import the Google Cloud client library using default credentials
+import { singleton } from "./singleton.server";
 import { BigQuery } from "@google-cloud/bigquery";
 
-let client: BigQuery;
-
-declare global {
-  var __bq__: BigQuery;
-}
-
-// this is needed because in development we don't want to restart
-// the server with every change, but we want to make sure we don't
-// create a new connection to the DB with every change either.
-// in production we'll have a single connection to the DB.
-if (process.env.NODE_ENV === "production") {
-  client = new BigQuery();
-} else {
-  if (!global.__bq__) {
-    global.__bq__ = new BigQuery();
-  }
-  client = global.__bq__;
-}
+const client = singleton("bigquery", () => new BigQuery());
 
 export async function findProfileData(email: string) {
   // Queries the U.S. given names dataset for the state of Texas.
