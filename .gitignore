@@ -13,6 +13,3 @@ coverage
 /app/styles/tailwind.css
 
 **/.DS_Store
-
-# sst
-.sst
