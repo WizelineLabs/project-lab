@@ -25,11 +25,11 @@ interface Props {
 const ApplicantsComponent = ({ applicantsForCurrentProject }: Props) => {
   return (
     <Container sx={{ marginBottom: 2 }}>
-      {applicantsForCurrentProject.length > 0 && (
+      {applicantsForCurrentProject.length > 0 ? (
         <Typography variant="h5" gutterBottom>
           Applicants
         </Typography>
-      )}
+      ) : null}
       <Grid container spacing={2}>
         {applicantsForCurrentProject.map((applicantData) => (
           <Grid item xs={12} sm={6} md={6} lg={6} xl={6} key={applicantData.id}>

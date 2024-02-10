@@ -57,11 +57,11 @@ declare module "@mui/material/Button" {
   }
 }
 
-type StatusRecord = {
+interface StatusRecord {
   id: string;
   name: string;
   stage: string | null;
-};
+}
 
 export const validator = withZod(
   zfd.formData({
@@ -71,15 +71,15 @@ export const validator = withZod(
   })
 );
 
-type LoaderData = {
+interface LoaderData {
   statuses: Awaited<ReturnType<typeof getProjectStatuses>>;
   projects: Awaited<ReturnType<typeof getProjects>>;
-};
+}
 
-type ProjectRecord = {
+interface ProjectRecord {
   id: number | string;
   name: string | null;
-};
+}
 
 const validatorFront = withZod(
   zfd.formData({
@@ -387,7 +387,7 @@ function ProjectStatusDataGrid() {
             method="post"
             id="delete-status-form"
           >
-            {isMergeAction && (
+            {isMergeAction ? (
               <InputSelect
                 valuesList={statuses.filter(
                   (status: { name: string }) => status.name !== selectedRowID
@@ -396,7 +396,7 @@ function ProjectStatusDataGrid() {
                 label="Status to merge with"
                 disabled={false}
               />
-            )}
+            ) : null}
             {items.map((item, idx) => (
               <input
                 key={item.key}

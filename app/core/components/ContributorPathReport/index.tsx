@@ -27,7 +27,7 @@ interface IProps {
   canEditProject: boolean;
 }
 
-type ContributiorRecord = {
+interface ContributiorRecord {
   id: number;
   status: boolean;
   name: string;
@@ -39,7 +39,7 @@ type ContributiorRecord = {
   setup: [];
   quickwin: [];
   majorcontributor: [];
-};
+}
 
 function stableSort<T>(
   array: readonly T[],
@@ -82,8 +82,8 @@ function getComparator<Key extends keyof any>(
 
 export const ContributorPathReport = ({ project, canEditProject }: IProps) => {
   const [rows, setRows] = useState<ContributiorRecord[]>([]);
-  const page: number = 0;
-  const rowsPerPage: number = 25;
+  const page = 0;
+  const rowsPerPage = 25;
   const [orderBy, setOrderBy] = useState<keyof ContributiorRecord>("status");
   const [order, setOrder] = useState<Order>("asc");
 
@@ -179,14 +179,14 @@ export const ContributorPathReport = ({ project, canEditProject }: IProps) => {
       <CardHeader
         title="Contributors"
         action={
-          canEditProject && (
+          canEditProject ? (
             <IconButton
               aria-label="Edit"
               href={`/projects/${project.id}/members`}
             >
               <EditSharp />
             </IconButton>
-          )
+          ) : null
         }
       />
       <CardContent>
@@ -278,11 +278,11 @@ export const ContributorPathReport = ({ project, canEditProject }: IProps) => {
                     </TableRow>
                   );
                 })}
-              {emptyRows > 0 && (
+              {emptyRows > 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} />
                 </TableRow>
-              )}
+              ) : null}
             </TableBody>
           </Table>
         </TableContainer>

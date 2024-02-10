@@ -7,7 +7,7 @@ import { useLocation, useSubmit } from "@remix-run/react";
 import { useOptionalUser } from "~/utils";
 
 interface IProps {
-  title: String;
+  title: string;
   existApplicant?: boolean;
 }
 export interface MenuItemArgs {
@@ -169,7 +169,7 @@ const Header = ({ title, existApplicant }: IProps) => {
                 </Button>
               )}
             </Grid>
-            {showProposal && (
+            {showProposal ? (
               <Grid item sx={{ marginRight: 2 }}>
                 <Search />
                 &nbsp;
@@ -184,7 +184,7 @@ const Header = ({ title, existApplicant }: IProps) => {
                   </Button>
                 </Link>
               </Grid>
-            )}
+            ) : null}
           </Grid>
         </Container>
       </Paper>

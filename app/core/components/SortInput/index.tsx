@@ -12,7 +12,7 @@ interface SortOption {
 }
 
 export const SortInput = ({ setSortQuery, sortBy }: iProps) => {
-  const sortOptions: { [key: string]: SortOption } = {
+  const sortOptions: Record<string, SortOption> = {
     hotness: {
       label: "Hotness",
       value: "hotness",

@@ -8,10 +8,10 @@ import {
 import { useState } from "react";
 import { useControlField, useField } from "remix-validated-form";
 
-type SelectValue = {
+interface SelectValue {
   name: string;
   id: string;
-};
+}
 
 interface InputSelectProps {
   valuesList: SelectValue[];
@@ -36,7 +36,7 @@ export const RegularSelect = ({
 
   const [value, setValue] = useControlField<SelectValue>(name);
   //This state variable is to have a controlled input and avoid errors in the console
-  const [selectValue, setSelectValue] = useState<String>("");
+  const [selectValue, setSelectValue] = useState<string>("");
   return (
     <FormControl fullWidth id={name} size="small" error={!!error}>
       <input type="hidden" name={`${name}.name`} value={value?.name} />

@@ -40,10 +40,10 @@ import {
 import { requireProfile, requireUser } from "~/session.server";
 import { isProjectMemberOrOwner } from "~/utils";
 
-type ProfileValue = {
+interface ProfileValue {
   id: string;
   name: string;
-};
+}
 
 const profileFetcherOptions: SubmitOptions = {
   method: "get",

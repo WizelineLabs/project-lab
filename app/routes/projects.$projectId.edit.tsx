@@ -185,7 +185,7 @@ export default function EditProjectPage() {
             </TabPanel>
             <TabPanel value={tabIndex} index={1}></TabPanel>
           </EditPanelsStyles>
-          {canDeleteProject && (
+          {canDeleteProject ? (
             <Button
               onClick={handleClickOpen}
               color="warning"
@@ -193,7 +193,7 @@ export default function EditProjectPage() {
             >
               {"Delete Project"}
             </Button>
-          )}
+          ) : null}
         </Paper>
       </Container>
       <Dialog onClose={handleClose} open={open}>

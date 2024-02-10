@@ -20,7 +20,7 @@ import { useLoaderData } from "@remix-run/react";
 import Header from "app/core/layouts/Header";
 import invariant from "tiny-invariant";
 
-type LoaderData = {
+interface LoaderData {
   githubProfileData: Awaited<ReturnType<typeof getGitHubProfileByEmail>> & {
     githubProfileData?: {
       username: string;
@@ -30,7 +30,7 @@ type LoaderData = {
     };
   };
   githubProjects: Awaited<ReturnType<typeof getGitHubProjectsByEmail>>;
-};
+}
 
 export const loader: LoaderFunction = async ({ params }) => {
   try {

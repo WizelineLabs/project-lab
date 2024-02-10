@@ -9,12 +9,18 @@
     "../node_modules/cookie",
     "../node_modules/cypress",
     "../node_modules/@testing-library/cypress",
-    "../node_modules/@types/cookie",
+    "../node_modules/@types/cookie"
   ],
   "compilerOptions": {
     "baseUrl": ".",
     "noEmit": true,
-    "types": ["node", "cookie", "cypress", "@testing-library/cypress", "@types/cookie"],
+    "types": [
+      "node",
+      "cookie",
+      "cypress",
+      "@testing-library/cypress",
+      "@types/cookie"
+    ],
     "esModuleInterop": true,
     "jsx": "react-jsx",
     "moduleResolution": "Bundler",

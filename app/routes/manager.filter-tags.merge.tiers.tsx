@@ -13,7 +13,7 @@ export const action: ActionFunction = async ({ request }) => {
       ids: z.array(z.union([z.string(), z.number()])),
     })
   );
-  let result = await validatorBack.validate(await request.formData());
+  const result = await validatorBack.validate(await request.formData());
   if (result.error) return validationError(result.error);
   const ids = result.data.ids as string[];
   const tierName = result.data.name?.name;

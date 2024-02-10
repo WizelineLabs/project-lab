@@ -56,14 +56,14 @@ export const validator = withZod(
   })
 );
 
-type LabelRecord = {
+interface LabelRecord {
   id: string;
   name: string;
-};
+}
 
-type LoaderData = {
+interface LoaderData {
   labels: Awaited<ReturnType<typeof getLabels>>;
-};
+}
 
 export const loader: LoaderFunction = async ({ request }) => {
   const labels = await getLabels();

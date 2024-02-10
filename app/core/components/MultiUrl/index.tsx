@@ -18,7 +18,7 @@ interface MultiUrlProps {
 
 export const MultiUrl = ({ name, label, footer }: MultiUrlProps) => {
   const [inputValue, setInputValue] = useState("");
-  let { error } = useField(name);
+  const { error } = useField(name);
 
   const { fieldErrors } = useFormContext();
   let urlWithError = false;

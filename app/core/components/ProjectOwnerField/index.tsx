@@ -9,12 +9,12 @@ import { useFetcher } from "@remix-run/react";
 import { useEffect } from "react";
 import { useControlField, useField } from "remix-validated-form";
 
-type ProfileValue = {
+interface ProfileValue {
   id: string;
   name?: string;
   preferredName?: string;
   lastName?: string;
-};
+}
 
 interface ProfilesSelectProps {
   name: string;

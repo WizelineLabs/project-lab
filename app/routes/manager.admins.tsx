@@ -26,24 +26,24 @@ import {
   removeAdminUser,
 } from "~/models/user.server";
 
-type LoaderData = {
+interface LoaderData {
   admins: Awaited<ReturnType<typeof getAdminUsers>>;
-};
+}
 
-type AdminRecord = {
+interface AdminRecord {
   id: number | string;
   name: string | null;
   email: string;
-};
+}
 
-type gridEditToolbarProps = {
+interface gridEditToolbarProps {
   setRows: React.Dispatch<React.SetStateAction<AdminRecord[]>>;
   createButtonText: string;
-};
+}
 
-type newAdmin = {
+interface newAdmin {
   email: string;
-};
+}
 
 export const loader: LoaderFunction = async () => {
   const admins = await getAdminUsers();
@@ -311,7 +311,7 @@ export default function AdminsDataGrid() {
     <>
       <div style={{ display: "flex", width: "100%", height: "70vh" }}>
         <div style={{ flexGrow: 1 }}>
-          {error && <p style={{ color: "red" }}>{error}</p>}
+          {error ? <p style={{ color: "red" }}>{error}</p> : null}
           <DataGrid
             rows={rows}
             columns={columns}

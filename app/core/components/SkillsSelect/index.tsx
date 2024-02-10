@@ -9,10 +9,10 @@ import { useFetcher } from "@remix-run/react";
 import { useEffect } from "react";
 import { useControlField, useField } from "remix-validated-form";
 
-type SkillValue = {
+interface SkillValue {
   id: string;
   name: string;
-};
+}
 
 interface SkillsSelectProps {
   name: string;

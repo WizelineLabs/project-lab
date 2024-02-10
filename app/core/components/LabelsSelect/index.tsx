@@ -9,10 +9,10 @@ import { useFetcher } from "@remix-run/react";
 import { Fragment, useEffect } from "react";
 import { useControlField, useField } from "remix-validated-form";
 
-type LabelValue = {
+interface LabelValue {
   id: string;
   name: string;
-};
+}
 
 interface LabelsSelectProps {
   name: string;

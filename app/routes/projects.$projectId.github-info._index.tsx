@@ -68,14 +68,14 @@ interface releaseList {
   link: string;
 }
 
-type LoaderData = {
+interface LoaderData {
   project: Awaited<ReturnType<typeof getProject>>;
   projectId: string;
   activityData: Awaited<ReturnType<typeof getGitActivityData>>;
   activityChartData: Awaited<ReturnType<typeof getActivityStadistic>>;
   weekParams: number;
   realeasesList: Awaited<ReturnType<typeof getReleasesListData>>;
-};
+}
 
 interface gitHubActivityChartType {
   count: number;
@@ -139,8 +139,8 @@ export default function GitHubInfo() {
     realeasesList,
   } = useLoaderData<typeof loader>();
 
-  let week = Math.ceil((currentdate.getDay() + 1 + numberOfDays) / 7);
-  let selectedWeek = weekParams ? weekParams : week;
+  const week = Math.ceil((currentdate.getDay() + 1 + numberOfDays) / 7);
+  const selectedWeek = weekParams ? weekParams : week;
 
   for (let index = 1; index <= week; index++) {
     itemsSelect.push(
@@ -294,13 +294,13 @@ export default function GitHubInfo() {
               <Button variant="contained" endIcon={<Refresh />} />
             </Grid>
             <Grid container sx={{ padding: 2, width: 1 }}>
-              {project.repoUrls && (
+              {project.repoUrls ? (
                 <GitHubActivity
                   projectId={projectId}
                   repoName={cleanURL(project.repoUrls)}
                   activityData={activityData}
                 />
-              )}
+              ) : null}
             </Grid>
           </Grid>
         </Paper>
@@ -324,15 +324,15 @@ export default function GitHubInfo() {
                 {itemsSelect.map((item) => item)}
               </Select>
             </ValidatedForm>
-            {activityChartData.length > 0 && (
+            {activityChartData.length > 0 ? (
               <Bar options={options} data={dataChart} />
-            )}
+            ) : null}
           </Grid>
-          {activityChartData.length == 0 && (
+          {activityChartData.length == 0 ? (
             <Stack>
               <Alert severity="warning">There is no data to show.</Alert>
             </Stack>
-          )}
+          ) : null}
         </Paper>
       </Container>
     </>

@@ -98,29 +98,30 @@ export default function Resources({
         <CardHeader
           title="Resources:"
           action={
-            allowEdit &&
-            (isEditActive ? (
-              <IconButton
-                type="reset"
-                onClick={(event) => {
-                  const form = document.getElementById(
-                    "projectResourcesForm"
-                  ) as HTMLFormElement;
-                  form.reset();
-                  setIsEditActive(false);
-                }}
-              >
-                <Close>Cancel</Close>
-              </IconButton>
-            ) : (
-              <IconButton onClick={() => setIsEditActive(true)}>
-                <EditSharp></EditSharp>
-              </IconButton>
-            ))
+            allowEdit ? (
+              isEditActive ? (
+                <IconButton
+                  type="reset"
+                  onClick={(event) => {
+                    const form = document.getElementById(
+                      "projectResourcesForm"
+                    ) as HTMLFormElement;
+                    form.reset();
+                    setIsEditActive(false);
+                  }}
+                >
+                  <Close>Cancel</Close>
+                </IconButton>
+              ) : (
+                <IconButton onClick={() => setIsEditActive(true)}>
+                  <EditSharp></EditSharp>
+                </IconButton>
+              )
+            ) : null
           }
         />
         <CardContent>
-          {isEditActive && (
+          {isEditActive ? (
             <Button
               disabled={navigation.state === "submitting"}
               variant="contained"
@@ -136,10 +137,10 @@ export default function Resources({
             >
               Add new resource
             </Button>
-          )}
+          ) : null}
 
           <Grid container spacing={2} sx={{ marginBottom: "12px" }}>
-            {!isEditActive && (
+            {!isEditActive ? (
               <>
                 <Grid item xs={3}>
                   <b>Type</b>
@@ -151,7 +152,7 @@ export default function Resources({
                   <b>Name/Description</b>
                 </Grid>
               </>
-            )}
+            ) : null}
             {resources.map((resource, index) => (
               <>
                 <Grid item xs={3}>
@@ -190,7 +191,7 @@ export default function Resources({
                   )}
                 </Grid>
                 <Grid item xs={1}>
-                  {isEditActive && (
+                  {isEditActive ? (
                     <IconButton
                       onClick={() => {
                         removeResource(index);
@@ -198,12 +199,12 @@ export default function Resources({
                     >
                       <Delete>Delete</Delete>
                     </IconButton>
-                  )}
+                  ) : null}
                 </Grid>
               </>
             ))}
           </Grid>
-          {isEditActive && (
+          {isEditActive ? (
             <Box textAlign="center">
               <Button
                 disabled={!isEditActive || navigation.state === "submitting"}
@@ -214,7 +215,7 @@ export default function Resources({
                 {navigation.state === "submitting" ? "Submitting..." : "Submit"}
               </Button>
             </Box>
-          )}
+          ) : null}
         </CardContent>
       </ValidatedForm>
     </Card>

@@ -2,11 +2,11 @@ import { prisma } from "~/db.server";
 
 export type { ProjectStatus } from "@prisma/client";
 
-type updateProjectStatusType = {
+interface updateProjectStatusType {
   id: string;
   name: string;
   stage?: "idea" | "ongoing project" | "none" | null;
-};
+}
 
 interface ResponseError extends Error {
   code?: string;

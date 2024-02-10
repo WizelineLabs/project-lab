@@ -2,10 +2,10 @@ import { PrismaClient } from "@prisma/client";
 import csv from "csv-parser";
 import fs from "fs";
 
-type ContactType = {
+interface ContactType {
   fullName: string;
   university: string;
-};
+}
 
 const prisma = new PrismaClient();
 const csvFileName = process.argv[2];

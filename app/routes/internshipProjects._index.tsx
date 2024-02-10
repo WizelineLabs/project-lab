@@ -91,7 +91,7 @@ export default function ViewProjects() {
     <>
       <Header title="Internship Projects" existApplicant={existApplicant} />
 
-      {existApplicant && (
+      {existApplicant ? (
         <Grid item xs={12} md={9}>
           <Paper elevation={0} sx={{ padding: 2, margin: 2 }}>
             <h2>Personal Information</h2>
@@ -166,7 +166,7 @@ export default function ViewProjects() {
             </List>
           </Paper>
         </Grid>
-      )}
+      ) : null}
       <Grid item xs={12} md={9}>
         <Paper elevation={0} sx={{ padding: 2, margin: 2 }}>
           <h2 style={{ marginTop: 0 }}>{getTitle() + ` (${count || 0})`}</h2>

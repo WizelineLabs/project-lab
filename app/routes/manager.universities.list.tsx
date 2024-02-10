@@ -55,15 +55,15 @@ export const validator = withZod(
   })
 );
 
-type UniversityRecord = {
+interface UniversityRecord {
   id: string;
   name: string;
   active: boolean;
-};
+}
 
-type LoaderData = {
+interface LoaderData {
   universities: Awaited<ReturnType<typeof getUniversities>>;
-};
+}
 
 export const loader: LoaderFunction = async ({ request }) => {
   const universities = await getUniversities();

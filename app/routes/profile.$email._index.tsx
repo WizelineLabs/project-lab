@@ -46,7 +46,7 @@ import { zfd } from "zod-form-data";
 import { createExperience } from "~/models/experience.server";
 import { requireProfile, requireUser } from "~/session.server";
 
-type LoaderData = {
+interface LoaderData {
   profileData: Awaited<ReturnType<typeof getFullProfileByEmail>>;
   githubProfileData: Awaited<ReturnType<typeof getGitHubProfileByEmail>> & {
     githubProfileData?: {
@@ -58,7 +58,7 @@ type LoaderData = {
   };
   githubProjects: Awaited<ReturnType<typeof getGitHubProjectsByEmail>>;
   canEdit: boolean;
-};
+}
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   try {
@@ -313,9 +313,9 @@ export const ProfileInfo = () => {
                           <SaveIcon />
                         </IconButton>
                       </Box>
-                      {githubUsererror && (
+                      {githubUsererror ? (
                         <p style={{ color: "red" }}>{githubUsererror}</p>
-                      )}
+                      ) : null}
                     </ValidatedForm>
                   ) : (
                     <Box
@@ -332,7 +332,7 @@ export const ProfileInfo = () => {
                           ? profileData.githubUser
                           : "<Not specified>"}
                       </Typography>
-                      {canEdit && (
+                      {canEdit ? (
                         <IconButton
                           type="button"
                           onClick={() => {
@@ -341,7 +341,7 @@ export const ProfileInfo = () => {
                         >
                           <EditSharp />
                         </IconButton>
-                      )}
+                      ) : null}
                     </Box>
                   )}
                 </Box>
@@ -349,7 +349,7 @@ export const ProfileInfo = () => {
             </Paper>
           </Grid>
           <Grid item xs={12} md={8}>
-            {profileData.projectMembers?.length > 0 && (
+            {profileData.projectMembers?.length > 0 ? (
               <Paper elevation={0} sx={{ padding: 2 }}>
                 <h2 style={{ marginTop: 0, paddingLeft: 20 }}>Projects</h2>
                 <Grid container sx={{ p: 2 }}>
@@ -382,7 +382,7 @@ export const ProfileInfo = () => {
                             </Typography>
                           </CardContent>
                         </CardActionArea>
-                        {projectMember.practicedSkills?.length > 0 && (
+                        {projectMember.practicedSkills?.length > 0 ? (
                           <CardActions
                             sx={{
                               display: "flex",
@@ -401,14 +401,14 @@ export const ProfileInfo = () => {
                               />
                             ))}
                           </CardActions>
-                        )}
+                        ) : null}
                       </Card>
                     </Grid>
                   ))}
                 </Grid>
               </Paper>
-            )}
-            {githubProjects && githubProjects.length > 0 && (
+            ) : null}
+            {githubProjects && githubProjects.length > 0 ? (
               <Paper elevation={0} sx={{ padding: 2 }}>
                 <h2 style={{ marginTop: 0, paddingLeft: 20 }}>
                   Github Active Projects
@@ -445,7 +445,7 @@ export const ProfileInfo = () => {
                   ))}
                 </Grid>
               </Paper>
-            )}
+            ) : null}
             <Grid sx={{ paddingTop: 2, paddingBottom: 2 }}>
               <Paper elevation={0} sx={{ padding: 2 }}>
                 <h2 style={{ marginTop: 0, paddingLeft: 20 }}>Experience</h2>

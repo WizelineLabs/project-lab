@@ -17,7 +17,7 @@ export default function TabPanel(props: TabPanelProps) {
       aria-labelledby={`project-tab-${index}`}
       {...other}
     >
-      {value === index && <>{children}</>}
+      {value === index ? <>{children}</> : null}
     </div>
   );
 }

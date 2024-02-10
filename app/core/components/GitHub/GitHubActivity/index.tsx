@@ -40,25 +40,26 @@ export default function GitHubActivity({
               </TableRow>
             </TableHead>
             <TableBody>
-              {activityData &&
-                activityData.map((event) => (
-                  <TableRow
-                    key={event.id}
-                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                  >
-                    <TableCell component="th" scope="row">
-                      {event.typeEvent}
-                    </TableCell>
-                    <TableCell align="right">{event.author}</TableCell>
-                    <TableCell align="right">
-                      {new Intl.DateTimeFormat([], {
-                        year: "numeric",
-                        month: "long",
-                        day: "2-digit",
-                      }).format(new Date(event.created_at))}
-                    </TableCell>
-                  </TableRow>
-                ))}
+              {activityData
+                ? activityData.map((event) => (
+                    <TableRow
+                      key={event.id}
+                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                    >
+                      <TableCell component="th" scope="row">
+                        {event.typeEvent}
+                      </TableCell>
+                      <TableCell align="right">{event.author}</TableCell>
+                      <TableCell align="right">
+                        {new Intl.DateTimeFormat([], {
+                          year: "numeric",
+                          month: "long",
+                          day: "2-digit",
+                        }).format(new Date(event.created_at))}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                : null}
             </TableBody>
           </Table>
         </TableContainer>

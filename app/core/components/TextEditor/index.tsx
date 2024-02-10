@@ -3,10 +3,10 @@ import { Suspense, lazy, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { useControlField } from "remix-validated-form";
 
-let LazyMDEditor = lazy(() => import("@uiw/react-md-editor"));
+const LazyMDEditor = lazy(() => import("@uiw/react-md-editor"));
 
 export function ClientOnly({ children }: { children: ReactNode }) {
-  let [mounted, setMounted] = useState(false);
+  const [mounted, setMounted] = useState(false);
   useEffect(() => {
     setMounted(true);
   }, []);

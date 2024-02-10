@@ -13,7 +13,7 @@ export const action: ActionFunction = async ({ request }) => {
       ids: z.array(z.union([z.string(), z.number()])),
     })
   );
-  let updateResult = await validatorBack.validate(await request.formData());
+  const updateResult = await validatorBack.validate(await request.formData());
   if (updateResult.error) return validationError(updateResult.error);
   const ids = updateResult.data.ids as string[];
   const projectStatus = updateResult.data.status?.name;

@@ -98,15 +98,16 @@ export default function ProjectDetail() {
               <h1 style={{ marginBottom: 0 }}>{projects.name}</h1>
               <Typography color="text.secondary">
                 Last update:{" "}
-                {projects.updatedAt &&
-                  formatDistance(new Date(projects.updatedAt), new Date(), {
-                    addSuffix: true,
-                  })}
+                {projects.updatedAt
+                  ? formatDistance(new Date(projects.updatedAt), new Date(), {
+                      addSuffix: true,
+                    })
+                  : null}
               </Typography>
             </Grid>
           </Grid>
           <p className="descriptionProposal">{projects.description}</p>
-          {user && existApplicant && (
+          {user && existApplicant ? (
             <Grid style={{ position: "absolute", top: 0, right: 0 }}>
               <Form method="put" action="./appliedproject">
                 <Button
@@ -135,8 +136,8 @@ export default function ProjectDetail() {
                 </Button>
               </Form>
             </Grid>
-          )}
-          {user && !existApplicant && (
+          ) : null}
+          {user && !existApplicant ? (
             <Grid style={{ position: "absolute", top: 0, right: 0 }}>
               <Button
                 href="/login/linkedin"
@@ -151,7 +152,7 @@ export default function ProjectDetail() {
                 Complete the form
               </Button>
             </Grid>
-          )}
+          ) : null}
         </Paper>
       </Container>
       <Container>

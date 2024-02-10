@@ -74,10 +74,10 @@ export function links() {
   ];
 }
 
-type voteProject = {
+interface voteProject {
   projectId: string;
   profileId: string;
-};
+}
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   invariant(params.projectId, "projectId not found");
@@ -282,21 +282,22 @@ export default function ProjectDetailsPage() {
               <h1 style={{ marginBottom: 0 }}>{project.name}</h1>
               <Typography color="text.secondary">
                 Last update:{" "}
-                {project.updatedAt &&
-                  formatDistance(new Date(project.updatedAt), new Date(), {
-                    addSuffix: true,
-                  })}
+                {project.updatedAt
+                  ? formatDistance(new Date(project.updatedAt), new Date(), {
+                      addSuffix: true,
+                    })
+                  : null}
               </Typography>
             </Grid>
             <Grid item>
-              {canEditProject && (
+              {canEditProject ? (
                 <IconButton
                   aria-label="Edit"
                   href={`/projects/${projectId}/edit`}
                 >
                   <EditSharp />
                 </IconButton>
-              )}
+              ) : null}
             </Grid>
           </Grid>
           <p className="descriptionProposal">{project.description}</p>
@@ -397,20 +398,21 @@ export default function ProjectDetailsPage() {
                 <div className="itemHeadName">Labels:</div>
               </Grid>
               <Grid item>
-                {project.labels &&
-                  project.labels.map((item, index) => (
-                    <Chip
-                      key={index}
-                      component="a"
-                      href={`/projects?label=${item.name}`}
-                      clickable
-                      label={item.name}
-                      sx={{ marginRight: 1, marginBottom: 1 }}
-                    />
-                  ))}
+                {project.labels
+                  ? project.labels.map((item, index) => (
+                      <Chip
+                        key={index}
+                        component="a"
+                        href={`/projects?label=${item.name}`}
+                        clickable
+                        label={item.name}
+                        sx={{ marginRight: 1, marginBottom: 1 }}
+                      />
+                    ))
+                  : null}
               </Grid>
             </Grid>
-            {project.slackChannel && (
+            {project.slackChannel ? (
               <Grid
                 item
                 container
@@ -437,8 +439,8 @@ export default function ProjectDetailsPage() {
                   </Link>
                 </Grid>
               </Grid>
-            )}
-            {project.projectBoard && (
+            ) : null}
+            {project.projectBoard ? (
               <Grid
                 item
                 container
@@ -459,15 +461,15 @@ export default function ProjectDetailsPage() {
                   </Link>
                 </Grid>
               </Grid>
-            )}
+            ) : null}
           </Grid>
         </Paper>
       </Container>
-      {isTeamMember && (
+      {isTeamMember ? (
         <div className="wrapper">
           {/* <Stages path={project.stages} project={project} /> */}
         </div>
-      )}
+      ) : null}
       <Container>
         <Grid container spacing={2} alignItems="stretch">
           <Grid item xs={12} md={8}>
@@ -517,25 +519,26 @@ export default function ProjectDetailsPage() {
 
           <Grid item xs={12} md={4}>
             <Stack direction="column" spacing={1}>
-              {project.disciplines && project.disciplines.length > 0 && (
+              {project.disciplines && project.disciplines.length > 0 ? (
                 <Card>
                   <CardHeader title="Looking for:" />
                   <CardContent>
-                    {project.disciplines &&
-                      project.disciplines.map((item, index) => (
-                        <Chip
-                          key={index}
-                          component="a"
-                          href={`/projects?discipline=${item.name}`}
-                          clickable
-                          label={item.name}
-                          sx={{ marginRight: 1, marginBottom: 1 }}
-                        />
-                      ))}
+                    {project.disciplines
+                      ? project.disciplines.map((item, index) => (
+                          <Chip
+                            key={index}
+                            component="a"
+                            href={`/projects?discipline=${item.name}`}
+                            clickable
+                            label={item.name}
+                            sx={{ marginRight: 1, marginBottom: 1 }}
+                          />
+                        ))
+                      : null}
                   </CardContent>
                 </Card>
-              )}
-              {project.repoUrls && (
+              ) : null}
+              {project.repoUrls ? (
                 <Card>
                   <CardHeader title="Repos URLs:" />
                   <CardContent>
@@ -550,7 +553,7 @@ export default function ProjectDetailsPage() {
                     </ul>
                   </CardContent>
                 </Card>
-              )}
+              ) : null}
               {isTeamMember ? (
                 <Button
                   variant="contained"
@@ -577,7 +580,7 @@ export default function ProjectDetailsPage() {
         </Grid>
       </Container>
 
-      {project.skills && project.skills.length > 0 && (
+      {project.skills && project.skills.length > 0 ? (
         <Container sx={{ marginBottom: 2 }}>
           <Card>
             <CardHeader title="Skills:" />
@@ -595,7 +598,7 @@ export default function ProjectDetailsPage() {
             </CardContent>
           </Card>
         </Container>
-      )}
+      ) : null}
       <Container sx={{ marginBottom: 2 }}>
         <RelatedProjectsSection
           allowEdit={canEditProject}
@@ -637,14 +640,14 @@ export default function ProjectDetailsPage() {
         />
       </Container>
 
-      {membership && (
+      {membership ? (
         <MembershipStatusModal
           close={() => setShowMembershipModal(false)}
           member={membership}
           open={showMembershipModal}
           project={project}
         />
-      )}
+      ) : null}
     </>
   );
 }

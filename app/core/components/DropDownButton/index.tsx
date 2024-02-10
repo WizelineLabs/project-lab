@@ -11,12 +11,12 @@ import {
 } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 
-type DropDownOption = {
+interface DropDownOption {
   [x: string]: any;
   onClick?: () => void;
   text: string;
   to: string;
-};
+}
 
 export const DropDownButton = ({
   children,

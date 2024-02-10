@@ -533,10 +533,10 @@ export async function updateRelatedProjects({
 }
 
 export async function getProjectMembership(profileId: string) {
-  let daysToCheck = 30;
-  let limitDateAbsence = new Date();
+  const daysToCheck = 30;
+  const limitDateAbsence = new Date();
   limitDateAbsence.setDate(limitDateAbsence.getDate() - daysToCheck);
-  let queryMembership = await db.projectMembers.findMany({
+  const queryMembership = await db.projectMembers.findMany({
     where: {
       profileId,
       updatedAt: {
@@ -937,7 +937,7 @@ interface IProjectResource {
 
 export async function updateProjectResources(
   projectId: string,
-  resources: Array<IProjectResource>
+  resources: IProjectResource[]
 ) {
   await db.resource.deleteMany({ where: { projectId } });
   const data = resources.map((resource) => ({ ...resource, projectId }));

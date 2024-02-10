@@ -62,26 +62,26 @@ export const validator = withZod(
   })
 );
 
-type PointOfContact = {
+interface PointOfContact {
   id: string;
   fullName: string;
   university: {
     name: string;
   } | null;
   active: boolean;
-};
+}
 
-type PointOfContactRecord = {
+interface PointOfContactRecord {
   id: string;
   fullName: string;
   university: string | null;
   active: boolean;
-};
+}
 
-type LoaderData = {
+interface LoaderData {
   pointsOfContact: Awaited<ReturnType<typeof getPointsOfContact>>;
   universities: Awaited<ReturnType<typeof getUniversities>>;
-};
+}
 
 export const loader: LoaderFunction = async ({ request }) => {
   const pointsOfContact = await getPointsOfContact();

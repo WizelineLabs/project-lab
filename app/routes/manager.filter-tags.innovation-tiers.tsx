@@ -50,27 +50,27 @@ declare module "@mui/material/Button" {
     secondaryC: true;
   }
 }
-type InnovationTierRecord = {
+interface InnovationTierRecord {
   id: string;
   name: string;
   benefits?: string;
   requisites?: string;
   goals?: string;
-};
+}
 
-type LoaderData = {
+interface LoaderData {
   innovationTiers: Awaited<ReturnType<typeof getInnovationTiers>>;
   projects: Awaited<ReturnType<typeof getProjects>>;
-};
+}
 
 type InnovationTierItem = Awaited<
   ReturnType<typeof getInnovationTiers>
 >[number];
 
-type ProjectRecord = {
+interface ProjectRecord {
   id: number | string;
   name: string | null;
-};
+}
 
 const validatorFront = withZod(
   zfd.formData({
@@ -438,7 +438,7 @@ function InnovationTiersGrid() {
           >
             <input type="hidden" name="id" value={selectedRowID} />
 
-            {isMergeAction && (
+            {isMergeAction ? (
               <InputSelect
                 valuesList={innovationTiers.filter(
                   (tier) => tier.name !== selectedRowID
@@ -447,7 +447,7 @@ function InnovationTiersGrid() {
                 label="Innovation Tier to merge with"
                 disabled={false}
               />
-            )}
+            ) : null}
             {items.map((item, idx) => (
               <input
                 key={item.key}

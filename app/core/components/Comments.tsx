@@ -61,19 +61,20 @@ export default function Comments({
           Add a comment
         </Button>
       </ValidatedForm>
-      {comments &&
-        comments
-          .filter((comment) => !comment.parentId)
-          .map((comment) => {
-            return (
-              <CommentItem
-                key={comment.id}
-                comment={comment}
-                projectId={projectId}
-                profileId={profileId}
-              />
-            );
-          })}
+      {comments
+        ? comments
+            .filter((comment) => !comment.parentId)
+            .map((comment) => {
+              return (
+                <CommentItem
+                  key={comment.id}
+                  comment={comment}
+                  projectId={projectId}
+                  profileId={profileId}
+                />
+              );
+            })
+        : null}
     </Box>
   );
 }
@@ -111,7 +112,7 @@ function CommentItem({
             {comment.updatedAt.toLocaleString()}
           </Typography>
         </Grid>
-        {profileId === comment.authorId && (
+        {profileId === comment.authorId ? (
           <Grid item justifyContent="right">
             <IconButton
               color="warning"
@@ -128,23 +129,24 @@ function CommentItem({
               <Edit />
             </IconButton>
           </Grid>
-        )}
+        ) : null}
         <Grid item xs={12}>
           <Box>
             <Markdown>{comment.body}</Markdown>
           </Box>
-          {comment.children &&
-            comment.children.map((commentChild) => {
-              return (
-                <CommentItem
-                  key={commentChild.id}
-                  comment={commentChild}
-                  projectId={projectId}
-                  profileId={profileId}
-                />
-              );
-            })}
-          {!comment.parentId && (
+          {comment.children
+            ? comment.children.map((commentChild) => {
+                return (
+                  <CommentItem
+                    key={commentChild.id}
+                    comment={commentChild}
+                    projectId={projectId}
+                    profileId={profileId}
+                  />
+                );
+              })
+            : null}
+          {!comment.parentId ? (
             <ValidatedForm
               action={`./comment/create`}
               method="post"
@@ -159,7 +161,7 @@ function CommentItem({
                 Reply
               </Button>
             </ValidatedForm>
-          )}
+          ) : null}
         </Grid>
       </Grid>
       <ModalBox open={openDeleteModal} close={() => setOpenDeleteModal(false)}>

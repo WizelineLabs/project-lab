@@ -127,20 +127,20 @@ function getCurrentDate(): string {
   return `${year}-${month}-${day}`;
 }
 
-type UserProfile = {
+interface UserProfile {
   email: string;
   name: string;
-};
+}
 
-type LoaderData = {
+interface LoaderData {
   universities: Awaited<ReturnType<typeof geActivetUniversities>>;
   profile: UserProfile;
-};
+}
 
-type UniversityValue = {
+interface UniversityValue {
   id: string;
   name: string;
-};
+}
 
 const profileFetcherOptions: SubmitOptions = {
   method: "get",

@@ -117,10 +117,7 @@ export async function updateProfile(
   return prisma.profiles.update({ where: { id }, data: data });
 }
 
-export async function updateGithubUser(
-  id: Profiles["id"],
-  githubUser: string = ""
-) {
+export async function updateGithubUser(id: Profiles["id"], githubUser = "") {
   const userProfile = await getProfileById(id);
   if (!userProfile || userProfile.githubUser === githubUser) return null;
   const { data: userInfo } = await getUserByUsername(githubUser);
@@ -292,9 +289,7 @@ interface FacetOutput {
   count: number;
 }
 
-type whereClause = {
-  [key: string]: any;
-};
+type whereClause = Record<string, any>;
 export async function searchProfilesFull({
   searchTerm,
   page = 1,
@@ -562,7 +557,7 @@ export async function searchProfiles(
   }
 
   // final query
-  let result = await prisma.$queryRaw`
+  const result = await prisma.$queryRaw`
     ${select}
     ${projectJoin}
     ${where}

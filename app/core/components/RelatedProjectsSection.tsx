@@ -19,10 +19,10 @@ import { z } from "zod";
 import { zfd } from "zod-form-data";
 import { validateNavigationRedirect } from "~/utils";
 
-type ProjectValue = {
+interface ProjectValue {
   id: string;
   name: string;
-};
+}
 
 interface IProps {
   relatedProjects: ProjectValue[];
@@ -89,7 +89,7 @@ function RelatedProjectsSection({
         />
 
         <div>
-          {isEditActive && (
+          {isEditActive ? (
             <>
               <ValidatedForm
                 id="relatedProjectsForm"
@@ -129,7 +129,7 @@ function RelatedProjectsSection({
                     />
                   )}
                 />
-                {error && <span>{error}</span>}
+                {error ? <span>{error}</span> : null}
                 <Button
                   variant="contained"
                   type="submit"
@@ -137,16 +137,16 @@ function RelatedProjectsSection({
                 >
                   Submit
                 </Button>
-                {error && (
+                {error ? (
                   <Alert severity="warning">
                     Information could not be saved
                   </Alert>
-                )}
+                ) : null}
               </ValidatedForm>
             </>
-          )}
+          ) : null}
         </div>
-        {!isEditActive && (
+        {!isEditActive ? (
           <CardContent>
             {relatedProjects.map((item, i) => {
               return (
@@ -165,7 +165,7 @@ function RelatedProjectsSection({
               );
             })}
           </CardContent>
-        )}
+        ) : null}
       </Card>
     </>
   );

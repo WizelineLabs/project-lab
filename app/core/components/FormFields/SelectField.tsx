@@ -54,7 +54,7 @@ const SelectField: React.FC<SelectFieldProps> = ({
             </MenuItem>
           ))}
         </Select>
-        {error && <small style={{ ...errorStyle }}>{error}</small>}
+        {error ? <small style={{ ...errorStyle }}>{error}</small> : null}
       </FormControl>
     </div>
   );

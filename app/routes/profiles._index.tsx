@@ -75,13 +75,13 @@ const ProjectAssignment = ({ projectMember }: ProjectAssigmentProps) => {
       }}
     >
       <div style={{ fontWeight: "bold" }}>{projectMember.project.name}</div>
-      {projectMember.role.length > 0 && (
+      {projectMember.role.length > 0 ? (
         <div>
           {projectMember.role
             .map((role: { name: string }) => role.name)
             .join("/")}
         </div>
-      )}
+      ) : null}
     </Box>
   );
 };
@@ -95,10 +95,10 @@ const FILTERS = [
   "skill",
 ];
 
-type LoaderData = {
+interface LoaderData {
   data: Awaited<ReturnType<typeof searchProfilesFull>>;
   message: string;
-};
+}
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
@@ -158,7 +158,7 @@ const Profiles = () => {
 
   const deleteFilterUrl = (filter: string, value: string | null) => {
     const newParams = new URLSearchParams(searchParams.toString());
-    let newFilter = newParams.getAll(filter).filter((item) => item != value);
+    const newFilter = newParams.getAll(filter).filter((item) => item != value);
     newParams.delete(filter);
     newFilter.forEach((item) => newParams.append(filter, item));
     return `?${newParams.toString()}`;
@@ -239,34 +239,34 @@ const Profiles = () => {
               <Box sx={{ paddingLeft: 2, paddingRight: 2 }}>
                 <h3>Filters</h3>
               </Box>
-              {departments.length > 0 && (
+              {departments.length > 0 ? (
                 <FilterAccordion
                   title="Department"
                   filter="department"
                   items={departments}
                 />
-              )}
-              {businessUnits.length > 0 && (
+              ) : null}
+              {businessUnits.length > 0 ? (
                 <FilterAccordion
                   title="Business Unit"
                   filter="businessUnit"
                   items={businessUnits}
                 />
-              )}
-              {employeeStatuses.length > 0 && (
+              ) : null}
+              {employeeStatuses.length > 0 ? (
                 <FilterAccordion
                   title="Employee Status"
                   filter="employeeStatus"
                   items={employeeStatuses}
                 />
-              )}
-              {benchStatuses.length > 0 && (
+              ) : null}
+              {benchStatuses.length > 0 ? (
                 <FilterAccordion
                   title="Bench Status"
                   filter="benchStatus"
                   items={benchStatuses}
                 />
-              )}
+              ) : null}
               <FilterAccordion title="Skill" filter="skill" items={skills} />
             </Paper>
           </Grid>
@@ -365,7 +365,7 @@ const Profiles = () => {
                         <Typography sx={{ fontWeight: "bold" }}>
                           {item.employeeStatus}
                         </Typography>
-                        {item.projectMembers.length > 0 && (
+                        {item.projectMembers.length > 0 ? (
                           <>
                             {item.projectMembers.map((projectMember, index) => (
                               <ProjectAssignment
@@ -374,7 +374,7 @@ const Profiles = () => {
                               />
                             ))}
                           </>
-                        )}
+                        ) : null}
                       </TableCell>
                     </TableRow>
                   ))}

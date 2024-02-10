@@ -10,7 +10,7 @@ async function seed() {
     return;
   }
 
-  let projectStages: any = [];
+  const projectStages: any = [];
 
   for (let i = 0; i < contributorPath?.length; i++) {
     const data = {
@@ -20,7 +20,7 @@ async function seed() {
     };
     const tasks = contributorPath[i]?.tasks || [];
     const position = i + 1;
-    let projectTasks: any = [];
+    const projectTasks: any = [];
 
     for (let j = 0; j < tasks.length; j++) {
       projectTasks.push({

@@ -31,7 +31,7 @@ interface IProps {
   votesCount?: number | null;
   skills?: { name: string }[];
   isOwner?: boolean;
-  tierName?: String;
+  tierName?: string;
   projectMembers?: number | null;
 }
 
@@ -63,7 +63,7 @@ export const ProposalCard = (props: IProps) => {
           <CardContent onClick={handleCardClick}>
             <ProposalCardWrap>
               <div className="ProposalCard__head">
-                {user && show && (
+                {user && show ? (
                   <div className="ProposalCard__head__icon">
                     {props.picture ? (
                       <img
@@ -76,7 +76,7 @@ export const ProposalCard = (props: IProps) => {
                       <span>{props.initials}</span>
                     )}
                   </div>
-                )}
+                ) : null}
                 <div className="ProposalCard__head__description">
                   <div className="ProposalCard__head__description--title">
                     {props.title}
@@ -85,7 +85,7 @@ export const ProposalCard = (props: IProps) => {
                     {props.date}
                   </div>
                   <div className="ProposalCard__head__description--isOwner">
-                    {props.isOwner && <p>Owner</p>}
+                    {props.isOwner ? <p>Owner</p> : null}
                   </div>
                 </div>
               </div>
@@ -101,20 +101,20 @@ export const ProposalCard = (props: IProps) => {
             }}
           >
             <ProposalCardSkills>
-              {props.skills &&
-                props.skills[0].name != "" &&
-                props.skills.map((skill) => (
-                  <Chip
-                    key={skill.name}
-                    component="a"
-                    label={skill.name}
-                    sx={{ marginRight: 1, marginBottom: 1 }}
-                    clickable
-                    href={`/projects?&skill=${skill.name.trim()}`}
-                  />
-                ))}
+              {props.skills && props.skills[0].name != ""
+                ? props.skills.map((skill) => (
+                    <Chip
+                      key={skill.name}
+                      component="a"
+                      label={skill.name}
+                      sx={{ marginRight: 1, marginBottom: 1 }}
+                      clickable
+                      href={`/projects?&skill=${skill.name.trim()}`}
+                    />
+                  ))
+                : null}
             </ProposalCardSkills>
-            {user && show && (
+            {user && show ? (
               <ProposalCardStatus>
                 <div>
                   <div>
@@ -176,7 +176,7 @@ export const ProposalCard = (props: IProps) => {
                   </div>
                 </div>
               </ProposalCardStatus>
-            )}
+            ) : null}
           </CardActions>
         </CardActionArea>
       </Card>

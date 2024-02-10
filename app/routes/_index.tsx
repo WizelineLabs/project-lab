@@ -34,11 +34,11 @@ export const loader: LoaderFunction = async ({ request }) => {
   };
 };
 
-type experienceInfo = {
+interface experienceInfo {
   comentario: string | null;
   id: number;
   profile: { avatarUrl: string | null } | null;
-};
+}
 
 export default function Index() {
   const [menu, setMenu] = useState(false);
@@ -102,7 +102,7 @@ export default function Index() {
         </a>
 
         <StackContainer>
-          {!user && (
+          {!user ? (
             <>
               <Button
                 href="/login/wizeline"
@@ -129,7 +129,7 @@ export default function Index() {
                 Applicant Log In
               </Button>
             </>
-          )}
+          ) : null}
         </StackContainer>
       </SecondaryHeader>
       <HomePageContainer>
@@ -140,8 +140,8 @@ export default function Index() {
         />
         <PageContainerTitle>Our personal experience</PageContainerTitle>
         <Stack direction={{ xs: "column", sm: "row" }}>
-          {!info && <p>No experience</p>}
-          {info && (
+          {!info ? <p>No experience</p> : null}
+          {info ? (
             <>
               {justFour.map((experience: experienceInfo) => (
                 <ExperienceArea
@@ -151,7 +151,7 @@ export default function Index() {
                 />
               ))}
             </>
-          )}
+          ) : null}
         </Stack>
       </HomePageContainer>
       <MiddleHomePageContainer>
@@ -210,7 +210,7 @@ export default function Index() {
           <PageContainerTitle style={{ textAlign: "center" }}>
             Join us
           </PageContainerTitle>
-          {!user && (
+          {!user ? (
             <>
               <Button
                 href="/login/wizeline"
@@ -235,8 +235,8 @@ export default function Index() {
                 Applicant Log In
               </Button>
             </>
-          )}
-          {user && (
+          ) : null}
+          {user ? (
             <Button
               href={navigate}
               variant="contained"
@@ -248,8 +248,8 @@ export default function Index() {
             >
               View Projects
             </Button>
-          )}
-          {!user && (
+          ) : null}
+          {!user ? (
             <Button
               href="/internshipProjects"
               variant="contained"
@@ -261,7 +261,7 @@ export default function Index() {
             >
               View Projects
             </Button>
-          )}
+          ) : null}
         </Stack>
       </HomePageContainer>
     </main>

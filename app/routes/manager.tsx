@@ -13,10 +13,10 @@ import Header from "app/core/layouts/Header";
 import { useState } from "react";
 import { requireUser } from "~/session.server";
 
-type LoaderData = {
+interface LoaderData {
   initialTabIdx: number;
   initialTitle: string;
-};
+}
 
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await requireUser(request);

@@ -7,8 +7,8 @@ import {
 } from "@mui/material";
 
 interface InputSelectProps {
-  valuesList: Array<{ name: string }>;
-  defaultValue?: String;
+  valuesList: { name: string }[];
+  defaultValue?: string;
   name: string;
   label: string;
   helperText?: string;

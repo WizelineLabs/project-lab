@@ -54,15 +54,15 @@ export function links() {
   ];
 }
 
-type ProfileValue = {
+interface ProfileValue {
   id: string;
   name: string;
-};
+}
 
-type ProjectValue = {
+interface ProjectValue {
   id: string;
   name: string;
-};
+}
 
 const profileFetcherOptions: SubmitOptions = {
   method: "get",
@@ -149,7 +149,7 @@ export default function Applicant() {
   const appliedNameProjects = applicant.appliedProjects?.split(",");
 
   if (appliedIdProjects && appliedNameProjects) {
-    const projectMap: { [key: string]: string } = {};
+    const projectMap: Record<string, string> = {};
 
     for (let i = 0; i < appliedNameProjects.length; i++) {
       const projectName = appliedNameProjects[i];
@@ -232,18 +232,18 @@ export default function Applicant() {
             </Grid>
             <Grid xs={4} sx={{ textAlign: "right" }}>
               {navigation.state != "loading" &&
-                canEditProject &&
-                applicant.status === "DRAFT" && (
-                  <>
-                    <Button
-                      onClick={() => setOpenManageModal(true)}
-                      variant="contained"
-                    >
-                      Hold intern
-                    </Button>
-                  </>
-                )}
-              {canEditProject && applicant.status != "DRAFT" && (
+              canEditProject &&
+              applicant.status === "DRAFT" ? (
+                <>
+                  <Button
+                    onClick={() => setOpenManageModal(true)}
+                    variant="contained"
+                  >
+                    Hold intern
+                  </Button>
+                </>
+              ) : null}
+              {canEditProject && applicant.status != "DRAFT" ? (
                 <Stack direction="column" spacing={1}>
                   <FormControl fullWidth size="medium">
                     <InputLabel id="demo-simple-select-label">
@@ -282,11 +282,11 @@ export default function Applicant() {
                     </Typography>
                   </Paper>
                 </Stack>
-              )}
+              ) : null}
             </Grid>
           </Grid>
           <div>
-            {applicant.avatarApplicant && (
+            {applicant.avatarApplicant ? (
               <Avatar
                 alt={applicant.fullName}
                 src={applicant.avatarApplicant}
@@ -297,7 +297,7 @@ export default function Applicant() {
                   margin: "15px",
                 }}
               />
-            )}
+            ) : null}
           </div>
           <div>
             {applicant.university?.name} / <strong>{applicant.major}</strong> /{" "}
@@ -307,39 +307,40 @@ export default function Applicant() {
             <ExternalLink href={`mailto:${applicant.email}`}>
               {applicant.email}
             </ExternalLink>{" "}
-            {applicant.phone && (
+            {applicant.phone ? (
               <>
                 / t.
                 <ExternalLink href={`tel:${applicant.phone}`}>
                   {applicant.phone}
                 </ExternalLink>
               </>
-            )}
-            {applicant.universityPointOfContact &&
-              " / University contact: " +
-                applicant.universityPointOfContact.fullName}
+            ) : null}
+            {applicant.universityPointOfContact
+              ? " / University contact: " +
+                applicant.universityPointOfContact.fullName
+              : null}
             <hr />
             <div>
               <h3>Applied Projects</h3>
               {appliedNameProjects &&
-                appliedNameProjects.length > 0 &&
-                appliedIdProjects && (
-                  <ul>
-                    {appliedNameProjects.map(
-                      (projectName: any, index: number) => {
-                        // Explicitly specify the type of index as number
-                        const projectId = appliedIdProjects[index];
-                        return (
-                          <li key={index}>
-                            <a href={`/projects/${projectId}`}>
-                              {projectName.trim()}
-                            </a>
-                          </li>
-                        );
-                      }
-                    )}
-                  </ul>
-                )}
+              appliedNameProjects.length > 0 &&
+              appliedIdProjects ? (
+                <ul>
+                  {appliedNameProjects.map(
+                    (projectName: any, index: number) => {
+                      // Explicitly specify the type of index as number
+                      const projectId = appliedIdProjects[index];
+                      return (
+                        <li key={index}>
+                          <a href={`/projects/${projectId}`}>
+                            {projectName.trim()}
+                          </a>
+                        </li>
+                      );
+                    }
+                  )}
+                </ul>
+              ) : null}
             </div>
           </div>
           <hr />
@@ -354,38 +355,38 @@ export default function Applicant() {
             <strong>Hours per week:</strong> {applicant.hoursPerWeek}
           </div>
           <hr />
-          {applicant.interestedRoles && (
+          {applicant.interestedRoles ? (
             <div>
               <strong>Roles I'm interested in</strong>{" "}
               {applicant.interestedRoles}
             </div>
-          )}
-          {applicant.participatedAtWizeline && (
+          ) : null}
+          {applicant.participatedAtWizeline ? (
             <div>
               <strong>I previously participated with Wizeline in:</strong>{" "}
               {applicant.wizelinePrograms}
             </div>
-          )}
-          {applicant.preferredTools && (
+          ) : null}
+          {applicant.preferredTools ? (
             <div>
               <strong>Preferred tools</strong> {applicant.preferredTools}
             </div>
-          )}
-          {applicant.experience && (
+          ) : null}
+          {applicant.experience ? (
             <div>
               <strong>Relevant experience:</strong> {applicant.experience}
             </div>
-          )}
-          {applicant.interest && (
+          ) : null}
+          {applicant.interest ? (
             <div>
               <h3 style={{ marginBottom: 0 }}>Interest</h3> {applicant.interest}
             </div>
-          )}
-          {applicant.comments && (
+          ) : null}
+          {applicant.comments ? (
             <div>
               <h3 style={{ marginBottom: 0 }}>Comments</h3> {applicant.comments}
             </div>
-          )}
+          ) : null}
         </Paper>
       </Container>
 

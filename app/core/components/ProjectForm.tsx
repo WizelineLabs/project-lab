@@ -55,7 +55,7 @@ export function ProjectForm({
 
       <LabelsSelect name="labels" label="Labels" />
 
-      {projectformType === "create" && (
+      {projectformType === "create" ? (
         <FormControlLabel
           value="1"
           control={
@@ -68,27 +68,27 @@ export function ProjectForm({
           label="Add more details"
           labelPlacement="end"
         />
-      )}
+      ) : null}
 
-      {projectformType !== "create" && (
+      {projectformType !== "create" ? (
         <InputSelect
           valuesList={statuses || []}
           name="projectStatus"
           label="Status"
         />
-      )}
+      ) : null}
 
-      {projectformType !== "create" && (
+      {projectformType !== "create" ? (
         <InputSelect
           valuesList={tiers || []}
           name="innovationTiers"
           label="Innovation Tier"
         />
-      )}
+      ) : null}
 
-      {projectformType !== "create" && (
+      {projectformType !== "create" ? (
         <ProjectOwnerField name="owner" label="Owner" />
-      )}
+      ) : null}
 
       <Collapse in={displayFields}>
         <Stack spacing={2}>

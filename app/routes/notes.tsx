@@ -5,9 +5,9 @@ import { getNoteListItems } from "~/models/note.server";
 import { requireUserId } from "~/session.server";
 import { useUser } from "~/utils";
 
-type LoaderData = {
+interface LoaderData {
   noteListItems: Awaited<ReturnType<typeof getNoteListItems>>;
-};
+}
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await requireUserId(request);

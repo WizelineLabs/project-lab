@@ -76,7 +76,7 @@ fs.createReadStream(csvFileName)
 
 function insertApplicants(applicants: any[]) {
   applicants.forEach(async (applicant) => {
-    let university = applicant.university.connect.name;
+    const university = applicant.university.connect.name;
     await upsertUniversity(university);
     await upsertApplicant(applicant);
   });

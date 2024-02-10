@@ -1,12 +1,12 @@
 import { Stack, FormHelperText } from "@mui/material";
 import { useField } from "remix-validated-form";
 
-type FormInputProps = {
+interface FormInputProps {
   name: string;
   label: string;
   isRequired?: boolean;
   value?: string;
-};
+}
 
 export const FormInput = ({
   name,
@@ -21,7 +21,9 @@ export const FormInput = ({
     <Stack direction="column-reverse" alignItems="center">
       <input type="hidden" name={name} value={value} />
 
-      {!!error && <FormHelperText error={!!error}>Invalid Url</FormHelperText>}
+      {error ? (
+        <FormHelperText error={!!error}>Invalid Url</FormHelperText>
+      ) : null}
     </Stack>
   );
 };
