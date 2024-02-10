@@ -1,17 +1,17 @@
-import LabeledTextField from "app/core/components/LabeledTextField";
-import DisciplinesSelect from "app/core/components/DisciplinesSelect";
-import SkillsSelect from "app/core/components/SkillsSelect";
-import ModalBox from "app/core/components/ModalBox";
-import Button from "@mui/material/Button";
 import {
   Grid,
   FormDivContainer,
   CommitmentDivContainer,
 } from "./joinProjectModal.styles";
-import { ValidatedForm } from "remix-validated-form";
+import Button from "@mui/material/Button";
 import { withZod } from "@remix-validated-form/with-zod";
-import { zfd } from "zod-form-data";
+import DisciplinesSelect from "app/core/components/DisciplinesSelect";
+import LabeledTextField from "app/core/components/LabeledTextField";
+import ModalBox from "app/core/components/ModalBox";
+import SkillsSelect from "app/core/components/SkillsSelect";
+import { ValidatedForm } from "remix-validated-form";
 import { z } from "zod";
+import { zfd } from "zod-form-data";
 
 interface IProps {
   open: boolean;

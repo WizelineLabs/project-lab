@@ -1,7 +1,5 @@
 import { Container, Paper, darken, lighten } from "@mui/material";
-import { useLoaderData, useNavigate } from "@remix-run/react";
-import { type LoaderFunction } from "@remix-run/server-runtime";
-import Header from "app/core/layouts/Header";
+import { styled } from "@mui/material/styles";
 import type {
   GridColDef,
   GridFilterModel,
@@ -11,16 +9,18 @@ import type {
   GridValueGetterParams,
 } from "@mui/x-data-grid";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import { searchApplicants } from "~/models/applicant.server";
+import { useLoaderData, useNavigate } from "@remix-run/react";
+import { type LoaderFunction } from "@remix-run/server-runtime";
+import Header from "app/core/layouts/Header";
 import Link from "~/core/components/Link";
-import { styled } from "@mui/material/styles";
 import NavAppBar from "~/core/components/NavAppBar";
+import { searchApplicants } from "~/models/applicant.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const data = await searchApplicants();
-  return data.map(a => ({
+  return data.map((a) => ({
     id: a.id,
-    fullName : a.fullName,
+    fullName: a.fullName,
     email: a.personalEmail,
     phone: a.phone,
     startDate: a.startDate,
@@ -31,7 +31,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     semester: a.semester,
     participatedAtWizeline: a.participatedAtWizeline,
     status: a.status,
-    appliedProjects: a.appliedProjects
+    appliedProjects: a.appliedProjects,
   }));
 };
 
@@ -92,7 +92,7 @@ const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
 }));
 
 export default function Projects() {
-  const applicants = useLoaderData();
+  const applicants = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const columns: GridColDef[] = [
     {
@@ -147,8 +147,12 @@ export default function Projects() {
       hide: true,
     },
     { field: "status", headerName: "Status", flex: 0.4, hide: false },
-    { field: "appliedProjects", headerName: "Applied Projects", flex: 0.5, hide: true },
-
+    {
+      field: "appliedProjects",
+      headerName: "Applied Projects",
+      flex: 0.5,
+      hide: true,
+    },
   ];
 
   const filterModel: GridFilterModel = {

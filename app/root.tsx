@@ -1,7 +1,12 @@
+import { getUser } from "./session.server";
+import StylesheetUrl from "./styles/style.css";
+import { createTheme } from "./theme";
+import { ThemeProvider } from "@emotion/react";
+import { CssBaseline, useMediaQuery } from "@mui/material";
 import type {
   LinksFunction,
   LoaderFunction,
-  V2_MetaFunction,
+  MetaFunction,
 } from "@remix-run/node";
 import {
   Links,
@@ -11,12 +16,7 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
-import StylesheetUrl from "./styles/style.css";
-import { getUser } from "./session.server";
-import { CssBaseline, useMediaQuery } from "@mui/material";
-import { createTheme } from "./theme";
 import { useMemo } from "react";
-import { ThemeProvider } from "@emotion/react";
 
 export const links: LinksFunction = () => {
   return [
@@ -28,7 +28,7 @@ export const links: LinksFunction = () => {
   ];
 };
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return [
     {
       title: "Wizelabs",

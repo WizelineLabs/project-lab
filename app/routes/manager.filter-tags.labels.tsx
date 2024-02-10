@@ -1,28 +1,46 @@
-import React, { useState, useEffect } from "react";
-import { useFetcher, useLoaderData, useNavigation, useRouteError, isRouteErrorResponse } from "@remix-run/react";
+import ConfirmationModal from "../core/components/ConfirmationModal";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/DeleteOutlined";
+import EditIcon from "@mui/icons-material/Edit";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  Container,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableSortLabel,
+} from "@mui/material";
+import Button from "@mui/material/Button";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import Button from "@mui/material/Button";
-import AddIcon from "@mui/icons-material/Add";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/DeleteOutlined";
-import ConfirmationModal from "../core/components/ConfirmationModal";
+import {
+  useFetcher,
+  useLoaderData,
+  useNavigation,
+  useRouteError,
+  isRouteErrorResponse,
+} from "@remix-run/react";
+import { withZod } from "@remix-validated-form/with-zod";
+import React, { useState, useEffect } from "react";
+import { redirect } from "remix-typedjson";
+import { ValidatedForm, validationError } from "remix-validated-form";
+import invariant from "tiny-invariant";
+import { z } from "zod";
+import LabeledTextField from "~/core/components/LabeledTextField";
+import ModalBox from "~/core/components/ModalBox";
 import {
   getLabels,
   addLabel,
   removeLabel,
   updateLabel,
 } from "~/models/label.server";
-import { Card, CardContent, CardHeader, Container, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel } from "@mui/material";
-import { ValidatedForm, validationError } from "remix-validated-form";
-import { z } from "zod";
-import { withZod } from "@remix-validated-form/with-zod";
-import ModalBox from "~/core/components/ModalBox";
-import LabeledTextField from "~/core/components/LabeledTextField";
-import { redirect } from "remix-typedjson";
-import invariant from "tiny-invariant";
-import { validateNavigationRedirect } from '~/utils'
-
+import { validateNavigationRedirect } from "~/utils";
 
 declare module "@mui/material/Button" {
   interface ButtonPropsColorOverrides {
@@ -34,14 +52,12 @@ declare module "@mui/material/Button" {
 export const validator = withZod(
   z.object({
     id: z.string().optional(),
-    name: z
-      .string()
-      .min(1, { message: "Name is required" }),
+    name: z.string().min(1, { message: "Name is required" }),
   })
 );
 
 type LabelRecord = {
-  id: string ;
+  id: string;
   name: string;
 };
 
@@ -57,45 +73,40 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export const action: ActionFunction = async ({ request }) => {
-  
   const result = await validator.validate(await request.formData());
   const id = result.data?.id;
   const name = result.data?.name as string;
   if (result.error != undefined) return validationError(result.error);
 
-  if(request.method == "POST") {   
-      const response = await addLabel({ name });
-      return json(response, { status: 201 });
-  } 
+  if (request.method == "POST") {
+    const response = await addLabel({ name });
+    return json(response, { status: 201 });
+  }
 
-  if( request.method == 'PUT') {
-    if(id){
-      try{
-        await updateLabel({id, name})
+  if (request.method == "PUT") {
+    if (id) {
+      try {
+        await updateLabel({ id, name });
         return redirect("./");
       } catch (e) {
         throw e;
       }
-    }else{
+    } else {
       invariant(id, "Label Id is required");
     }
   }
 
-  if(request.method == "DELETE") {
-    if(id) {
-      try{
+  if (request.method == "DELETE") {
+    if (id) {
+      try {
         await removeLabel({ id });
         return redirect("./");
-
       } catch (e) {
         throw e;
       }
-      
     }
-}
- 
+  }
 };
-
 
 function LabelsDataGrid() {
   const fetcher = useFetcher();
@@ -111,7 +122,7 @@ function LabelsDataGrid() {
         name: item.name,
       }))
     );
-  }, [labels]);  
+  }, [labels]);
 
   const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
   const [openModifyModal, setOpenModifyModal] = useState<boolean>(false);
@@ -119,11 +130,10 @@ function LabelsDataGrid() {
   const [selectedRowID, setSelectedRowID] = useState("");
   const [selectedName, setSelectedName] = useState("");
 
-
   const navigation = useNavigation();
 
   useEffect(() => {
-    const isActionRedirect = validateNavigationRedirect(navigation)
+    const isActionRedirect = validateNavigationRedirect(navigation);
     if (isActionRedirect) {
       setOpenCreateModal(false);
       setOpenModifyModal(false);
@@ -157,9 +167,9 @@ function LabelsDataGrid() {
 
   const handleModifyClick = (id: string, name: string) => {
     setSelectedRowID(() => id);
-    setSelectedName(() => name)
-    setOpenModifyModal(() => true)
-  }
+    setSelectedName(() => name);
+    setOpenModifyModal(() => true);
+  };
 
   interface HeadLabelsData {
     id: keyof LabelRecord;
@@ -180,43 +190,38 @@ function LabelsDataGrid() {
     },
   ];
 
-
   return (
     <>
-    <Container sx={{ marginBottom: 2 }}>
-    <Card>
-      <CardHeader
-        title="Labels"
-        action={
-          <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={() => handleAddClick()}
-          data-testid="testLabelCreate"
-        >
-          {createButtonText}
-        </Button>
-        }
-      />
-      <CardContent>
-      <TableContainer>
-        <Table>
-            <TableHead>
-            {headCells.map((cell) => (
-                  <TableCell key={cell.id} align="center" padding="normal">
-                    <TableSortLabel >
-                      {cell.label}
-                    </TableSortLabel>
-                  </TableCell>
-                ))}
-            </TableHead>
-            <TableBody>
-              {
-                rows.map(
-                  (row, index) => {
+      <Container sx={{ marginBottom: 2 }}>
+        <Card>
+          <CardHeader
+            title="Labels"
+            action={
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<AddIcon />}
+                onClick={() => handleAddClick()}
+                data-testid="testLabelCreate"
+              >
+                {createButtonText}
+              </Button>
+            }
+          />
+          <CardContent>
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  {headCells.map((cell) => (
+                    <TableCell key={cell.id} align="center" padding="normal">
+                      <TableSortLabel>{cell.label}</TableSortLabel>
+                    </TableCell>
+                  ))}
+                </TableHead>
+                <TableBody>
+                  {rows.map((row, index) => {
                     const labelId = `enhanced-table-checkbox-${index}`;
-  
+
                     return (
                       <TableRow hover tabIndex={0} key={index}>
                         <TableCell
@@ -227,11 +232,8 @@ function LabelsDataGrid() {
                         >
                           {row.name}
                         </TableCell>
-                        <TableCell
-                         component="th"
-                         scope="row"
-                         align="center">
-                            <Button
+                        <TableCell component="th" scope="row" align="center">
+                          <Button
                             variant="contained"
                             size="small"
                             onClick={() => handleModifyClick(row.id, row.name)}
@@ -252,15 +254,14 @@ function LabelsDataGrid() {
                           </Button>
                         </TableCell>
                       </TableRow>
-                    )}
-              )
-            }
-            </TableBody>
-        </Table>
-      </TableContainer>
-      </CardContent>
-      </Card>
-    </Container>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </CardContent>
+        </Card>
+      </Container>
       {/* Confirmation for deletion */}
       <ConfirmationModal
         open={openDeleteModal}
@@ -282,42 +283,52 @@ function LabelsDataGrid() {
 
       {/* Modify Modal */}
       <ModalBox open={openModifyModal} close={() => setOpenModifyModal(false)}>
-       
-        <h2 data-testid="testEditLabelModal">
-         Modifying label
-        </h2>
- 
-        <ValidatedForm action='./' method="put" validator={validator} defaultValues={{
-              name:selectedName
-            }}>
+        <h2 data-testid="testEditLabelModal">Modifying label</h2>
+
+        <ValidatedForm
+          action="./"
+          method="put"
+          validator={validator}
+          defaultValues={{
+            name: selectedName,
+          }}
+        >
           <Stack spacing={2}>
             <input type="hidden" name="id" value={selectedRowID} />
             <LabeledTextField fullWidth name="name" label="Name" />
             <div>
-              <Button variant="contained" onClick={() => setOpenModifyModal(false)}>
-                  Cancel
-                </Button>
-                &nbsp;
+              <Button
+                variant="contained"
+                onClick={() => setOpenModifyModal(false)}
+              >
+                Cancel
+              </Button>
+              &nbsp;
               <Button type="submit" variant="contained">
-                  Modify
-                </Button>
+                Modify
+              </Button>
             </div>
           </Stack>
         </ValidatedForm>
-
       </ModalBox>
 
       {/* Create Label Modal */}
       <ModalBox open={openCreateModal} close={() => setOpenCreateModal(false)}>
-        <h2 data-testid="testCreateNewLabelModal">
-         Create new label
-        </h2>
-        <ValidatedForm action='./' method="post" validator={validator}>
+        <h2 data-testid="testCreateNewLabelModal">Create new label</h2>
+        <ValidatedForm action="./" method="post" validator={validator}>
           <Stack spacing={2}>
-          <LabeledTextField fullWidth name="name" label="Name" placeholder="Name" />
+            <LabeledTextField
+              fullWidth
+              name="name"
+              label="Name"
+              placeholder="Name"
+            />
 
             <div>
-              <Button variant="contained" onClick={() => setOpenCreateModal(false)}>
+              <Button
+                variant="contained"
+                onClick={() => setOpenCreateModal(false)}
+              >
                 Cancel
               </Button>
               &nbsp;
@@ -328,7 +339,6 @@ function LabelsDataGrid() {
           </Stack>
         </ValidatedForm>
       </ModalBox>
-
     </>
   );
 }
@@ -336,7 +346,7 @@ function LabelsDataGrid() {
 export default LabelsDataGrid;
 
 export function ErrorBoundary() {
-  const error = useRouteError() as Error
+  const error = useRouteError() as Error;
   console.error(error);
 
   if (isRouteErrorResponse(error) && error.status === 404) {
@@ -345,4 +355,3 @@ export function ErrorBoundary() {
 
   return <div>An unexpected error occurred: {error.message}</div>;
 }
-

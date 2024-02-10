@@ -1,20 +1,9 @@
-import { formatDistance } from "date-fns";
-import Markdown from "marked-react";
-import type { ActionFunction, LoaderArgs, V2_MetaFunction } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
-import { useFetcher, useNavigation, useRouteError, isRouteErrorResponse } from "@remix-run/react";
-import { typedjson, useTypedLoaderData } from "remix-typedjson";
-import invariant from "tiny-invariant";
-import { requireProfile, requireUser } from "~/session.server";
-import {
-  getProjectTeamMember,
-  isProjectTeamMember,
-  getProject,
-  getProjects,
-  getProjectResources,
-  updateProjectResources,
-} from "~/models/project.server";
-import { getDistinctResources } from "~/models/resource.server";
+import ContributorPathReport from "../core/components/ContributorPathReport/index";
+import EditSharp from "@mui/icons-material/EditSharp";
+import GitHub from "@mui/icons-material/GitHub";
+import OpenInNew from "@mui/icons-material/OpenInNew";
+import ThumbDownSharp from "@mui/icons-material/ThumbDownSharp";
+import ThumbUpSharp from "@mui/icons-material/ThumbUpSharp";
 import {
   Card,
   CardContent,
@@ -30,33 +19,53 @@ import {
   CardHeader,
   Link,
 } from "@mui/material";
-import EditSharp from "@mui/icons-material/EditSharp";
-import ThumbUpSharp from "@mui/icons-material/ThumbUpSharp";
-import ThumbDownSharp from "@mui/icons-material/ThumbDownSharp";
-import OpenInNew from "@mui/icons-material/OpenInNew";
-import ContributorPathReport from "../core/components/ContributorPathReport/index";
+import type {
+  ActionFunction,
+  LoaderFunctionArgs,
+  MetaFunction,
+} from "@remix-run/node";
+import { redirect } from "@remix-run/node";
+import {
+  useFetcher,
+  useNavigation,
+  useRouteError,
+  isRouteErrorResponse,
+} from "@remix-run/react";
+import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
+import MDEditorStyles from "@uiw/react-md-editor/markdown-editor.css";
+import { formatDistance } from "date-fns";
+import Markdown from "marked-react";
 import { useEffect, useState } from "react";
+import { typedjson, useTypedLoaderData } from "remix-typedjson";
+import { validationError } from "remix-validated-form";
+import invariant from "tiny-invariant";
+import ApplicantsSection from "~/core/components/ApplicantsSection";
+import Comments from "~/core/components/Comments";
 import JoinProjectModal from "~/core/components/JoinProjectModal";
+import MembershipStatusModal from "~/core/components/MembershipStatusModal";
+import RelatedProjectsSection from "~/core/components/RelatedProjectsSection";
+import Resources, { validator } from "~/core/components/Resources";
+import Header from "~/core/layouts/Header";
+import { searchApplicants } from "~/models/applicant.server";
+import { checkPermission } from "~/models/authorization.server";
+import type { Roles } from "~/models/authorization.server";
+import { getComments } from "~/models/comment.server";
+import {
+  getProjectTeamMember,
+  isProjectTeamMember,
+  getProject,
+  getProjects,
+  getProjectResources,
+  updateProjectResources,
+} from "~/models/project.server";
+import { getDistinctResources } from "~/models/resource.server";
 import {
   upvoteProject,
   unvoteProject,
   checkUserVote,
 } from "~/models/votes.server";
-import RelatedProjectsSection from "~/core/components/RelatedProjectsSection";
-import Header from "~/core/layouts/Header";
-import MembershipStatusModal from "~/core/components/MembershipStatusModal";
-import { getComments } from "~/models/comment.server";
-import Comments from "~/core/components/Comments";
-import MDEditorStyles from "@uiw/react-md-editor/markdown-editor.css";
-import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
-import { validationError } from "remix-validated-form";
-import Resources, { validator } from "~/core/components/Resources";
-import { checkPermission } from "~/models/authorization.server";
-import type { Roles } from "~/models/authorization.server";
-import GitHub from '@mui/icons-material/GitHub';
-import { validateNavigationRedirect } from '~/utils';
-import { searchApplicants } from "~/models/applicant.server";
-import ApplicantsSection from "~/core/components/ApplicantsSection";
+import { requireProfile, requireUser } from "~/session.server";
+import { validateNavigationRedirect } from "~/utils";
 
 export function links() {
   return [
@@ -70,7 +79,7 @@ type voteProject = {
   profileId: string;
 };
 
-export const loader = async ({ request, params }: LoaderArgs) => {
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   invariant(params.projectId, "projectId not found");
 
   const project = await getProject({ id: params.projectId });
@@ -172,7 +181,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   }
 };
 
-export const meta: V2_MetaFunction<typeof loader> = ({ data, params }) => {
+export const meta: MetaFunction<typeof loader> = ({ data, params }) => {
   if (!data) {
     return [
       {
@@ -181,7 +190,7 @@ export const meta: V2_MetaFunction<typeof loader> = ({ data, params }) => {
       {
         name: "description",
         content: `There is no Project with the ID of ${params.projectId}. 😢`,
-      }
+      },
     ];
   }
 
@@ -194,7 +203,7 @@ export const meta: V2_MetaFunction<typeof loader> = ({ data, params }) => {
 
 function filterApplicantsByProject(applicants: any, projectId: any) {
   return applicants.filter((applicant: any) =>
-    applicant.appliedProjectsId?.split(',').includes(projectId)
+    applicant.appliedProjectsId?.split(",").includes(projectId)
   );
 }
 
@@ -224,8 +233,11 @@ export default function ProjectDetailsPage() {
     await voteForProject(payload);
     return;
   };
- 
-  const applicantsForCurrentProject = filterApplicantsByProject(applicant, projectId);
+
+  const applicantsForCurrentProject = filterApplicantsByProject(
+    applicant,
+    projectId
+  );
 
   const fetcher = useFetcher();
   const voteForProject = async (values: voteProject) => {
@@ -242,7 +254,7 @@ export default function ProjectDetailsPage() {
 
   const navigation = useNavigation();
   useEffect(() => {
-    const isActionRedirect = validateNavigationRedirect(navigation)
+    const isActionRedirect = validateNavigationRedirect(navigation);
     if (isActionRedirect) {
       setShowJoinModal(false);
       setShowMembershipModal(false);
@@ -488,17 +500,21 @@ export default function ProjectDetailsPage() {
             </Card>
 
             <Card>
-            <CardHeader
-                title="GitHub Statistics" 
+              <CardHeader
+                title="GitHub Statistics"
                 action={
-                  <Button variant="contained" href={`/projects/${project.id}/github-info`} endIcon={<GitHub />}>
+                  <Button
+                    variant="contained"
+                    href={`/projects/${project.id}/github-info`}
+                    endIcon={<GitHub />}
+                  >
                     See Info
-                </Button>
-                }/>
-                
+                  </Button>
+                }
+              />
             </Card>
           </Grid>
-   
+
           <Grid item xs={12} md={4}>
             <Stack direction="column" spacing={1}>
               {project.disciplines && project.disciplines.length > 0 && (
@@ -559,7 +575,7 @@ export default function ProjectDetailsPage() {
           </Grid>
           <Grid item xs={12}></Grid>
         </Grid>
-      </Container>  
+      </Container>
 
       {project.skills && project.skills.length > 0 && (
         <Container sx={{ marginBottom: 2 }}>
@@ -609,8 +625,8 @@ export default function ProjectDetailsPage() {
         handleCloseModal={() => setShowJoinModal(false)}
       />
 
-      <ApplicantsSection 
-        applicantsForCurrentProject={applicantsForCurrentProject} 
+      <ApplicantsSection
+        applicantsForCurrentProject={applicantsForCurrentProject}
       />
 
       <Container>
@@ -634,7 +650,7 @@ export default function ProjectDetailsPage() {
 }
 
 export function ErrorBoundary() {
-  const error = useRouteError() as Error
+  const error = useRouteError() as Error;
 
   if (isRouteErrorResponse(error) && error.status === 404) {
     return <div>Project not found</div>;

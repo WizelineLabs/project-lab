@@ -1,22 +1,40 @@
-import { useState, useEffect } from "react";
-import { useFetcher, useLoaderData, useNavigation, useRouteError, isRouteErrorResponse } from "@remix-run/react";
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
-import {
-  ValidatedForm,
-  useFieldArray,
-} from "remix-validated-form";
-import { withZod } from "@remix-validated-form/with-zod";
-import { zfd } from "zod-form-data";
-import { z } from "zod";
-import { json } from "@remix-run/node";
-import styled from "@emotion/styled";
-import Button from "@mui/material/Button";
-import AddIcon from "@mui/icons-material/Add";
-import EditIcon from "@mui/icons-material/Edit";
-import EastIcon from "@mui/icons-material/East";
-import invariant from "tiny-invariant";
-import { InputSelect } from "app/core/components/InputSelect";
 import ModalBox from "../core/components/ModalBox";
+import styled from "@emotion/styled";
+import AddIcon from "@mui/icons-material/Add";
+import EastIcon from "@mui/icons-material/East";
+import EditIcon from "@mui/icons-material/Edit";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  Container,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableSortLabel,
+} from "@mui/material";
+import Button from "@mui/material/Button";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import {
+  useFetcher,
+  useLoaderData,
+  useNavigation,
+  useRouteError,
+  isRouteErrorResponse,
+} from "@remix-run/react";
+import { withZod } from "@remix-validated-form/with-zod";
+import { InputSelect } from "app/core/components/InputSelect";
+import { useState, useEffect } from "react";
+import { ValidatedForm, useFieldArray } from "remix-validated-form";
+import invariant from "tiny-invariant";
+import { z } from "zod";
+import { zfd } from "zod-form-data";
+import LabeledTextField from "~/core/components/LabeledTextField";
 import {
   getInnovationTiers,
   addInnovationTier,
@@ -24,9 +42,7 @@ import {
   updateInnovationTier,
 } from "~/models/innovationTier.server";
 import { getProjects } from "~/models/project.server";
-import { Card, CardContent, CardHeader, Container, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel } from "@mui/material";
-import LabeledTextField from "~/core/components/LabeledTextField";
-import { validateNavigationRedirect } from '~/utils'
+import { validateNavigationRedirect } from "~/utils";
 
 declare module "@mui/material/Button" {
   interface ButtonPropsColorOverrides {
@@ -59,10 +75,10 @@ type ProjectRecord = {
 const validatorFront = withZod(
   zfd.formData({
     id: z.string().optional(),
-    name: z.string().min(1, { message: "Name is required"}),
-    benefits: z.string().min(1, { message: "Benefits is required"}),
-    goals: z.string().min(1, { message: "Goals is required"}),
-    requisites: z.string().min(1, { message: "Requisites is required"}),
+    name: z.string().min(1, { message: "Name is required" }),
+    benefits: z.string().min(1, { message: "Benefits is required" }),
+    goals: z.string().min(1, { message: "Goals is required" }),
+    requisites: z.string().min(1, { message: "Requisites is required" }),
   })
 );
 
@@ -148,8 +164,8 @@ export const action: ActionFunction = async ({ request }) => {
   }
 };
 
-function InnovationTiersGrid(){
-  const fetcher = useFetcher();
+function InnovationTiersGrid() {
+  const fetcher = useFetcher<typeof action>();
   const { innovationTiers } = useLoaderData() as LoaderData;
   const createButtonText = "Create New Innovation Tier";
   const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
@@ -173,7 +189,7 @@ function InnovationTiersGrid(){
   const navigation = useNavigation();
 
   useEffect(() => {
-    const isActionRedirect = validateNavigationRedirect(navigation)
+    const isActionRedirect = validateNavigationRedirect(navigation);
     if (isActionRedirect) {
       setOpenCreateModal(false);
     }
@@ -233,13 +249,13 @@ function InnovationTiersGrid(){
   const handleEditClick = (id: string) => {
     setSelectedRowID(id);
     setEditMode(true);
-    setOpenCreateModal(true)
-  }
+    setOpenCreateModal(true);
+  };
 
   const handleCreateClick = () => {
     setOpenCreateModal(true);
-    setEditMode(false)
-  }
+    setEditMode(false);
+  };
 
   const handleSubmit = async ({
     projectsIds,
@@ -282,7 +298,6 @@ function InnovationTiersGrid(){
       numeric: false,
       label: "Actions",
     },
-    
   ];
 
   const isMergeAction = projects.length > 0;
@@ -291,113 +306,104 @@ function InnovationTiersGrid(){
     <div>
       <Container sx={{ marginBottom: 2 }}>
         <Card>
-        <CardHeader
-        title="Innovation Tiers"
-        action={
-          <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={() => handleCreateClick()}
-          data-testid="testInnovationCreate"
-        >
-          {createButtonText}
-        </Button>
-        }
-        />
+          <CardHeader
+            title="Innovation Tiers"
+            action={
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<AddIcon />}
+                onClick={() => handleCreateClick()}
+                data-testid="testInnovationCreate"
+              >
+                {createButtonText}
+              </Button>
+            }
+          />
           <CardContent>
             <TableContainer>
               <Table>
                 <TableHead>
-                  {
-                    headCells.map((cell) => (
-                      <TableCell key={cell.id} align="center" padding="normal">
-                        <TableSortLabel>
-                          {cell.label}
-                        </TableSortLabel>
-                      </TableCell>
-                    ))
-                  }
+                  {headCells.map((cell) => (
+                    <TableCell key={cell.id} align="center" padding="normal">
+                      <TableSortLabel>{cell.label}</TableSortLabel>
+                    </TableCell>
+                  ))}
                 </TableHead>
                 <TableBody>
-                  {
-                    rows.map(
-                      (row, index) => {
-                        const labelId = `enhanced-table-checkbox-${index}`;
-                        return (
-                          <TableRow hover tabIndex={0} key={index}>
-                          <TableCell
-                            component="th"
-                            id={labelId}
-                            scope="row"
-                            align="center"
+                  {rows.map((row, index) => {
+                    const labelId = `enhanced-table-checkbox-${index}`;
+                    return (
+                      <TableRow hover tabIndex={0} key={index}>
+                        <TableCell
+                          component="th"
+                          id={labelId}
+                          scope="row"
+                          align="center"
+                        >
+                          {row.name}
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          id={labelId}
+                          scope="row"
+                          align="center"
+                        >
+                          {row.benefits}
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          id={labelId}
+                          scope="row"
+                          align="center"
+                        >
+                          {row.requisites}
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          id={labelId}
+                          scope="row"
+                          align="center"
+                        >
+                          {row.goals}
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          id={labelId}
+                          scope="row"
+                          padding="normal"
+                          align="center"
+                          width="20%"
+                        >
+                          <Button
+                            variant="contained"
+                            color="secondary"
+                            size="small"
+                            onClick={() => handleEditClick(row.id)}
+                            style={{ marginLeft: 16 }}
                           >
-                            {row.name}
-                          </TableCell>
-                          <TableCell
-                            component="th"
-                            id={labelId}
-                            scope="row"
-                            align="center"
+                            <EditIcon color="inherit" />
+                          </Button>
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            size="small"
+                            onClick={() => handleDeleteClick(row.id)}
+                            style={{ marginLeft: 16 }}
+                            data-testid="testInnovationDelete"
                           >
-                            {row.benefits}
-                          </TableCell>
-                          <TableCell
-                            component="th"
-                            id={labelId}
-                            scope="row"
-                            align="center"
-                          >
-                            {row.requisites}
-                          </TableCell>
-                          <TableCell
-                            component="th"
-                            id={labelId}
-                            scope="row"
-                            align="center"
-                          >
-                            {row.goals}
-                          </TableCell>
-                          <TableCell
-                            component="th"
-                            id={labelId}
-                            scope="row"
-                            padding="normal"
-                            align="center"
-                            width="20%"
-                          >
-                            <Button
-                              variant="contained"
-                              color="secondary"
-                              size="small"
-                              onClick={() => handleEditClick(row.id)}
-                              style={{ marginLeft: 16 }}
-                            >
-                              <EditIcon color="inherit" />
-                            </Button>
-                            <Button
-                              variant="contained"
-                              color="primary"
-                              size="small"
-                              onClick={() => handleDeleteClick(row.id)}
-                              style={{ marginLeft: 16 }}
-                              data-testid="testInnovationDelete"
-                            >
-                              <EastIcon color="inherit" />
-                            </Button>
-                          </TableCell>
-                          </TableRow>
-                        )
-                      }
-                    )
-                  }
+                            <EastIcon color="inherit" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </TableContainer>
           </CardContent>
         </Card>
-        </Container>
-
+      </Container>
 
       {/* Confirmation for deletion */}
       <ModalBox
@@ -430,7 +436,7 @@ function InnovationTiersGrid(){
             action="../merge/tiers"
             id="delete-tier-form"
           >
-          <input type="hidden" name="id" value={selectedRowID} />
+            <input type="hidden" name="id" value={selectedRowID} />
 
             {isMergeAction && (
               <InputSelect
@@ -444,10 +450,10 @@ function InnovationTiersGrid(){
             )}
             {items.map((item, idx) => (
               <input
-                key={item}
+                key={item.key}
                 type="hidden"
                 name={`ids[${idx}]`}
-                value={item}
+                value={item.defaultValue}
               />
             ))}
 
@@ -480,48 +486,75 @@ function InnovationTiersGrid(){
         </div>
       </ModalBox>
 
-
       {/* create status Modal */}
       <ModalBox open={openCreateModal} close={() => setOpenCreateModal(false)}>
         <h2 data-testid="testCreateTierModal">
-          {
-            editMode ? "Edit Innovation Tier" + selectedRowID : "Add a new innovation tier"
-          }
+          {editMode
+            ? "Edit Innovation Tier" + selectedRowID
+            : "Add a new innovation tier"}
         </h2>
-        <ValidatedForm action='./' method="post" subaction={ editMode ? "UPDATE" : "ADD" } validator={validatorFront}
-           defaultValues={  editMode ?  rows.find( row => row.name == selectedRowID) : undefined}
+        <ValidatedForm
+          action="./"
+          method="post"
+          subaction={editMode ? "UPDATE" : "ADD"}
+          validator={validatorFront}
+          defaultValues={
+            editMode ? rows.find((row) => row.name == selectedRowID) : undefined
+          }
         >
           <input type="hidden" name="id" value={selectedRowID} />
 
           <Stack spacing={2}>
-          <LabeledTextField fullWidth name="name" label="Name" placeholder="Name" />
+            <LabeledTextField
+              fullWidth
+              name="name"
+              label="Name"
+              placeholder="Name"
+            />
 
-          <LabeledTextField fullWidth name="benefits" label="Benefits" placeholder="Benefits" />
+            <LabeledTextField
+              fullWidth
+              name="benefits"
+              label="Benefits"
+              placeholder="Benefits"
+            />
 
-          <LabeledTextField fullWidth name="requisites" label="Requisites" placeholder="Requisites" />
+            <LabeledTextField
+              fullWidth
+              name="requisites"
+              label="Requisites"
+              placeholder="Requisites"
+            />
 
-          <LabeledTextField fullWidth name="goals" label="Goals" placeholder="Goals" />
-          
-          
-          <div>
-            <Button variant="contained" onClick={() => setOpenCreateModal(false)}>
-              Cancel
-            </Button>
+            <LabeledTextField
+              fullWidth
+              name="goals"
+              label="Goals"
+              placeholder="Goals"
+            />
+
+            <div>
+              <Button
+                variant="contained"
+                onClick={() => setOpenCreateModal(false)}
+              >
+                Cancel
+              </Button>
               &nbsp;
-            <Button type="submit" variant="contained" color="warning">
-              { editMode ? "Update" : "Create"}
-            </Button>
-          </div>
+              <Button type="submit" variant="contained" color="warning">
+                {editMode ? "Update" : "Create"}
+              </Button>
+            </div>
           </Stack>
         </ValidatedForm>
       </ModalBox>
     </div>
   );
-};
+}
 export default InnovationTiersGrid;
 
 export function ErrorBoundary() {
-  const error = useRouteError() as Error
+  const error = useRouteError() as Error;
   console.error(error);
 
   if (isRouteErrorResponse(error) && error.status === 404) {

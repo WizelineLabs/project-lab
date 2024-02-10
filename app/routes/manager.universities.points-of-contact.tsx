@@ -1,28 +1,46 @@
-import { useState, useEffect } from "react";
-import { useLoaderData, useNavigation, useRouteError, isRouteErrorResponse } from "@remix-run/react";
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  Container,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableSortLabel,
+} from "@mui/material";
+import Button from "@mui/material/Button";
+import Chip from "@mui/material/Chip";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import {
+  useLoaderData,
+  useNavigation,
+  useRouteError,
+  isRouteErrorResponse,
+} from "@remix-run/react";
+import { withZod } from "@remix-validated-form/with-zod";
+import { useState, useEffect } from "react";
+import { redirect } from "remix-typedjson";
+import { ValidatedForm, validationError } from "remix-validated-form";
+import invariant from "tiny-invariant";
+import { z } from "zod";
+import InputSelect from "~/core/components/InputSelect";
+import { LabeledCheckbox } from "~/core/components/LabeledCheckbox";
+import LabeledTextField from "~/core/components/LabeledTextField";
+import ModalBox from "~/core/components/ModalBox";
 import {
   getPointsOfContact,
   addPointOfContact,
   updatePointOfContact,
 } from "~/models/pointsOfContact.server";
-import { Card, CardContent, CardHeader, Container, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel } from "@mui/material";
-import { ValidatedForm, validationError } from "remix-validated-form";
-import { z } from "zod";
-import { withZod } from "@remix-validated-form/with-zod";
-import ModalBox from "~/core/components/ModalBox";
-import LabeledTextField from "~/core/components/LabeledTextField";
-import { redirect } from "remix-typedjson";
-import invariant from "tiny-invariant";
-import { validateNavigationRedirect } from '~/utils'
 import { getUniversities } from "~/models/university.server";
-import InputSelect from "~/core/components/InputSelect";
-import Chip from '@mui/material/Chip';
-import { LabeledCheckbox } from "~/core/components/LabeledCheckbox";
+import { validateNavigationRedirect } from "~/utils";
 
 declare module "@mui/material/Button" {
   interface ButtonPropsColorOverrides {
@@ -34,27 +52,27 @@ declare module "@mui/material/Button" {
 export const validator = withZod(
   z.object({
     id: z.string().optional(),
-    fullName: z
-      .string()
-      .min(1, { message: "Name is required" }),
-    university: z.object({
-      name: z.string().min(1),
-    }).required(),
-    active: z.string().optional()
+    fullName: z.string().min(1, { message: "Name is required" }),
+    university: z
+      .object({
+        name: z.string().min(1),
+      })
+      .required(),
+    active: z.string().optional(),
   })
 );
 
 type PointOfContact = {
-  id: string ;
+  id: string;
   fullName: string;
   university: {
-    name: string
+    name: string;
   } | null;
   active: boolean;
 };
 
 type PointOfContactRecord = {
-  id: string ;
+  id: string;
   fullName: string;
   university: string | null;
   active: boolean;
@@ -70,49 +88,52 @@ export const loader: LoaderFunction = async ({ request }) => {
   const universities = await getUniversities();
   return json<LoaderData>({
     pointsOfContact,
-    universities
+    universities,
   });
 };
 
 export const action: ActionFunction = async ({ request }) => {
-  
   const result = await validator.validate(await request.formData());
   const id = result.data?.id;
   const name = result.data?.fullName as string;
   const active = (result.data?.active as string) == "on";
-  const university = result.data?.university as {id: string, name:string};
+  const university = result.data?.university as { id: string; name: string };
   if (result.error != undefined) return validationError(result.error);
 
-  if(request.method == "POST") {   
-      const response = await addPointOfContact({ 
-        fullName: name,
-        university: {
-          connectOrCreate: {
-            create: {
-              name: university?.name ?? "",
-            },
-            where: {
-              name: university?.name
-            }, 
-          }
-        }
-      });
-      return json(response, { status: 201 });
-  } 
+  if (request.method == "POST") {
+    const response = await addPointOfContact({
+      fullName: name,
+      university: {
+        connectOrCreate: {
+          create: {
+            name: university?.name ?? "",
+          },
+          where: {
+            name: university?.name,
+          },
+        },
+      },
+    });
+    return json(response, { status: 201 });
+  }
 
-  if( request.method == 'PUT') {
-    if(id){
-      try{
-        await updatePointOfContact({id, fullName : name, university: university.name, active})
+  if (request.method == "PUT") {
+    if (id) {
+      try {
+        await updatePointOfContact({
+          id,
+          fullName: name,
+          university: university.name,
+          active,
+        });
         return redirect("./");
       } catch (e) {
         throw e;
       }
-    }else{
+    } else {
       invariant(id, "University Id is required");
     }
   }
- 
 };
 
 function PointOfContactDataGrid() {
@@ -126,10 +147,10 @@ function PointOfContactDataGrid() {
         id: item.id,
         fullName: item.fullName,
         university: item.university ? item.university.name : null,
-        active: item.active              
+        active: item.active,
       }))
     );
-  }, [pointsOfContact]);  
+  }, [pointsOfContact]);
 
   const [openCreateModal, setOpenCreateModal] = useState<boolean>(false);
   const [openModifyModal, setOpenModifyModal] = useState<boolean>(false);
@@ -141,7 +162,7 @@ function PointOfContactDataGrid() {
   const navigation = useNavigation();
 
   useEffect(() => {
-    const isActionRedirect = validateNavigationRedirect(navigation)
+    const isActionRedirect = validateNavigationRedirect(navigation);
     if (isActionRedirect) {
       setOpenCreateModal(false);
       setOpenModifyModal(false);
@@ -152,13 +173,18 @@ function PointOfContactDataGrid() {
     setOpenCreateModal(() => true);
   };
 
-  const handleModifyClick = (id: string, name: string, university : any, active: boolean) => {
+  const handleModifyClick = (
+    id: string,
+    name: string,
+    university: any,
+    active: boolean
+  ) => {
     setSelectedRowID(() => id);
     setSelectedName(() => name);
     setSelectedActive(() => active);
     setSelectedUniversity(() => university);
     setOpenModifyModal(() => true);
-  }
+  };
 
   interface HeadUniversitiesData {
     id: keyof PointOfContactRecord;
@@ -173,13 +199,13 @@ function PointOfContactDataGrid() {
       id: "fullName",
       numeric: false,
       label: "Name",
-      align: "left"
+      align: "left",
     },
     {
       id: "university",
       numeric: false,
       label: "University",
-      align: "left"
+      align: "left",
     },
     {
       id: "active",
@@ -192,49 +218,48 @@ function PointOfContactDataGrid() {
       id: "id",
       numeric: false,
       label: "Actions",
-      align: "right"
+      align: "right",
     },
   ];
 
-
   return (
     <>
-    <Container sx={{ marginBottom: 2 }}>
-    <Card>
-      <CardHeader
-        title="Points of Contact"
-        action={
-          <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={() => handleAddClick()}
-          data-testid="testPoCCreate"
-        >
-          {createButtonText}
-        </Button>
-        }
-      />
-      <CardContent>
-      <TableContainer>
-        <Table>
-          <TableHead>
-            <TableRow>
-              {headCells.map((cell) => (
-                  <TableCell key={cell.id} align={cell.align} padding="normal">
-                    <TableSortLabel >
-                      {cell.label}
-                    </TableSortLabel>
-                  </TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {
-                rows.map(
-                  (row, index) => {
+      <Container sx={{ marginBottom: 2 }}>
+        <Card>
+          <CardHeader
+            title="Points of Contact"
+            action={
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<AddIcon />}
+                onClick={() => handleAddClick()}
+                data-testid="testPoCCreate"
+              >
+                {createButtonText}
+              </Button>
+            }
+          />
+          <CardContent>
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    {headCells.map((cell) => (
+                      <TableCell
+                        key={cell.id}
+                        align={cell.align}
+                        padding="normal"
+                      >
+                        <TableSortLabel>{cell.label}</TableSortLabel>
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {rows.map((row, index) => {
                     const pointOfContactId = `enhanced-table-checkbox-${index}`;
-  
+
                     return (
                       <TableRow hover tabIndex={0} key={index}>
                         <TableCell
@@ -259,16 +284,23 @@ function PointOfContactDataGrid() {
                           scope="row"
                           align="center"
                         >
-                          <Chip label={row.active ? "ACTIVE" : "INACTIVE"} disabled={!row.active}></Chip>
+                          <Chip
+                            label={row.active ? "ACTIVE" : "INACTIVE"}
+                            disabled={!row.active}
+                          ></Chip>
                         </TableCell>
-                        <TableCell
-                         component="th"
-                         scope="row"
-                         align="right">
-                            <Button
+                        <TableCell component="th" scope="row" align="right">
+                          <Button
                             variant="contained"
                             size="small"
-                            onClick={() => handleModifyClick(row.id, row.fullName, row.university, row.active)}
+                            onClick={() =>
+                              handleModifyClick(
+                                row.id,
+                                row.fullName,
+                                row.university,
+                                row.active
+                              )
+                            }
                             style={{ marginLeft: 16 }}
                             data-testid="testPointOfContactEdit"
                           >
@@ -276,66 +308,82 @@ function PointOfContactDataGrid() {
                           </Button>
                         </TableCell>
                       </TableRow>
-                    )}
-              )
-            }
-            </TableBody>
-        </Table>
-      </TableContainer>
-      </CardContent>
-      </Card>
-    </Container>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </CardContent>
+        </Card>
+      </Container>
       {/* Modify Modal */}
       <ModalBox open={openModifyModal} close={() => setOpenModifyModal(false)}>
-       
         <h2 data-testid="testEditUniversityModal">
-         Modifying point of contact
+          Modifying point of contact
         </h2>
- 
-        <ValidatedForm action='./' method="put" validator={validator} defaultValues={{
-              fullName:selectedName,
-              active: selectedActive ? "on" : "",
-              university: {name: selectedUniversity}
-            }}>
+
+        <ValidatedForm
+          action="./"
+          method="put"
+          validator={validator}
+          defaultValues={{
+            fullName: selectedName,
+            active: selectedActive ? "on" : "",
+            university: { name: selectedUniversity },
+          }}
+        >
           <Stack spacing={2}>
             <input type="hidden" name="id" value={selectedRowID} />
-            <LabeledTextField fullWidth name="fullName" label="Name" placeholder="Name" />
+            <LabeledTextField
+              fullWidth
+              name="fullName"
+              label="Name"
+              placeholder="Name"
+            />
             <InputSelect
               valuesList={universities || []}
               name="university"
               label="University"
             />
-            <LabeledCheckbox name="active" label="Active"/>
+            <LabeledCheckbox name="active" label="Active" />
 
             <div>
-              <Button variant="contained" onClick={() => setOpenModifyModal(false)}>
-                  Cancel
-                </Button>
-                &nbsp;
+              <Button
+                variant="contained"
+                onClick={() => setOpenModifyModal(false)}
+              >
+                Cancel
+              </Button>
+              &nbsp;
               <Button type="submit" variant="contained">
-                  Modify
-                </Button>
+                Modify
+              </Button>
             </div>
           </Stack>
         </ValidatedForm>
-
       </ModalBox>
 
       {/* Create University Modal */}
       <ModalBox open={openCreateModal} close={() => setOpenCreateModal(false)}>
-        <h2 data-testid="testCreateNewUniversityModal">
-        {createButtonText}
-        </h2>
-        <ValidatedForm action='./' method="post" validator={validator}>
+        <h2 data-testid="testCreateNewUniversityModal">{createButtonText}</h2>
+        <ValidatedForm action="./" method="post" validator={validator}>
           <Stack spacing={2}>
-            <LabeledTextField fullWidth name="fullName" label="Name" placeholder="Name" />
+            <LabeledTextField
+              fullWidth
+              name="fullName"
+              label="Name"
+              placeholder="Name"
+            />
             <InputSelect
               valuesList={universities || []}
               name="university"
               label="University"
             />
             <div>
-              <Button variant="contained" onClick={() => setOpenCreateModal(false)}>
+              <Button
+                variant="contained"
+                onClick={() => setOpenCreateModal(false)}
+              >
                 Cancel
               </Button>
               &nbsp;
@@ -346,7 +394,6 @@ function PointOfContactDataGrid() {
           </Stack>
         </ValidatedForm>
       </ModalBox>
-
     </>
   );
 }
@@ -354,7 +401,7 @@ function PointOfContactDataGrid() {
 export default PointOfContactDataGrid;
 
 export function ErrorBoundary() {
-  const error = useRouteError() as Error
+  const error = useRouteError() as Error;
   console.error(error);
 
   if (isRouteErrorResponse(error) && error.status === 404) {
@@ -363,4 +410,3 @@ export function ErrorBoundary() {
 
   return <div>An unexpected error occurred: {error.message}</div>;
 }
-

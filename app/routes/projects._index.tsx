@@ -1,9 +1,8 @@
-import * as React from "react";
-import { useState } from "react";
-import type { LoaderFunction } from "@remix-run/node";
-import { useLoaderData, useSearchParams } from "@remix-run/react";
-import ProposalCard from "app/core/components/ProposalCard";
-import Header from "app/core/layouts/Header";
+import CloseIcon from "@mui/icons-material/Close";
+import FilterAltIcon from "@mui/icons-material/FilterAlt";
+import HighlightOffIcon from "@mui/icons-material/HighlightOff";
+import ViewListIcon from "@mui/icons-material/ViewList";
+import ViewModuleIcon from "@mui/icons-material/ViewModule";
 import {
   Box,
   Button,
@@ -16,26 +15,27 @@ import {
   useTheme,
   Pagination,
 } from "@mui/material";
-import HighlightOffIcon from "@mui/icons-material/HighlightOff";
-import FilterAltIcon from "@mui/icons-material/FilterAlt";
-import CloseIcon from "@mui/icons-material/Close";
-import { SortInput } from "app/core/components/SortInput";
-import { getProjectMembership, searchProjects } from "~/models/project.server";
-import { requireProfile } from "~/session.server";
-import type { ProjectStatus } from "~/models/status.server";
-import { getProjectStatuses } from "~/models/status.server";
-import { ongoingStage, ideaStage } from "~/constants";
-import Link from "~/core/components/Link";
-import ViewModuleIcon from "@mui/icons-material/ViewModule";
-import ViewListIcon from "@mui/icons-material/ViewList";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import MembershipModal from "~/core/components/MembershipModal/index";
+import type { LoaderFunction } from "@remix-run/node";
+import { useLoaderData, useSearchParams } from "@remix-run/react";
+import ProposalCard from "app/core/components/ProposalCard";
+import { SortInput } from "app/core/components/SortInput";
+import Header from "app/core/layouts/Header";
+import * as React from "react";
+import { useState } from "react";
+import { ongoingStage, ideaStage } from "~/constants";
 import FilterAccordion from "~/core/components/FilterAccordion";
+import Link from "~/core/components/Link";
+import MembershipModal from "~/core/components/MembershipModal/index";
 import NavAppBar from "~/core/components/NavAppBar";
+import { getProjectMembership, searchProjects } from "~/models/project.server";
+import type { ProjectStatus } from "~/models/status.server";
+import { getProjectStatuses } from "~/models/status.server";
+import { requireProfile } from "~/session.server";
 
 export interface projectMembership {
   active: boolean;

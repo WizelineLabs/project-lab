@@ -1,9 +1,7 @@
+import { CompleteIcon, IncompleteIcon } from "./ContributorPathReport.styles";
 import CheckSharpIcon from "@mui/icons-material/CheckSharp";
 import ClearSharpIcon from "@mui/icons-material/ClearSharp";
 import EditSharp from "@mui/icons-material/EditSharp";
-import { CompleteIcon, IncompleteIcon } from "./ContributorPathReport.styles";
-
-import type { ProjectMember } from "~/core/interfaces/ContributorPathReport";
 import {
   Card,
   CardContent,
@@ -22,6 +20,7 @@ import {
   Chip,
 } from "@mui/material";
 import { useEffect, useState } from "react";
+import type { ProjectMember } from "~/core/interfaces/ContributorPathReport";
 
 interface IProps {
   project: any;
@@ -241,19 +240,17 @@ export const ContributorPathReport = ({ project, canEditProject }: IProps) => {
                           {row.name}
                         </Button>
                       </TableCell>
-                      <TableCell align="left" sx={{width: ""}}>
-                        {
-                          row.role.map((item, index) => (
-                            <Chip
-                              key={index}
-                              component="a"
-                              href={`/projects?role=${item}`}
-                              clickable
-                              label={item}
-                              sx={{ marginRight: 1, marginBottom: 1 }}
-                            />
-                          ))
-                        }
+                      <TableCell align="left" sx={{ width: "" }}>
+                        {row.role.map((item, index) => (
+                          <Chip
+                            key={index}
+                            component="a"
+                            href={`/projects?role=${item}`}
+                            clickable
+                            label={item}
+                            sx={{ marginRight: 1, marginBottom: 1 }}
+                          />
+                        ))}
                       </TableCell>
                       <TableCell align="center">
                         <Grid

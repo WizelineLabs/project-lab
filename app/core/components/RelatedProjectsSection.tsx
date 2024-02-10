@@ -1,4 +1,5 @@
-import { useNavigation } from "@remix-run/react";
+import Link from "./Link";
+import { EditSharp, Close } from "@mui/icons-material";
 import {
   Autocomplete,
   TextField,
@@ -10,15 +11,13 @@ import {
   CardHeader,
   CardContent,
 } from "@mui/material";
-import { EditSharp, Close } from "@mui/icons-material";
+import { useNavigation } from "@remix-run/react";
+import { withZod } from "@remix-validated-form/with-zod";
 import { useEffect, useState } from "react";
 import { useField, ValidatedForm } from "remix-validated-form";
-import { withZod } from "@remix-validated-form/with-zod";
-import { zfd } from "zod-form-data";
 import { z } from "zod";
-import Link from "./Link";
-import { validateNavigationRedirect } from '~/utils'
-
+import { zfd } from "zod-form-data";
+import { validateNavigationRedirect } from "~/utils";
 
 type ProjectValue = {
   id: string;
@@ -59,7 +58,7 @@ function RelatedProjectsSection({
   const navigation = useNavigation();
 
   useEffect(() => {
-    const isActionRedirect = validateNavigationRedirect(navigation)
+    const isActionRedirect = validateNavigationRedirect(navigation);
     if (isActionRedirect) {
       setIsEditActive(false);
     }

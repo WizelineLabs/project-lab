@@ -6,18 +6,18 @@ import {
   Button,
   Box,
 } from "@mui/material";
+import type { ProjectStatus } from "@prisma/client";
 import { useState } from "react";
-import { MultiUrl } from "~/core/components/MultiUrl";
+import { useControlField, useIsSubmitting } from "remix-validated-form";
 import DisciplinesSelect from "~/core/components/DisciplinesSelect";
+import InputSelect from "~/core/components/InputSelect";
 import LabeledTextField from "~/core/components/LabeledTextField";
 import LabeledTextFieldArea from "~/core/components/LabeledTextFieldArea";
-import TextEditor from "~/core/components/TextEditor";
-import InputSelect from "~/core/components/InputSelect";
-import SkillsSelect from "~/core/components/SkillsSelect";
 import LabelsSelect from "~/core/components/LabelsSelect";
+import { MultiUrl } from "~/core/components/MultiUrl";
 import ProjectOwnerField from "~/core/components/ProjectOwnerField";
-import { useControlField, useIsSubmitting } from "remix-validated-form";
-import type { ProjectStatus } from "@prisma/client";
+import SkillsSelect from "~/core/components/SkillsSelect";
+import TextEditor from "~/core/components/TextEditor";
 import type { getInnovationTiers } from "~/models/innovationTier.server";
 
 export function ProjectForm({
@@ -53,10 +53,7 @@ export function ProjectForm({
         placeholder={"Explain us your proposal..."}
       />
 
-      <LabelsSelect
-        name="labels"
-        label="Labels"
-      />
+      <LabelsSelect name="labels" label="Labels" />
 
       {projectformType === "create" && (
         <FormControlLabel
@@ -73,7 +70,7 @@ export function ProjectForm({
         />
       )}
 
-      {projectformType !== "create" && ( 
+      {projectformType !== "create" && (
         <InputSelect
           valuesList={statuses || []}
           name="projectStatus"
@@ -81,7 +78,7 @@ export function ProjectForm({
         />
       )}
 
-      {projectformType !== "create" && ( 
+      {projectformType !== "create" && (
         <InputSelect
           valuesList={tiers || []}
           name="innovationTiers"
@@ -122,10 +119,7 @@ export function ProjectForm({
             placeholder="Type the link to your board to add it to your project."
           />
 
-          <SkillsSelect 
-            name="skills"
-            label="Skills"
-          />
+          <SkillsSelect name="skills" label="Skills" />
 
           <FormControlLabel
             control={
@@ -142,10 +136,7 @@ export function ProjectForm({
           />
 
           <Collapse in={helpWanted}>
-            <DisciplinesSelect 
-              name="disciplines"
-              label="Looking for..."
-            />
+            <DisciplinesSelect name="disciplines" label="Looking for..." />
           </Collapse>
         </Stack>
       </Collapse>

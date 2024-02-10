@@ -1,17 +1,17 @@
-import { useState } from "react";
+import ModalBox from "./ModalBox";
+import { Button } from "@mui/material";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import type { SelectChangeEvent } from "@mui/material/Select";
-import type { ProjectComplete } from "~/models/project.server";
 import type { ProjectMembers } from "@prisma/client";
 import { withZod } from "@remix-validated-form/with-zod";
-import { zfd } from "zod-form-data";
-import { z } from "zod";
+import { useState } from "react";
 import { ValidatedForm } from "remix-validated-form";
-import ModalBox from "./ModalBox";
-import { Button } from "@mui/material";
+import { z } from "zod";
+import { zfd } from "zod-form-data";
+import type { ProjectComplete } from "~/models/project.server";
 
 interface IProps {
   close: () => void;

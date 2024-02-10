@@ -6,8 +6,8 @@ import {
   CardHeader,
   Avatar,
   Link,
-  CardContent
-} from '@mui/material';
+  CardContent,
+} from "@mui/material";
 
 interface Applicant {
   id: string;
@@ -33,11 +33,19 @@ const ApplicantsComponent = ({ applicantsForCurrentProject }: Props) => {
       <Grid container spacing={2}>
         {applicantsForCurrentProject.map((applicantData) => (
           <Grid item xs={12} sm={6} md={6} lg={6} xl={6} key={applicantData.id}>
-            <Card variant="outlined" sx={{ height: '100%' }}>
+            <Card variant="outlined" sx={{ height: "100%" }}>
               <CardHeader
-                avatar={<Avatar alt={applicantData.fullName} src={applicantData.avatarApplicant} />}
+                avatar={
+                  <Avatar
+                    alt={applicantData.fullName}
+                    src={applicantData.avatarApplicant}
+                  />
+                }
                 title={
-                  <Link href={`/applicants/${applicantData.id}`} underline="none">
+                  <Link
+                    href={`/applicants/${applicantData.id}`}
+                    underline="none"
+                  >
                     <Typography variant="h6" component="div">
                       {applicantData.fullName}
                     </Typography>
@@ -50,10 +58,16 @@ const ApplicantsComponent = ({ applicantsForCurrentProject }: Props) => {
                 }
               />
               <CardContent>
-                <Typography sx={{ textAlign: 'justify', marginBottom: '15px', marginX: '5px' }}>
+                <Typography
+                  sx={{
+                    textAlign: "justify",
+                    marginBottom: "15px",
+                    marginX: "5px",
+                  }}
+                >
                   {applicantData.experience}
                 </Typography>
-                <Typography sx={{ textAlign: 'center' }}>
+                <Typography sx={{ textAlign: "center" }}>
                   <Link href={applicantData.cvLink} underline="none">
                     {applicantData.cvLink}
                   </Link>

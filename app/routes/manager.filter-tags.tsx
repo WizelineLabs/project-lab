@@ -1,34 +1,35 @@
-import { useState } from "react"
-import type { V2_MetaFunction, LoaderFunction } from "@remix-run/node"
-import { useLoaderData, Outlet } from "@remix-run/react"
-import { redirect, json } from "@remix-run/node"
-import { LinkTabStyles, EditPanelsStyles, BoxStyles } from "./manager.styles"
+import { LinkTabStyles, EditPanelsStyles, BoxStyles } from "./manager.styles";
+import type { MetaFunction, LoaderFunction } from "@remix-run/node";
+import { redirect, json } from "@remix-run/node";
+import { useLoaderData, Outlet } from "@remix-run/react";
+import { useState } from "react";
 
 export const loader: LoaderFunction = async ({ request }) => {
-  let initialTabIdx = 0
-  if (request.url.includes("statuses")) initialTabIdx = 1
-  if (request.url.includes("innovation-tiers")) initialTabIdx = 2
-  const url = new URL(request.url)
-  if (url.pathname === "/manager/filter-tags") return redirect("/manager/filter-tags/labels")
+  let initialTabIdx = 0;
+  if (request.url.includes("statuses")) initialTabIdx = 1;
+  if (request.url.includes("innovation-tiers")) initialTabIdx = 2;
+  const url = new URL(request.url);
+  if (url.pathname === "/manager/filter-tags")
+    return redirect("/manager/filter-tags/labels");
   return json({
     initialTabIdx,
-  })
-}
+  });
+};
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return [
     { title: "Wizelabs - Filter Tags" },
     { name: "description", content: "This is the Manager's Filter Tags Tab" },
-  ]
-}
+  ];
+};
 
 const FilterTagsPage = () => {
-  const { initialTabIdx } = useLoaderData()
-  const [tabIndex, setTabIndex] = useState(initialTabIdx)
+  const { initialTabIdx } = useLoaderData<typeof loader>();
+  const [tabIndex, setTabIndex] = useState(initialTabIdx);
 
   const handleChangeTab = (num: number) => {
-    setTabIndex(num)
-  }
+    setTabIndex(num);
+  };
 
   return (
     <EditPanelsStyles>
@@ -57,7 +58,7 @@ const FilterTagsPage = () => {
       </BoxStyles>
       <Outlet />
     </EditPanelsStyles>
-  )
-}
+  );
+};
 
-export default FilterTagsPage
+export default FilterTagsPage;

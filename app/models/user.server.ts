@@ -16,7 +16,7 @@ export async function findOrCreate(create: {
   name: User["name"];
   role: User["role"];
 }) {
-  const update = { ...create, role: undefined }
+  const update = { ...create, role: undefined };
   return prisma.user.upsert({
     where: { email: create.email },
     create,
@@ -41,7 +41,7 @@ export async function getAdminUsers() {
 export async function addAdminUser({ email }: { email: string }) {
   const profileUser = await prisma.profiles.findFirst({ where: { email } });
   if (!profileUser) {
-    return { error: "User not found in WOS" }
+    return { error: "User not found in WOS" };
   }
   try {
     const user = await prisma.user.upsert({
@@ -54,15 +54,15 @@ export async function addAdminUser({ email }: { email: string }) {
     });
     return { user, error: "" };
   } catch (e) {
-    throw new Error(JSON.stringify(e))
+    throw new Error(JSON.stringify(e));
   }
 }
 
 export async function removeAdminUser({ id }: { id: string }) {
   try {
-    await prisma.user.update({ where: { id }, data: { role: "USER" } })
+    await prisma.user.update({ where: { id }, data: { role: "USER" } });
     return { error: "" };
   } catch (e) {
-    throw new Error(JSON.stringify(e))
+    throw new Error(JSON.stringify(e));
   }
 }

@@ -1,5 +1,5 @@
-import { Typography, Grid } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
+import { Typography, Grid } from "@mui/material";
 
 function HomeInfo({
   icon = <HomeIcon />,

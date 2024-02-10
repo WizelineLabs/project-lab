@@ -1,4 +1,16 @@
-import Header from "app/core/layouts/Header";
+import {
+  getGitHubProfileByEmail,
+  getGitHubProjectsByEmail,
+  getFullProfileByEmail,
+  updateGithubUser,
+} from "../models/profile.server";
+import BusinessIcon from "@mui/icons-material/Business";
+import EditSharp from "@mui/icons-material/EditSharp";
+import GitHubIcon from "@mui/icons-material/GitHub";
+import GroupsIcon from "@mui/icons-material/Groups";
+import PlaceIcon from "@mui/icons-material/Place";
+import SaveIcon from "@mui/icons-material/Save";
+import WorkIcon from "@mui/icons-material/Work";
 import {
   Box,
   Container,
@@ -20,35 +32,19 @@ import {
 } from "@mui/material";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import GroupsIcon from "@mui/icons-material/Groups";
-import BusinessIcon from "@mui/icons-material/Business";
-import PlaceIcon from "@mui/icons-material/Place";
-import WorkIcon from "@mui/icons-material/Work";
-import GitHubIcon from "@mui/icons-material/GitHub";
-import EditSharp from "@mui/icons-material/EditSharp";
-import SaveIcon from "@mui/icons-material/Save";
-import {
-  getGitHubProfileByEmail,
-  getGitHubProjectsByEmail,
-  getFullProfileByEmail,
-  updateGithubUser,
-} from "../models/profile.server";
+import type { LoaderFunction, ActionFunction } from "@remix-run/node";
+import { useLoaderData, useNavigation, useSubmit } from "@remix-run/react";
+import { withZod } from "@remix-validated-form/with-zod";
 import { adminRoleName } from "app/constants";
-import { useLoaderData, useSubmit, useTransition } from "@remix-run/react";
-import type {
-  LoaderArgs,
-  LoaderFunction,
-  ActionFunction,
-} from "@remix-run/node";
-import invariant from "tiny-invariant";
-import { z } from "zod";
-import { requireProfile, requireUser } from "~/session.server";
-import { createExperience } from "~/models/experience.server";
+import Header from "app/core/layouts/Header";
+import { useState } from "react";
 import { redirect } from "remix-typedjson";
 import { ValidatedForm, useField, validationError } from "remix-validated-form";
-import { withZod } from "@remix-validated-form/with-zod";
+import invariant from "tiny-invariant";
+import { z } from "zod";
 import { zfd } from "zod-form-data";
-import { useState } from "react";
+import { createExperience } from "~/models/experience.server";
+import { requireProfile, requireUser } from "~/session.server";
 
 type LoaderData = {
   profileData: Awaited<ReturnType<typeof getFullProfileByEmail>>;
@@ -64,10 +60,7 @@ type LoaderData = {
   canEdit: boolean;
 };
 
-export const loader: LoaderFunction = async ({
-  request,
-  params,
-}: LoaderArgs) => {
+export const loader: LoaderFunction = async ({ request, params }) => {
   try {
     invariant(params.email, "email could not be found");
     const email = params.email;
@@ -160,7 +153,7 @@ export const ProfileInfo = () => {
   const { profileData, githubProjects, canEdit } = useLoaderData<LoaderData>();
   const theme = useTheme();
   const lessThanMd = useMediaQuery(theme.breakpoints.down("md"));
-  const trasition = useTransition();
+  const navigation = useNavigation();
   const submit = useSubmit();
   const { error: githubUsererror, getInputProps } = useField("githubUser", {
     formId: "updateGithubUserForm",
@@ -483,9 +476,9 @@ export const ProfileInfo = () => {
                         fontSize: "1em",
                         marginTop: "15px",
                       }}
-                      disabled={!!trasition.submission}
+                      disabled={navigation.state !== "idle"}
                     >
-                      {trasition.submission
+                      {navigation.state !== "idle"
                         ? "Saving experience..."
                         : "Save experience"}
                     </Button>

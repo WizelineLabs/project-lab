@@ -4,7 +4,6 @@ import { PrismaClient } from "@prisma/client";
 
 const db = new PrismaClient();
 
-
 // export async function searchLastUpdateProjects() {
 
 //     const lastUpdate =  await prisma.$queryRaw<any[]>`SELECT DISTINCT p."id", p."name", p."projectBoard", MAX(ga.created_at) from "Projects" p
@@ -13,21 +12,29 @@ const db = new PrismaClient();
 //         GROUP BY p."id", p."name", p."projectBoard"
 //         `;
 
-
 // } I will use it later jeje
 
 export async function getGitHubActivity() {
-    const projectsBoards = await db.$queryRaw<any[]>`
+  const projectsBoards = await db.$queryRaw<any[]>`
         SELECT p."id", p."name", r.url from "Projects" p
         RIGHT JOIN "Repos" r on p."id" = r."projectId"
         WHERE p."isArchived" = FALSE and r."url" is not null
     `;
 
-    try{
-        projectsBoards.map(async board => await getActivity(board.url, board.id).catch((e) => {throw(e)}) );
-        projectsBoards.map(async board => await getReleasesList(board.url, board.id).catch((e) => {throw(e)}) );
-    }catch(e){
-        throw (e);
-    }
-
+  try {
+    projectsBoards.map(
+      async (board) =>
+        await getActivity(board.url, board.id).catch((e) => {
+          throw e;
+        })
+    );
+    projectsBoards.map(
+      async (board) =>
+        await getReleasesList(board.url, board.id).catch((e) => {
+          throw e;
+        })
+    );
+  } catch (e) {
+    throw e;
+  }
 }

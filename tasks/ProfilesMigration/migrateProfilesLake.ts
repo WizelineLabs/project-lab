@@ -1,5 +1,5 @@
-import { PrismaClient } from "@prisma/client";
 import { migrateProfiles } from "../../app/profileMigration.server";
+import { PrismaClient } from "@prisma/client";
 
 const db = new PrismaClient();
 

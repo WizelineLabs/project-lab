@@ -1,3 +1,7 @@
+import CloseIcon from "@mui/icons-material/Close";
+import FilterAltIcon from "@mui/icons-material/FilterAlt";
+import HighlightOffIcon from "@mui/icons-material/HighlightOff";
+import SearchIcon from "@mui/icons-material/Search";
 import {
   Avatar,
   Box,
@@ -19,18 +23,14 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { useState } from "react";
 import type { LoaderFunction } from "@remix-run/node";
-import CloseIcon from "@mui/icons-material/Close";
-import FilterAltIcon from "@mui/icons-material/FilterAlt";
-import HighlightOffIcon from "@mui/icons-material/HighlightOff";
-import SearchIcon from "@mui/icons-material/Search";
+import { useLoaderData, useNavigate, useSearchParams } from "@remix-run/react";
+import { useState } from "react";
+import FilterAccordion from "~/core/components/FilterAccordion";
 import Link from "~/core/components/Link";
+import NavAppBar from "~/core/components/NavAppBar";
 import Header from "~/core/layouts/Header";
 import { searchProfilesFull } from "~/models/profile.server";
-import { useLoaderData, useNavigate, useSearchParams } from "@remix-run/react";
-import FilterAccordion from "~/core/components/FilterAccordion";
-import NavAppBar from "~/core/components/NavAppBar";
 
 const stringToColor = (string: string) => {
   let hash = 0;

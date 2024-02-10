@@ -1,5 +1,5 @@
 import { PrismaClient, Prisma } from "@prisma/client";
-import type { Sql } from "@prisma/client/runtime";
+import { Sql } from "@prisma/client/runtime/library";
 
 let prisma: PrismaClient;
 

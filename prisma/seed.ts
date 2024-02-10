@@ -1,6 +1,6 @@
+import seedProd from "./seeds.prod";
 import { PrismaClient } from "@prisma/client";
 import { contributorPath } from "app/constants";
-import seedProd from "./seeds.prod";
 
 const db = new PrismaClient();
 
@@ -256,7 +256,7 @@ async function seed() {
       department: "Engineering",
     },
   });
-    await db.profiles.upsert({
+  await db.profiles.upsert({
     where: { email: "pablo.aversa@wizeline.com" },
     update: {},
     create: {
@@ -574,7 +574,7 @@ async function seed() {
       firstName: "Axel",
       preferredName: "Axel",
       lastName: "Uzeta",
-      department: "Engineering"
+      department: "Engineering",
     },
   });
   await db.profiles.upsert({
@@ -596,7 +596,7 @@ async function seed() {
       firstName: "Paola",
       preferredName: "Pao",
       lastName: "Santollo",
-      department: "Engineering"
+      department: "Engineering",
     },
   });
   await db.profiles.upsert({
@@ -609,7 +609,7 @@ async function seed() {
       department: "Engineering",
       preferredName: "Betty",
     },
-  })
+  });
   console.info("Profiles created, starting projects upsert");
 
   const pH = await db.projects.upsert({

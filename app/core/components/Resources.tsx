@@ -1,3 +1,4 @@
+import { EditSharp, Close, Delete } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -7,19 +8,18 @@ import {
   Grid,
   IconButton,
 } from "@mui/material";
-import { EditSharp, Close, Delete } from "@mui/icons-material";
-import { useState } from "react";
+import type { Prisma } from "@prisma/client";
 import { useSubmit, useNavigation } from "@remix-run/react";
-import { zfd } from "zod-form-data";
 import { withZod } from "@remix-validated-form/with-zod";
-import { z } from "zod";
-import SimpleAutocompleteField from "~/core/components/SimpleAutocompleteField";
+import { useState } from "react";
 import {
   useFieldArray,
   ValidatedForm,
   validationError,
 } from "remix-validated-form";
-import type { Prisma } from "@prisma/client";
+import { z } from "zod";
+import { zfd } from "zod-form-data";
+import SimpleAutocompleteField from "~/core/components/SimpleAutocompleteField";
 
 const RESOURCE_TYPES = [
   "Cloud Account",
@@ -162,7 +162,7 @@ export default function Resources({
                       options={resourceTypes}
                     />
                   ) : (
-                    resource.type
+                    resource.defaultValue.type
                   )}
                 </Grid>
                 <Grid item xs={3}>
@@ -174,7 +174,7 @@ export default function Resources({
                       freeSolo
                     />
                   ) : (
-                    resource.provider
+                    resource.defaultValue.provider
                   )}
                 </Grid>
                 <Grid item xs={5}>
@@ -186,7 +186,7 @@ export default function Resources({
                       freeSolo
                     />
                   ) : (
-                    resource.name
+                    resource.defaultValue.name
                   )}
                 </Grid>
                 <Grid item xs={1}>

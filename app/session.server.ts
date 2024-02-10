@@ -4,9 +4,9 @@ import {
   createCookie,
 } from "@remix-run/node";
 import invariant from "tiny-invariant";
+import { getProfileByUserId } from "~/models/profile.server";
 import type { User } from "~/models/user.server";
 import { getUserById } from "~/models/user.server";
-import { getProfileByUserId } from "~/models/profile.server";
 
 invariant(process.env.SESSION_SECRET, "SESSION_SECRET must be set");
 
@@ -99,7 +99,7 @@ export async function createUserSession({
   redirectTo: string;
 }) {
   const session = await getSession(request);
-  session.set(USER_ROLE_SESSION_KEY, userRole)
+  session.set(USER_ROLE_SESSION_KEY, userRole);
   session.set(USER_SESSION_KEY, userId);
   return redirect(redirectTo, {
     headers: {

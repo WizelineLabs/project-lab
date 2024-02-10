@@ -25,10 +25,9 @@ export async function geActivetUniversities() {
     },
     where: {
       active: true,
-    }
+    },
   });
 }
-
 
 async function validateUniversity(id: string) {
   const innovationTier = await db.universities.findFirst({
@@ -42,17 +41,25 @@ async function validateUniversity(id: string) {
   return;
 }
 
-export async function updateUniversity({ id, name, active}: { id: string; name: string, active: boolean }) {
+export async function updateUniversity({
+  id,
+  name,
+  active,
+}: {
+  id: string;
+  name: string;
+  active: boolean;
+}) {
   await validateUniversity(id);
   await db.universities.update({ where: { id }, data: { name, active } });
 }
 
 export async function searchUniversities(searchTerm: string) {
   const universities = await db.universities.findMany({
-    where: { name: { contains: searchTerm, mode: "insensitive" }},
+    where: { name: { contains: searchTerm, mode: "insensitive" } },
     select: {
       name: true,
-      id: true
+      id: true,
     },
     orderBy: {
       name: "asc",

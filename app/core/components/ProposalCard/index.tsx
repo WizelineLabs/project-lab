@@ -1,4 +1,12 @@
 import {
+  ProposalCardSkills,
+  ProposalCardStatus,
+  ProposalCardWrap,
+} from "./ProposalCard.styles";
+import HelpIcon from "@mui/icons-material/Help";
+import PersonIcon from "@mui/icons-material/Person";
+import ThumbUpIcon from "@mui/icons-material/ThumbUp";
+import {
   CardActionArea,
   CardContent,
   Card,
@@ -7,12 +15,8 @@ import {
   useMediaQuery,
   CardActions,
 } from "@mui/material";
-import EllipsisText from "app/core/components/EllipsisText";
-import ThumbUpIcon from "@mui/icons-material/ThumbUp";
-import PersonIcon from "@mui/icons-material/Person";
-import HelpIcon from "@mui/icons-material/Help";
-import { ProposalCardSkills, ProposalCardStatus, ProposalCardWrap } from "./ProposalCard.styles";
 import { useNavigate } from "@remix-run/react";
+import EllipsisText from "app/core/components/EllipsisText";
 import { useOptionalUser } from "~/utils";
 
 interface IProps {
@@ -88,7 +92,14 @@ export const ProposalCard = (props: IProps) => {
               <EllipsisText text={props.description || ""} length={200} />
             </ProposalCardWrap>
           </CardContent>
-          <CardActions sx={{display: "flex", alignItems: "baseline", flexDirection: "column", cursor: "auto"}}>
+          <CardActions
+            sx={{
+              display: "flex",
+              alignItems: "baseline",
+              flexDirection: "column",
+              cursor: "auto",
+            }}
+          >
             <ProposalCardSkills>
               {props.skills &&
                 props.skills[0].name != "" &&
@@ -104,7 +115,7 @@ export const ProposalCard = (props: IProps) => {
                 ))}
             </ProposalCardSkills>
             {user && show && (
-              <ProposalCardStatus> 
+              <ProposalCardStatus>
                 <div>
                   <div>
                     <span className="ProposalCard__status--display">
@@ -124,23 +135,40 @@ export const ProposalCard = (props: IProps) => {
                         className="ProposalCard__head__description--tier--extra"
                         title="Maturation framework for innovation projects"
                       >
-                        <HelpIcon sx={{width: "17px", height: "17px", color: prefersDarkMode ? "#7f7c7c" : "#00000066", marginLeft: "5px"}}/>
+                        <HelpIcon
+                          sx={{
+                            width: "17px",
+                            height: "17px",
+                            color: prefersDarkMode ? "#7f7c7c" : "#00000066",
+                            marginLeft: "5px",
+                          }}
+                        />
                       </label>
                     </div>
                   </div>
                   <div className="ProposalCard__status">
                     <div className="ProposalCard__status--icons">
                       <ThumbUpIcon
-                          sx={{
-                            color: prefersDarkMode ? "#999999" : "#00000066", width: "20px", height: "20px", marginRight: "3px"
-                          }}
-                        />
+                        sx={{
+                          color: prefersDarkMode ? "#999999" : "#00000066",
+                          width: "20px",
+                          height: "20px",
+                          marginRight: "3px",
+                        }}
+                      />
                       <div className="ProposalCard__display">
                         <span>{props.votesCount}</span>
                       </div>
                     </div>
                     <div className="ProposalCard__status--icons">
-                      <PersonIcon sx={{color: prefersDarkMode ? "#999999" : "#00000066", width: "23px", height: "23px", marginRight: "-3px"}}/>
+                      <PersonIcon
+                        sx={{
+                          color: prefersDarkMode ? "#999999" : "#00000066",
+                          width: "23px",
+                          height: "23px",
+                          marginRight: "-3px",
+                        }}
+                      />
                       <div className="ProposalCard__display">
                         <span>{props.projectMembers}</span>
                       </div>

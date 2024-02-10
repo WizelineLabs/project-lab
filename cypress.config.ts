@@ -3,17 +3,16 @@ import { defineConfig } from "cypress";
 export default defineConfig({
   e2e: {
     setupNodeEvents: (on, config) => {
+      require("dotenv").config();
+      const environment = config.env.url;
+      let url = "";
 
-      require('dotenv').config()
-      const environment = config.env.url
-      let url = ''
-
-      if(environment === 'dev'){
-        url = `${process.env.DEV_URL}`
-      }else if(environment === 'prod'){
-        url = `${process.env.PROD_URL}`
-      }else{
-        url = `${process.env.BASE_URL}`
+      if (environment === "dev") {
+        url = `${process.env.DEV_URL}`;
+      } else if (environment === "prod") {
+        url = `${process.env.PROD_URL}`;
+      } else {
+        url = `${process.env.BASE_URL}`;
       }
 
       // const isDev = config.watchForFileChanges;

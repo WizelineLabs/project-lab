@@ -1,7 +1,12 @@
 import type { LoaderFunction } from "@remix-run/node";
-import { createUserSession, getUserRole, requireProfile, returnToCookie } from "~/session.server";
 import { getAuthenticator } from "~/auth.server";
 import { existApplicant } from "~/models/applicant.server";
+import {
+  createUserSession,
+  getUserRole,
+  requireProfile,
+  returnToCookie,
+} from "~/session.server";
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   const returnTo = await returnToCookie.parse(request.headers.get("Cookie"));
@@ -20,7 +25,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   } else if (userRole === "APPLICANT") {
     const profile = await requireProfile(request);
     const checkExistApplicant = await existApplicant(profile.email);
-  
+
     //Check if the user has already answered the "aplicationform".
     if (checkExistApplicant) {
       roleRedirect = "/internshipProjects";

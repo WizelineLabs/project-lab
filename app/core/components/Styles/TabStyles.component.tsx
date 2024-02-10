@@ -1,5 +1,5 @@
-import styled from "@emotion/styled"
-import Tab from "@mui/material/Tab"
+import styled from "@emotion/styled";
+import Tab from "@mui/material/Tab";
 
 export const TabStyles = styled(Tab)`
   text-transform: initial;
@@ -21,7 +21,7 @@ export const TabStyles = styled(Tab)`
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.14);
     transition-delay: 0;
   }
-`
+`;
 
 export const TitleTabStyles = styled(Tab)`
   margin: 0 10px;
@@ -40,7 +40,7 @@ export const TitleTabStyles = styled(Tab)`
   &[aria-selected="true"] {
     color: #e94d44;
   }
-`
+`;
 
 export const EditPanelsStyles = styled.div`
   margin-top: -1em;
@@ -55,7 +55,7 @@ export const EditPanelsStyles = styled.div`
   .MuiTabs-indicator {
     visibility: hidden;
   }
-`
+`;
 
 export const NavBarTabsStyles = styled.div`
   background-color: #fff;
@@ -79,4 +79,4 @@ export const NavBarTabsStyles = styled.div`
       margin-left: 0;
     }
   }
-`
+`;

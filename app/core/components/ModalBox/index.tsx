@@ -1,6 +1,6 @@
-import React from "react";
-import { Modal, IconButton, styled } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
+import { Modal, IconButton, styled } from "@mui/material";
+import React from "react";
 
 export const BoxContainer = styled("div")(({ theme }) => ({
   backgroundColor: theme.palette.background.default,

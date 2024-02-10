@@ -1,5 +1,5 @@
-import type { PropsWithoutRef } from "react";
 import { TextField, Autocomplete } from "@mui/material";
+import type { PropsWithoutRef } from "react";
 import { useField, useControlField } from "remix-validated-form";
 
 interface RelatedProjectsSelectProps {

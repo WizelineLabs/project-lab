@@ -1,18 +1,18 @@
-import Header from "app/core/layouts/Header";
-import GoBack from "app/core/components/GoBack";
 import { ProjectForm } from "../core/components/ProjectForm";
-import { withZod } from "@remix-validated-form/with-zod";
-import { z } from "zod";
-import { validationError, ValidatedForm } from "remix-validated-form";
+import { Container, Paper } from "@mui/material";
+import { Prisma } from "@prisma/client";
 import { redirect } from "@remix-run/node";
 import type { ActionFunction } from "@remix-run/node";
-import { zfd } from "zod-form-data";
-import { requireProfile } from "~/session.server";
-import { createProject } from "~/models/project.server";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
-import { Container, Paper } from "@mui/material";
-import MDEditorStyles from "@uiw/react-md-editor/markdown-editor.css";
+import { withZod } from "@remix-validated-form/with-zod";
 import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
+import MDEditorStyles from "@uiw/react-md-editor/markdown-editor.css";
+import GoBack from "app/core/components/GoBack";
+import Header from "app/core/layouts/Header";
+import { validationError, ValidatedForm } from "remix-validated-form";
+import { z } from "zod";
+import { zfd } from "zod-form-data";
+import { createProject } from "~/models/project.server";
+import { requireProfile } from "~/session.server";
 
 export function links() {
   return [
@@ -83,7 +83,7 @@ export const action: ActionFunction = async ({ request }) => {
     return redirect(`/projects/${project.id}`);
   } catch (e) {
     if (
-      e instanceof PrismaClientKnownRequestError &&
+      e instanceof Prisma.PrismaClientKnownRequestError &&
       Array.isArray(e.meta?.target)
     ) {
       if (e.meta?.target.includes("name")) {

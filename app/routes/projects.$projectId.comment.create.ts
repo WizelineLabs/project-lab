@@ -1,10 +1,10 @@
 import type { ActionFunction } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
-import invariant from "tiny-invariant";
-import { getSession, requireProfile } from "~/session.server";
-import { validator } from "~/core/components/Comments";
 import { validationError } from "remix-validated-form";
+import invariant from "tiny-invariant";
+import { validator } from "~/core/components/Comments";
 import { createComment } from "~/models/comment.server";
+import { getSession, requireProfile } from "~/session.server";
 
 export const action: ActionFunction = async ({ request, params }) => {
   invariant(params.projectId, "projectId could not be found");

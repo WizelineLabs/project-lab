@@ -1,7 +1,6 @@
-import { useMatches } from "@remix-run/react";
+import { Navigation, useMatches } from "@remix-run/react";
 import { useMemo } from "react";
 import type { User } from "~/models/user.server";
-import type { Navigation } from "@remix-run/router";
 
 const DEFAULT_REDIRECT = "/";
 
@@ -41,7 +40,7 @@ export function useMatchesData(
     () => matchingRoutes.find((route) => route.id === id),
     [matchingRoutes, id]
   );
-  return route?.data;
+  return route?.data as Record<string, unknown>;
 }
 
 function isUser(user: any): user is User {
@@ -100,11 +99,12 @@ export const validateNavigationRedirect = (navigation: Navigation) => {
   );
 };
 
-
-export const currentdate:any = new Date();
-export const oneJan:any = new Date(currentdate.getFullYear(),0,1);
-export const numberOfDays = Math.floor((currentdate - oneJan) / (24 * 60 * 60 * 1000));
-export const week = Math.ceil(( currentdate.getDay() + 1 + numberOfDays) / 7);
+export const currentdate: any = new Date();
+export const oneJan: any = new Date(currentdate.getFullYear(), 0, 1);
+export const numberOfDays = Math.floor(
+  (currentdate - oneJan) / (24 * 60 * 60 * 1000)
+);
+export const week = Math.ceil((currentdate.getDay() + 1 + numberOfDays) / 7);
 
 export function cleanUrlRepo(repoInfo: string) {
   if (repoInfo) {
@@ -113,4 +113,3 @@ export function cleanUrlRepo(repoInfo: string) {
     return "";
   }
 }
-

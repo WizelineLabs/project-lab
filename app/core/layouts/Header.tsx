@@ -1,10 +1,10 @@
+import DropDownButton from "../components/DropDownButton";
+import Link from "../components/Link";
+import Search from "../components/Search";
+import AddIcon from "@mui/icons-material/Add";
+import { Button, Container, Grid, Paper, styled } from "@mui/material";
 import { useLocation, useSubmit } from "@remix-run/react";
 import { useOptionalUser } from "~/utils";
-import DropDownButton from "../components/DropDownButton";
-import Search from "../components/Search";
-import { Button, Container, Grid, Paper, styled } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import Link from "../components/Link";
 
 interface IProps {
   title: String;
@@ -127,44 +127,47 @@ const Header = ({ title, existApplicant }: IProps) => {
               </Link>
             </Grid>
             <Grid item sx={{ order: { md: 3 } }}>
-            {currentUser && !location.pathname.includes('/internshipProjects') ? (
-            // Logic for any path verifying that it does not interfere with /intershipProject
-            <DropDownButton options={options}>
-              {currentUser.email}
-            </DropDownButton>
-
-            // Logic for /intershipProjects if form is answered
-          ) : location.pathname.includes('/internshipProjects') && currentUser && existApplicant ? (
-            <DropDownButton options={options}>
-              {currentUser?.email}
-            </DropDownButton>
-
-            // Logic for /intershipProjects if form is not answered
-          ) : location.pathname.includes('/internshipProjects') && currentUser && !existApplicant ? (
-            <Button
-              className="contained"
-              sx={{
-                width: "200px",
-                height: "40px",
-                fontSize: "1em",
-              }}
-            onClick={handleLogout}
-            >
-              Home
-            </Button>
-          ) : (
-            <Button
-              className="contained"
-              sx={{
-                width: "200px",
-                height: "40px",
-                fontSize: "1em",
-              }}
-              onClick={handleLogout} 
-            >
-              Home
-            </Button>
-          )}
+              {currentUser &&
+              !location.pathname.includes("/internshipProjects") ? (
+                // Logic for any path verifying that it does not interfere with /intershipProject
+                <DropDownButton options={options}>
+                  {currentUser.email}
+                </DropDownButton>
+              ) : // Logic for /intershipProjects if form is answered
+              location.pathname.includes("/internshipProjects") &&
+                currentUser &&
+                existApplicant ? (
+                <DropDownButton options={options}>
+                  {currentUser?.email}
+                </DropDownButton>
+              ) : // Logic for /intershipProjects if form is not answered
+              location.pathname.includes("/internshipProjects") &&
+                currentUser &&
+                !existApplicant ? (
+                <Button
+                  className="contained"
+                  sx={{
+                    width: "200px",
+                    height: "40px",
+                    fontSize: "1em",
+                  }}
+                  onClick={handleLogout}
+                >
+                  Home
+                </Button>
+              ) : (
+                <Button
+                  className="contained"
+                  sx={{
+                    width: "200px",
+                    height: "40px",
+                    fontSize: "1em",
+                  }}
+                  onClick={handleLogout}
+                >
+                  Home
+                </Button>
+              )}
             </Grid>
             {showProposal && (
               <Grid item sx={{ marginRight: 2 }}>

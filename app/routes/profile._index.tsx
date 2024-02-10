@@ -1,4 +1,7 @@
-import Header from "app/core/layouts/Header";
+import {
+  getGitHubProfileByEmail,
+  getGitHubProjectsByEmail,
+} from "../models/profile.server";
 import {
   Box,
   Container,
@@ -10,19 +13,26 @@ import {
   Alert,
   AlertTitle,
 } from "@mui/material";
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import { getGitHubProfileByEmail, getGitHubProjectsByEmail } from "../models/profile.server";
-import {  useLoaderData } from "@remix-run/react";
-import type { LoaderArgs, LoaderFunction } from "@remix-run/node";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import type { LoaderFunction } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
+import Header from "app/core/layouts/Header";
 import invariant from "tiny-invariant";
 
 type LoaderData = {
-  githubProfileData: Awaited<ReturnType<typeof getGitHubProfileByEmail>> & { githubProfileData?: { username: string, avatarUrl: string, firstName: string, lastName: string } };
+  githubProfileData: Awaited<ReturnType<typeof getGitHubProfileByEmail>> & {
+    githubProfileData?: {
+      username: string;
+      avatarUrl: string;
+      firstName: string;
+      lastName: string;
+    };
+  };
   githubProjects: Awaited<ReturnType<typeof getGitHubProjectsByEmail>>;
 };
 
-export const loader: LoaderFunction = async ({ params }: LoaderArgs) => {
+export const loader: LoaderFunction = async ({ params }) => {
   try {
     invariant(params.email, "email could not be found");
     const email = params.email;
@@ -31,11 +41,11 @@ export const loader: LoaderFunction = async ({ params }: LoaderArgs) => {
       getGitHubProfileByEmail(email),
       getGitHubProjectsByEmail(email),
     ]);
-    return { 
+    return {
       githubProfileData,
       githubProjects,
     };
-  }catch (Error) {
+  } catch (Error) {
     console.error("Error al cargar los datos de GitHub:", Error);
 
     return {
@@ -49,7 +59,11 @@ export const ProfileInfo = () => {
   const theme = useTheme();
   const lessThanMd = useMediaQuery(theme.breakpoints.down("md"));
 
-  if (githubProfileData === undefined || githubProjects === undefined || githubProfileData === null) {
+  if (
+    githubProfileData === undefined ||
+    githubProjects === undefined ||
+    githubProfileData === null
+  ) {
     return (
       <>
         <Header title="Projects" />
@@ -66,7 +80,8 @@ export const ProfileInfo = () => {
           </Grid>
         </Container>
       </>
-  )}else{
+    );
+  } else {
     const username = githubProfileData?.username;
     const avatarUrl = githubProfileData?.avatarUrl;
     const firstName = githubProfileData?.firstName;
@@ -91,8 +106,20 @@ export const ProfileInfo = () => {
               }}
             >
               <Paper elevation={lessThanMd ? 5 : 0}>
-                <Box sx={{ paddingTop: 1, paddingLeft: 2, paddingRight: 2, minWidth:200,  p: 3}}>
-                  <Box display="flex" justifyContent="center" alignItems="center">
+                <Box
+                  sx={{
+                    paddingTop: 1,
+                    paddingLeft: 2,
+                    paddingRight: 2,
+                    minWidth: 200,
+                    p: 3,
+                  }}
+                >
+                  <Box
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                  >
                     <img
                       alt="profile-user"
                       width="100px"
@@ -102,24 +129,24 @@ export const ProfileInfo = () => {
                     />
                   </Box>
                   <Box textAlign="center">
-                    <h1> { firstName + " " +  lastName }</h1>
-                    <h4 style={{margin:0}}>{ username }</h4>
+                    <h1> {firstName + " " + lastName}</h1>
+                    <h4 style={{ margin: 0 }}>{username}</h4>
                   </Box>
-              </Box>
+                </Box>
               </Paper>
             </Grid>
             <Grid item xs={12} md={9}>
               <Paper elevation={0} sx={{ padding: 2 }}>
-                <h2 style={{ marginTop: 0, paddingLeft: 20}}>
+                <h2 style={{ marginTop: 0, paddingLeft: 20 }}>
                   Active Projects
                 </h2>
-                <Grid
-                  container
-                  sx={{ p:2}}
-                >
+                <Grid container sx={{ p: 2 }}>
                   {githubProjectsLink.map((project) => (
                     <Grid item xs={12} key={project.id}>
-                      <Card key={project.id} sx={{ marginBottom: 3, display: 'block' }}>
+                      <Card
+                        key={project.id}
+                        sx={{ marginBottom: 3, display: "block" }}
+                      >
                         <CardContent>
                           <Typography gutterBottom variant="h5" component="div">
                             {project.name}

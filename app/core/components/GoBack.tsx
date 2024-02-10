@@ -1,6 +1,7 @@
+import Link from "./Link";
 import styled from "@emotion/styled";
 import { ArrowBack } from "@mui/icons-material";
-import Link from "./Link";
+
 interface IProps {
   title: string;
   href: string;

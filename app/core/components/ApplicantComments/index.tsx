@@ -1,4 +1,7 @@
-import { useEffect, useState } from "react";
+import ModalBox from "../ModalBox";
+import TextEditor from "../TextEditor";
+import Delete from "@mui/icons-material/Delete";
+import Edit from "@mui/icons-material/Edit";
 import {
   Grid,
   Typography,
@@ -8,19 +11,16 @@ import {
   Paper,
   IconButton,
 } from "@mui/material";
-import Edit from "@mui/icons-material/Edit";
-import Delete from "@mui/icons-material/Delete";
+import type { internsComments as CommentType, Profiles } from "@prisma/client";
+import { Form, useNavigation } from "@remix-run/react";
+import { withZod } from "@remix-validated-form/with-zod";
+import Markdown from "marked-react";
+import { useEffect, useState } from "react";
+import { ValidatedForm } from "remix-validated-form";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 import type { getCommentsApplicant } from "~/models/applicantComment.server";
-import { withZod } from "@remix-validated-form/with-zod";
-import ModalBox from "../ModalBox";
-import { Form, useNavigation } from "@remix-run/react";
-import TextEditor from "../TextEditor";
-import { ValidatedForm } from "remix-validated-form";
-import Markdown from "marked-react";
-import type { internsComments as CommentType, Profiles } from "@prisma/client";
-import { validateNavigationRedirect } from '~/utils';
+import { validateNavigationRedirect } from "~/utils";
 
 type CommentsArrayType = Awaited<ReturnType<typeof getCommentsApplicant>>;
 type CommentItemType = CommentType & {
@@ -92,7 +92,7 @@ function CommentItem({
 
   const navigation = useNavigation();
   useEffect(() => {
-    const isActionRedirect = validateNavigationRedirect(navigation)
+    const isActionRedirect = validateNavigationRedirect(navigation);
     if (isActionRedirect) {
       setOpenDeleteModal(false);
       setOpenEditComment(false);
