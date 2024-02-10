@@ -1,11 +1,10 @@
-import { useSubmit } from "@remix-run/react";
+import { useLocation, useSubmit } from "@remix-run/react";
 import { useOptionalUser } from "~/utils";
 import DropDownButton from "../components/DropDownButton";
 import Search from "../components/Search";
 import { Button, Container, Grid, Paper, styled } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import Link from "../components/Link";
-import { useLocation } from 'react-router-dom';
 
 interface IProps {
   title: String;

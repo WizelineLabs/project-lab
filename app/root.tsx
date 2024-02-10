@@ -1,7 +1,7 @@
 import type {
   LinksFunction,
   LoaderFunction,
-  MetaFunction,
+  V2_MetaFunction,
 } from "@remix-run/node";
 import {
   Links,
@@ -28,12 +28,17 @@ export const links: LinksFunction = () => {
   ];
 };
 
-export const meta: MetaFunction = () => ({
-  charset: "utf-8",
-  title: "Wizelabs",
-  viewport: "width=device-width,initial-scale=1",
-  description: "Wizeline's innovation hub",
-});
+export const meta: V2_MetaFunction = () => {
+  return [
+    {
+      title: "Wizelabs",
+    },
+    {
+      name: "description",
+      content: "Wizeline's innovation hub",
+    },
+  ];
+};
 
 export const loader: LoaderFunction = async ({ request }) => {
   return { user: await getUser(request) };
@@ -68,6 +73,8 @@ function Document({ children }: IDocumentProps) {
   return (
     <html lang="en" className="h-full">
       <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
         <Meta />
         <Links />
       </head>

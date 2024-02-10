@@ -14,7 +14,7 @@ import {
   updateProfile,
 } from "./models/profile.server";
 import { findProfileData } from "./lake.server";
-import { getUserInfo, getUserRepos } from "./routes/api/github/get-getUserInfo";
+import { getUserInfo, getUserRepos } from "./routes/api.github.get-getUserInfo";
 import type { OAuth2StrategyVerifyParams } from "remix-auth-oauth2";
 
 const verifyCallback: StrategyVerifyCallback<

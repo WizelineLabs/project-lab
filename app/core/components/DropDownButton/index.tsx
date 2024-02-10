@@ -73,8 +73,6 @@ export const DropDownButton = ({
           open={openActionsUser}
           anchorEl={actionsUserRef.current}
           transition
-          onResize={undefined}
-          onResizeCapture={undefined}
         >
           {({ TransitionProps, placement }) => (
             <Grow

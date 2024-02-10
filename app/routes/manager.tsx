@@ -8,7 +8,7 @@ import {
   EditPanelsStyles,
   NavBarTabsStyles,
   LinkStyles,
-} from "./manager/manager.styles";
+} from "./manager.styles";
 import { adminRoleName } from "app/constants";
 import { requireUser } from "~/session.server";
 import { Container, Paper } from "@mui/material";
