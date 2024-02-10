@@ -20,7 +20,6 @@ export default defineConfig({
       // const port = process.env.PORT ?? (isDev ? "3000" : "8811");
       const configOverrides: Partial<Cypress.PluginConfigOptions> = {
         baseUrl: url,
-        video: !process.env.CI,
         screenshotOnRunFailure: !process.env.CI,
       };
 

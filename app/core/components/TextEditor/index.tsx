@@ -33,7 +33,9 @@ export default function TextEditor({
         <input name={name} type="hidden" value={text || ""} />
         <LazyMDEditor
           value={text || ""}
-          placeholder={placeholder}
+          textareaProps={{
+            placeholder,
+          }}
           onChange={setText}
           height={height}
         />
