@@ -76,6 +76,10 @@ module.exports = {
         "plugin:import/typescript",
         "prettier",
       ],
+      rules: {
+        "import/no-named-as-default": 0,
+        "@typescript-eslint/no-explicit-any": "warn"
+      }
     },
 
     // Markdown
@@ -106,6 +110,12 @@ module.exports = {
           version: 28,
         },
       },
+      rules: {
+        // TODO: Remove this once we have a better solution for this
+        "jest/no-standalone-expect": "off",
+        "testing-library/no-node-access": "warn",
+        "testing-library/no-container": "warn",
+      }
     },
 
     // Cypress
@@ -113,6 +123,7 @@ module.exports = {
       files: ["cypress/**/*.ts"],
       plugins: ["cypress"],
       extends: ["plugin:cypress/recommended", "prettier"],
+      rules: { "@typescript-eslint/no-namespace": "off" },
     },
 
     // Node
