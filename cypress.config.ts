@@ -8,9 +8,9 @@ export default defineConfig({
       const environment = config.env.url;
       let url = "";
 
-      if (environment === "dev") {
+      if (environment === "dev" && process.env.DEV_URL) {
         url = `${process.env.DEV_URL}`;
-      } else if (environment === "prod") {
+      } else if (environment === "prod" && process.env.PROD_URL) {
         url = `${process.env.PROD_URL}`;
       } else {
         url = `${process.env.BASE_URL}`;
