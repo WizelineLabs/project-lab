@@ -196,10 +196,11 @@ jobs:
           AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
           GITHUB_KEY: ${{ secrets.API_GITHUB_KEY }}
+          DEV_URL: ${{ secrets.DEV_URL }}
         with:
           timeout: 60s
           command_timeout: 30m
-          envs: DB_URL,DATABASE_URL,SESSION_SECRET,BASE_URL,AUTH0_CLIENT_ID,AUTH0_DOMAIN,AUTH0_CLIENT_SECRET,GOOGLE_APPLICATION_CREDENTIALS,GITHUB_KEY
+          envs: DB_URL,DATABASE_URL,SESSION_SECRET,BASE_URL,AUTH0_CLIENT_ID,AUTH0_DOMAIN,AUTH0_CLIENT_SECRET,GOOGLE_APPLICATION_CREDENTIALS,GITHUB_KEY,DEV_URL
           host: ${{ secrets.LIGHTSAIL_IP }}
           username: ${{ secrets.LIGHTSAIL_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -223,6 +224,7 @@ jobs:
             echo AUTH0_CLIENT_SECRET="$AUTH0_CLIENT_SECRET" >> .env
             echo GOOGLE_APPLICATION_CREDENTIALS="$GOOGLE_APPLICATION_CREDENTIALS" >> .env
             echo GITHUB_KEY="$GITHUB_KEY" >> .env
+            echo DEV_URL="$DEV_URL" >> .env
 
             echo "*** Step: *** npm ci and build"
             npm ci # install
@@ -252,6 +254,8 @@ jobs:
             echo "*** Step: *** Start pm2 service"
             pm2 start ecosystem.config.js
             pm2 save
+
+            npm run test:dev
 
             echo "*** Step: ** Cleanup"
             rm -rf ~/projectlab/tmp
