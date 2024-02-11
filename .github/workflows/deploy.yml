@@ -137,6 +137,8 @@ jobs:
           build: npm run build
           start: npx prisma migrate reset --force, npm run start:mocks
           wait-on: "http://localhost:3000"
+        env:
+          PORT: 3000
 
   deploy:
     name: 🚀 Deploy
