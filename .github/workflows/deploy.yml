@@ -113,15 +113,10 @@ jobs:
         uses: styfle/cancel-workflow-action@0.11.0
 
       - name: ⬇️ Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 🏄 Copy test env vars
         run: cp .env.example .env
-
-      - name: ⎔ Setup node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
 
       - uses: harmon758/postgresql-action@v1
         with:
@@ -137,7 +132,11 @@ jobs:
         run: npx prisma migrate reset --force
 
       - name: 🌳 Cypress run
-        run: npm run test:e2e:run
+        uses: cypress-io/github-action@v6
+        with:
+          build: npm run build
+          start: npx prisma migrate reset --force, npm run start:mocks
+          wait-on: "http://localhost:3000"
 
   deploy:
     name: 🚀 Deploy
