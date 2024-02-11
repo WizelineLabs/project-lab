@@ -15,7 +15,7 @@
     "test": "vitest --silent",
     "test:e2e:dev": "start-server-and-test dev http://localhost:3000 \"npx cypress open\"",
     "pretest:e2e:run": "npm run build",
-    "test:e2e:run": "cross-env PORT=3000 start-server-and-test start:mocks http://localhost:3000 \"npx cypress run\"",
+    "test:e2e:run": "cross-env PORT=8811 BASE_URL=http://localhost:8811 start-server-and-test start:mocks http://localhost:8811 \"npx cypress run\"",
     "test:dev": "cypress run --env url=dev",
     "test:dev:console": "npx cypress open --env url=dev",
     "test:3000": "cypress run --env url=local",
