@@ -136,17 +136,8 @@ jobs:
       - name: 🛠 Setup Database
         run: npx prisma migrate reset --force
 
-      - name: ⚙️ Build
-        run: npm run build
-
       - name: 🌳 Cypress run
-        uses: cypress-io/github-action@v6
-        with:
-          install: false
-          start: npm run start:mocks
-          wait-on: "http://localhost:3000"
-        env:
-          PORT: "3000"
+        run: npm run test:e2e:run
 
   deploy:
     name: 🚀 Deploy
