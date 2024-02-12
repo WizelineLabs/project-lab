@@ -22,9 +22,11 @@ export const loader: LoaderFunction = async () => {
     id: a.id,
     fullName: a.fullName,
     email: a.personalEmail,
+    universityEmail: a.universityEmail,
     phone: a.phone,
     startDate: a.startDate,
     endDate: a.endDate,
+    dayOfBirth: a.dayOfBirth,
     graduationDate: a.graduationDate,
     hoursPerWeek: a.hoursPerWeek,
     university: a.university?.name,
@@ -104,6 +106,12 @@ export default function Projects() {
       },
     },
     { field: "email", headerName: "Email", flex: 0.5, hide: true },
+    {
+      field: "universityEmail",
+      headerName: "universityEmail",
+      flex: 0.5,
+      hide: true,
+    },
     { field: "phone", headerName: "Phone", flex: 0.5, hide: true },
     {
       field: "startDate",
@@ -124,6 +132,17 @@ export default function Projects() {
         return new Date(params.value).toISOString();
       },
       valueFormatter: shortDateFormatter,
+    },
+    {
+      field: "dayOfBirth",
+      headerName: "Date of Birth",
+      type: "date",
+      flex: 0.4,
+      valueGetter(params) {
+        return new Date(params.value).toISOString();
+      },
+      valueFormatter: shortDateFormatter,
+      hide: true,
     },
     {
       field: "graduationDate",
