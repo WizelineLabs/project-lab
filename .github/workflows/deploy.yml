@@ -7,6 +7,11 @@ on:
     tags:
       - "*"
   pull_request: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   actions: write
   contents: read
@@ -16,10 +21,6 @@ jobs:
     name: ⬣ ESLint
     runs-on: ubuntu-latest
     steps:
-      - name: 🛑 Cancel Previous Runs
-        if: ${{ env.GITHUB_ACTOR != 'nektos/act' }}
-        uses: styfle/cancel-workflow-action@0.11.0
-
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v3
 
@@ -38,10 +39,6 @@ jobs:
     name: ʦ TypeScript
     runs-on: ubuntu-latest
     steps:
-      - name: 🛑 Cancel Previous Runs
-        if: ${{ env.GITHUB_ACTOR != 'nektos/act' }}
-        uses: styfle/cancel-workflow-action@0.11.0
-
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v3
 
@@ -63,10 +60,6 @@ jobs:
       DATABASE_URL: postgresql://lab_user:lab_pass@localhost/lab_test
       SESSION_SECRET: asdf_secret
     steps:
-      - name: 🛑 Cancel Previous Runs
-        if: ${{ env.GITHUB_ACTOR != 'nektos/act' }}
-        uses: styfle/cancel-workflow-action@0.11.0
-
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v3
 
@@ -108,10 +101,6 @@ jobs:
       AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
       AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
     steps:
-      - name: 🛑 Cancel Previous Runs
-        if: ${{ env.GITHUB_ACTOR != 'nektos/act' }}
-        uses: styfle/cancel-workflow-action@0.11.0
-
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v4
 
@@ -152,10 +141,6 @@ jobs:
       NODE_ENV: production
 
     steps:
-      - name: 🛑 Cancel Previous Runs
-        if: ${{ env.GITHUB_ACTOR != 'nektos/act' }}
-        uses: styfle/cancel-workflow-action@0.11.0
-
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v3
 
@@ -274,10 +259,6 @@ jobs:
       NODE_ENV: production
 
     steps:
-      - name: 🛑 Cancel Previous Runs
-        if: ${{ env.GITHUB_ACTOR != 'nektos/act' }}
-        uses: styfle/cancel-workflow-action@0.11.0
-
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v3
 
