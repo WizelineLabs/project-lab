@@ -6,6 +6,7 @@ import Header from "app/core/layouts/Header";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import Link from "~/core/components/Link";
 import NavAppBar from "~/core/components/NavAppBar";
+import WhatsAppLink from "~/core/components/WhatsAppLink";
 import { searchApplicants } from "~/models/applicant.server";
 
 export const meta: MetaFunction = () => {
@@ -51,17 +52,24 @@ export default function Projects() {
       title: "universityEmail",
       hidden: true,
     },
-    { field: "phone", title: "Phone", hidden: true },
+    {
+      field: "phone",
+      title: "Phone",
+      hidden: true,
+      render: (rowData) => WhatsAppLink({ phoneNumber: rowData.phone }),
+    },
     {
       field: "startDate",
       title: "Start Date",
       type: "date",
+      width: "10%",
       dateSetting: { locale: "en-US", format: "dd.MM.yyyy" },
     },
     {
       field: "endDate",
       title: "End Date",
       type: "date",
+      width: "10%",
       dateSetting: { locale: "en-US", format: "dd.MM.yyyy" },
     },
     {
@@ -69,6 +77,7 @@ export default function Projects() {
       title: "Date of Birth",
       type: "date",
       dateSetting: { locale: "en-US", format: "dd.MM.yyyy" },
+      width: "10%",
       hidden: true,
     },
     {
@@ -76,20 +85,28 @@ export default function Projects() {
       title: "Approx Graduation Date",
       type: "date",
       dateSetting: { locale: "en-US", format: "dd.MM.yyyy" },
+      width: "10%",
       hidden: true,
     },
-    { field: "hoursPerWeek", title: "Hour/w" },
+    {
+      field: "hoursPerWeek",
+      title: "Hr/w",
+      width: "5%",
+      tooltip: "Hours per week",
+    },
     { field: "university", title: "University" },
     { field: "semester", title: "Semester", hidden: true },
     {
       field: "participatedAtWizeline",
       title: "Knows Wizeline",
       type: "boolean",
+      width: "5%",
       hidden: true,
     },
     {
       field: "status",
       title: "Status",
+      width: "10%",
       hidden: false,
       lookup: {
         DRAFT: "DRAFT",
@@ -135,7 +152,9 @@ export default function Projects() {
               ],
               rowStyle: (rowData) => ({
                 backgroundColor:
-                  rowData.status !== "DRAFT" ? "rgb(12, 54, 73)" : "inherit",
+                  rowData.status !== "DRAFT"
+                    ? "rgb(12, 54, 73, 0.3)"
+                    : "inherit",
               }),
             }}
           />

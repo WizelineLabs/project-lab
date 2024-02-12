@@ -38,6 +38,7 @@ import AplicantComments from "~/core/components/ApplicantComments";
 import Link from "~/core/components/Link";
 import ModalBox from "~/core/components/ModalBox";
 import RegularSelect from "~/core/components/RegularSelect";
+import WhatsAppLink from "~/core/components/WhatsAppLink";
 import Header from "~/core/layouts/Header";
 import { getApplicantById } from "~/models/applicant.server";
 import { getCommentsApplicant } from "~/models/applicantComment.server";
@@ -308,12 +309,7 @@ export default function Applicant() {
               {applicant.email}
             </ExternalLink>{" "}
             {applicant.phone ? (
-              <>
-                / t.
-                <ExternalLink href={`tel:${applicant.phone}`}>
-                  {applicant.phone}
-                </ExternalLink>
-              </>
+              <WhatsAppLink phoneNumber={applicant.phone} />
             ) : null}
             {applicant.universityPointOfContact
               ? " / University contact: " +
