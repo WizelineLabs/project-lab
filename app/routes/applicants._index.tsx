@@ -1,177 +1,126 @@
-import { Container, Paper, darken, lighten } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import type {
-  GridColDef,
-  GridFilterModel,
-  GridRenderCellParams,
-  GridSortModel,
-  GridValueFormatterParams,
-  GridValueGetterParams,
-} from "@mui/x-data-grid";
-import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import { useLoaderData, useNavigate } from "@remix-run/react";
-import { type LoaderFunction } from "@remix-run/server-runtime";
+import MaterialTable, { Column } from "@material-table/core";
+import { ExportCsv } from "@material-table/exporters";
+import { Container, Paper } from "@mui/material";
+import { MetaFunction } from "@remix-run/node";
 import Header from "app/core/layouts/Header";
+import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import Link from "~/core/components/Link";
 import NavAppBar from "~/core/components/NavAppBar";
+import WhatsAppLink from "~/core/components/WhatsAppLink";
 import { searchApplicants } from "~/models/applicant.server";
 
-export const loader: LoaderFunction = async () => {
+export const meta: MetaFunction = () => {
+  return [{ title: "Applicants" }];
+};
+
+export const loader = async () => {
   const data = await searchApplicants();
-  return data.map((a) => ({
-    id: a.id,
-    fullName: a.fullName,
-    email: a.personalEmail,
-    phone: a.phone,
-    startDate: a.startDate,
-    endDate: a.endDate,
-    graduationDate: a.graduationDate,
-    hoursPerWeek: a.hoursPerWeek,
-    university: a.university?.name,
-    semester: a.semester,
-    participatedAtWizeline: a.participatedAtWizeline,
-    status: a.status,
-    appliedProjects: a.appliedProjects,
-  }));
+  return typedjson(
+    data.map((a) => ({
+      id: a.id,
+      fullName: a.fullName,
+      email: a.personalEmail,
+      universityEmail: a.universityEmail,
+      phone: a.phone,
+      startDate: a.startDate,
+      endDate: a.endDate,
+      dayOfBirth: a.dayOfBirth,
+      graduationDate: a.graduationDate,
+      hoursPerWeek: a.hoursPerWeek,
+      university: a.university?.name,
+      semester: a.semester,
+      participatedAtWizeline: a.participatedAtWizeline,
+      status: a.status,
+      appliedProjects: a.appliedProjects,
+    }))
+  );
 };
-
-const shortDateFormatter = (params: GridValueFormatterParams) => {
-  const date = new Date(params.value);
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-};
-
-const getBackgroundColor = (color: string, mode: string) =>
-  mode === "dark" ? darken(color, 0.7) : lighten(color, 0.7);
-
-const getHoverBackgroundColor = (color: string, mode: string) =>
-  mode === "dark" ? darken(color, 0.4) : lighten(color, 0.4);
-
-const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
-  "& .status-HOLD": {
-    backgroundColor: getBackgroundColor(
-      theme.palette.info.main,
-      theme.palette.mode
-    ),
-    "&:hover": {
-      backgroundColor: getHoverBackgroundColor(
-        theme.palette.info.main,
-        theme.palette.mode
-      ),
-    },
-  },
-
-  "& .status-ACCEPTED": {
-    backgroundColor: getBackgroundColor(
-      theme.palette.success.main,
-      theme.palette.mode
-    ),
-    "&:hover": {
-      backgroundColor: getHoverBackgroundColor(
-        theme.palette.success.main,
-        theme.palette.mode
-      ),
-    },
-  },
-
-  "& .status-REJECTED": {
-    backgroundColor: getBackgroundColor(
-      theme.palette.warning.main,
-      theme.palette.mode
-    ),
-    "&:hover": {
-      backgroundColor: getHoverBackgroundColor(
-        theme.palette.warning.main,
-        theme.palette.mode
-      ),
-    },
-  },
-}));
 
 export default function Projects() {
-  const applicants = useLoaderData<typeof loader>();
-  const navigate = useNavigate();
-  const columns: GridColDef[] = [
+  const applicants = useTypedLoaderData<typeof loader>();
+  const columns: Column<typeof applicants[number]>[] = [
     {
       field: "fullName",
-      headerName: "Name",
-      flex: 1,
-      renderCell: (params: GridRenderCellParams<string>) => {
-        return <Link to={`./${params.row.id}`}>{params.row.fullName}</Link>;
-      },
+      title: "Name",
+      render: (rowData) => (
+        <Link to={`./${rowData.id}`}>{rowData.fullName}</Link>
+      ),
     },
-    { field: "email", headerName: "Email", flex: 0.5, hide: true },
-    { field: "phone", headerName: "Phone", flex: 0.5, hide: true },
+    { field: "email", title: "Email", hidden: true },
+    {
+      field: "universityEmail",
+      title: "universityEmail",
+      hidden: true,
+    },
+    {
+      field: "phone",
+      title: "Phone",
+      hidden: true,
+      render: (rowData) => WhatsAppLink({ phoneNumber: rowData.phone }),
+    },
     {
       field: "startDate",
-      headerName: "Start Date",
-      flex: 0.4,
+      title: "Start Date",
       type: "date",
-      valueGetter: (params: GridValueGetterParams) => {
-        return new Date(params.value).toISOString();
-      },
-      valueFormatter: shortDateFormatter,
+      width: "10%",
+      dateSetting: { locale: "en-US", format: "dd.MM.yyyy" },
     },
     {
       field: "endDate",
-      headerName: "End Date",
+      title: "End Date",
       type: "date",
-      flex: 0.4,
-      valueGetter(params) {
-        return new Date(params.value).toISOString();
-      },
-      valueFormatter: shortDateFormatter,
+      width: "10%",
+      dateSetting: { locale: "en-US", format: "dd.MM.yyyy" },
+    },
+    {
+      field: "dayOfBirth",
+      title: "Date of Birth",
+      type: "date",
+      dateSetting: { locale: "en-US", format: "dd.MM.yyyy" },
+      width: "10%",
+      hidden: true,
     },
     {
       field: "graduationDate",
-      headerName: "Approx Graduation Date",
+      title: "Approx Graduation Date",
       type: "date",
-      flex: 0.5,
-      valueGetter(params) {
-        return new Date(params.value).toISOString();
-      },
-      valueFormatter: shortDateFormatter,
-      hide: true,
+      dateSetting: { locale: "en-US", format: "dd.MM.yyyy" },
+      width: "10%",
+      hidden: true,
     },
-    { field: "hoursPerWeek", headerName: "Hour/w", flex: 0.2 },
-    { field: "university", headerName: "University", flex: 1 },
-    { field: "semester", headerName: "Semester", flex: 1, hide: true },
+    {
+      field: "hoursPerWeek",
+      title: "Hr/w",
+      width: "5%",
+      tooltip: "Hours per week",
+    },
+    { field: "university", title: "University" },
+    { field: "semester", title: "Semester", hidden: true },
     {
       field: "participatedAtWizeline",
-      headerName: "Knows Wizeline",
+      title: "Knows Wizeline",
       type: "boolean",
-      flex: 1,
-      hide: true,
+      width: "5%",
+      hidden: true,
     },
-    { field: "status", headerName: "Status", flex: 0.4, hide: false },
+    {
+      field: "status",
+      title: "Status",
+      width: "10%",
+      hidden: false,
+      lookup: {
+        DRAFT: "DRAFT",
+        HOLD: "HOLD",
+        APPROVED: "APPROVED",
+        REJECTED: "REJECTED",
+      },
+    },
     {
       field: "appliedProjects",
-      headerName: "Applied Projects",
-      flex: 0.5,
-      hide: true,
+      title: "Applied Projects",
+      hidden: true,
     },
   ];
-
-  const filterModel: GridFilterModel = {
-    items: [
-      {
-        id: 1,
-        columnField: "status",
-        operatorValue: "equals",
-        value: "DRAFT",
-      },
-      //Just the pro version allows more than one filter
-    ],
-  };
-
-  const selectRow = (id: string) => {
-    navigate(`./${id}`);
-  };
-
-  const sortModel: GridSortModel = [{ field: "startDate", sort: "asc" }];
 
   return (
     <>
@@ -179,21 +128,35 @@ export default function Projects() {
       <NavAppBar title="Internship Applicants" />
       <Container>
         <Paper sx={{ p: 2 }}>
-          <h1 style={{ marginTop: 0 }}>Applicants</h1>
-          <StyledDataGrid
-            rows={applicants}
+          {/* <h1 style={{ marginTop: 0 }}>Applicants</h1> */}
+          <MaterialTable
+            sx={{ fontSize: "0.8rem" }}
+            title="Applicants"
+            data={applicants}
             columns={columns}
-            autoHeight={true}
-            onRowClick={(e) => selectRow(e.id as string)}
-            initialState={{
-              filter: { filterModel },
-              sorting: { sortModel },
+            options={{
+              showTitle: true,
+              emptyRowsWhenPaging: false,
+              padding: "dense",
+              pageSize: 50,
+              pageSizeOptions: [20, 50, 100],
+              filtering: true,
+              columnsButton: true,
+              exportAllData: true,
+              exportMenu: [
+                {
+                  label: "Export CSV",
+                  exportFunc: (cols, datas) =>
+                    ExportCsv(cols, datas, "applicants"),
+                },
+              ],
+              rowStyle: (rowData) => ({
+                backgroundColor:
+                  rowData.status !== "DRAFT"
+                    ? "rgb(12, 54, 73, 0.3)"
+                    : "inherit",
+              }),
             }}
-            components={{
-              Toolbar: GridToolbar,
-            }}
-            isRowSelectable={(e) => e.row.status !== "HOLD"}
-            getRowClassName={(params) => `status-${params.row.status}`}
           />
         </Paper>
       </Container>

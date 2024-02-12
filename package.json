@@ -36,6 +36,8 @@
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.8.1",
     "@google-cloud/bigquery": "^6.0.3",
+    "@material-table/core": "^6.3.2",
+    "@material-table/exporters": "^1.2.19",
     "@mui/icons-material": "^5.8.4",
     "@mui/material": "^5.8.3",
     "@mui/x-data-grid": "^5.17.26",
