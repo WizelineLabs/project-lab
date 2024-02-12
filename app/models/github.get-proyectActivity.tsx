@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
-import { saveActivity } from "../models/githubactivity.server";
 import { cleanUrlRepo } from "../utils";
+import { saveActivity } from "./githubactivity.server";
 import { Octokit } from "@octokit/core";
 import { PrismaClient } from "@prisma/client";
 import { env } from "process";

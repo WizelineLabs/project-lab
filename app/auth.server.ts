@@ -1,4 +1,5 @@
 import { findProfileData } from "./lake.server";
+import { getUserInfo, getUserRepos } from "./models/github.get-getUserInfo";
 import {
   createProfile,
   getProfileByEmail,
@@ -7,7 +8,6 @@ import {
   createGitHubProject,
   updateProfile,
 } from "./models/profile.server";
-import { getUserInfo, getUserRepos } from "./routes/api.github.get-getUserInfo";
 import { Authenticator, type StrategyVerifyCallback } from "remix-auth";
 import type { Auth0ExtraParams, Auth0Profile } from "remix-auth-auth0";
 import { Auth0Strategy } from "remix-auth-auth0";

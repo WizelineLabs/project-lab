@@ -1,4 +1,5 @@
 import { prisma } from "../db.server";
+import { getUserByUsername, getUserRepos } from "./github.get-getUserInfo";
 import type {
   User,
   Profiles,
@@ -7,10 +8,6 @@ import type {
   PrismaClient,
 } from "@prisma/client";
 import { Prisma } from "@prisma/client";
-import {
-  getUserByUsername,
-  getUserRepos,
-} from "~/routes/api.github.get-getUserInfo";
 
 interface UserProfile extends Profiles {
   role: string;

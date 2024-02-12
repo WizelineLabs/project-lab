@@ -1,5 +1,5 @@
-import { saveRelease } from "../models/githubReleases.server";
 import { cleanUrlRepo } from "../utils";
+import { saveRelease } from "./githubReleases.server";
 import { Octokit } from "@octokit/core";
 import { PrismaClient } from "@prisma/client";
 import { env } from "process";

@@ -1,5 +1,5 @@
-import { getReleasesList } from "./routes/api.github.get-listReleases";
-import { getActivity } from "./routes/api.github.get-proyectActivity";
+import { getReleasesList } from "./models/github.get-listReleases";
+import { getActivity } from "./models/github.get-proyectActivity";
 import { PrismaClient } from "@prisma/client";
 
 const db = new PrismaClient();
