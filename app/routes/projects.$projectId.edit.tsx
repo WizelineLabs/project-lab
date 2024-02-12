@@ -1,13 +1,6 @@
-import type { ActionFunction, LoaderArgs } from "@remix-run/node";
-import { typedjson, useTypedLoaderData } from "remix-typedjson";
-import type { TypedMetaFunction } from "remix-typedjson";
-import { redirect } from "@remix-run/node";
-import { Form, Link } from "@remix-run/react";
-import invariant from "tiny-invariant";
-import { requireProfile, requireUser } from "~/session.server";
-import { getProject, updateProjects } from "~/models/project.server";
+import { ProjectForm } from "../core/components/ProjectForm";
+import { validator } from "./projects.create";
 import {
-  Box,
   Button,
   Container,
   Dialog,
@@ -15,24 +8,28 @@ import {
   DialogContent,
   DialogTitle,
   Paper,
-  Tabs,
-  Tab,
 } from "@mui/material";
-import GoBack from "~/core/components/GoBack";
-import type { SyntheticEvent } from "react";
-import { useState } from "react";
-import { ProjectForm } from "../core/components/ProjectForm";
-import { ValidatedForm, validationError } from "remix-validated-form";
-import { validator } from "./projects.create";
-import Header from "~/core/layouts/Header";
-import { EditPanelsStyles } from "~/routes/manager.styles";
-import TabPanel from "~/core/components/TabPanel";
-import { getProjectStatuses } from "~/models/status.server";
-import { getInnovationTiers } from "~/models/innovationTier.server";
-import MDEditorStyles from "@uiw/react-md-editor/markdown-editor.css";
+import type {
+  ActionFunction,
+  LoaderFunctionArgs,
+  MetaFunction,
+} from "@remix-run/node";
+import { redirect } from "@remix-run/node";
+import { Form } from "@remix-run/react";
 import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
+import MDEditorStyles from "@uiw/react-md-editor/markdown-editor.css";
+import { useState } from "react";
+import { typedjson, useTypedLoaderData } from "remix-typedjson";
+import { ValidatedForm, validationError } from "remix-validated-form";
+import invariant from "tiny-invariant";
+import GoBack from "~/core/components/GoBack";
+import Header from "~/core/layouts/Header";
 import { checkPermission } from "~/models/authorization.server";
 import type { Roles } from "~/models/authorization.server";
+import { getInnovationTiers } from "~/models/innovationTier.server";
+import { getProject, updateProjects } from "~/models/project.server";
+import { getProjectStatuses } from "~/models/status.server";
+import { requireProfile, requireUser } from "~/session.server";
 
 export function links() {
   return [
@@ -41,7 +38,7 @@ export function links() {
   ];
 }
 
-export const loader = async ({ request, params }: LoaderArgs) => {
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   invariant(params.projectId, "projectId could not be found");
   const projectId = params.projectId;
   const project = await getProject({ id: projectId });
@@ -98,28 +95,27 @@ export const action: ActionFunction = async ({ request, params }) => {
   return redirect(`/projects/${project.id}`);
 };
 
-export const meta: TypedMetaFunction = ({ data, params }) => {
+export const meta: MetaFunction<typeof loader> = ({ data, params }) => {
   if (!data) {
-    return {
-      title: "Missing Project",
-      description: `There is no Project with the ID of ${params.projectId}. 😢`,
-    };
+    return [
+      { title: "Missing Project" },
+      {
+        name: "description",
+        content: `There is no Project with the ID of ${params.projectId}. 😢`,
+      },
+    ];
   }
 
   const { project } = data;
-  return {
-    title: `${project?.name} edit project`,
-    description: project?.description,
-  };
+  return [
+    { title: `${project?.name} | edit project` },
+    { name: "description", content: project?.description },
+  ];
 };
 
 export default function EditProjectPage() {
   const { project, projectId, statuses, tiers, canDeleteProject } =
     useTypedLoaderData<typeof loader>();
-
-  const [tabIndex, setTabIndex] = useState(0);
-  const handleTabChange = (event: SyntheticEvent, tabNumber: number) =>
-    setTabIndex(tabNumber);
 
   const [open, setOpen] = useState(false);
   const [isButtonDisabled, setisButtonDisabled] = useState(true);
@@ -152,53 +148,29 @@ export default function EditProjectPage() {
         >
           <GoBack title="Back to project" href={`/projects/${projectId}`} />
 
-          <EditPanelsStyles>
-            <Box>
-              <Tabs
-                value={tabIndex}
-                onChange={handleTabChange}
-                aria-label="Edit project"
-              >
-                <Tab
-                  component={Link}
-                  label="Project Details"
-                  to={`/projects/${projectId}/edit`}
-                />
-                <Tab
-                  component={Link}
-                  label="Contributor's Path"
-                  to={`/projects/${projectId}/editContributorsPath`}
-                />
-              </Tabs>
-            </Box>
-
-            <TabPanel value={tabIndex} index={0}>
-              <ValidatedForm
-                validator={validator}
-                defaultValues={{
-                  name: project.name,
-                  projectStatus: project.projectStatus || undefined,
-                  innovationTiers: project.innovationTiers || undefined,
-                  description: project.description || "",
-                  valueStatement: project.valueStatement || "",
-                  helpWanted: project.helpWanted,
-                  disciplines: project.disciplines,
-                  owner: project.owner || undefined,
-                  target: project.target || "",
-                  repoUrls: project.repoUrls || [],
-                  slackChannel: project.slackChannel || "",
-                  skills: project.skills,
-                  labels: project.labels,
-                  projectBoard: project.projectBoard || "",
-                }}
-                method="post"
-              >
-                <ProjectForm statuses={statuses} tiers={tiers} />
-              </ValidatedForm>
-            </TabPanel>
-            <TabPanel value={tabIndex} index={1}></TabPanel>
-          </EditPanelsStyles>
-          {canDeleteProject && (
+          <ValidatedForm
+            validator={validator}
+            defaultValues={{
+              name: project.name,
+              projectStatus: project.projectStatus || undefined,
+              innovationTiers: project.innovationTiers || undefined,
+              description: project.description || "",
+              valueStatement: project.valueStatement || "",
+              helpWanted: project.helpWanted,
+              disciplines: project.disciplines,
+              owner: project.owner || undefined,
+              target: project.target || "",
+              repoUrls: project.repoUrls || [],
+              slackChannel: project.slackChannel || "",
+              skills: project.skills,
+              labels: project.labels,
+              projectBoard: project.projectBoard || "",
+            }}
+            method="post"
+          >
+            <ProjectForm statuses={statuses} tiers={tiers} />
+          </ValidatedForm>
+          {canDeleteProject ? (
             <Button
               onClick={handleClickOpen}
               color="warning"
@@ -206,7 +178,7 @@ export default function EditProjectPage() {
             >
               {"Delete Project"}
             </Button>
-          )}
+          ) : null}
         </Paper>
       </Container>
       <Dialog onClose={handleClose} open={open}>

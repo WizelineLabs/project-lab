@@ -1,10 +1,4 @@
-import invariant from "tiny-invariant";
-import { Authenticator, type StrategyVerifyCallback } from "remix-auth";
-import type { Auth0ExtraParams, Auth0Profile } from "remix-auth-auth0";
-import { Auth0Strategy } from "remix-auth-auth0";
-import { sessionStorage } from "~/session.server";
-import type { User } from "~/models/user.server";
-import { findOrCreate } from "~/models/user.server";
+import { findProfileData } from "./lake.server";
 import {
   createProfile,
   getProfileByEmail,
@@ -13,14 +7,20 @@ import {
   createGitHubProject,
   updateProfile,
 } from "./models/profile.server";
-import { findProfileData } from "./lake.server";
 import { getUserInfo, getUserRepos } from "./routes/api.github.get-getUserInfo";
+import { Authenticator, type StrategyVerifyCallback } from "remix-auth";
+import type { Auth0ExtraParams, Auth0Profile } from "remix-auth-auth0";
+import { Auth0Strategy } from "remix-auth-auth0";
 import type { OAuth2StrategyVerifyParams } from "remix-auth-oauth2";
+import invariant from "tiny-invariant";
+import type { User } from "~/models/user.server";
+import { findOrCreate } from "~/models/user.server";
+import { sessionStorage } from "~/session.server";
 
 const verifyCallback: StrategyVerifyCallback<
   User,
   OAuth2StrategyVerifyParams<Auth0Profile, Auth0ExtraParams>
-> = async ({ accessToken, refreshToken, extraParams, profile }) => {
+> = async ({ profile }) => {
   try {
     if (profile.emails == undefined || !profile.emails[0]) {
       throw new Error("we need an email to login");

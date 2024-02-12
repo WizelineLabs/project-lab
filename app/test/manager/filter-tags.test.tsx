@@ -1,9 +1,9 @@
 /* eslint-disable jest-dom/prefer-in-document */
-import { describe, test, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import FilterTags, { loader } from "../../routes/manager.filter-tags";
 import "@testing-library/jest-dom";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { describe, test, vi } from "vitest";
 
 describe("Filter Tags test", () => {
   // mocking remix module to handle Loaders

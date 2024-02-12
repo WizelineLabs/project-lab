@@ -1,4 +1,4 @@
-import type { ActionFunction} from "@remix-run/server-runtime";
+import type { ActionFunction } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
 import invariant from "tiny-invariant";
 import { addAppliedProject } from "~/models/applicant.server";
@@ -12,11 +12,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   const projects = await getProjectById(params.projectId);
 
   try {
-    await addAppliedProject(
-      profile.email,
-      projects.name,
-      projects.id,
-    );
+    await addAppliedProject(profile.email, projects.name, projects.id);
   } catch (e) {
     const session = await getSession(request);
     session.flash("warning", "error while applying a project");

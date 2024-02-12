@@ -1,5 +1,4 @@
 {
-    "cSpell.ignoreWords": [
-        "Wizeline"
-    ]
+  "cSpell.ignoreWords": ["Wizeline"],
+  "editor.formatOnSave": true
 }

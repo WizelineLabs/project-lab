@@ -1,25 +1,35 @@
-import { Avatar, Grid, IconButton, List, ListItem, ListItemAvatar, ListItemText, Pagination, Paper } from "@mui/material";
-import Header from "../core/layouts/Header";
 import ProposalCard from "../core/components/ProposalCard";
+import Header from "../core/layouts/Header";
+import EmailIcon from "@mui/icons-material/EmailRounded";
+import FaceIcon from "@mui/icons-material/Face5";
+import PhoneIcon from "@mui/icons-material/Phone";
+import SportsIcon from "@mui/icons-material/SportsScore";
+import ViewListIcon from "@mui/icons-material/ViewList";
+import ViewModuleIcon from "@mui/icons-material/ViewModule";
+import WorkIcon from "@mui/icons-material/Work";
+import {
+  Avatar,
+  Grid,
+  IconButton,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  Pagination,
+  Paper,
+} from "@mui/material";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
 import { useLoaderData, useSearchParams } from "@remix-run/react";
 import type { LoaderFunction } from "@remix-run/server-runtime";
-import { getProjectsByRole } from "~/models/project.server";
-import ViewModuleIcon from "@mui/icons-material/ViewModule";
-import ViewListIcon from "@mui/icons-material/ViewList";
-import { searchDisciplineByName } from "~/models/discipline.server";
 import { mentorDiscipline } from "~/constants";
-import { requireProfile } from "~/session.server";
 import { getApplicantByEmail } from "~/models/applicant.server";
-import WorkIcon from '@mui/icons-material/Work';
-import SportsIcon from '@mui/icons-material/SportsScore';
-import FaceIcon from '@mui/icons-material/Face5';
-import PhoneIcon from '@mui/icons-material/Phone';
-import EmailIcon from '@mui/icons-material/EmailRounded';
+import { searchDisciplineByName } from "~/models/discipline.server";
+import { getProjectsByRole } from "~/models/project.server";
+import { requireProfile } from "~/session.server";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -40,7 +50,7 @@ export const loader: LoaderFunction = async ({ request }) => {
       count,
       id,
       existApplicant,
-      applicant
+      applicant,
     };
   } catch (error) {
     console.error("Error loading data:", error);
@@ -51,13 +61,14 @@ export const loader: LoaderFunction = async ({ request }) => {
       projects,
       count,
       id,
-      existApplicant: false, 
+      existApplicant: false,
     };
   }
 };
 
 export default function ViewProjects() {
-  const { projects, count, existApplicant, applicant} = useLoaderData();
+  const { projects, count, existApplicant, applicant } =
+    useLoaderData<typeof loader>();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const viewOption = searchParams.get("view") || "card";
@@ -78,70 +89,84 @@ export default function ViewProjects() {
 
   return (
     <>
-      <Header 
-      title="Internship Projects" 
-      existApplicant={existApplicant}
-      />
+      <Header title="Internship Projects" existApplicant={existApplicant} />
 
-      {
-        existApplicant &&
+      {existApplicant ? (
         <Grid item xs={12} md={9}>
-        <Paper elevation={0} sx={{ padding: 2, margin: 2 }}>
+          <Paper elevation={0} sx={{ padding: 2, margin: 2 }}>
             <h2>Personal Information</h2>
 
             <List
-             sx={{ display: 'flex', flexWrap: 'wrap' }}
+              sx={{ display: "flex", flexWrap: "wrap" }}
               aria-labelledby="nested-list-subheader"
             >
-              <ListItem  sx={{ flexGrow: 1 ,  width:' 50%',  height: '100px' }}>
+              <ListItem sx={{ flexGrow: 1, width: " 50%", height: "100px" }}>
                 <ListItemAvatar>
                   <Avatar>
                     <FaceIcon />
                   </Avatar>
                 </ListItemAvatar>
-                <ListItemText primary="Full Name" secondary={ applicant?.fullName } />
+                <ListItemText
+                  primary="Full Name"
+                  secondary={applicant?.fullName}
+                />
               </ListItem>
-              
-              <ListItem sx={{ flexGrow: 1 ,  width:' 50%',  height: '100px' }}>
+
+              <ListItem sx={{ flexGrow: 1, width: " 50%", height: "100px" }}>
                 <ListItemAvatar>
                   <Avatar>
                     <WorkIcon />
                   </Avatar>
                 </ListItemAvatar>
-                <ListItemText primary="Start Date" secondary={new Date(applicant?.startDate).toLocaleDateString()} />
+                <ListItemText
+                  primary="Start Date"
+                  secondary={new Date(
+                    applicant?.startDate
+                  ).toLocaleDateString()}
+                />
               </ListItem>
 
-              <ListItem sx={{ flexGrow: 1 ,  width:' 50%',  height: '100px' }}>
+              <ListItem sx={{ flexGrow: 1, width: " 50%", height: "100px" }}>
                 <ListItemAvatar>
                   <Avatar>
                     <SportsIcon />
                   </Avatar>
                 </ListItemAvatar>
-                <ListItemText primary="End Date" secondary={new Date(applicant?.startDate).toLocaleDateString()} />
+                <ListItemText
+                  primary="End Date"
+                  secondary={new Date(
+                    applicant?.startDate
+                  ).toLocaleDateString()}
+                />
               </ListItem>
 
-              <ListItem sx={{ flexGrow: 1 ,  width:' 50%',  height: '100px' }}>
+              <ListItem sx={{ flexGrow: 1, width: " 50%", height: "100px" }}>
                 <ListItemAvatar>
                   <Avatar>
                     <PhoneIcon />
                   </Avatar>
                 </ListItemAvatar>
-                <ListItemText primary="Contact Phone" secondary={applicant?.phone} />
+                <ListItemText
+                  primary="Contact Phone"
+                  secondary={applicant?.phone}
+                />
               </ListItem>
 
-              <ListItem sx={{ flexGrow: 1 ,  width:' 50%',  height: '100px'}}>
+              <ListItem sx={{ flexGrow: 1, width: " 50%", height: "100px" }}>
                 <ListItemAvatar>
                   <Avatar>
                     <EmailIcon />
                   </Avatar>
                 </ListItemAvatar>
-                <ListItemText primary="Email" secondary={applicant?.universityEmail} />
+                <ListItemText
+                  primary="Email"
+                  secondary={applicant?.universityEmail}
+                />
               </ListItem>
-
             </List>
-        </Paper>
+          </Paper>
         </Grid>
-      }
+      ) : null}
       <Grid item xs={12} md={9}>
         <Paper elevation={0} sx={{ padding: 2, margin: 2 }}>
           <h2 style={{ marginTop: 0 }}>{getTitle() + ` (${count || 0})`}</h2>

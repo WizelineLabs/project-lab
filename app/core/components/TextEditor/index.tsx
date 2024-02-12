@@ -1,12 +1,12 @@
-import { useControlField } from "remix-validated-form";
+import { Typography } from "@mui/material";
 import { Suspense, lazy, useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import { Typography } from "@mui/material";
+import { useControlField } from "remix-validated-form";
 
-let LazyMDEditor = lazy(() => import("@uiw/react-md-editor"));
+const LazyMDEditor = lazy(() => import("@uiw/react-md-editor"));
 
 export function ClientOnly({ children }: { children: ReactNode }) {
-  let [mounted, setMounted] = useState(false);
+  const [mounted, setMounted] = useState(false);
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -33,7 +33,9 @@ export default function TextEditor({
         <input name={name} type="hidden" value={text || ""} />
         <LazyMDEditor
           value={text || ""}
-          placeholder={placeholder}
+          textareaProps={{
+            placeholder,
+          }}
           onChange={setText}
           height={height}
         />

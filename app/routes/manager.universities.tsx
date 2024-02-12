@@ -1,34 +1,35 @@
-import { useState } from "react"
-import type { V2_MetaFunction, LoaderFunction } from "@remix-run/node"
-import { useLoaderData, Outlet } from "@remix-run/react"
-import { redirect, json } from "@remix-run/node"
-import { LinkTabStyles, EditPanelsStyles, BoxStyles } from "./manager.styles"
+import { LinkTabStyles, EditPanelsStyles, BoxStyles } from "./manager.styles";
+import type { MetaFunction, LoaderFunction } from "@remix-run/node";
+import { redirect, json } from "@remix-run/node";
+import { useLoaderData, Outlet } from "@remix-run/react";
+import { useState } from "react";
 
 export const loader: LoaderFunction = async ({ request }) => {
-  let initialTabIdx = 0
-  if (request.url.includes("list")) initialTabIdx = 0
-  if (request.url.includes("points-of-contact")) initialTabIdx = 1
-  const url = new URL(request.url)
-  if (url.pathname === "/manager/universities") return redirect("/manager/universities/list")
+  let initialTabIdx = 0;
+  if (request.url.includes("list")) initialTabIdx = 0;
+  if (request.url.includes("points-of-contact")) initialTabIdx = 1;
+  const url = new URL(request.url);
+  if (url.pathname === "/manager/universities")
+    return redirect("/manager/universities/list");
   return json({
     initialTabIdx,
-  })
-}
+  });
+};
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return [
     { title: "Wizelabs - Universities" },
     { name: "description", content: "This is the Manager's Universities Tab" },
-  ]
-}
+  ];
+};
 
 const FilterTagsPage = () => {
-  const { initialTabIdx } = useLoaderData()
-  const [tabIndex, setTabIndex] = useState(initialTabIdx)
+  const { initialTabIdx } = useLoaderData<typeof loader>();
+  const [tabIndex, setTabIndex] = useState(initialTabIdx);
 
   const handleChangeTab = (num: number) => {
-    setTabIndex(num)
-  }
+    setTabIndex(num);
+  };
 
   return (
     <EditPanelsStyles>
@@ -50,7 +51,7 @@ const FilterTagsPage = () => {
       </BoxStyles>
       <Outlet />
     </EditPanelsStyles>
-  )
-}
+  );
+};
 
-export default FilterTagsPage
+export default FilterTagsPage;

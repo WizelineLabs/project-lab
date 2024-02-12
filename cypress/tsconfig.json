@@ -6,21 +6,28 @@
   "include": [
     "e2e/**/*",
     "support/**/*",
+    "../node_modules/cookie",
     "../node_modules/cypress",
-    "../node_modules/@testing-library/cypress"
+    "../node_modules/@testing-library/cypress",
+    "../node_modules/@types/cookie"
   ],
   "compilerOptions": {
     "baseUrl": ".",
     "noEmit": true,
-    "types": ["node", "cypress", "@testing-library/cypress"],
+    "types": [
+      "node",
+      "cookie",
+      "cypress",
+      "@testing-library/cypress",
+      "@types/cookie"
+    ],
     "esModuleInterop": true,
     "jsx": "react-jsx",
-    "moduleResolution": "node",
-    "target": "es2019",
+    "moduleResolution": "Bundler",
+    "target": "ES2020",
     "strict": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "typeRoots": ["../types", "../node_modules/@types"],
 
     "paths": {
       "~/*": ["../app/*"]

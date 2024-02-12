@@ -7,6 +7,11 @@ on:
     tags:
       - "*"
   pull_request: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   actions: write
   contents: read
@@ -16,10 +21,6 @@ jobs:
     name: ⬣ ESLint
     runs-on: ubuntu-latest
     steps:
-      - name: 🛑 Cancel Previous Runs
-        if: ${{ env.GITHUB_ACTOR != 'nektos/act' }}
-        uses: styfle/cancel-workflow-action@0.11.0
-
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v3
 
@@ -38,10 +39,6 @@ jobs:
     name: ʦ TypeScript
     runs-on: ubuntu-latest
     steps:
-      - name: 🛑 Cancel Previous Runs
-        if: ${{ env.GITHUB_ACTOR != 'nektos/act' }}
-        uses: styfle/cancel-workflow-action@0.11.0
-
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v3
 
@@ -63,10 +60,6 @@ jobs:
       DATABASE_URL: postgresql://lab_user:lab_pass@localhost/lab_test
       SESSION_SECRET: asdf_secret
     steps:
-      - name: 🛑 Cancel Previous Runs
-        if: ${{ env.GITHUB_ACTOR != 'nektos/act' }}
-        uses: styfle/cancel-workflow-action@0.11.0
-
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v3
 
@@ -97,62 +90,11 @@ jobs:
       - name: ⚡ Run vitest
         run: npm run test --coverage
 
-  cypress:
-    name: ⚫️ Cypress
-    runs-on: ubuntu-latest
-    env:
-      DATABASE_URL: postgresql://lab_user:lab_pass@localhost/lab_test
-      SESSION_SECRET: asdf_secret
-      BASE_URL: http://localhost:3000
-      AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
-      AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
-      AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
-    steps:
-      - name: 🛑 Cancel Previous Runs
-        if: ${{ env.GITHUB_ACTOR != 'nektos/act' }}
-        uses: styfle/cancel-workflow-action@0.11.0
-
-      - name: ⬇️ Checkout repo
-        uses: actions/checkout@v3
-
-      - name: 🏄 Copy test env vars
-        run: cp .env.example .env
-
-      - name: ⎔ Setup node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-
-      - uses: harmon758/postgresql-action@v1
-        with:
-          postgresql version: "12"
-          postgresql db: lab_test
-          postgresql user: lab_user
-          postgresql password: lab_pass
-
-      - name: 📥 Download deps
-        uses: bahmutov/npm-install@v1
-
-      - name: 🛠 Setup Database
-        run: npx prisma migrate reset --force
-
-      - name: ⚙️ Build
-        run: npm run build
-
-      - name: 🌳 Cypress run
-        uses: cypress-io/github-action@v5
-        with:
-          install: false
-          start: npm run start:mocks
-          wait-on: "http://localhost:3000"
-        env:
-          PORT: "3000"
-
   deploy:
     name: 🚀 Deploy
     runs-on: ubuntu-latest
     environment: dev
-    needs: [lint, typecheck, vitest, cypress]
+    needs: [lint, typecheck, vitest]
     # only build/deploy main branch on pushes
     if: ${{ (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') && github.event_name == 'push' }}
 
@@ -160,10 +102,6 @@ jobs:
       NODE_ENV: production
 
     steps:
-      - name: 🛑 Cancel Previous Runs
-        if: ${{ env.GITHUB_ACTOR != 'nektos/act' }}
-        uses: styfle/cancel-workflow-action@0.11.0
-
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v3
 
@@ -206,10 +144,11 @@ jobs:
           AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
           GITHUB_KEY: ${{ secrets.API_GITHUB_KEY }}
+          DEV_URL: ${{ secrets.DEV_URL }}
         with:
           timeout: 60s
           command_timeout: 30m
-          envs: DB_URL,DATABASE_URL,SESSION_SECRET,BASE_URL,AUTH0_CLIENT_ID,AUTH0_DOMAIN,AUTH0_CLIENT_SECRET,GOOGLE_APPLICATION_CREDENTIALS,GITHUB_KEY
+          envs: DB_URL,DATABASE_URL,SESSION_SECRET,BASE_URL,AUTH0_CLIENT_ID,AUTH0_DOMAIN,AUTH0_CLIENT_SECRET,GOOGLE_APPLICATION_CREDENTIALS,GITHUB_KEY,DEV_URL
           host: ${{ secrets.LIGHTSAIL_IP }}
           username: ${{ secrets.LIGHTSAIL_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -233,6 +172,7 @@ jobs:
             echo AUTH0_CLIENT_SECRET="$AUTH0_CLIENT_SECRET" >> .env
             echo GOOGLE_APPLICATION_CREDENTIALS="$GOOGLE_APPLICATION_CREDENTIALS" >> .env
             echo GITHUB_KEY="$GITHUB_KEY" >> .env
+            echo DEV_URL="$DEV_URL" >> .env
 
             echo "*** Step: *** npm ci and build"
             npm ci # install
@@ -263,6 +203,8 @@ jobs:
             pm2 start ecosystem.config.js
             pm2 save
 
+            npm run test:dev
+
             echo "*** Step: ** Cleanup"
             rm -rf ~/projectlab/tmp
 
@@ -270,7 +212,7 @@ jobs:
     name: 🚀 Deploy Prod
     runs-on: ubuntu-latest
     environment: prod
-    needs: [lint, typecheck, vitest, cypress]
+    needs: [lint, typecheck, vitest]
     # only build/deploy prod on new version tags (v1.0.0)
     if: startsWith(github.ref, 'refs/tags/v')
 
@@ -278,10 +220,6 @@ jobs:
       NODE_ENV: production
 
     steps:
-      - name: 🛑 Cancel Previous Runs
-        if: ${{ env.GITHUB_ACTOR != 'nektos/act' }}
-        uses: styfle/cancel-workflow-action@0.11.0
-
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v3
 

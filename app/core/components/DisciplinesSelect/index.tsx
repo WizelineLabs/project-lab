@@ -1,18 +1,18 @@
-import { useEffect } from "react";
 import {
   CircularProgress,
   TextField,
   Autocomplete,
   debounce,
 } from "@mui/material";
-import { useControlField, useField } from "remix-validated-form";
 import type { SubmitOptions } from "@remix-run/react";
 import { useFetcher } from "@remix-run/react";
+import { useEffect } from "react";
+import { useControlField, useField } from "remix-validated-form";
 
-type disciplineValue = {
+interface disciplineValue {
   id: string;
   name: string;
-};
+}
 
 interface disciplinesSelectProps {
   name: string;
@@ -39,7 +39,7 @@ export const DisciplinesSelect = ({
   const searchdisciplinesDebounced = debounce(searchdisciplines, 500);
 
   useEffect(() => {
-    if (disciplineFetcher.type === "init") {
+    if (disciplineFetcher.state === "idle" && disciplineFetcher.data == null) {
       disciplineFetcher.submit({}, disciplinesOptions);
     }
   }, [disciplineFetcher]);

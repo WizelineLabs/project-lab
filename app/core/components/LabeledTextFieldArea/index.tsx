@@ -1,5 +1,5 @@
-import type { PropsWithoutRef } from "react";
 import TextField from "@mui/material/TextField";
+import type { PropsWithoutRef } from "react";
 import { useField } from "remix-validated-form";
 
 interface LabeledTextFieldAreaProps {

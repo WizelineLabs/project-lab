@@ -55,17 +55,18 @@ span.status.active {
   display: none;
 }
 
-.link_button, .link_button > * {
+.link_button,
+.link_button > * {
   text-decoration: none;
-  cursor: pointer
-}
-
-.link_button:hover > *{
-  font-size: .85em;
   cursor: pointer;
 }
 
-.link_button:hover .chip-hover{
+.link_button:hover > * {
+  font-size: 0.85em;
+  cursor: pointer;
+}
+
+.link_button:hover .chip-hover {
   background-color: rgba(0, 0, 0, 0.12);
 }
 

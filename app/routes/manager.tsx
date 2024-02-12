@@ -1,22 +1,22 @@
-import Header from "app/core/layouts/Header";
-import { useState } from "react";
-import { useLoaderData, Outlet, useRouteError } from "@remix-run/react";
-import { redirect } from "@remix-run/server-runtime";
-import type { LoaderFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
 import {
   EditPanelsStyles,
   NavBarTabsStyles,
   LinkStyles,
 } from "./manager.styles";
-import { adminRoleName } from "app/constants";
-import { requireUser } from "~/session.server";
 import { Container, Paper } from "@mui/material";
+import type { LoaderFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { useLoaderData, Outlet, useRouteError } from "@remix-run/react";
+import { redirect } from "@remix-run/server-runtime";
+import { adminRoleName } from "app/constants";
+import Header from "app/core/layouts/Header";
+import { useState } from "react";
+import { requireUser } from "~/session.server";
 
-type LoaderData = {
+interface LoaderData {
   initialTabIdx: number;
   initialTitle: string;
-};
+}
 
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await requireUser(request);
@@ -84,7 +84,7 @@ export default function ManagerPage() {
 }
 
 export function ErrorBoundary() {
-  const error = useRouteError() as Error
+  const error = useRouteError() as Error;
   console.error(error);
 
   return <div>An unexpected error occurred: {error.message}</div>;

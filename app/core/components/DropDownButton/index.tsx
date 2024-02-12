@@ -1,4 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+import Link from "../Link";
+import { DropdownPlaceholderContainer } from "./DropDownButton.styles";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
   ClickAwayListener,
   Grow,
@@ -7,16 +9,14 @@ import {
   MenuItem,
   MenuList,
 } from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { DropdownPlaceholderContainer } from "./DropDownButton.styles";
-import Link from "../Link";
+import React, { useEffect, useRef, useState } from "react";
 
-type DropDownOption = {
+interface DropDownOption {
   [x: string]: any;
   onClick?: () => void;
   text: string;
   to: string;
-};
+}
 
 export const DropDownButton = ({
   children,

@@ -1,5 +1,7 @@
+import { registerCommands } from "./commands";
 import "@testing-library/cypress/add-commands";
-import "./commands";
+
+registerCommands();
 
 Cypress.on("uncaught:exception", (err) => {
   // Cypress and React Hydrating the document don't get along

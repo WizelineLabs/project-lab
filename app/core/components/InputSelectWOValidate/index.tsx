@@ -1,15 +1,21 @@
-import { Select, MenuItem, FormControl, InputLabel, FormHelperText } from "@mui/material"
+import {
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  FormHelperText,
+} from "@mui/material";
 
 interface InputSelectProps {
-  valuesList: Array<{ name: string }>
-  defaultValue?: String
-  name: string
-  label: string
-  helperText?: string
-  margin?: "normal" | "none" | "dense" | undefined
-  disabled?: boolean
-  value: string
-  handleChange: React.Dispatch<React.SetStateAction<{ name: string }>>
+  valuesList: { name: string }[];
+  defaultValue?: string;
+  name: string;
+  label: string;
+  helperText?: string;
+  margin?: "normal" | "none" | "dense" | undefined;
+  disabled?: boolean;
+  value: string;
+  handleChange: React.Dispatch<React.SetStateAction<{ name: string }>>;
 }
 
 export const InputSelectWOValidate = ({
@@ -24,7 +30,7 @@ export const InputSelectWOValidate = ({
   handleChange,
 }: InputSelectProps) => {
   return (
-    <FormControl fullWidth id={name} margin={margin || "normal"} size="small" >
+    <FormControl fullWidth id={name} margin={margin || "normal"} size="small">
       <InputLabel id={name}>{label}</InputLabel>
       <Select
         style={{ width: "100%" }}
@@ -33,8 +39,10 @@ export const InputSelectWOValidate = ({
         label={label}
         value={value || defaultValue}
         onChange={(event) => {
-          const newValue = valuesList.find((item) => item.name === event.target.value)
-          if (newValue) handleChange(newValue)
+          const newValue = valuesList.find(
+            (item) => item.name === event.target.value
+          );
+          if (newValue) handleChange(newValue);
         }}
         disabled={disabled}
       >
@@ -46,7 +54,7 @@ export const InputSelectWOValidate = ({
       </Select>
       <FormHelperText>{helperText}</FormHelperText>
     </FormControl>
-  )
-}
+  );
+};
 
-export default InputSelectWOValidate
+export default InputSelectWOValidate;

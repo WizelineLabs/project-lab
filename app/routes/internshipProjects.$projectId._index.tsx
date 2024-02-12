@@ -1,7 +1,4 @@
 import Header from "../core/layouts/Header";
-import type { LoaderArgs } from "@remix-run/server-runtime";
-import { getProjectById } from "~/models/project.server";
-import { Form, useLoaderData, useNavigation, useSubmit } from "@remix-run/react";
 import {
   Button,
   Card,
@@ -13,15 +10,26 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
+import {
+  Form,
+  useLoaderData,
+  useNavigation,
+  useSubmit,
+} from "@remix-run/react";
+import { LoaderFunction } from "@remix-run/server-runtime";
 import { formatDistance } from "date-fns";
-import invariant from "tiny-invariant";
 import Markdown from "marked-react";
-import { useOptionalUser } from "~/utils";
-import { getApplicantByEmail, getAppliedProjectsByEmail } from "~/models/applicant.server";
-import { requireProfile } from "~/session.server";
 import { useState } from "react";
+import invariant from "tiny-invariant";
+import {
+  getApplicantByEmail,
+  getAppliedProjectsByEmail,
+} from "~/models/applicant.server";
+import { getProjectById } from "~/models/project.server";
+import { requireProfile } from "~/session.server";
+import { useOptionalUser } from "~/utils";
 
-export const loader = async ({ request, params }: LoaderArgs) => {
+export const loader: LoaderFunction = async ({ request, params }) => {
   invariant(params.projectId, "projectId not found");
 
   const profile = await requireProfile(request);
@@ -42,7 +50,8 @@ export const loader = async ({ request, params }: LoaderArgs) => {
 };
 
 export default function ProjectDetail() {
-  const { projects, appliedProjects, profile, existApplicant } = useLoaderData();
+  const { projects, appliedProjects, profile, existApplicant } =
+    useLoaderData<typeof loader>();
   const submit = useSubmit();
   const navigation = useNavigation();
   const [isApplying, setIsApplying] = useState(false);
@@ -62,23 +71,18 @@ export default function ProjectDetail() {
       projectName: projects.name as string,
       projectId: projects.id as string,
     };
-  
+
     try {
       setIsApplying(true);
-      await submit(body, { method: "put", action: './appliedproject' });
-
+      await submit(body, { method: "put", action: "./appliedproject" });
     } catch (error) {
       console.error("Error processing the application:", error);
     }
   };
-  
 
   return (
     <>
-      <Header 
-      title={projects.name || ""} 
-      existApplicant={existApplicant}
-      />
+      <Header title={projects.name || ""} existApplicant={existApplicant} />
 
       <Container sx={{ marginBottom: 2 }}>
         <Paper
@@ -94,38 +98,46 @@ export default function ProjectDetail() {
               <h1 style={{ marginBottom: 0 }}>{projects.name}</h1>
               <Typography color="text.secondary">
                 Last update:{" "}
-                {projects.updatedAt &&
-                  formatDistance(new Date(projects.updatedAt), new Date(), {
-                    addSuffix: true,
-                  })}
+                {projects.updatedAt
+                  ? formatDistance(new Date(projects.updatedAt), new Date(), {
+                      addSuffix: true,
+                    })
+                  : null}
               </Typography>
             </Grid>
           </Grid>
           <p className="descriptionProposal">{projects.description}</p>
-          {user && existApplicant && (
+          {user && existApplicant ? (
             <Grid style={{ position: "absolute", top: 0, right: 0 }}>
-              <Form method="put" action='./appliedproject'>
+              <Form method="put" action="./appliedproject">
                 <Button
                   className="contained"
-                  type='submit'
+                  type="submit"
                   sx={{
                     width: "200px",
                     height: "40px",
                     fontSize: "1em",
                     margin: 2,
-                    '&:disabled': {
-                      color: 'rgba(255, 255, 255, 0.7)', 
+                    "&:disabled": {
+                      color: "rgba(255, 255, 255, 0.7)",
                     },
                   }}
-                  onClick={handleApply} 
-                  disabled={navigation.state === 'loading' || appliedProjects.includes(projects.name) || isApplying}
-              >
-                {appliedProjects.includes(projects.name) && navigation.state != 'loading' ? 'APPLIED' : 'APPLY'}
-              </Button>
+                  onClick={handleApply}
+                  disabled={
+                    navigation.state === "loading" ||
+                    appliedProjects.includes(projects.name) ||
+                    isApplying
+                  }
+                >
+                  {appliedProjects.includes(projects.name) &&
+                  navigation.state != "loading"
+                    ? "APPLIED"
+                    : "APPLY"}
+                </Button>
               </Form>
             </Grid>
-          )}
-          {user && !existApplicant && (
+          ) : null}
+          {user && !existApplicant ? (
             <Grid style={{ position: "absolute", top: 0, right: 0 }}>
               <Button
                 href="/login/linkedin"
@@ -140,7 +152,7 @@ export default function ProjectDetail() {
                 Complete the form
               </Button>
             </Grid>
-          )}
+          ) : null}
         </Paper>
       </Container>
       <Container>

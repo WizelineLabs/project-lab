@@ -1,20 +1,21 @@
-import LabeledTextField from "app/core/components/LabeledTextField";
-import DisciplinesSelect from "app/core/components/DisciplinesSelect";
-import SkillsSelect from "app/core/components/SkillsSelect";
-import ModalBox from "app/core/components/ModalBox";
-import Button from "@mui/material/Button";
 import {
   Grid,
   FormDivContainer,
   CommitmentDivContainer,
 } from "./joinProjectModal.styles";
-import { ValidatedForm } from "remix-validated-form";
+import Button from "@mui/material/Button";
 import { withZod } from "@remix-validated-form/with-zod";
-import { zfd } from "zod-form-data";
+import DisciplinesSelect from "app/core/components/DisciplinesSelect";
+import LabeledTextField from "app/core/components/LabeledTextField";
+import ModalBox from "app/core/components/ModalBox";
+import SkillsSelect from "app/core/components/SkillsSelect";
+import { ValidatedForm } from "remix-validated-form";
 import { z } from "zod";
+import { zfd } from "zod-form-data";
 
 interface IProps {
   open: boolean;
+  // eslint-disable-next-line @typescript-eslint/ban-types
   handleCloseModal: Function;
   projectId: string;
 }
@@ -46,7 +47,6 @@ const JoinProjectModal = (props: IProps) => {
     <ModalBox
       open={props.open}
       close={props.handleCloseModal}
-      handleClose={() => {}}
       boxStyle={{ width: "800px" }}
     >
       <ValidatedForm method="post" action="./joinProject" validator={validator}>
@@ -57,7 +57,7 @@ const JoinProjectModal = (props: IProps) => {
             <p className="question">What role will you be playing?</p>
             <DisciplinesSelect name="role" label="Role(s)" />
 
-            <p className="question">What's your availability?</p>
+            <p className="question">What&apos;s your availability?</p>
             <LabeledTextField
               name="hoursPerWeek"
               fullWidth

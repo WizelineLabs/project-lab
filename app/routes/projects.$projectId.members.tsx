@@ -1,6 +1,3 @@
-import { Fragment, useEffect } from "react";
-import Header from "app/core/layouts/Header";
-import GoBack from "app/core/components/GoBack";
 import {
   Autocomplete,
   CircularProgress,
@@ -13,41 +10,40 @@ import {
   Paper,
   Button,
 } from "@mui/material";
+import { Prisma } from "@prisma/client";
+import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
+import type { SubmitOptions } from "@remix-run/react";
+import { useNavigation, useLoaderData, useFetcher } from "@remix-run/react";
+import { withZod } from "@remix-validated-form/with-zod";
+import GoBack from "app/core/components/GoBack";
 import { SkillsSelect } from "app/core/components/SkillsSelect";
-import { DisciplinesSelect } from "~/core/components/DisciplinesSelect";
-
+import Header from "app/core/layouts/Header";
+import { Fragment, useEffect } from "react";
 import {
   validationError,
   ValidatedForm,
-  FieldArray,
+  useFieldArray,
 } from "remix-validated-form";
-import { withZod } from "@remix-validated-form/with-zod";
+import invariant from "tiny-invariant";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
-import {
-  PrismaClientKnownRequestError,
-  PrismaClientValidationError,
-} from "@prisma/client/runtime";
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
-import type { SubmitOptions } from "@remix-run/react";
-import { json, redirect } from "@remix-run/node";
-import { useNavigation, useLoaderData, useFetcher } from "@remix-run/react";
-import { requireProfile, requireUser } from "~/session.server";
+import { adminRoleName } from "~/constants";
+import { DisciplinesSelect } from "~/core/components/DisciplinesSelect";
+import { LabeledCheckbox } from "~/core/components/LabeledCheckbox";
+import LabeledTextField from "~/core/components/LabeledTextField";
 import {
   getProject,
   getProjectTeamMembers,
   updateMembers,
 } from "~/models/project.server";
-import invariant from "tiny-invariant";
-import { adminRoleName } from "~/constants";
-import LabeledTextField from "~/core/components/LabeledTextField";
-import { LabeledCheckbox } from "~/core/components/LabeledCheckbox";
+import { requireProfile, requireUser } from "~/session.server";
 import { isProjectMemberOrOwner } from "~/utils";
 
-type ProfileValue = {
+interface ProfileValue {
   id: string;
   name: string;
-};
+}
 
 const profileFetcherOptions: SubmitOptions = {
   method: "get",
@@ -107,8 +103,8 @@ export const action: ActionFunction = async ({ request, params }) => {
     return redirect(`/projects/${projectId}`);
   } catch (e) {
     if (
-      e instanceof PrismaClientKnownRequestError ||
-      e instanceof PrismaClientValidationError
+      e instanceof Prisma.PrismaClientKnownRequestError ||
+      e instanceof Prisma.PrismaClientValidationError
     ) {
       return validationError({
         fieldErrors: {
@@ -128,9 +124,12 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 };
 
 const EditMembersPage = () => {
-  const { profile, projectMembers, projectId } = useLoaderData();
+  const { profile, projectMembers, projectId } = useLoaderData<typeof loader>();
   const profileFetcher = useFetcher<ProfileValue[]>();
   const navigation = useNavigation();
+  const [items, { push, remove }] = useFieldArray("projectMembers", {
+    formId: "profileMembersForm",
+  });
 
   const searchProfiles = (value: string) => {
     profileFetcher.submit({ q: value }, profileFetcherOptions);
@@ -138,7 +137,7 @@ const EditMembersPage = () => {
   const searchProfilesDebounced = debounce(searchProfiles, 500);
 
   useEffect(() => {
-    if (profileFetcher.type === "init") {
+    if (profileFetcher.state === "idle" && profileFetcher.data == null) {
       profileFetcher.submit({}, profileFetcherOptions);
     }
   }, [profileFetcher]);
@@ -171,133 +170,123 @@ const EditMembersPage = () => {
             method="post"
             id="profileMembersForm"
           >
-            <FieldArray name="projectMembers">
-              {(items, { push, remove }) => (
-                <>
-                  <Autocomplete
-                    multiple
-                    style={{ margin: "1em 0" }}
-                    options={profileFetcher.data ?? []}
-                    isOptionEqualToValue={(option, value) =>
-                      option.id === value.id
-                    }
-                    getOptionLabel={(option) => option.name}
-                    onInputChange={(_, value) => searchProfilesDebounced(value)}
-                    disableClearable
-                    onChange={(_event, _newValue, reason, details) => {
-                      if (reason === "selectOption") {
-                        push({
-                          profileId: details?.option.id,
-                          hoursPerWeek: "",
-                          practicedSkills: [],
-                          role: [],
-                          profile: { preferredName: details?.option.name },
-                          active: true,
-                        });
-                      }
-                      if (
-                        reason === "removeOption" &&
-                        profile.name !== details?.option.name
-                      ) {
-                        remove(
-                          items.findIndex(
-                            (item) => item.profileId !== details?.option.id
-                          )
-                        );
-                      }
+            <>
+              <Autocomplete
+                multiple
+                style={{ margin: "1em 0" }}
+                options={profileFetcher.data ?? []}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                getOptionLabel={(option) => option.name}
+                onInputChange={(_, value) => searchProfilesDebounced(value)}
+                disableClearable
+                onChange={(_event, _newValue, reason, details) => {
+                  if (reason === "selectOption") {
+                    push({
+                      profileId: details?.option.id,
+                      hoursPerWeek: "",
+                      practicedSkills: [],
+                      role: [],
+                      profile: { preferredName: details?.option.name },
+                      active: true,
+                    });
+                  }
+                  if (
+                    reason === "removeOption" &&
+                    profile.name !== details?.option.name
+                  ) {
+                    remove(
+                      items.findIndex(
+                        (item) =>
+                          item.defaultValue.profileId !== details?.option.id
+                      )
+                    );
+                  }
+                }}
+                renderTags={() => null}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Add a contributor"
+                    InputProps={{
+                      ...params.InputProps,
+                      endAdornment: (
+                        <Fragment>
+                          {profileFetcher.state === "submitting" ? (
+                            <CircularProgress color="inherit" size={20} />
+                          ) : null}
+                          {params.InputProps.endAdornment}
+                        </Fragment>
+                      ),
                     }}
-                    renderTags={() => null}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Add a contributor"
-                        InputProps={{
-                          ...params.InputProps,
-                          endAdornment: (
-                            <Fragment>
-                              {profileFetcher.state === "submitting" ? (
-                                <CircularProgress color="inherit" size={20} />
-                              ) : null}
-                              {params.InputProps.endAdornment}
-                            </Fragment>
-                          ),
+                  />
+                )}
+              />
+
+              <Grid
+                container
+                spacing={1}
+                alignItems="baseline"
+                rowSpacing={{ xs: 2, sm: 1 }}
+                style={{ paddingTop: 20 }}
+              >
+                {items?.map((item, i) => (
+                  <Fragment key={i}>
+                    <Grid item xs={12} sm={2}>
+                      <>
+                        <input
+                          type="hidden"
+                          name={`projectMembers[${i}].profileId`}
+                          value={item.defaultValue.profileId}
+                        />
+                        <Chip
+                          label={`${item.defaultValue.profile?.preferredName} ${item.defaultValue.profile?.lastName}`}
+                          onDelete={() => {
+                            if (item.defaultValue.profileId !== profile.id) {
+                              remove(i);
+                            }
+                          }}
+                        />
+                      </>
+                    </Grid>
+                    <Grid item xs={12} sm={4}>
+                      <DisciplinesSelect //still uses constant values instead of values taken from the db
+                        name={`projectMembers[${i}].role`}
+                        label="Role(s)"
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={4}>
+                      <SkillsSelect //still uses constant values instead of values taken from the db
+                        name={`projectMembers[${i}].practicedSkills`}
+                        label="Skills"
+                      />
+                    </Grid>
+                    <Grid item xs={6} sm={1}>
+                      <LabeledTextField
+                        label="Hours"
+                        helperText="H. per week"
+                        name={`projectMembers[${i}].hoursPerWeek`}
+                        size="small"
+                        type="number"
+                        sx={{
+                          "& .MuiFormHelperText-root": {
+                            marginLeft: 0,
+                            marginRight: 0,
+                            textAlign: "center",
+                          },
                         }}
                       />
-                    )}
-                  />
-
-                  <Grid
-                    container
-                    spacing={1}
-                    alignItems="baseline"
-                    rowSpacing={{ xs: 2, sm: 1 }}
-                    style={{ paddingTop: 20 }}
-                  >
-                    {items?.map((item, i) => (
-                      <Fragment key={i}>
-                        <Grid item xs={12} sm={2}>
-                          <>
-                            <input
-                              type="hidden"
-                              name={`projectMembers[${i}].profileId`}
-                              value={item.profileId}
-                            />
-                            <Chip
-                              label={`${item.profile?.preferredName} ${item.profile?.lastName}`}
-                              onDelete={() => {
-                                if (item.profileId !== profile.id) {
-                                  remove(i);
-                                }
-                              }}
-                            />
-                          </>
-                        </Grid>
-                        <Grid item xs={12} sm={4}>
-                          <DisciplinesSelect //still uses constant values instead of values taken from the db
-                            name={`projectMembers[${i}].role`}
-                            label="Role(s)"
-                          />
-                        </Grid>
-                        <Grid item xs={12} sm={4}>
-                          <SkillsSelect //still uses constant values instead of values taken from the db
-                            name={`projectMembers[${i}].practicedSkills`}
-                            label="Skills"
-                          />
-                        </Grid>
-                        <Grid item xs={6} sm={1}>
-                          <LabeledTextField
-                            label="Hours"
-                            helperText="H. per week"
-                            name={`projectMembers[${i}].hoursPerWeek`}
-                            size="small"
-                            type="number"
-                            sx={{
-                              "& .MuiFormHelperText-root": {
-                                marginLeft: 0,
-                                marginRight: 0,
-                                textAlign: "center",
-                              },
-                            }}
-                          />
-                        </Grid>
-                        <Grid
-                          item
-                          xs={2}
-                          sm={1}
-                          style={{ textAlign: "center" }}
-                        >
-                          <LabeledCheckbox
-                            name={`projectMembers[${i}].active`}
-                            label="Active"
-                          />
-                        </Grid>
-                        <hr className="rows__separator" />
-                      </Fragment>
-                    ))}
-                  </Grid>
-                </>
-              )}
-            </FieldArray>
+                    </Grid>
+                    <Grid item xs={2} sm={1} style={{ textAlign: "center" }}>
+                      <LabeledCheckbox
+                        name={`projectMembers[${i}].active`}
+                        label="Active"
+                      />
+                    </Grid>
+                    <hr className="rows__separator" />
+                  </Fragment>
+                ))}
+              </Grid>
+            </>
             <Box textAlign="center">
               <Button
                 disabled={navigation.state === "submitting"}

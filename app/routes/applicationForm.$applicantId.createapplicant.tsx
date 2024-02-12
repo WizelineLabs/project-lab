@@ -1,7 +1,7 @@
+import { validator } from "./applicationForm.$applicantId._index";
 import type { ActionFunction } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
 import { createApplicant } from "~/models/applicant.server";
-import { validator } from "./applicationForm.$applicantId._index";
 import { requireProfile } from "~/session.server";
 
 const parseDate = (dateString: string): Date => {
@@ -39,10 +39,12 @@ export const action: ActionFunction = async ({ request }) => {
   const gender = (result?.data?.gender as string) ?? "DefaultGenderValue";
   const englishLevel =
     (result?.data?.englishLevel as string) ?? "DefaultEnglishLevelValue";
-  
-  const universityId = (result?.data?.university.id as string) ?? "DefaultUniversityValue";
-  const pointOfContactId = (result?.data?.universityContactId as string) ?? undefined;
-  
+
+  const universityId =
+    (result?.data?.university.id as string) ?? "DefaultUniversityValue";
+  const pointOfContactId =
+    (result?.data?.universityContactId as string) ?? undefined;
+
   const major = (result?.data?.major as string) ?? "DefaultMajorValue";
   const semester = (result?.data?.semester as string) ?? "DefaultSemesterValue";
   const graduationDate =
@@ -93,7 +95,7 @@ export const action: ActionFunction = async ({ request }) => {
     gender,
     englishLevel,
     universityId,
-    pointOfContactId, 
+    pointOfContactId,
     major,
     semester,
     graduationDate,

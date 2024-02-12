@@ -1,9 +1,11 @@
 /* eslint-disable jest-dom/prefer-in-document */
-import { describe, test, vi } from "vitest";
+import InnovationTiers, {
+  loader,
+} from "../../../routes/manager.filter-tags.innovation-tiers";
+import "@testing-library/jest-dom";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import InnovationTiers, { loader } from "../../../routes/manager.filter-tags.innovation-tiers";
-import "@testing-library/jest-dom";
+import { describe, test, vi } from "vitest";
 
 describe("Innovation Tiers test", () => {
   // mocking remix module to handle Loaders
@@ -12,7 +14,9 @@ describe("Innovation Tiers test", () => {
     return {
       ...remix,
       // get useFetcher to return an idle state initially and an empty submit
-      useFetcher: vi.fn().mockReturnValue({ state: "idle", submit: () => ({}) }),
+      useFetcher: vi
+        .fn()
+        .mockReturnValue({ state: "idle", submit: () => ({}) }),
       useLoaderData: vi.fn().mockReturnValue({
         innovationTiers: [
           {

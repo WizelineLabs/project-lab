@@ -1,11 +1,10 @@
 /* eslint-disable jest-dom/prefer-in-document */
-import { describe, test, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import Statuses, { loader } from "../../../routes/manager.filter-tags.statuses";
-
 // import type { DataGridProps } from "@mui/x-data-grid";
 import "@testing-library/jest-dom";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { describe, test, vi } from "vitest";
 
 describe("Statuses test", () => {
   // mocking remix module to handle Loaders
@@ -14,7 +13,9 @@ describe("Statuses test", () => {
     return {
       ...remix,
       // get useFetcher to return an idle state initially and an empty submit
-      useFetcher: vi.fn().mockReturnValue({ state: "idle", submit: () => ({}) }),
+      useFetcher: vi
+        .fn()
+        .mockReturnValue({ state: "idle", submit: () => ({}) }),
       useLoaderData: vi.fn().mockReturnValue({
         statuses: [
           {

@@ -1,7 +1,7 @@
-import { useState } from "react";
-import { InputAdornment, TextField } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import { InputAdornment, TextField } from "@mui/material";
 import { useNavigate, useSearchParams } from "@remix-run/react";
+import { useState } from "react";
 
 export const Search = () => {
   const navigate = useNavigate();

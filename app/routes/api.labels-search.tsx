@@ -4,7 +4,5 @@ import { searchLabels } from "~/models/label.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
-  return json(
-    await searchLabels(url.searchParams.get("q") || "")
-  );
-}
+  return json(await searchLabels(url.searchParams.get("q") || ""));
+};

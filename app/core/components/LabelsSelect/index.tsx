@@ -1,18 +1,18 @@
-import { Fragment, useEffect } from "react";
 import {
   CircularProgress,
   TextField,
   Autocomplete,
   debounce,
 } from "@mui/material";
-import { useControlField, useField } from "remix-validated-form";
 import type { SubmitOptions } from "@remix-run/react";
 import { useFetcher } from "@remix-run/react";
+import { Fragment, useEffect } from "react";
+import { useControlField, useField } from "remix-validated-form";
 
-type LabelValue = {
+interface LabelValue {
   id: string;
   name: string;
-};
+}
 
 interface LabelsSelectProps {
   name: string;
@@ -39,7 +39,7 @@ export const LabelsSelect = ({
   const searchLabelsDebounced = debounce(searchLabels, 500);
 
   useEffect(() => {
-    if (labelFetcher.type === "init") {
+    if (labelFetcher.state === "idle" && labelFetcher.data == null) {
       labelFetcher.submit({}, labelsOptions);
     }
   }, [labelFetcher]);

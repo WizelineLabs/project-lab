@@ -7,9 +7,9 @@ import {
 } from "@mui/material";
 import { useControlField, useField } from "remix-validated-form";
 
-type SelectValue = {
+interface SelectValue {
   name: string;
-};
+}
 
 interface InputSelectProps {
   valuesList: SelectValue[];

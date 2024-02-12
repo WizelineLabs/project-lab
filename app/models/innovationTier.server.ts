@@ -2,13 +2,13 @@ import { prisma } from "~/db.server";
 
 export type { InnovationTiers } from "@prisma/client";
 
-type newInnovationTier = {
+interface newInnovationTier {
   name: string;
   benefits: string;
   requisites: string;
   goals: string;
   id?: string;
-};
+}
 
 interface ResponseError extends Error {
   code?: string;

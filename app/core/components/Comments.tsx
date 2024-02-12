@@ -1,4 +1,7 @@
-import { useEffect, useState } from "react";
+import ModalBox from "./ModalBox";
+import TextEditor from "./TextEditor";
+import Delete from "@mui/icons-material/Delete";
+import Edit from "@mui/icons-material/Edit";
 import {
   Grid,
   Typography,
@@ -8,19 +11,16 @@ import {
   Paper,
   IconButton,
 } from "@mui/material";
-import Edit from "@mui/icons-material/Edit";
-import Delete from "@mui/icons-material/Delete";
-import { z } from "zod";
-import type { getComments } from "~/models/comment.server";
-import { zfd } from "zod-form-data";
-import { withZod } from "@remix-validated-form/with-zod";
-import ModalBox from "./ModalBox";
-import { Form, useNavigation } from "@remix-run/react";
-import TextEditor from "./TextEditor";
-import { ValidatedForm } from "remix-validated-form";
-import Markdown from "marked-react";
 import type { Comments as CommentType, Profiles } from "@prisma/client";
-import { validateNavigationRedirect } from '~/utils'
+import { Form, useNavigation } from "@remix-run/react";
+import { withZod } from "@remix-validated-form/with-zod";
+import Markdown from "marked-react";
+import { useEffect, useState } from "react";
+import { ValidatedForm } from "remix-validated-form";
+import { z } from "zod";
+import { zfd } from "zod-form-data";
+import type { getComments } from "~/models/comment.server";
+import { validateNavigationRedirect } from "~/utils";
 
 type CommentsArrayType = Awaited<ReturnType<typeof getComments>>;
 type CommentItemType = CommentType & {
@@ -61,19 +61,20 @@ export default function Comments({
           Add a comment
         </Button>
       </ValidatedForm>
-      {comments &&
-        comments
-          .filter((comment) => !comment.parentId)
-          .map((comment) => {
-            return (
-              <CommentItem
-                key={comment.id}
-                comment={comment}
-                projectId={projectId}
-                profileId={profileId}
-              />
-            );
-          })}
+      {comments
+        ? comments
+            .filter((comment) => !comment.parentId)
+            .map((comment) => {
+              return (
+                <CommentItem
+                  key={comment.id}
+                  comment={comment}
+                  projectId={projectId}
+                  profileId={profileId}
+                />
+              );
+            })
+        : null}
     </Box>
   );
 }
@@ -92,7 +93,7 @@ function CommentItem({
 
   const navigation = useNavigation();
   useEffect(() => {
-    const isActionRedirect = validateNavigationRedirect(navigation)
+    const isActionRedirect = validateNavigationRedirect(navigation);
     if (isActionRedirect) {
       setOpenDeleteModal(false);
       setOpenEditComment(false);
@@ -111,7 +112,7 @@ function CommentItem({
             {comment.updatedAt.toLocaleString()}
           </Typography>
         </Grid>
-        {profileId === comment.authorId && (
+        {profileId === comment.authorId ? (
           <Grid item justifyContent="right">
             <IconButton
               color="warning"
@@ -128,23 +129,24 @@ function CommentItem({
               <Edit />
             </IconButton>
           </Grid>
-        )}
+        ) : null}
         <Grid item xs={12}>
           <Box>
             <Markdown>{comment.body}</Markdown>
           </Box>
-          {comment.children &&
-            comment.children.map((commentChild) => {
-              return (
-                <CommentItem
-                  key={commentChild.id}
-                  comment={commentChild}
-                  projectId={projectId}
-                  profileId={profileId}
-                />
-              );
-            })}
-          {!comment.parentId && (
+          {comment.children
+            ? comment.children.map((commentChild) => {
+                return (
+                  <CommentItem
+                    key={commentChild.id}
+                    comment={commentChild}
+                    projectId={projectId}
+                    profileId={profileId}
+                  />
+                );
+              })
+            : null}
+          {!comment.parentId ? (
             <ValidatedForm
               action={`./comment/create`}
               method="post"
@@ -159,7 +161,7 @@ function CommentItem({
                 Reply
               </Button>
             </ValidatedForm>
-          )}
+          ) : null}
         </Grid>
       </Grid>
       <ModalBox open={openDeleteModal} close={() => setOpenDeleteModal(false)}>

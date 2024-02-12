@@ -1,44 +1,49 @@
-import React, { useState, useEffect } from "react";
-import { useFetcher, useLoaderData, useRouteError, isRouteErrorResponse } from "@remix-run/react";
+import ConfirmationModal from "../core/components/ConfirmationModal";
+import AddIcon from "@mui/icons-material/Add";
+import CancelIcon from "@mui/icons-material/Close";
+import DeleteIcon from "@mui/icons-material/DeleteOutlined";
+import SaveIcon from "@mui/icons-material/Save";
+import Button from "@mui/material/Button";
+import type { GridRenderCellParams } from "@mui/x-data-grid";
+import { DataGrid, GridToolbarContainer } from "@mui/x-data-grid";
 import type {
   LoaderFunction,
   ActionFunction,
-  V2_MetaFunction,
+  MetaFunction,
 } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import type { GridRenderCellParams } from "@mui/x-data-grid";
-import { DataGrid, GridToolbarContainer } from "@mui/x-data-grid";
-import Button from "@mui/material/Button";
-import AddIcon from "@mui/icons-material/Add";
-import DeleteIcon from "@mui/icons-material/DeleteOutlined";
-import SaveIcon from "@mui/icons-material/Save";
-import CancelIcon from "@mui/icons-material/Close";
+import {
+  useFetcher,
+  useLoaderData,
+  useRouteError,
+  isRouteErrorResponse,
+} from "@remix-run/react";
+import React, { useState, useEffect } from "react";
 import invariant from "tiny-invariant";
-import ConfirmationModal from "../core/components/ConfirmationModal";
 import {
   getAdminUsers,
   addAdminUser,
   removeAdminUser,
 } from "~/models/user.server";
 
-type LoaderData = {
+interface LoaderData {
   admins: Awaited<ReturnType<typeof getAdminUsers>>;
-};
+}
 
-type AdminRecord = {
+interface AdminRecord {
   id: number | string;
   name: string | null;
   email: string;
-};
+}
 
-type gridEditToolbarProps = {
+interface gridEditToolbarProps {
   setRows: React.Dispatch<React.SetStateAction<AdminRecord[]>>;
   createButtonText: string;
-};
+}
 
-type newAdmin = {
+interface newAdmin {
   email: string;
-};
+}
 
 export const loader: LoaderFunction = async () => {
   const admins = await getAdminUsers();
@@ -47,7 +52,7 @@ export const loader: LoaderFunction = async () => {
   });
 };
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return [
     { title: "Wizelabs - Admins" },
     { name: "description", content: "This is the Manager's Admin Tab" },
@@ -60,28 +65,24 @@ export const action: ActionFunction = async ({ request }) => {
   const action = formData.get("action");
   let response;
 
-  switch (action) {
-    case "POST":
-      const email = formData.get("email") as string;
-      invariant(email, "Invalid email address");
-      response = await addAdminUser({ email });
-      if (response.error) {
-        return json({ error: response.error }, { status: 404 });
-      }
-      return json(response, { status: 201 });
-
-    case "DELETE":
-      const id = formData.get("id") as string;
-      invariant(id, "User Id is required");
-      response = await removeAdminUser({ id });
-      if (response.error) {
-        return json({ error: response.error }, { status: 400 });
-      }
-      return json(response, { status: 200 });
-
-    default: {
-      throw new Error("Something went wrong");
+  if (action === "POST") {
+    const email = formData.get("email") as string;
+    invariant(email, "Invalid email address");
+    response = await addAdminUser({ email });
+    if (response.error) {
+      return json({ error: response.error }, { status: 404 });
     }
+    return json(response, { status: 201 });
+  } else if (action === "DELETE") {
+    const id = formData.get("id") as string;
+    invariant(id, "User Id is required");
+    response = await removeAdminUser({ id });
+    if (response.error) {
+      return json({ error: response.error }, { status: 400 });
+    }
+    return json(response, { status: 200 });
+  } else {
+    throw new Error("Something went wrong");
   }
 };
 
@@ -118,8 +119,8 @@ const GridEditToolbar = (props: gridEditToolbarProps) => {
 };
 
 export default function AdminsDataGrid() {
-  const fetcher = useFetcher();
-  const { admins } = useLoaderData() as LoaderData;
+  const fetcher = useFetcher<typeof action>();
+  const { admins } = useLoaderData<typeof loader>();
   const [error, setError] = useState<string>("");
   const createButtonText = "Add New Admin";
   const [rows, setRows] = useState<AdminRecord[]>(() =>
@@ -306,7 +307,7 @@ export default function AdminsDataGrid() {
     <>
       <div style={{ display: "flex", width: "100%", height: "70vh" }}>
         <div style={{ flexGrow: 1 }}>
-          {error && <p style={{ color: "red" }}>{error}</p>}
+          {error ? <p style={{ color: "red" }}>{error}</p> : null}
           <DataGrid
             rows={rows}
             columns={columns}
@@ -348,7 +349,7 @@ export default function AdminsDataGrid() {
 }
 
 export function ErrorBoundary() {
-  const error = useRouteError() as Error
+  const error = useRouteError() as Error;
   console.error(error);
 
   if (isRouteErrorResponse(error) && error.status === 404) {

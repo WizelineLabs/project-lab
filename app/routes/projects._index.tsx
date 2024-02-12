@@ -1,9 +1,8 @@
-import * as React from "react";
-import { useState } from "react";
-import type { LoaderFunction } from "@remix-run/node";
-import { useLoaderData, useSearchParams } from "@remix-run/react";
-import ProposalCard from "app/core/components/ProposalCard";
-import Header from "app/core/layouts/Header";
+import CloseIcon from "@mui/icons-material/Close";
+import FilterAltIcon from "@mui/icons-material/FilterAlt";
+import HighlightOffIcon from "@mui/icons-material/HighlightOff";
+import ViewListIcon from "@mui/icons-material/ViewList";
+import ViewModuleIcon from "@mui/icons-material/ViewModule";
 import {
   Box,
   Button,
@@ -16,26 +15,27 @@ import {
   useTheme,
   Pagination,
 } from "@mui/material";
-import HighlightOffIcon from "@mui/icons-material/HighlightOff";
-import FilterAltIcon from "@mui/icons-material/FilterAlt";
-import CloseIcon from "@mui/icons-material/Close";
-import { SortInput } from "app/core/components/SortInput";
-import { getProjectMembership, searchProjects } from "~/models/project.server";
-import { requireProfile } from "~/session.server";
-import type { ProjectStatus } from "~/models/status.server";
-import { getProjectStatuses } from "~/models/status.server";
-import { ongoingStage, ideaStage } from "~/constants";
-import Link from "~/core/components/Link";
-import ViewModuleIcon from "@mui/icons-material/ViewModule";
-import ViewListIcon from "@mui/icons-material/ViewList";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import MembershipModal from "~/core/components/MembershipModal/index";
+import type { LoaderFunction } from "@remix-run/node";
+import { useLoaderData, useSearchParams } from "@remix-run/react";
+import ProposalCard from "app/core/components/ProposalCard";
+import { SortInput } from "app/core/components/SortInput";
+import Header from "app/core/layouts/Header";
+import * as React from "react";
+import { useState } from "react";
+import { ongoingStage, ideaStage } from "~/constants";
 import FilterAccordion from "~/core/components/FilterAccordion";
+import Link from "~/core/components/Link";
+import MembershipModal from "~/core/components/MembershipModal/index";
 import NavAppBar from "~/core/components/NavAppBar";
+import { getProjectMembership, searchProjects } from "~/models/project.server";
+import type { ProjectStatus } from "~/models/status.server";
+import { getProjectStatuses } from "~/models/status.server";
+import { requireProfile } from "~/session.server";
 
 export interface projectMembership {
   active: boolean;
@@ -60,13 +60,13 @@ export interface projectMembership {
   updatedAt: string;
 }
 
-type LoaderData = {
+interface LoaderData {
   data: Awaited<ReturnType<typeof searchProjects>>;
   ongoingStatuses: ProjectStatus[];
   ideaStatuses: ProjectStatus[];
   projectMembership: projectMembership[];
   message: string;
-};
+}
 
 const ITEMS_PER_PAGE = 100;
 const FACETS = [
@@ -88,9 +88,7 @@ interface QuickFilter {
   searchParams: URLSearchParams;
 }
 
-interface QuickFilters {
-  [key: string]: QuickFilter;
-}
+type QuickFilters = Record<string, QuickFilter>;
 
 export const loader: LoaderFunction = async ({ request }) => {
   const profile = await requireProfile(request);
@@ -230,11 +228,11 @@ export default function Projects() {
 
   const deleteFilterUrl = (filter: string, value: string | null) => {
     const newParams = new URLSearchParams(searchParams.toString());
-    let newFilter = newParams.getAll(filter).filter((item) => item != value);
+    const newFilter = newParams.getAll(filter).filter((item) => item != value);
     newParams.delete(filter);
     newFilter.forEach((item) => newParams.append(filter, item));
     if (filter === "resource") {
-      let newProviderFilter = newParams
+      const newProviderFilter = newParams
         .getAll("provider")
         .filter((item) => !item.startsWith(value + " | "));
       newParams.delete("provider");
@@ -358,77 +356,77 @@ export default function Projects() {
               <Box sx={{ paddingLeft: 2, paddingRight: 2 }}>
                 <h3>Filters</h3>
               </Box>
-              {statusFacets.length > 0 && (
+              {statusFacets.length > 0 ? (
                 <FilterAccordion
                   title="Status"
                   filter="status"
                   items={statusFacets}
                 />
-              )}
-              {tierFacets.length > 0 && (
+              ) : null}
+              {tierFacets.length > 0 ? (
                 <FilterAccordion
                   title="Innovation tiers"
                   filter="tier"
                   items={tierFacets}
                 />
-              )}
-              {labelFacets.length > 0 && (
+              ) : null}
+              {labelFacets.length > 0 ? (
                 <FilterAccordion
                   title="Labels"
                   filter="label"
                   items={labelFacets}
                 />
-              )}
-              {disciplineFacets.length > 0 && (
+              ) : null}
+              {disciplineFacets.length > 0 ? (
                 <FilterAccordion
                   title="Looking for"
                   filter="discipline"
                   items={disciplineFacets}
                 />
-              )}
-              {roleFacets.length > 0 && (
+              ) : null}
+              {roleFacets.length > 0 ? (
                 <FilterAccordion
                   title="Has Roles"
                   filter="role"
                   items={roleFacets}
                 />
-              )}
-              {missingFacets.length > 0 && (
+              ) : null}
+              {missingFacets.length > 0 ? (
                 <FilterAccordion
                   title="Does not have Roles"
                   filter="missing"
                   items={missingFacets}
                 />
-              )}
-              {skillFacets.length > 0 && (
+              ) : null}
+              {skillFacets.length > 0 ? (
                 <FilterAccordion
                   title="Skills"
                   filter="skill"
                   items={skillFacets}
                 />
-              )}
+              ) : null}
 
-              {resourceFacets.length > 0 && (
+              {resourceFacets.length > 0 ? (
                 <FilterAccordion
                   title="Resources"
                   filter="resource"
                   items={resourceFacets}
                 />
-              )}
-              {providerFacets.length > 0 && (
+              ) : null}
+              {providerFacets.length > 0 ? (
                 <FilterAccordion
                   title="Provider"
                   filter="provider"
                   items={providerFacets}
                 />
-              )}
-              {locationsFacets.length > 0 && (
+              ) : null}
+              {locationsFacets.length > 0 ? (
                 <FilterAccordion
                   title="Locations"
                   filter="location"
                   items={locationsFacets}
                 />
-              )}
+              ) : null}
             </Paper>
           </Grid>
           <Grid item xs={12} md={9}>
@@ -576,8 +574,7 @@ export default function Projects() {
         </Grid>
       </Container>
       <MembershipModal
-        open={projectMembership.length > 0 && membershipCookie == null}
-        handleCloseModal={() => {}}
+        open={projectMembership.length > 0 ? membershipCookie == null : false}
         projects={projectMembership}
       />
     </>

@@ -1,4 +1,16 @@
-import Header from "app/core/layouts/Header";
+import {
+  getGitHubProfileByEmail,
+  getGitHubProjectsByEmail,
+  getFullProfileByEmail,
+  updateGithubUser,
+} from "../models/profile.server";
+import BusinessIcon from "@mui/icons-material/Business";
+import EditSharp from "@mui/icons-material/EditSharp";
+import GitHubIcon from "@mui/icons-material/GitHub";
+import GroupsIcon from "@mui/icons-material/Groups";
+import PlaceIcon from "@mui/icons-material/Place";
+import SaveIcon from "@mui/icons-material/Save";
+import WorkIcon from "@mui/icons-material/Work";
 import {
   Box,
   Container,
@@ -20,37 +32,21 @@ import {
 } from "@mui/material";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import GroupsIcon from "@mui/icons-material/Groups";
-import BusinessIcon from "@mui/icons-material/Business";
-import PlaceIcon from "@mui/icons-material/Place";
-import WorkIcon from "@mui/icons-material/Work";
-import GitHubIcon from "@mui/icons-material/GitHub";
-import EditSharp from "@mui/icons-material/EditSharp";
-import SaveIcon from "@mui/icons-material/Save";
-import {
-  getGitHubProfileByEmail,
-  getGitHubProjectsByEmail,
-  getFullProfileByEmail,
-  updateGithubUser,
-} from "../models/profile.server";
+import type { LoaderFunction, ActionFunction } from "@remix-run/node";
+import { useLoaderData, useNavigation, useSubmit } from "@remix-run/react";
+import { withZod } from "@remix-validated-form/with-zod";
 import { adminRoleName } from "app/constants";
-import { useLoaderData, useSubmit, useTransition } from "@remix-run/react";
-import type {
-  LoaderArgs,
-  LoaderFunction,
-  ActionFunction,
-} from "@remix-run/node";
-import invariant from "tiny-invariant";
-import { z } from "zod";
-import { requireProfile, requireUser } from "~/session.server";
-import { createExperience } from "~/models/experience.server";
+import Header from "app/core/layouts/Header";
+import { useState } from "react";
 import { redirect } from "remix-typedjson";
 import { ValidatedForm, useField, validationError } from "remix-validated-form";
-import { withZod } from "@remix-validated-form/with-zod";
+import invariant from "tiny-invariant";
+import { z } from "zod";
 import { zfd } from "zod-form-data";
-import { useState } from "react";
+import { createExperience } from "~/models/experience.server";
+import { requireProfile, requireUser } from "~/session.server";
 
-type LoaderData = {
+interface LoaderData {
   profileData: Awaited<ReturnType<typeof getFullProfileByEmail>>;
   githubProfileData: Awaited<ReturnType<typeof getGitHubProfileByEmail>> & {
     githubProfileData?: {
@@ -62,12 +58,9 @@ type LoaderData = {
   };
   githubProjects: Awaited<ReturnType<typeof getGitHubProjectsByEmail>>;
   canEdit: boolean;
-};
+}
 
-export const loader: LoaderFunction = async ({
-  request,
-  params,
-}: LoaderArgs) => {
+export const loader: LoaderFunction = async ({ request, params }) => {
   try {
     invariant(params.email, "email could not be found");
     const email = params.email;
@@ -130,29 +123,27 @@ export const action: ActionFunction = async ({ request }) => {
       status: 403,
     });
 
-  switch (subaction) {
-    case "CREATE_EXPERIENCE":
-      const result = await validator.validate(form);
-      if (!result) {
-        throw new Response("Error", {
-          status: 400,
-        });
-      }
-      await createExperience(result?.data?.comentario as string, profile.id);
-      return redirect(`/profile/${email}`);
-    case "UPDATE_GITHUB_USER":
-      const githubUserResult = await githubUserValidator.validate(form);
-      if (githubUserResult?.error) {
-        return validationError(githubUserResult.error);
-      }
-      await updateGithubUser(
-        githubUserResult.data.profileId,
-        githubUserResult.data?.githubUser
-      );
-      return redirect(`/profile/${email}`);
-    default: {
-      throw new Error("Something went wrong");
+  if (subaction === "CREATE_EXPERIENCE") {
+    const result = await validator.validate(form);
+    if (!result) {
+      throw new Response("Error", {
+        status: 400,
+      });
     }
+    await createExperience(result?.data?.comentario as string, profile.id);
+    return redirect(`/profile/${email}`);
+  } else if (subaction === "UPDATE_GITHUB_USER") {
+    const githubUserResult = await githubUserValidator.validate(form);
+    if (githubUserResult?.error) {
+      return validationError(githubUserResult.error);
+    }
+    await updateGithubUser(
+      githubUserResult.data.profileId,
+      githubUserResult.data?.githubUser
+    );
+    return redirect(`/profile/${email}`);
+  } else {
+    throw new Error("Something went wrong");
   }
 };
 
@@ -160,7 +151,7 @@ export const ProfileInfo = () => {
   const { profileData, githubProjects, canEdit } = useLoaderData<LoaderData>();
   const theme = useTheme();
   const lessThanMd = useMediaQuery(theme.breakpoints.down("md"));
-  const trasition = useTransition();
+  const navigation = useNavigation();
   const submit = useSubmit();
   const { error: githubUsererror, getInputProps } = useField("githubUser", {
     formId: "updateGithubUserForm",
@@ -320,9 +311,9 @@ export const ProfileInfo = () => {
                           <SaveIcon />
                         </IconButton>
                       </Box>
-                      {githubUsererror && (
+                      {githubUsererror ? (
                         <p style={{ color: "red" }}>{githubUsererror}</p>
-                      )}
+                      ) : null}
                     </ValidatedForm>
                   ) : (
                     <Box
@@ -339,7 +330,7 @@ export const ProfileInfo = () => {
                           ? profileData.githubUser
                           : "<Not specified>"}
                       </Typography>
-                      {canEdit && (
+                      {canEdit ? (
                         <IconButton
                           type="button"
                           onClick={() => {
@@ -348,7 +339,7 @@ export const ProfileInfo = () => {
                         >
                           <EditSharp />
                         </IconButton>
-                      )}
+                      ) : null}
                     </Box>
                   )}
                 </Box>
@@ -356,7 +347,7 @@ export const ProfileInfo = () => {
             </Paper>
           </Grid>
           <Grid item xs={12} md={8}>
-            {profileData.projectMembers?.length > 0 && (
+            {profileData.projectMembers?.length > 0 ? (
               <Paper elevation={0} sx={{ padding: 2 }}>
                 <h2 style={{ marginTop: 0, paddingLeft: 20 }}>Projects</h2>
                 <Grid container sx={{ p: 2 }}>
@@ -389,7 +380,7 @@ export const ProfileInfo = () => {
                             </Typography>
                           </CardContent>
                         </CardActionArea>
-                        {projectMember.practicedSkills?.length > 0 && (
+                        {projectMember.practicedSkills?.length > 0 ? (
                           <CardActions
                             sx={{
                               display: "flex",
@@ -408,14 +399,14 @@ export const ProfileInfo = () => {
                               />
                             ))}
                           </CardActions>
-                        )}
+                        ) : null}
                       </Card>
                     </Grid>
                   ))}
                 </Grid>
               </Paper>
-            )}
-            {githubProjects && githubProjects.length > 0 && (
+            ) : null}
+            {githubProjects && githubProjects.length > 0 ? (
               <Paper elevation={0} sx={{ padding: 2 }}>
                 <h2 style={{ marginTop: 0, paddingLeft: 20 }}>
                   Github Active Projects
@@ -452,7 +443,7 @@ export const ProfileInfo = () => {
                   ))}
                 </Grid>
               </Paper>
-            )}
+            ) : null}
             <Grid sx={{ paddingTop: 2, paddingBottom: 2 }}>
               <Paper elevation={0} sx={{ padding: 2 }}>
                 <h2 style={{ marginTop: 0, paddingLeft: 20 }}>Experience</h2>
@@ -483,9 +474,9 @@ export const ProfileInfo = () => {
                         fontSize: "1em",
                         marginTop: "15px",
                       }}
-                      disabled={!!trasition.submission}
+                      disabled={navigation.state !== "idle"}
                     >
-                      {trasition.submission
+                      {navigation.state !== "idle"
                         ? "Saving experience..."
                         : "Save experience"}
                     </Button>

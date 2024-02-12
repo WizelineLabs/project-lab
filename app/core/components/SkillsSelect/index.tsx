@@ -1,18 +1,18 @@
-import { useEffect } from "react";
 import {
   CircularProgress,
   TextField,
   Autocomplete,
   debounce,
 } from "@mui/material";
-import { useControlField, useField } from "remix-validated-form";
 import type { SubmitOptions } from "@remix-run/react";
 import { useFetcher } from "@remix-run/react";
+import { useEffect } from "react";
+import { useControlField, useField } from "remix-validated-form";
 
-type SkillValue = {
+interface SkillValue {
   id: string;
   name: string;
-};
+}
 
 interface SkillsSelectProps {
   name: string;
@@ -39,7 +39,7 @@ export const SkillsSelect = ({
   const searchSkillsDebounced = debounce(searchSkills, 500);
 
   useEffect(() => {
-    if (skillFetcher.type === "init") {
+    if (skillFetcher.state === "idle" && skillFetcher.data == null) {
       skillFetcher.submit({}, skillsOptions);
     }
   }, [skillFetcher]);

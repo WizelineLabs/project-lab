@@ -1,5 +1,5 @@
-import type { PropsWithoutRef } from "react";
 import { TitleText } from "./EllipsisText.styles";
+import type { PropsWithoutRef } from "react";
 
 interface IProps {
   text: string;

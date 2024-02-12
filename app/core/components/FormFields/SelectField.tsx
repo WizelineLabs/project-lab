@@ -1,29 +1,38 @@
-import React from 'react';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import type { SelectChangeEvent } from '@mui/material/Select';
-import Select from '@mui/material/Select';
-import { useField, useControlField } from 'remix-validated-form';
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import type { SelectChangeEvent } from "@mui/material/Select";
+import Select from "@mui/material/Select";
+import React from "react";
+import { useField, useControlField } from "remix-validated-form";
 
 interface SelectFieldProps {
   name: string;
   label: string;
   options: string[];
-  onChange?: Function;
-  style?: any;
+  onChange?: (
+    event?: SelectChangeEvent<string>,
+    child?: React.ReactNode
+  ) => void;
+  style?: React.CSSProperties;
 }
 
 const errorStyle = {
-  color: 'red',
+  color: "red",
 };
 
-const SelectField: React.FC<SelectFieldProps> = ({ name, label, options, style, onChange }) => {
+const SelectField: React.FC<SelectFieldProps> = ({
+  name,
+  label,
+  options,
+  style,
+  onChange,
+}) => {
   const { error } = useField(name);
   const [selectedValue, setSelectedValue] = useControlField<string>(name);
 
-  const handleChange = (event: SelectChangeEvent<string>) => { 
-    setSelectedValue(event.target.value); 
+  const handleChange = (event: SelectChangeEvent<string>) => {
+    setSelectedValue(event.target.value);
   };
 
   return (
@@ -34,10 +43,10 @@ const SelectField: React.FC<SelectFieldProps> = ({ name, label, options, style, 
           label={label}
           name={name}
           id={name}
-          value={selectedValue || ''}
-          onChange={e => {
-            handleChange(e); 
-            if (onChange != undefined){
+          value={selectedValue || ""}
+          onChange={(e) => {
+            handleChange(e);
+            if (onChange != undefined) {
               onChange(e);
             }
           }}
@@ -48,7 +57,7 @@ const SelectField: React.FC<SelectFieldProps> = ({ name, label, options, style, 
             </MenuItem>
           ))}
         </Select>
-        {error && <small style={{ ...errorStyle }}>{error}</small>}
+        {error ? <small style={{ ...errorStyle }}>{error}</small> : null}
       </FormControl>
     </div>
   );

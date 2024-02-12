@@ -1,22 +1,46 @@
-import { useState, useEffect } from "react";
-import { useFetcher, useLoaderData, useNavigation, useRouteError, isRouteErrorResponse } from "@remix-run/react";
+import ModalBox from "../core/components/ModalBox";
+import styled from "@emotion/styled";
+import AddIcon from "@mui/icons-material/Add";
+import EastIcon from "@mui/icons-material/East";
+import EditIcon from "@mui/icons-material/Edit";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  Container,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableSortLabel,
+} from "@mui/material";
+import Button from "@mui/material/Button";
 import type { LoaderFunction, ActionFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import {
+  useFetcher,
+  useLoaderData,
+  useNavigation,
+  useRouteError,
+  isRouteErrorResponse,
+} from "@remix-run/react";
+import { withZod } from "@remix-validated-form/with-zod";
+import { InputSelect } from "app/core/components/InputSelect";
+import { useState, useEffect } from "react";
 import {
   ValidatedForm,
   validationError,
   useFieldArray,
 } from "remix-validated-form";
-import { withZod } from "@remix-validated-form/with-zod";
-import { zfd } from "zod-form-data";
-import { json } from "@remix-run/node";
-import styled from "@emotion/styled";
-import Button from "@mui/material/Button";
-import AddIcon from "@mui/icons-material/Add";
-import EditIcon from "@mui/icons-material/Edit";
-import EastIcon from "@mui/icons-material/East";
 import invariant from "tiny-invariant";
-import { InputSelect } from "app/core/components/InputSelect";
-import ModalBox from "../core/components/ModalBox";
+import { z } from "zod";
+import { zfd } from "zod-form-data";
+import { stageOptions } from "~/constants";
+import LabeledTextField from "~/core/components/LabeledTextField";
+import { getProjects } from "~/models/project.server";
 import {
   getProjectStatuses,
   addProjectStatus,
@@ -24,12 +48,7 @@ import {
   updateProjectStatus,
 } from "~/models/status.server";
 import type { ProjectStatus } from "~/models/status.server";
-import { getProjects } from "~/models/project.server";
-import { stageOptions } from "~/constants";
-import { Card, CardContent, CardHeader, Container, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel } from "@mui/material";
-import LabeledTextField from "~/core/components/LabeledTextField";
-import { z } from "zod";
-import { validateNavigationRedirect } from '~/utils'
+import { validateNavigationRedirect } from "~/utils";
 
 declare module "@mui/material/Button" {
   interface ButtonPropsColorOverrides {
@@ -38,33 +57,29 @@ declare module "@mui/material/Button" {
   }
 }
 
-type StatusRecord = {
+interface StatusRecord {
   id: string;
   name: string;
   stage: string | null;
-};
+}
 
 export const validator = withZod(
-  zfd
-    .formData({
+  zfd.formData({
     id: z.string().optional(),
-    name: z
-      .string()
-      .min(1, { message: "Name is required" }),
-    stage:z.object({ name: z.string().optional() }).optional(),
-  }),
-
+    name: z.string().min(1, { message: "Name is required" }),
+    stage: z.object({ name: z.string().optional() }).optional(),
+  })
 );
 
-type LoaderData = {
+interface LoaderData {
   statuses: Awaited<ReturnType<typeof getProjectStatuses>>;
   projects: Awaited<ReturnType<typeof getProjects>>;
-};
+}
 
-type ProjectRecord = {
+interface ProjectRecord {
   id: number | string;
   name: string | null;
-};
+}
 
 const validatorFront = withZod(
   zfd.formData({
@@ -100,9 +115,9 @@ export const action: ActionFunction = async ({ request }) => {
   try {
     switch (action) {
       case "POST":
-        stage = result.data?.stage?.name
+        stage = result.data?.stage?.name;
         invariant(name, "Invalid project status name");
-        response = await addProjectStatus({name, stage});
+        response = await addProjectStatus({ name, stage });
         return json(response, { status: 201 });
 
       case "DELETE":
@@ -111,13 +126,13 @@ export const action: ActionFunction = async ({ request }) => {
         return json({ error: "" }, { status: 200 });
 
       case "PUT":
-          stage = result.data?.stage?.name as
+        stage = result.data?.stage?.name as
           | "idea"
           | "ongoing project"
           | "none"
           | null;
         invariant(name, "Invalid project status name");
-        await updateProjectStatus({id, name, stage});
+        await updateProjectStatus({ id, name, stage });
         return json({ error: "" }, { status: 200 });
 
       default: {
@@ -135,7 +150,7 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 function ProjectStatusDataGrid() {
-  const fetcher = useFetcher();
+  const fetcher = useFetcher<typeof action>();
   const { statuses } = useLoaderData() as LoaderData;
   const createButtonText = "Create New Status";
   const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
@@ -157,7 +172,7 @@ function ProjectStatusDataGrid() {
   const navigation = useNavigation();
 
   useEffect(() => {
-    const isActionRedirect = validateNavigationRedirect(navigation)
+    const isActionRedirect = validateNavigationRedirect(navigation);
     if (isActionRedirect) {
       setOpenCreateModal(false);
       setOpenEditModal(false);
@@ -165,9 +180,9 @@ function ProjectStatusDataGrid() {
   }, [navigation]);
 
   const handleAddClick = () => {
-    setOpenCreateModal(true)
+    setOpenCreateModal(true);
   };
-  
+
   useEffect(() => {
     //It handles the fetcher error from the response
     if (fetcher.state === "idle" && fetcher.data) {
@@ -237,7 +252,6 @@ function ProjectStatusDataGrid() {
     numeric: boolean;
   }
 
-
   const headCells: HeadStatusData[] = [
     {
       id: "name",
@@ -254,7 +268,6 @@ function ProjectStatusDataGrid() {
       numeric: false,
       label: "Actions",
     },
-    
   ];
 
   const isMergeAction = projects.length > 0;
@@ -263,39 +276,35 @@ function ProjectStatusDataGrid() {
     <>
       <Container sx={{ marginBottom: 2 }}>
         <Card>
-        <CardHeader
-        title="Statuses"
-        action={
-          <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={() => handleAddClick()}
-          data-testid="testStatusCreate"
-        >
-          {createButtonText}
-        </Button>
-        }
-        />
+          <CardHeader
+            title="Statuses"
+            action={
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<AddIcon />}
+                onClick={() => handleAddClick()}
+                data-testid="testStatusCreate"
+              >
+                {createButtonText}
+              </Button>
+            }
+          />
           <CardContent>
-          <TableContainer>
-            <Table>
-              <TableHead>
-              {headCells.map((cell) => (
-                  <TableCell key={cell.id} align="center" padding="normal">
-                    <TableSortLabel >
-                      {cell.label}
-                    </TableSortLabel>
-                  </TableCell>
-                ))}
-              </TableHead>
-              <TableBody>
-                {
-                  rows.map(
-                    (row, index) => {
-                      const labelId = `enhanced-table-checkbox-${index}`;
-                      return (
-                        <TableRow hover tabIndex={0} key={index}>
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  {headCells.map((cell) => (
+                    <TableCell key={cell.id} align="center" padding="normal">
+                      <TableSortLabel>{cell.label}</TableSortLabel>
+                    </TableCell>
+                  ))}
+                </TableHead>
+                <TableBody>
+                  {rows.map((row, index) => {
+                    const labelId = `enhanced-table-checkbox-${index}`;
+                    return (
+                      <TableRow hover tabIndex={0} key={index}>
                         <TableCell
                           component="th"
                           id={labelId}
@@ -339,14 +348,12 @@ function ProjectStatusDataGrid() {
                             <EastIcon color="inherit" />
                           </Button>
                         </TableCell>
-                        </TableRow>
-                      )
-                    }
-                  )
-                }
-              </TableBody>
-            </Table>
-          </TableContainer>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
           </CardContent>
         </Card>
       </Container>
@@ -380,22 +387,22 @@ function ProjectStatusDataGrid() {
             method="post"
             id="delete-status-form"
           >
-            {isMergeAction && (
+            {isMergeAction ? (
               <InputSelect
                 valuesList={statuses.filter(
-                  (status: { name: string; }) => status.name !== selectedRowID
+                  (status: { name: string }) => status.name !== selectedRowID
                 )}
                 name="status"
                 label="Status to merge with"
                 disabled={false}
               />
-            )}
+            ) : null}
             {items.map((item, idx) => (
               <input
-                key={item}
+                key={item.key}
                 type="hidden"
                 name={`ids[${idx}]`}
-                value={item}
+                value={item.defaultValue}
               />
             ))}
 
@@ -428,66 +435,80 @@ function ProjectStatusDataGrid() {
         </div>
       </ModalBox>
 
-
       {/* edit status Modal */}
       <ModalBox open={openEditModal} close={() => setOpenEditModal(false)}>
-        <h2 data-testid="testStatusEditModal">
-         Edit  status
-        </h2>
-        <ValidatedForm action='./' method="put" validator={validator} 
-        defaultValues={{
-          name: selectedRowID
-        }}>
+        <h2 data-testid="testStatusEditModal">Edit status</h2>
+        <ValidatedForm
+          action="./"
+          method="put"
+          validator={validator}
+          defaultValues={{
+            name: selectedRowID,
+          }}
+        >
           <input type="hidden" name="id" value={selectedRowID} />
           <Stack spacing={2}>
-          <LabeledTextField fullWidth name="name" label="Name" placeholder="Name" />
-          <InputSelect
-            valuesList={stageOptions}
-            name="stage"
-            label="Select a stage"
-            disabled={false}
-          />
-          <div>
-            <Button variant="contained" onClick={() => setOpenEditModal(false)}>
-              Cancel
-            </Button>
+            <LabeledTextField
+              fullWidth
+              name="name"
+              label="Name"
+              placeholder="Name"
+            />
+            <InputSelect
+              valuesList={stageOptions}
+              name="stage"
+              label="Select a stage"
+              disabled={false}
+            />
+            <div>
+              <Button
+                variant="contained"
+                onClick={() => setOpenEditModal(false)}
+              >
+                Cancel
+              </Button>
               &nbsp;
-            <Button type="submit" variant="contained" color="warning">
-              Modify
-            </Button>
-          </div>
+              <Button type="submit" variant="contained" color="warning">
+                Modify
+              </Button>
+            </div>
           </Stack>
         </ValidatedForm>
       </ModalBox>
 
       {/* create status Modal */}
       <ModalBox open={openCreateModal} close={() => setOpenCreateModal(false)}>
-        <h2 data-testid="testStatusCreateModal">
-         Create new status
-        </h2>
-        <ValidatedForm action='./' method="post" validator={validator}>
+        <h2 data-testid="testStatusCreateModal">Create new status</h2>
+        <ValidatedForm action="./" method="post" validator={validator}>
           <Stack spacing={2}>
-          <LabeledTextField fullWidth name="name" label="Name" placeholder="Name" />
-          
-          <InputSelect
-            valuesList={stageOptions}
-            name="stage"
-            label="Select a stage"
-            disabled={false}
-          />
-          <div>
-            <Button variant="contained" onClick={() => setOpenCreateModal(false)}>
-              Cancel
-            </Button>
+            <LabeledTextField
+              fullWidth
+              name="name"
+              label="Name"
+              placeholder="Name"
+            />
+
+            <InputSelect
+              valuesList={stageOptions}
+              name="stage"
+              label="Select a stage"
+              disabled={false}
+            />
+            <div>
+              <Button
+                variant="contained"
+                onClick={() => setOpenCreateModal(false)}
+              >
+                Cancel
+              </Button>
               &nbsp;
-            <Button type="submit" variant="contained" color="warning">
-              Create
-            </Button>
-          </div>
+              <Button type="submit" variant="contained" color="warning">
+                Create
+              </Button>
+            </div>
           </Stack>
         </ValidatedForm>
       </ModalBox>
-
     </>
   );
 }
@@ -495,7 +516,7 @@ function ProjectStatusDataGrid() {
 export default ProjectStatusDataGrid;
 
 export function ErrorBoundary() {
-  const error = useRouteError() as Error
+  const error = useRouteError() as Error;
   console.error(error);
 
   if (isRouteErrorResponse(error) && error.status === 404) {

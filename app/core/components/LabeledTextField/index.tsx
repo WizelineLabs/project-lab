@@ -1,5 +1,5 @@
-import type { PropsWithoutRef } from "react";
 import TextField from "@mui/material/TextField";
+import type { PropsWithoutRef } from "react";
 import { useControlField, useField } from "remix-validated-form";
 
 interface LabeledTextFieldProps {
@@ -59,9 +59,7 @@ export const LabeledTextField = ({
         error={!!error}
         disabled={disabled}
         {...props}
-        InputLabelProps={
-          type === "date" ? { shrink: true } : undefined
-        }
+        InputLabelProps={type === "date" ? { shrink: true } : undefined}
         inputProps={inputProps}
       />
     </div>

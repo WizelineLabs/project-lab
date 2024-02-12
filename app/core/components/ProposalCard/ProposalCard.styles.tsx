@@ -1,6 +1,6 @@
-import { styled } from '@mui/material/styles';
+import { styled } from "@mui/material/styles";
 
-export const ProposalCardWrap = styled('div')`
+export const ProposalCardWrap = styled("div")`
   display: flex;
   flex-direction: column;
   position: relative;
@@ -84,11 +84,12 @@ export const ProposalCardWrap = styled('div')`
   }
 `;
 
-export const ProposalCardSkills = styled('div')`
-   padding-top: 10px;
+export const ProposalCardSkills = styled("div")`
+  padding-top: 10px;
 `;
 
-export const ProposalCardStatus = styled('div')(({ theme }) => `
+export const ProposalCardStatus = styled("div")(
+  ({ theme }) => `
   border-top: 1px solid #ececec;
   padding-top: 10px;
   width: 95%;
@@ -101,7 +102,7 @@ export const ProposalCardStatus = styled('div')(({ theme }) => `
   }
   .ProposalCard__display{
     color: #111823;
-    background: ${(theme.palette.mode === "dark"  ? "#999999;" : "#00000066;")} 
+    background: ${theme.palette.mode === "dark" ? "#999999;" : "#00000066;"} 
     border-radius: 50%;
     width: 14px;
     height: 14px;
@@ -116,9 +117,10 @@ export const ProposalCardStatus = styled('div')(({ theme }) => `
     justify-content: center;
 
     & span {
-      color: ${(theme.palette.mode === "dark"  ? "#000;" : "#fff;")}
+      color: ${theme.palette.mode === "dark" ? "#000;" : "#fff;"}
       font-size: 10px;
       font-weight: 800;
     }
   }
-`);
+`
+);

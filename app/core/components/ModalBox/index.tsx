@@ -1,6 +1,6 @@
-import React from "react";
-import { Modal, IconButton, styled } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
+import { Modal, IconButton, styled } from "@mui/material";
+import React from "react";
 
 export const BoxContainer = styled("div")(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
@@ -24,7 +24,8 @@ interface IProps {
   children: React.ReactNode;
   open: boolean;
   handleClose?: React.MouseEventHandler;
-  close: Function;
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  close?: Function;
   boxStyle?: React.CSSProperties;
 }
 
@@ -39,7 +40,7 @@ export const ModalBox = ({ children, boxStyle, ...props }: IProps) => {
       <ModalContainer>
         <BoxContainer style={boxStyle}>
           <Action>
-            <IconButton onClick={() => props.close()}>
+            <IconButton onClick={() => props.close && props.close()}>
               <CloseIcon />
             </IconButton>
           </Action>

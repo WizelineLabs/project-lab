@@ -1,3 +1,4 @@
+import { EditSharp, Close, Delete } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -7,19 +8,18 @@ import {
   Grid,
   IconButton,
 } from "@mui/material";
-import { EditSharp, Close, Delete } from "@mui/icons-material";
-import { useState } from "react";
+import type { Prisma } from "@prisma/client";
 import { useSubmit, useNavigation } from "@remix-run/react";
-import { zfd } from "zod-form-data";
 import { withZod } from "@remix-validated-form/with-zod";
-import { z } from "zod";
-import SimpleAutocompleteField from "~/core/components/SimpleAutocompleteField";
+import { useState } from "react";
 import {
   useFieldArray,
   ValidatedForm,
   validationError,
 } from "remix-validated-form";
-import type { Prisma } from "@prisma/client";
+import { z } from "zod";
+import { zfd } from "zod-form-data";
+import SimpleAutocompleteField from "~/core/components/SimpleAutocompleteField";
 
 const RESOURCE_TYPES = [
   "Cloud Account",
@@ -98,29 +98,30 @@ export default function Resources({
         <CardHeader
           title="Resources:"
           action={
-            allowEdit &&
-            (isEditActive ? (
-              <IconButton
-                type="reset"
-                onClick={(event) => {
-                  const form = document.getElementById(
-                    "projectResourcesForm"
-                  ) as HTMLFormElement;
-                  form.reset();
-                  setIsEditActive(false);
-                }}
-              >
-                <Close>Cancel</Close>
-              </IconButton>
-            ) : (
-              <IconButton onClick={() => setIsEditActive(true)}>
-                <EditSharp></EditSharp>
-              </IconButton>
-            ))
+            allowEdit ? (
+              isEditActive ? (
+                <IconButton
+                  type="reset"
+                  onClick={() => {
+                    const form = document.getElementById(
+                      "projectResourcesForm"
+                    ) as HTMLFormElement;
+                    form.reset();
+                    setIsEditActive(false);
+                  }}
+                >
+                  <Close>Cancel</Close>
+                </IconButton>
+              ) : (
+                <IconButton onClick={() => setIsEditActive(true)}>
+                  <EditSharp></EditSharp>
+                </IconButton>
+              )
+            ) : null
           }
         />
         <CardContent>
-          {isEditActive && (
+          {isEditActive ? (
             <Button
               disabled={navigation.state === "submitting"}
               variant="contained"
@@ -136,10 +137,10 @@ export default function Resources({
             >
               Add new resource
             </Button>
-          )}
+          ) : null}
 
           <Grid container spacing={2} sx={{ marginBottom: "12px" }}>
-            {!isEditActive && (
+            {!isEditActive ? (
               <>
                 <Grid item xs={3}>
                   <b>Type</b>
@@ -151,7 +152,7 @@ export default function Resources({
                   <b>Name/Description</b>
                 </Grid>
               </>
-            )}
+            ) : null}
             {resources.map((resource, index) => (
               <>
                 <Grid item xs={3}>
@@ -162,7 +163,7 @@ export default function Resources({
                       options={resourceTypes}
                     />
                   ) : (
-                    resource.type
+                    resource.defaultValue.type
                   )}
                 </Grid>
                 <Grid item xs={3}>
@@ -174,7 +175,7 @@ export default function Resources({
                       freeSolo
                     />
                   ) : (
-                    resource.provider
+                    resource.defaultValue.provider
                   )}
                 </Grid>
                 <Grid item xs={5}>
@@ -186,11 +187,11 @@ export default function Resources({
                       freeSolo
                     />
                   ) : (
-                    resource.name
+                    resource.defaultValue.name
                   )}
                 </Grid>
                 <Grid item xs={1}>
-                  {isEditActive && (
+                  {isEditActive ? (
                     <IconButton
                       onClick={() => {
                         removeResource(index);
@@ -198,12 +199,12 @@ export default function Resources({
                     >
                       <Delete>Delete</Delete>
                     </IconButton>
-                  )}
+                  ) : null}
                 </Grid>
               </>
             ))}
           </Grid>
-          {isEditActive && (
+          {isEditActive ? (
             <Box textAlign="center">
               <Button
                 disabled={!isEditActive || navigation.state === "submitting"}
@@ -214,7 +215,7 @@ export default function Resources({
                 {navigation.state === "submitting" ? "Submitting..." : "Submit"}
               </Button>
             </Box>
-          )}
+          ) : null}
         </CardContent>
       </ValidatedForm>
     </Card>
