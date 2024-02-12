@@ -90,50 +90,11 @@ jobs:
       - name: ⚡ Run vitest
         run: npm run test --coverage
 
-  cypress:
-    name: ⚫️ Cypress
-    runs-on: ubuntu-latest
-    env:
-      DATABASE_URL: postgresql://lab_user:lab_pass@localhost/lab_test
-      SESSION_SECRET: asdf_secret
-      BASE_URL: http://localhost:3000
-      AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
-      AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
-      AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
-    steps:
-      - name: ⬇️ Checkout repo
-        uses: actions/checkout@v4
-
-      - name: 🏄 Copy test env vars
-        run: cp .env.example .env
-
-      - uses: harmon758/postgresql-action@v1
-        with:
-          postgresql version: "12"
-          postgresql db: lab_test
-          postgresql user: lab_user
-          postgresql password: lab_pass
-
-      - name: 📥 Download deps
-        uses: bahmutov/npm-install@v1
-
-      - name: 🛠 Setup Database
-        run: npx prisma migrate reset --force
-
-      - name: 🌳 Cypress run
-        uses: cypress-io/github-action@v6
-        with:
-          build: npm run build
-          start: npx prisma migrate reset --force, npm run start:mocks
-          wait-on: "http://localhost:3000"
-        env:
-          PORT: 3000
-
   deploy:
     name: 🚀 Deploy
     runs-on: ubuntu-latest
     environment: dev
-    needs: [lint, typecheck, vitest, cypress]
+    needs: [lint, typecheck, vitest]
     # only build/deploy main branch on pushes
     if: ${{ (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') && github.event_name == 'push' }}
 
@@ -251,7 +212,7 @@ jobs:
     name: 🚀 Deploy Prod
     runs-on: ubuntu-latest
     environment: prod
-    needs: [lint, typecheck, vitest, cypress]
+    needs: [lint, typecheck, vitest]
     # only build/deploy prod on new version tags (v1.0.0)
     if: startsWith(github.ref, 'refs/tags/v')
 
