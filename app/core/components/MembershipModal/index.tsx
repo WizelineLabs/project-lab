@@ -41,12 +41,14 @@ export const multipleProjectsValidator = withZod(
             })
           )
           .nonempty(),
-        practicedSkills: z.array(
-          z.object({
-            id: z.string(),
-            name: z.string().optional(),
-          })
-        ),
+        practicedSkills: z
+          .array(
+            z.object({
+              id: z.string(),
+              name: z.string().optional(),
+            })
+          )
+          .optional(),
         active: zfd.checkbox(),
         profileId: z.string(),
         projectId: z.string(),

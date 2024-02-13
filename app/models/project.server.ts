@@ -562,7 +562,7 @@ export async function updateProjectActivity(
     projectId: string;
     hoursPerWeek?: number;
     role: { id: string }[];
-    practicedSkills: { id: string }[];
+    practicedSkills?: { id: string }[];
     active: boolean;
   }[]
 ) {
