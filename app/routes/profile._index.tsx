@@ -4,6 +4,8 @@ import {
 } from "../models/profile.server";
 import {
   Box,
+  Card,
+  CardContent,
   Container,
   Grid,
   Paper,
@@ -13,8 +15,6 @@ import {
   Alert,
   AlertTitle,
 } from "@mui/material";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
 import type { LoaderFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import Header from "app/core/layouts/Header";

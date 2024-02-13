@@ -1,7 +1,6 @@
 import ModalBox from "../ModalBox";
 import TextEditor from "../TextEditor";
-import Delete from "@mui/icons-material/Delete";
-import Edit from "@mui/icons-material/Edit";
+import { Delete, Edit } from "@mui/icons-material";
 import {
   Grid,
   Typography,

@@ -1,5 +1,4 @@
-import ArrowBack from "@mui/icons-material/ArrowBack";
-import LinkedIn from "@mui/icons-material/LinkedIn";
+import { ArrowBack, LinkedIn } from "@mui/icons-material";
 import {
   Container,
   Paper,
@@ -17,8 +16,8 @@ import {
   Typography,
   type AutocompleteChangeReason,
   Avatar,
+  Unstable_Grid2 as Grid,
 } from "@mui/material";
-import Grid from "@mui/material/Unstable_Grid2";
 import { LoaderFunctionArgs } from "@remix-run/node";
 import {
   type SubmitOptions,

@@ -3,9 +3,11 @@ import {
   ProposalCardStatus,
   ProposalCardWrap,
 } from "./ProposalCard.styles";
-import HelpIcon from "@mui/icons-material/Help";
-import PersonIcon from "@mui/icons-material/Person";
-import ThumbUpIcon from "@mui/icons-material/ThumbUp";
+import {
+  Help as HelpIcon,
+  Person as PersonIcon,
+  ThumbUp as ThumbUpIcon,
+} from "@mui/icons-material";
 import {
   CardActionArea,
   CardContent,

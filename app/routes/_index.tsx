@@ -9,14 +9,16 @@ import {
   MiddleHomePageContainer,
   Logo,
 } from "./index.styles";
-import AutoStoriesIcon from "@mui/icons-material/AutoStories";
-import CloseIcon from "@mui/icons-material/Close";
-import DehazeIcon from "@mui/icons-material/Dehaze";
-import EditNoteIcon from "@mui/icons-material/EditNote";
-import GroupsIcon from "@mui/icons-material/Groups";
-import TerminalIcon from "@mui/icons-material/Terminal";
-import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
-import WorkspacesIcon from "@mui/icons-material/Workspaces";
+import {
+  AutoStories as AutoStoriesIcon,
+  Close as CloseIcon,
+  Dehaze as DehazeIcon,
+  EditNote as EditNoteIcon,
+  Groups as GroupsIcon,
+  Terminal as TerminalIcon,
+  TipsAndUpdates as TipsAndUpdatesIcon,
+  Workspaces as WorkspacesIcon,
+} from "@mui/icons-material";
 import { Button, Stack } from "@mui/material";
 import { useLoaderData } from "@remix-run/react";
 import type { LoaderFunction } from "@remix-run/server-runtime";

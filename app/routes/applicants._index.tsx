@@ -1,8 +1,11 @@
-import MaterialTable, { Column } from "@material-table/core";
-import { ExportCsv } from "@material-table/exporters";
 import { Container, Paper } from "@mui/material";
 import { MetaFunction } from "@remix-run/node";
 import Header from "app/core/layouts/Header";
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+  type MRT_ColumnDef,
+} from "material-react-table";
 import { typedjson, useTypedLoaderData } from "remix-typedjson";
 import Link from "~/core/components/Link";
 import NavAppBar from "~/core/components/NavAppBar";
@@ -38,89 +41,96 @@ export const loader = async () => {
 
 export default function Projects() {
   const applicants = useTypedLoaderData<typeof loader>();
-  const columns: Column<typeof applicants[number]>[] = [
+  const columns: MRT_ColumnDef<typeof applicants[number]>[] = [
     {
-      field: "fullName",
-      title: "Name",
-      render: (rowData) => (
-        <Link to={`./${rowData.id}`}>{rowData.fullName}</Link>
-      ),
+      accessorKey: "fullName",
+      header: "Name",
+      Cell: ({ row, renderedCellValue }) =>
+        Link({
+          to: `/applicants/${row.original.id}`,
+          children: renderedCellValue,
+        }),
     },
-    { field: "email", title: "Email", hidden: true },
+    { accessorKey: "email", header: "Email" },
     {
-      field: "universityEmail",
-      title: "universityEmail",
-      hidden: true,
-    },
-    {
-      field: "phone",
-      title: "Phone",
-      hidden: true,
-      render: (rowData) => WhatsAppLink({ phoneNumber: rowData.phone }),
+      accessorKey: "universityEmail",
+      header: "universityEmail",
     },
     {
-      field: "startDate",
-      title: "Start Date",
-      type: "date",
-      width: "10%",
-      dateSetting: { locale: "en-US", format: "dd.MM.yyyy" },
+      accessorKey: "phone",
+      header: "Phone",
+      Cell: ({ row }) => WhatsAppLink({ phoneNumber: row.original.phone }),
     },
     {
-      field: "endDate",
-      title: "End Date",
-      type: "date",
-      width: "10%",
-      dateSetting: { locale: "en-US", format: "dd.MM.yyyy" },
+      accessorKey: "startDate",
+      header: "Start Date",
+      enableColumnFilter: false,
+      sortingFn: "datetime",
+      Cell: ({ cell }) => cell.getValue<Date>()?.toLocaleDateString(), //render Date as a string
+      size: 100,
     },
     {
-      field: "dayOfBirth",
-      title: "Date of Birth",
-      type: "date",
-      dateSetting: { locale: "en-US", format: "dd.MM.yyyy" },
-      width: "10%",
-      hidden: true,
+      accessorKey: "endDate",
+      header: "End Date",
+      enableColumnFilter: false,
+      sortingFn: "datetime",
+      Cell: ({ cell }) => cell.getValue<Date>()?.toLocaleDateString(), //render Date as a string
+      size: 100,
     },
     {
-      field: "graduationDate",
-      title: "Approx Graduation Date",
-      type: "date",
-      dateSetting: { locale: "en-US", format: "dd.MM.yyyy" },
-      width: "10%",
-      hidden: true,
+      accessorKey: "dayOfBirth",
+      header: "Date of Birth",
+      enableColumnFilter: false,
+      Cell: ({ cell }) => cell.getValue<Date>()?.toLocaleDateString(), //render Date as a string
+      size: 100,
     },
     {
-      field: "hoursPerWeek",
-      title: "Hr/w",
-      width: "5%",
-      tooltip: "Hours per week",
-    },
-    { field: "university", title: "University" },
-    { field: "semester", title: "Semester", hidden: true },
-    {
-      field: "participatedAtWizeline",
-      title: "Knows Wizeline",
-      type: "boolean",
-      width: "5%",
-      hidden: true,
+      accessorKey: "graduationDate",
+      header: "Approx Graduation Date",
+      Cell: ({ cell }) => cell.getValue<Date>()?.toLocaleDateString(), //render Date as a string
+      size: 100,
     },
     {
-      field: "status",
-      title: "Status",
-      width: "10%",
-      hidden: false,
-      lookup: {
-        DRAFT: "DRAFT",
-        HOLD: "HOLD",
-        APPROVED: "APPROVED",
-        REJECTED: "REJECTED",
-      },
+      accessorKey: "hoursPerWeek",
+      header: "Hr/w",
+      size: 50,
+    },
+    { accessorKey: "university", header: "University" },
+    { accessorKey: "semester", header: "Semester" },
+    {
+      accessorKey: "participatedAtWizeline",
+      header: "Knows Wizeline",
+      filterVariant: "checkbox",
+      size: 50,
     },
     {
-      field: "appliedProjects",
-      title: "Applied Projects",
-      hidden: true,
+      accessorKey: "status",
+      header: "Status",
+      size: 100,
+      filterVariant: "multi-select",
+      filterSelectOptions: ["DRAFT", "HOLD", "APPROVED", "REJECTED"],
+    },
+    {
+      accessorKey: "appliedProjects",
+      header: "Applied Projects",
     },
   ];
+
+  const table = useMaterialReactTable({
+    columns,
+    data: applicants,
+    initialState: {
+      columnVisibility: {
+        email: false,
+        universityEmail: false,
+        dayOfBirth: false,
+        graduationDate: false,
+        semester: false,
+        participatedAtWizeline: false,
+        appliedProjects: false,
+      },
+    }, //hide firstName column by default
+  });
 
   return (
     <>
@@ -129,35 +139,7 @@ export default function Projects() {
       <Container>
         <Paper sx={{ p: 2 }}>
           {/* <h1 style={{ marginTop: 0 }}>Applicants</h1> */}
-          <MaterialTable
-            sx={{ fontSize: "0.8rem" }}
-            title="Applicants"
-            data={applicants}
-            columns={columns}
-            options={{
-              showTitle: true,
-              emptyRowsWhenPaging: false,
-              padding: "dense",
-              pageSize: 50,
-              pageSizeOptions: [20, 50, 100],
-              filtering: true,
-              columnsButton: true,
-              exportAllData: true,
-              exportMenu: [
-                {
-                  label: "Export CSV",
-                  exportFunc: (cols, datas) =>
-                    ExportCsv(cols, datas, "applicants"),
-                },
-              ],
-              rowStyle: (rowData) => ({
-                backgroundColor:
-                  rowData.status !== "DRAFT"
-                    ? "rgb(12, 54, 73, 0.3)"
-                    : "inherit",
-              }),
-            }}
-          />
+          <MaterialReactTable table={table} />
         </Paper>
       </Container>
     </>

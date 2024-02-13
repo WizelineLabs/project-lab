@@ -1,8 +1,11 @@
 import ConfirmationModal from "../core/components/ConfirmationModal";
-import AddIcon from "@mui/icons-material/Add";
-import DeleteIcon from "@mui/icons-material/DeleteOutlined";
-import EditIcon from "@mui/icons-material/Edit";
 import {
+  Add as AddIcon,
+  Delete as DeleteIcon,
+  Edit as EditIcon,
+} from "@mui/icons-material";
+import {
+  Button,
   Card,
   CardContent,
   CardHeader,
@@ -16,7 +19,6 @@ import {
   TableRow,
   TableSortLabel,
 } from "@mui/material";
-import Button from "@mui/material/Button";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {

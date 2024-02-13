@@ -1,9 +1,11 @@
 import ContributorPathReport from "../core/components/ContributorPathReport/index";
-import EditSharp from "@mui/icons-material/EditSharp";
-import GitHub from "@mui/icons-material/GitHub";
-import OpenInNew from "@mui/icons-material/OpenInNew";
-import ThumbDownSharp from "@mui/icons-material/ThumbDownSharp";
-import ThumbUpSharp from "@mui/icons-material/ThumbUpSharp";
+import {
+  EditSharp,
+  GitHub,
+  OpenInNew,
+  ThumbDownSharp,
+  ThumbUpSharp,
+} from "@mui/icons-material";
 import {
   Card,
   CardContent,

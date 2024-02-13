@@ -1,4 +1,4 @@
-import { createTheme as createMuiTheme } from "@mui/material/styles";
+import { createTheme as createMuiTheme } from "@mui/material";
 
 interface CreateThemeOptions {
   prefersDarkMode: boolean;

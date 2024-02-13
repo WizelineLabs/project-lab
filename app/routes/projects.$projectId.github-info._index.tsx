@@ -1,6 +1,9 @@
-import { GitHub, Refresh } from "@mui/icons-material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import LinkIcon from "@mui/icons-material/Link";
+import {
+  GitHub,
+  Refresh,
+  ExpandMore as ExpandMoreIcon,
+  Link as LinkIcon,
+} from "@mui/icons-material";
 import {
   Accordion,
   AccordionDetails,

@@ -1,4 +1,4 @@
-import HomeIcon from "@mui/icons-material/Home";
+import { Home as HomeIcon } from "@mui/icons-material";
 import { Typography, Grid } from "@mui/material";
 
 function HomeInfo({

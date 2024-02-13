@@ -3,8 +3,6 @@ import { defineConfig } from "cypress";
 export default defineConfig({
   e2e: {
     setupNodeEvents: (on, config) => {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      require("dotenv").config();
       const environment = config.env.url;
       let url = "";
 
@@ -18,7 +16,7 @@ export default defineConfig({
 
       // const isDev = config.watchForFileChanges;
       // const port = process.env.PORT ?? (isDev ? "3000" : "8811");
-      const configOverrides: Partial<Cypress.PluginConfigOptions> = {
+      const configOverrides = {
         baseUrl: url,
         screenshotOnRunFailure: !process.env.CI,
       };

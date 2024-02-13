@@ -177,7 +177,25 @@ export async function getProject({ id }: Pick<Projects, "id">) {
   return project;
 }
 
-export async function createProject(input: any, profileId: string) {
+export async function createProject(
+  input: {
+    name: string;
+    description: string;
+    helpWanted: boolean;
+    valueStatement?: string | undefined;
+    projectStatus?: { name: string } | undefined;
+    innovationTiers?: { name: string } | undefined;
+    owner?: { id: string } | undefined;
+    disciplines?: { id: string; name?: string | undefined }[] | undefined;
+    target?: string | undefined;
+    repoUrls?: { url: string; id?: number | undefined }[] | undefined;
+    slackChannel?: string | undefined;
+    skills?: { id: string; name?: string | undefined }[] | undefined;
+    labels?: { id: string; name?: string | undefined }[] | undefined;
+    projectBoard?: string | undefined;
+  },
+  profileId: string
+) {
   const defaultTier = await db.innovationTiers.findFirst({
     select: { name: true },
     where: { defaultRow: true },
@@ -218,7 +236,7 @@ export async function createProject(input: any, profileId: string) {
     };
     const tasks = contributorPath[i]?.tasks || [];
     const position = i + 1;
-    const projectTasks: any = [];
+    const projectTasks = [];
 
     for (const task of tasks) {
       projectTasks.push({
@@ -297,7 +315,7 @@ export async function updateMembers(
     select: { id: true, profileId: true },
   });
 
-  const activeMembers: any = [];
+  const activeMembers = [];
 
   // Loop Project Members
   for (const projectMember of projectMembers) {

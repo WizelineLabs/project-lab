@@ -1,8 +1,10 @@
-import CloseIcon from "@mui/icons-material/Close";
-import FilterAltIcon from "@mui/icons-material/FilterAlt";
-import HighlightOffIcon from "@mui/icons-material/HighlightOff";
-import ViewListIcon from "@mui/icons-material/ViewList";
-import ViewModuleIcon from "@mui/icons-material/ViewModule";
+import {
+  Close as CloseIcon,
+  FilterAlt as FilterAltIcon,
+  HighlightOff as HighlightOffIcon,
+  ViewList as ViewListIcon,
+  ViewModule as ViewModuleIcon,
+} from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -14,12 +16,12 @@ import {
   useMediaQuery,
   useTheme,
   Pagination,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
 } from "@mui/material";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
 import type { LoaderFunction } from "@remix-run/node";
 import { useLoaderData, useSearchParams } from "@remix-run/react";
 import ProposalCard from "app/core/components/ProposalCard";

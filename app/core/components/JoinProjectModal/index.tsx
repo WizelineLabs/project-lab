@@ -3,7 +3,7 @@ import {
   FormDivContainer,
   CommitmentDivContainer,
 } from "./joinProjectModal.styles";
-import Button from "@mui/material/Button";
+import { Button } from "@mui/material";
 import { withZod } from "@remix-validated-form/with-zod";
 import DisciplinesSelect from "app/core/components/DisciplinesSelect";
 import LabeledTextField from "app/core/components/LabeledTextField";

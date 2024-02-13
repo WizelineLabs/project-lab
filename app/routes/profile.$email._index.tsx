@@ -4,13 +4,15 @@ import {
   getFullProfileByEmail,
   updateGithubUser,
 } from "../models/profile.server";
-import BusinessIcon from "@mui/icons-material/Business";
-import EditSharp from "@mui/icons-material/EditSharp";
-import GitHubIcon from "@mui/icons-material/GitHub";
-import GroupsIcon from "@mui/icons-material/Groups";
-import PlaceIcon from "@mui/icons-material/Place";
-import SaveIcon from "@mui/icons-material/Save";
-import WorkIcon from "@mui/icons-material/Work";
+import {
+  Business as BusinessIcon,
+  EditSharp,
+  GitHub as GitHubIcon,
+  Groups as GroupsIcon,
+  Place as PlaceIcon,
+  Save as SaveIcon,
+  Work as WorkIcon,
+} from "@mui/icons-material";
 import {
   Box,
   Container,
@@ -27,11 +29,11 @@ import {
   Link,
   Chip,
   IconButton,
+  Card,
   CardActionArea,
   CardActions,
+  CardContent,
 } from "@mui/material";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
 import type { LoaderFunction, ActionFunction } from "@remix-run/node";
 import { useLoaderData, useNavigation, useSubmit } from "@remix-run/react";
 import { withZod } from "@remix-validated-form/with-zod";

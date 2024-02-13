@@ -1,7 +1,9 @@
-import CloseIcon from "@mui/icons-material/Close";
-import FilterAltIcon from "@mui/icons-material/FilterAlt";
-import HighlightOffIcon from "@mui/icons-material/HighlightOff";
-import SearchIcon from "@mui/icons-material/Search";
+import {
+  Close as CloseIcon,
+  FilterAlt as FilterAltIcon,
+  HighlightOff as HighlightOffIcon,
+  Search as SearchIcon,
+} from "@mui/icons-material";
 import {
   Avatar,
   Box,

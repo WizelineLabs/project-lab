@@ -1,9 +1,11 @@
 import ConfirmationModal from "../core/components/ConfirmationModal";
-import AddIcon from "@mui/icons-material/Add";
-import CancelIcon from "@mui/icons-material/Close";
-import DeleteIcon from "@mui/icons-material/DeleteOutlined";
-import SaveIcon from "@mui/icons-material/Save";
-import Button from "@mui/material/Button";
+import {
+  Add as AddIcon,
+  Cancel as CancelIcon,
+  Delete as DeleteIcon,
+  Save as SaveIcon,
+} from "@mui/icons-material";
+import { Button } from "@mui/material";
 import type { GridRenderCellParams } from "@mui/x-data-grid";
 import { DataGrid, GridToolbarContainer } from "@mui/x-data-grid";
 import type {

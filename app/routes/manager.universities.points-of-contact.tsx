@@ -1,9 +1,10 @@
-import AddIcon from "@mui/icons-material/Add";
-import EditIcon from "@mui/icons-material/Edit";
+import { Add as AddIcon, Edit as EditIcon } from "@mui/icons-material";
 import {
+  Button,
   Card,
   CardContent,
   CardHeader,
+  Chip,
   Container,
   Stack,
   Table,
@@ -14,8 +15,6 @@ import {
   TableRow,
   TableSortLabel,
 } from "@mui/material";
-import Button from "@mui/material/Button";
-import Chip from "@mui/material/Chip";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
