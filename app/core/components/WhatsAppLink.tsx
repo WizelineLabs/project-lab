@@ -1,3 +1,4 @@
+import { WhatsApp } from "@mui/icons-material";
 import { Link } from "@mui/material";
 
 const WhatsAppLink = ({ phoneNumber }: { phoneNumber: string }) => {
@@ -6,7 +7,7 @@ const WhatsAppLink = ({ phoneNumber }: { phoneNumber: string }) => {
 
   return (
     <Link href={whatsappURL} target="_blank" rel="noopener noreferrer">
-      {phoneNumber}
+      <WhatsApp fontSize="small" /> {phoneNumber}
     </Link>
   );
 };
