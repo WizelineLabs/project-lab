@@ -1,7 +1,7 @@
 import { LabeledCheckbox } from "../LabeledCheckbox";
 import ModalBox from "../ModalBox/index";
 import { ModalText } from "./MemberModal.styles";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { ExpandMore as ExpandMoreIcon } from "@mui/icons-material";
 import {
   Accordion,
   AccordionDetails,

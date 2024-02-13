@@ -1,7 +1,7 @@
 import DropDownButton from "../components/DropDownButton";
 import Link from "../components/Link";
 import Search from "../components/Search";
-import AddIcon from "@mui/icons-material/Add";
+import { Add as AddIcon } from "@mui/icons-material";
 import { Button, Container, Grid, Paper, styled } from "@mui/material";
 import { useLocation, useSubmit } from "@remix-run/react";
 import { useOptionalUser } from "~/utils";

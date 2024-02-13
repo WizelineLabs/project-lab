@@ -1,6 +1,6 @@
 import Link from "../Link";
 import { DropdownPlaceholderContainer } from "./DropDownButton.styles";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { ExpandMore as ExpandMoreIcon } from "@mui/icons-material";
 import {
   ClickAwayListener,
   Grow,

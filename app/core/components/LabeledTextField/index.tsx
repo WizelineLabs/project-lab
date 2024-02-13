@@ -1,4 +1,4 @@
-import TextField from "@mui/material/TextField";
+import { TextField } from "@mui/material";
 import type { PropsWithoutRef } from "react";
 import { useControlField, useField } from "remix-validated-form";
 

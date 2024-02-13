@@ -1,7 +1,9 @@
 import { CompleteIcon, IncompleteIcon } from "./ContributorPathReport.styles";
-import CheckSharpIcon from "@mui/icons-material/CheckSharp";
-import ClearSharpIcon from "@mui/icons-material/ClearSharp";
-import EditSharp from "@mui/icons-material/EditSharp";
+import {
+  CheckSharp as CheckSharpIcon,
+  ClearSharp as ClearSharpIcon,
+  EditSharp,
+} from "@mui/icons-material";
 import {
   Card,
   CardContent,

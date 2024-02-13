@@ -1,9 +1,12 @@
 import ModalBox from "../core/components/ModalBox";
 import styled from "@emotion/styled";
-import AddIcon from "@mui/icons-material/Add";
-import EastIcon from "@mui/icons-material/East";
-import EditIcon from "@mui/icons-material/Edit";
 import {
+  Add as AddIcon,
+  East as EastIcon,
+  Edit as EditIcon,
+} from "@mui/icons-material";
+import {
+  Button,
   Card,
   CardContent,
   CardHeader,
@@ -17,7 +20,6 @@ import {
   TableRow,
   TableSortLabel,
 } from "@mui/material";
-import Button from "@mui/material/Button";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {

@@ -1,6 +1,6 @@
 import FilterAccordionItem from "../FilterAccordionItem";
 import type { FilterAccordionItemProps } from "../FilterAccordionItem";
-import ExpandMore from "@mui/icons-material/ExpandMore";
+import { ExpandMore } from "@mui/icons-material";
 import { Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
 
 interface Props {

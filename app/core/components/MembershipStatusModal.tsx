@@ -1,9 +1,11 @@
 import ModalBox from "./ModalBox";
-import { Button } from "@mui/material";
-import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import Select from "@mui/material/Select";
+import {
+  Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+} from "@mui/material";
 import type { SelectChangeEvent } from "@mui/material/Select";
 import type { ProjectMembers } from "@prisma/client";
 import { withZod } from "@remix-validated-form/with-zod";

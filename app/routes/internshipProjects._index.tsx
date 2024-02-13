@@ -1,12 +1,14 @@
 import ProposalCard from "../core/components/ProposalCard";
 import Header from "../core/layouts/Header";
-import EmailIcon from "@mui/icons-material/EmailRounded";
-import FaceIcon from "@mui/icons-material/Face5";
-import PhoneIcon from "@mui/icons-material/Phone";
-import SportsIcon from "@mui/icons-material/SportsScore";
-import ViewListIcon from "@mui/icons-material/ViewList";
-import ViewModuleIcon from "@mui/icons-material/ViewModule";
-import WorkIcon from "@mui/icons-material/Work";
+import {
+  EmailRounded as EmailIcon,
+  Face as FaceIcon,
+  Phone as PhoneIcon,
+  SportsScore as SportsIcon,
+  ViewList as ViewListIcon,
+  ViewModule as ViewModuleIcon,
+  Work as WorkIcon,
+} from "@mui/icons-material";
 import {
   Avatar,
   Grid,
@@ -17,12 +19,12 @@ import {
   ListItemText,
   Pagination,
   Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
 } from "@mui/material";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
 import { useLoaderData, useSearchParams } from "@remix-run/react";
 import type { LoaderFunction } from "@remix-run/server-runtime";
 import { mentorDiscipline } from "~/constants";

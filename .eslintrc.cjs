@@ -15,6 +15,7 @@ module.exports = {
     },
   },
   env: {
+    node: true,
     browser: true,
     commonjs: true,
     es6: true,
@@ -77,7 +78,7 @@ module.exports = {
         "prettier",
       ],
       rules: {
-        "import/no-named-as-default": 0,
+        //"import/no-named-as-default": "warn",
         "@typescript-eslint/no-explicit-any": "warn"
       }
     },

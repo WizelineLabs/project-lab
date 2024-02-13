@@ -5,17 +5,15 @@
   "scripts": {
     "build": "run-s build:*",
     "build:remix": "remix build",
-    "dev": "run-p dev:*",
-    "dev:remix": "cross-env NODE_ENV=development binode --require ./mocks -- @remix-run/dev:remix dev",
+    "dev": "remix dev",
     "format": "prettier --write .",
     "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint .",
     "setup": "prisma migrate dev && prisma db seed",
     "start": "remix-serve ./build/index.js",
-    "start:mocks": "binode --require ./mocks -- @remix-run/serve:remix-serve ./build/index.js",
     "test": "vitest --silent",
     "test:e2e:dev": "start-server-and-test dev http://localhost:3000 \"npx cypress open\"",
     "pretest:e2e:run": "npm run build",
-    "test:e2e:run": "cross-env PORT=8811 BASE_URL=http://localhost:8811 start-server-and-test start:mocks http://localhost:8811 \"npx cypress run\"",
+    "test:e2e:run": "cross-env PORT=8811 BASE_URL=http://localhost:8811 start-server-and-test start http://localhost:8811 \"npx cypress run\"",
     "test:dev": "cypress run --env url=dev",
     "test:dev:console": "npx cypress open --env url=dev",
     "test:3000": "cypress run --env url=local",
@@ -125,8 +123,9 @@
     "node": "20"
   },
   "prisma": {
-    "seed": "ts-node --require tsconfig-paths/register prisma/seed.ts"
+    "seed": "ts-node --esm --import tsconfig-paths/register prisma/seed.ts"
   },
+  "type": "module",
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": "eslint --fix"
   }

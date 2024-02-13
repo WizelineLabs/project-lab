@@ -1,4 +1,4 @@
-import SearchIcon from "@mui/icons-material/Search";
+import { Search as SearchIcon } from "@mui/icons-material";
 import { InputAdornment, TextField } from "@mui/material";
 import { useNavigate, useSearchParams } from "@remix-run/react";
 import { useState } from "react";
