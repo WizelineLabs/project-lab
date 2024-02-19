@@ -196,7 +196,7 @@ export async function getApplicantById(id: string) {
       "m.preferredName as mentorPreferredName",
       "m.lastName as mentorLastName",
     ])
-    .where("id", "=", id)
+    .where("a.id", "=", Number(id))
     .executeTakeFirstOrThrow();
 
   const projectMembers = await db
