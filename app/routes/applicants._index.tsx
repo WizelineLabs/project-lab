@@ -32,6 +32,8 @@ export const loader = async () => {
       participatedAtWizeline: a.participatedAtWizeline,
       status: a.status,
       appliedProjects: a.appliedProjects,
+      preferredTools: a.preferredTools,
+      interestedRoles: a.interestedRoles,
     }))
   );
 };
@@ -114,6 +116,16 @@ export default function Projects() {
         ACCEPTED: "ACCEPTED",
         REJECTED: "REJECTED",
       },
+    },
+    {
+      field: "preferredTools",
+      title: "Preferred Tools",
+      hidden: true,
+    },
+    {
+      field: "interestedRoles",
+      title: "Interested Roles",
+      hidden: true,
     },
     {
       field: "appliedProjects",
