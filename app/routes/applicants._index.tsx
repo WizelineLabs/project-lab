@@ -111,7 +111,7 @@ export default function Projects() {
       lookup: {
         DRAFT: "DRAFT",
         HOLD: "HOLD",
-        APPROVED: "APPROVED",
+        ACCEPTED: "ACCEPTED",
         REJECTED: "REJECTED",
       },
     },
