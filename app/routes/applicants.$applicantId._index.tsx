@@ -269,7 +269,7 @@ export default function Applicant() {
                       alignContent="center"
                       alignItems="left"
                     >
-                      Project: {applicant.project?.name}
+                      Project: {applicant.projectName}
                     </Typography>
                   </Paper>
                   <Paper>
@@ -278,8 +278,8 @@ export default function Applicant() {
                       alignContent="center"
                       alignItems="left"
                     >
-                      Mentor: {applicant.mentor?.preferredName}{" "}
-                      {applicant.mentor?.lastName}{" "}
+                      Mentor: {applicant.mentorPreferredName}{" "}
+                      {applicant.mentorLastName}{" "}
                     </Typography>
                   </Paper>
                 </Stack>
@@ -301,7 +301,7 @@ export default function Applicant() {
             ) : null}
           </div>
           <div>
-            {applicant.university?.name} / <strong>{applicant.major}</strong> /{" "}
+            {applicant.universityName} / <strong>{applicant.major}</strong> /{" "}
             {applicant.semester} / {applicant.englishLevel}
           </div>
           <div>
@@ -311,9 +311,8 @@ export default function Applicant() {
             {applicant.phone ? (
               <WhatsAppLink phoneNumber={applicant.phone} />
             ) : null}
-            {applicant.universityPointOfContact
-              ? " / University contact: " +
-                applicant.universityPointOfContact.fullName
+            {applicant.pocName
+              ? " / University contact: " + applicant.pocName
               : null}
             <hr />
             <div>

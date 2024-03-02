@@ -27,7 +27,7 @@ export const loader = async () => {
       dayOfBirth: a.dayOfBirth,
       graduationDate: a.graduationDate,
       hoursPerWeek: a.hoursPerWeek,
-      university: a.university?.name,
+      university: a.universityName,
       semester: a.semester,
       participatedAtWizeline: a.participatedAtWizeline,
       status: a.status,

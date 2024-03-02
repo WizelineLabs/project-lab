@@ -26,7 +26,7 @@ import TableRow from "@mui/material/TableRow";
 import { useLoaderData, useSearchParams } from "@remix-run/react";
 import type { LoaderFunction } from "@remix-run/server-runtime";
 import { mentorDiscipline } from "~/constants";
-import { getApplicantByEmail } from "~/models/applicant.server";
+import { existApplicant, getApplicantByEmail } from "~/models/applicant.server";
 import { searchDisciplineByName } from "~/models/discipline.server";
 import { getProjectsByRole } from "~/models/project.server";
 import { requireProfile } from "~/session.server";
@@ -42,14 +42,14 @@ export const loader: LoaderFunction = async ({ request }) => {
     const id = await searchDisciplineByName(mentorDiscipline);
     const { projects, count } = await getProjectsByRole(id?.id as string);
     const profile = await requireProfile(request);
-    const existApplicant = await getApplicantByEmail(profile.email);
+    const doesExistApplicant = await existApplicant(profile.email);
     const applicant = await getApplicantByEmail(profile.email);
 
     return {
       projects,
       count,
       id,
-      existApplicant,
+      existApplicant: doesExistApplicant,
       applicant,
     };
   } catch (error) {
