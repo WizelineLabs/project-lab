@@ -134,7 +134,7 @@ export default function Index() {
       </SecondaryHeader>
       <HomePageContainer>
         <img
-          src="HomeBg.webp"
+          src="HomeBg.jpg"
           alt="Background fo the homepage"
           style={{ width: "100%" }}
         />

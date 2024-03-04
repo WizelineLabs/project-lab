@@ -119,7 +119,7 @@ export const PageContainerTitle = styled.h1`
   color: black;
   width: 95%;
   textalign: left;
-  padding: 30px 5;
+  padding: 30px 5px;
   font-size: 50px;
   margin: 0;
 `;
