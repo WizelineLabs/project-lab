@@ -182,7 +182,7 @@ export default function Applicant() {
       status: event.target.value,
     };
 
-    await fetcher.submit(body, {
+    fetcher.submit(body, {
       method: "post",
       action: `/applicants/${applicant.id}/status`,
     });
