@@ -1,4 +1,5 @@
 import ArrowBack from "@mui/icons-material/ArrowBack";
+import EditSharp from "@mui/icons-material/EditSharp";
 import LinkedIn from "@mui/icons-material/LinkedIn";
 import {
   Container,
@@ -9,14 +10,14 @@ import {
   Autocomplete,
   debounce,
   Stack,
+  IconButton,
+  Typography,
+  type AutocompleteChangeReason,
+  Avatar,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  type SelectChangeEvent,
-  Typography,
-  type AutocompleteChangeReason,
-  Avatar,
 } from "@mui/material";
 import Grid from "@mui/material/Unstable_Grid2";
 import { LoaderFunctionArgs } from "@remix-run/node";
@@ -135,8 +136,6 @@ export default function Applicant() {
   });
   const [projectSelected, setProjectSelected] = useState<ProjectValue | null>();
 
-  const fetcher = useFetcher();
-
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -172,20 +171,6 @@ export default function Applicant() {
       },
       profileFetcherOptions
     );
-  };
-
-  const changeStatus = async (event: SelectChangeEvent) => {
-    const body = {
-      applicantId: applicant.id as unknown as string,
-      projectId: applicant.projectId as string,
-      mentorId: applicant.mentorId as string,
-      status: event.target.value,
-    };
-
-    fetcher.submit(body, {
-      method: "post",
-      action: `/applicants/${applicant.id}/status`,
-    });
   };
 
   const searchProfilesDebounced = debounce(searchProfiles, 500);
@@ -232,37 +217,25 @@ export default function Applicant() {
               </h1>{" "}
             </Grid>
             <Grid xs={4} sx={{ textAlign: "right" }}>
-              {navigation.state != "loading" &&
-              canEditProject &&
-              applicant.status === "DRAFT" ? (
-                <>
-                  <Button
-                    onClick={() => setOpenManageModal(true)}
-                    variant="contained"
-                  >
-                    Hold intern
-                  </Button>
-                </>
+              {canEditProject ? (
+                <IconButton
+                  aria-label="Edit"
+                  onClick={() => setOpenManageModal(true)}
+                >
+                  <EditSharp />
+                </IconButton>
               ) : null}
-              {canEditProject && applicant.status != "DRAFT" ? (
-                <Stack direction="column" spacing={1}>
-                  <FormControl fullWidth size="medium">
-                    <InputLabel id="demo-simple-select-label">
-                      Status
-                    </InputLabel>
-                    <Select
-                      id="actions-select"
-                      label="Status"
-                      onChange={changeStatus}
-                      value={applicant.status}
-                      disabled={fetcher.state === "loading"}
-                    >
-                      <MenuItem value="DRAFT">DRAFT</MenuItem>
-                      <MenuItem value="HOLD">HOLD</MenuItem>
-                      <MenuItem value="ACCEPTED">ACCEPTED</MenuItem>
-                      <MenuItem value="REJECTED">REJECTED</MenuItem>
-                    </Select>
-                  </FormControl>
+              <Stack direction="column" spacing={1}>
+                <Paper>
+                  <Typography
+                    variant="h6"
+                    alignContent="center"
+                    alignItems="left"
+                  >
+                    Status: {applicant.status}
+                  </Typography>
+                </Paper>
+                {applicant.projectName ? (
                   <Paper>
                     <Typography
                       variant="h6"
@@ -272,6 +245,8 @@ export default function Applicant() {
                       Project: {applicant.projectName}
                     </Typography>
                   </Paper>
+                ) : null}
+                {applicant.mentorPreferredName ? (
                   <Paper>
                     <Typography
                       variant="h6"
@@ -282,8 +257,8 @@ export default function Applicant() {
                       {applicant.mentorLastName}{" "}
                     </Typography>
                   </Paper>
-                </Stack>
-              ) : null}
+                ) : null}
+              </Stack>
             </Grid>
           </Grid>
           <div>
@@ -394,7 +369,7 @@ export default function Applicant() {
       </Container>
 
       <ModalBox close={handleCloseModal} open={openManageModal}>
-        <h2>Select project and mentor</h2>
+        <h2>Edit internship status</h2>
         <ValidatedForm
           validator={validator}
           method="post"
@@ -402,7 +377,21 @@ export default function Applicant() {
           defaultValues={{ project: { id: "", name: "" } }}
         >
           <input type="hidden" name="applicantId" value={applicant.id} />
-          <input type="hidden" name="status" value="HOLD" />
+
+          <FormControl fullWidth size="medium">
+            <InputLabel id="demo-simple-select-label">Status</InputLabel>
+            <Select
+              id="actions-select"
+              name="status"
+              label="Status"
+              defaultValue={applicant.status}
+            >
+              <MenuItem value="DRAFT">DRAFT</MenuItem>
+              <MenuItem value="HOLD">HOLD</MenuItem>
+              <MenuItem value="ACCEPTED">ACCEPTED</MenuItem>
+              <MenuItem value="REJECTED">REJECTED</MenuItem>
+            </Select>
+          </FormControl>
 
           <RegularSelect
             valuesList={projects}
