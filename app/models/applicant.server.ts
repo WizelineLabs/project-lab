@@ -213,7 +213,6 @@ export async function editApplicant(
   id: number
 ) {
   // eslint-disable-next-line no-console
-  console.log("test edit");
   return await db
     .updateTable("Applicant")
     .where("id", "=", id)

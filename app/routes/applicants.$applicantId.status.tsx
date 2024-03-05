@@ -20,6 +20,5 @@ export const action: ActionFunction = async ({ request }) => {
   } // else reset the values
   console.log("action", mentorId, projectId, status, applicantId);
   response = await editApplicant({ mentorId, projectId, status }, applicantId);
-  console.log("response", response.status);
-  return redirect(`/applicants/${response.id}&status=${response.status}`);
+  return redirect(`/applicants/${response.id}?status=${response.status}`);
 };
