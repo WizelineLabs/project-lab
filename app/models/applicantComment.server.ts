@@ -37,16 +37,16 @@ export async function getCommentsApplicant(applicantId: number) {
     .select(({ eb }) => [
       "p.preferredName as authorPreferredName",
       "p.lastName as authorLastName",
-      "avatarUrl as authorAvatarUrl",
+      "p.avatarUrl as authorAvatarUrl",
       jsonArrayFrom(
         eb
           .selectFrom("internsComments as ic2")
           .leftJoin("Profiles as p2", "ic2.authorId", "p2.id")
           .selectAll("ic2")
           .select([
-            "p.preferredName as authorPreferredName",
-            "p.lastName as authorLastName",
-            "avatarUrl as authorAvatarUrl",
+            "p2.preferredName as authorPreferredName",
+            "p2.lastName as authorLastName",
+            "p2.avatarUrl as authorAvatarUrl",
           ])
           .whereRef("ic2.parentId", "=", "ic.id")
       ).as("children"),
