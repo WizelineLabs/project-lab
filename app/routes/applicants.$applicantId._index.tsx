@@ -6,13 +6,9 @@ import {
   Paper,
   Link as ExternalLink,
   Button,
-  TextField,
-  Autocomplete,
-  debounce,
   Stack,
   IconButton,
   Typography,
-  type AutocompleteChangeReason,
   Avatar,
   FormControl,
   InputLabel,
@@ -80,10 +76,13 @@ export const validator = withZod(
         name: z.string().optional(),
       })
       .optional(),
-    mentorId: z.string(),
-    mentorName: z.string().optional(),
+    mentor: z
+      .object({
+        id: z.string().optional(),
+        name: z.string().optional(),
+      })
+      .optional(),
     status: z.string(),
-    projectId: z.string().optional(),
   })
 );
 
@@ -130,10 +129,6 @@ export default function Applicant() {
     comments,
   } = useTypedLoaderData<typeof loader>();
   const [openManageModal, setOpenManageModal] = useState(false);
-  const [mentorSelected, setMentorSelected] = useState<ProfileValue | null>({
-    id: "",
-    name: "",
-  });
   const [projectSelected, setProjectSelected] = useState<ProjectValue | null>();
 
   const navigation = useNavigation();
@@ -173,24 +168,23 @@ export default function Applicant() {
     );
   };
 
-  const searchProfilesDebounced = debounce(searchProfiles, 500);
-
   useEffect(() => {
     if (profileFetcher.state === "idle" && profileFetcher.data == null) {
-      profileFetcher.submit({}, profileFetcherOptions);
+      profileFetcher.submit(
+        { q: "", projectId: applicant.projectId },
+        profileFetcherOptions
+      );
     }
-  }, [profileFetcher]);
+  }, [applicant.projectId, profileFetcher]);
 
   const handleSelectProject = (project: ProjectValue) => {
     setProjectSelected(project);
     searchProfiles("", project.id);
-    setMentorSelected({ id: "", name: "" });
   };
 
   const handleCloseModal = () => {
     setOpenManageModal(false);
     setProjectSelected(null);
-    setMentorSelected({ id: "", name: "" });
     searchProfiles("", "");
   };
 
@@ -374,7 +368,15 @@ export default function Applicant() {
           validator={validator}
           method="post"
           action="./status"
-          defaultValues={{ project: { id: "", name: "" } }}
+          defaultValues={{
+            project: {
+              id: applicant.projectId || undefined,
+              name: applicant.projectName || undefined,
+            },
+            mentor: {
+              id: applicant.mentorId || undefined,
+            },
+          }}
         >
           <input type="hidden" name="applicantId" value={applicant.id} />
 
@@ -395,43 +397,17 @@ export default function Applicant() {
 
           <RegularSelect
             valuesList={projects}
-            defaultValue={applicant.projectName}
             name="project"
             label="Select a project"
             onChange={handleSelectProject}
           />
 
-          <input type="hidden" name="mentorId" value={mentorSelected?.id} />
-          <Autocomplete
-            multiple={false}
-            style={{ margin: "1em 0" }}
-            options={profileFetcher.data ?? []}
-            value={mentorSelected?.id ? mentorSelected : applicant.mentorId}
-            isOptionEqualToValue={(option, value) => option.id === value.id}
-            id="mentor"
-            getOptionLabel={(option) => option.name}
-            onInputChange={(_, value) => searchProfilesDebounced(value)}
-            renderTags={() => null}
-            onChange={(
-              event,
-              value: { id: string; name: string } | null,
-              reason: AutocompleteChangeReason
-            ) =>
-              reason === "clear"
-                ? setMentorSelected({ id: "", name: "" })
-                : setMentorSelected(value)
-            }
-            filterSelectedOptions
-            renderInput={(params) => (
-              <TextField
-                name="mentorName"
-                label="Select a mentor"
-                {...params}
-                placeholder="Select a mentor..."
-                value={mentorSelected?.name}
-              />
-            )}
+          <RegularSelect
+            valuesList={profileFetcher.data ?? []}
+            name="mentor"
+            label="Select a mentor"
           />
+
           <Grid container justifyContent="end" alignItems="center">
             <Button type="submit">Save Cahnges</Button>
           </Grid>

@@ -5,7 +5,6 @@ import {
   InputLabel,
   FormHelperText,
 } from "@mui/material";
-import { useState } from "react";
 import { useControlField, useField } from "remix-validated-form";
 
 interface SelectValue {
@@ -36,7 +35,6 @@ export const RegularSelect = ({
 
   const [value, setValue] = useControlField<SelectValue>(name);
   //This state variable is to have a controlled input and avoid errors in the console
-  const [selectValue, setSelectValue] = useState<string>("");
   return (
     <FormControl fullWidth id={name} size="small" error={!!error}>
       <input type="hidden" name={`${name}.name`} value={value?.name} />
@@ -44,23 +42,22 @@ export const RegularSelect = ({
       <InputLabel id={name}>{label}</InputLabel>
       <Select
         label={label}
-        value={selectValue}
+        value={value?.id}
         error={!!error}
         style={style ? style : { margin: "1em 0" }}
         onChange={(event) => {
           const newValue = valuesList.find(
-            (item) => item.name === event.target.value
+            (item) => item.id === event.target.value
           );
           if (newValue) {
             setValue(newValue);
-            setSelectValue(newValue.name);
           }
           onChange && onChange(newValue as SelectValue);
         }}
         disabled={disabled}
       >
         {valuesList.map((item) => (
-          <MenuItem key={item.id} value={item.name}>
+          <MenuItem key={item.id} value={item.id}>
             {item.name}
           </MenuItem>
         ))}
