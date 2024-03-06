@@ -395,6 +395,7 @@ export default function Applicant() {
 
           <RegularSelect
             valuesList={projects}
+            defaultValue={applicant.projectName}
             name="project"
             label="Select a project"
             onChange={handleSelectProject}
