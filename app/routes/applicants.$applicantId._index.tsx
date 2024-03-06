@@ -395,6 +395,7 @@ export default function Applicant() {
 
           <RegularSelect
             valuesList={projects}
+            defaultValue={applicant.projectName}
             name="project"
             label="Select a project"
             onChange={handleSelectProject}
@@ -405,7 +406,7 @@ export default function Applicant() {
             multiple={false}
             style={{ margin: "1em 0" }}
             options={profileFetcher.data ?? []}
-            value={mentorSelected?.id ? mentorSelected : null}
+            value={mentorSelected?.id ? mentorSelected : applicant.mentorId}
             isOptionEqualToValue={(option, value) => option.id === value.id}
             id="mentor"
             getOptionLabel={(option) => option.name}
@@ -432,7 +433,7 @@ export default function Applicant() {
             )}
           />
           <Grid container justifyContent="end" alignItems="center">
-            <Button type="submit">Hold Intern</Button>
+            <Button type="submit">Save Cahnges</Button>
           </Grid>
         </ValidatedForm>
       </ModalBox>
