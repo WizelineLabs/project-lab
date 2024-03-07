@@ -1,22 +1,19 @@
 import ArrowBack from "@mui/icons-material/ArrowBack";
+import EditSharp from "@mui/icons-material/EditSharp";
 import LinkedIn from "@mui/icons-material/LinkedIn";
 import {
   Container,
   Paper,
   Link as ExternalLink,
   Button,
-  TextField,
-  Autocomplete,
-  debounce,
   Stack,
+  IconButton,
+  Typography,
+  Avatar,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  type SelectChangeEvent,
-  Typography,
-  type AutocompleteChangeReason,
-  Avatar,
 } from "@mui/material";
 import Grid from "@mui/material/Unstable_Grid2";
 import { LoaderFunctionArgs } from "@remix-run/node";
@@ -79,10 +76,13 @@ export const validator = withZod(
         name: z.string().optional(),
       })
       .optional(),
-    mentorId: z.string(),
-    mentorName: z.string().optional(),
+    mentor: z
+      .object({
+        id: z.string().optional(),
+        name: z.string().optional(),
+      })
+      .optional(),
     status: z.string(),
-    projectId: z.string().optional(),
   })
 );
 
@@ -129,13 +129,7 @@ export default function Applicant() {
     comments,
   } = useTypedLoaderData<typeof loader>();
   const [openManageModal, setOpenManageModal] = useState(false);
-  const [mentorSelected, setMentorSelected] = useState<ProfileValue | null>({
-    id: "",
-    name: "",
-  });
   const [projectSelected, setProjectSelected] = useState<ProjectValue | null>();
-
-  const fetcher = useFetcher();
 
   const navigation = useNavigation();
 
@@ -174,38 +168,23 @@ export default function Applicant() {
     );
   };
 
-  const changeStatus = async (event: SelectChangeEvent) => {
-    const body = {
-      applicantId: applicant.id as unknown as string,
-      projectId: applicant.projectId as string,
-      mentorId: applicant.mentorId as string,
-      status: event.target.value,
-    };
-
-    fetcher.submit(body, {
-      method: "post",
-      action: `/applicants/${applicant.id}/status`,
-    });
-  };
-
-  const searchProfilesDebounced = debounce(searchProfiles, 500);
-
   useEffect(() => {
     if (profileFetcher.state === "idle" && profileFetcher.data == null) {
-      profileFetcher.submit({}, profileFetcherOptions);
+      profileFetcher.submit(
+        { q: "", projectId: applicant.projectId },
+        profileFetcherOptions
+      );
     }
-  }, [profileFetcher]);
+  }, [applicant.projectId, profileFetcher]);
 
   const handleSelectProject = (project: ProjectValue) => {
     setProjectSelected(project);
     searchProfiles("", project.id);
-    setMentorSelected({ id: "", name: "" });
   };
 
   const handleCloseModal = () => {
     setOpenManageModal(false);
     setProjectSelected(null);
-    setMentorSelected({ id: "", name: "" });
     searchProfiles("", "");
   };
 
@@ -232,37 +211,25 @@ export default function Applicant() {
               </h1>{" "}
             </Grid>
             <Grid xs={4} sx={{ textAlign: "right" }}>
-              {navigation.state != "loading" &&
-              canEditProject &&
-              applicant.status === "DRAFT" ? (
-                <>
-                  <Button
-                    onClick={() => setOpenManageModal(true)}
-                    variant="contained"
-                  >
-                    Hold intern
-                  </Button>
-                </>
+              {canEditProject ? (
+                <IconButton
+                  aria-label="Edit"
+                  onClick={() => setOpenManageModal(true)}
+                >
+                  <EditSharp />
+                </IconButton>
               ) : null}
-              {canEditProject && applicant.status != "DRAFT" ? (
-                <Stack direction="column" spacing={1}>
-                  <FormControl fullWidth size="medium">
-                    <InputLabel id="demo-simple-select-label">
-                      Status
-                    </InputLabel>
-                    <Select
-                      id="actions-select"
-                      label="Status"
-                      onChange={changeStatus}
-                      value={applicant.status}
-                      disabled={fetcher.state === "loading"}
-                    >
-                      <MenuItem value="DRAFT">DRAFT</MenuItem>
-                      <MenuItem value="HOLD">HOLD</MenuItem>
-                      <MenuItem value="ACCEPTED">ACCEPTED</MenuItem>
-                      <MenuItem value="REJECTED">REJECTED</MenuItem>
-                    </Select>
-                  </FormControl>
+              <Stack direction="column" spacing={1}>
+                <Paper>
+                  <Typography
+                    variant="h6"
+                    alignContent="center"
+                    alignItems="left"
+                  >
+                    Status: {applicant.status}
+                  </Typography>
+                </Paper>
+                {applicant.projectName ? (
                   <Paper>
                     <Typography
                       variant="h6"
@@ -272,6 +239,8 @@ export default function Applicant() {
                       Project: {applicant.projectName}
                     </Typography>
                   </Paper>
+                ) : null}
+                {applicant.mentorPreferredName ? (
                   <Paper>
                     <Typography
                       variant="h6"
@@ -282,8 +251,8 @@ export default function Applicant() {
                       {applicant.mentorLastName}{" "}
                     </Typography>
                   </Paper>
-                </Stack>
-              ) : null}
+                ) : null}
+              </Stack>
             </Grid>
           </Grid>
           <div>
@@ -394,15 +363,37 @@ export default function Applicant() {
       </Container>
 
       <ModalBox close={handleCloseModal} open={openManageModal}>
-        <h2>Select project and mentor</h2>
+        <h2>Edit internship status</h2>
         <ValidatedForm
           validator={validator}
           method="post"
           action="./status"
-          defaultValues={{ project: { id: "", name: "" } }}
+          defaultValues={{
+            project: {
+              id: applicant.projectId || undefined,
+              name: applicant.projectName || undefined,
+            },
+            mentor: {
+              id: applicant.mentorId || undefined,
+            },
+          }}
         >
           <input type="hidden" name="applicantId" value={applicant.id} />
-          <input type="hidden" name="status" value="HOLD" />
+
+          <FormControl fullWidth size="medium">
+            <InputLabel id="demo-simple-select-label">Status</InputLabel>
+            <Select
+              id="actions-select"
+              name="status"
+              label="Status"
+              defaultValue={applicant.status}
+            >
+              <MenuItem value="DRAFT">DRAFT</MenuItem>
+              <MenuItem value="HOLD">HOLD</MenuItem>
+              <MenuItem value="ACCEPTED">ACCEPTED</MenuItem>
+              <MenuItem value="REJECTED">REJECTED</MenuItem>
+            </Select>
+          </FormControl>
 
           <RegularSelect
             valuesList={projects}
@@ -411,39 +402,14 @@ export default function Applicant() {
             onChange={handleSelectProject}
           />
 
-          <input type="hidden" name="mentorId" value={mentorSelected?.id} />
-          <Autocomplete
-            multiple={false}
-            style={{ margin: "1em 0" }}
-            options={profileFetcher.data ?? []}
-            value={mentorSelected?.id ? mentorSelected : null}
-            isOptionEqualToValue={(option, value) => option.id === value.id}
-            id="mentor"
-            getOptionLabel={(option) => option.name}
-            onInputChange={(_, value) => searchProfilesDebounced(value)}
-            renderTags={() => null}
-            onChange={(
-              event,
-              value: { id: string; name: string } | null,
-              reason: AutocompleteChangeReason
-            ) =>
-              reason === "clear"
-                ? setMentorSelected({ id: "", name: "" })
-                : setMentorSelected(value)
-            }
-            filterSelectedOptions
-            renderInput={(params) => (
-              <TextField
-                name="mentorName"
-                label="Select a mentor"
-                {...params}
-                placeholder="Select a mentor..."
-                value={mentorSelected?.name}
-              />
-            )}
+          <RegularSelect
+            valuesList={profileFetcher.data ?? []}
+            name="mentor"
+            label="Select a mentor"
           />
+
           <Grid container justifyContent="end" alignItems="center">
-            <Button type="submit">Hold Intern</Button>
+            <Button type="submit">Save Cahnges</Button>
           </Grid>
         </ValidatedForm>
       </ModalBox>

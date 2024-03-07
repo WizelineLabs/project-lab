@@ -9,16 +9,13 @@ export const action: ActionFunction = async ({ request }) => {
   const result = await validator.validate(await request.formData());
   const applicantId = parseInt(result.data?.applicantId as string);
   const status = result.data?.status;
-  let projectId = null;
-  let mentorId = null;
-  let response = null;
-  if (status !== "DRAFT") {
-    projectId = result.data?.project?.id
-      ? result.data?.project.id
-      : result.data?.projectId;
-    mentorId = result.data?.mentorId;
-  } // else reset the values
-  console.log("action", mentorId, projectId, status, applicantId);
-  response = await editApplicant({ mentorId, projectId, status }, applicantId);
+  const response = await editApplicant(
+    {
+      mentorId: result.data?.mentor?.id,
+      projectId: result.data?.project?.id,
+      status,
+    },
+    applicantId
+  );
   return redirect(`/applicants/${response.id}?status=${response.status}`);
 };
