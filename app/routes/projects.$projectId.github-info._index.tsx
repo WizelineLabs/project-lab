@@ -15,6 +15,7 @@ import {
   MenuItem,
   Paper,
   Select,
+  SelectChangeEvent,
   Stack,
   Typography,
 } from "@mui/material";
@@ -77,11 +78,6 @@ interface LoaderData {
   realeasesList: Awaited<ReturnType<typeof getReleasesListData>>;
 }
 
-interface gitHubActivityChartType {
-  count: number;
-  typeEvent: string;
-}
-
 export const validator = withZod(
   zfd.formData({
     body: z.string().min(1),
@@ -104,8 +100,10 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const realeasesList = await getReleasesListData(projectId);
 
   const activityData = await getGitActivityData(projectId);
-  const activityChartData: gitHubActivityChartType[] =
-    await getActivityStadistic(weekParams ? weekParams : week, projectId);
+  const activityChartData = await getActivityStadistic(
+    weekParams ? weekParams : week,
+    projectId
+  );
 
   return json<LoaderData>({
     project,
@@ -152,11 +150,11 @@ export default function GitHubInfo() {
 
   const dataChart = {
     labels: activityChartData.map(
-      (activity: { typeEvent: any }) => activity.typeEvent
+      (activity: { typeEvent: string }) => activity.typeEvent
     ),
     datasets: [
       {
-        data: activityChartData.map((activity: { count: any }) =>
+        data: activityChartData.map((activity: { count: number }) =>
           Number(activity.count)
         ),
         backgroundColor: "#3B72A4",
@@ -204,7 +202,7 @@ export default function GitHubInfo() {
     },
   };
 
-  const handleSubmit = async (event: any) => {
+  const handleSubmit = async (event: SelectChangeEvent<any>) => {
     const body = {
       week: event.target.value,
     };
