@@ -1,7 +1,5 @@
 import { db } from "~/db.server";
 
-export type { Disciplines } from "@prisma/client";
-
 export async function searchDisciplines(searchTerm: string) {
   return await db
     .selectFrom("Disciplines")

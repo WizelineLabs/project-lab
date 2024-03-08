@@ -1,5 +1,4 @@
-import { prisma } from "../db.server";
-import type { PrismaClient } from "@prisma/client";
+import { db } from "../db.server";
 
 export async function saveRelease(
   id: string,
@@ -10,35 +9,30 @@ export async function saveRelease(
   prerealease: boolean,
   created_at: string,
   projectId: string,
-  link: string,
-  db?: PrismaClient
+  link: string
 ) {
-  const dbConnection = db ? db : prisma;
+  await db
+    .selectFrom("GitHubReleases")
+    .where("id", "=", id)
+    .executeTakeFirstOrThrow();
 
-  const releaseRegister = await dbConnection.gitHubReleases.findFirst({
-    where: { id },
+  return await db.insertInto("GitHubReleases").values({
+    id,
+    body,
+    name,
+    tagName,
+    author,
+    prerealease,
+    created_at: new Date(created_at),
+    projectId,
+    link,
   });
-
-  if (!releaseRegister) {
-    return await dbConnection.gitHubReleases.create({
-      data: {
-        id,
-        body,
-        name,
-        tagName,
-        author,
-        prerealease,
-        created_at: new Date(created_at),
-        projectId,
-        link,
-      },
-    });
-  }
 }
 
 export async function getReleasesListData(projectId: string) {
-  return await prisma.gitHubReleases.findMany({
-    where: { projectId },
-    orderBy: { created_at: "desc" },
-  });
+  return await db
+    .selectFrom("GitHubReleases")
+    .where("projectId", "=", projectId)
+    .orderBy("created_at", "desc")
+    .execute();
 }

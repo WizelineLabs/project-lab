@@ -1,5 +1,5 @@
-import { prisma } from "../db.server";
-import type { PrismaClient } from "@prisma/client";
+import { db } from "../db.server";
+import { sql } from "kysely";
 
 interface gitHubActivityChartType {
   count: number;
@@ -12,38 +12,35 @@ export async function saveActivity(
   created_at: string,
   author: string,
   avatar_url: string,
-  projectId: string,
-  db?: PrismaClient
+  projectId: string
 ) {
-  const dbConnection = db ? db : prisma;
+  await db
+    .selectFrom("GitHubActivity")
+    .where("id", "=", id)
+    .executeTakeFirstOrThrow();
 
-  const activityRegister = await dbConnection.gitHubActivity.findFirst({
-    where: { id },
+  return await db.insertInto("GitHubActivity").values({
+    id,
+    typeEvent,
+    created_at: new Date(created_at),
+    author,
+    avatar_url,
+    projectId,
   });
-
-  if (!activityRegister) {
-    return await dbConnection.gitHubActivity.create({
-      data: {
-        id,
-        typeEvent,
-        created_at: new Date(created_at),
-        author,
-        avatar_url,
-        projectId,
-      },
-    });
-  }
 }
 
 export async function getGitActivityData(projectId: string) {
-  return await prisma.gitHubActivity.findMany({
-    where: { projectId },
-    orderBy: { id: "desc" },
-  });
+  return await db
+    .selectFrom("GitHubActivity")
+    .selectAll()
+    .where("projectId", "=", projectId)
+    .orderBy("created_at", "desc")
+    .execute();
 }
 
 export const getActivityStadistic = async (week: number, projectId: string) => {
-  return await prisma.$queryRaw<
-    gitHubActivityChartType[]
-  >`SELECT Count(*)::int, "typeEvent" FROM "GitHubActivity" where  date_part('week', "created_at")=${week} AND "projectId" = ${projectId}  GROUP BY "typeEvent"`;
+  return await sql<gitHubActivityChartType[]>`SELECT Count(*)::int, "typeEvent"
+  FROM "GitHubActivity"
+  WHERE date_part('week', "created_at")=${week} AND "projectId" = ${projectId}
+  GROUP BY "typeEvent"`.execute(db);
 };

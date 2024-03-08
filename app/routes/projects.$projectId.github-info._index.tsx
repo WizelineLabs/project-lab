@@ -77,11 +77,6 @@ interface LoaderData {
   realeasesList: Awaited<ReturnType<typeof getReleasesListData>>;
 }
 
-interface gitHubActivityChartType {
-  count: number;
-  typeEvent: string;
-}
-
 export const validator = withZod(
   zfd.formData({
     body: z.string().min(1),
@@ -104,8 +99,10 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const realeasesList = await getReleasesListData(projectId);
 
   const activityData = await getGitActivityData(projectId);
-  const activityChartData: gitHubActivityChartType[] =
-    await getActivityStadistic(weekParams ? weekParams : week, projectId);
+  const activityChartData = await getActivityStadistic(
+    weekParams ? weekParams : week,
+    projectId
+  );
 
   return json<LoaderData>({
     project,

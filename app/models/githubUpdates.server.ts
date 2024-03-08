@@ -1,8 +1,6 @@
-import { getReleasesList } from "./models/github.get-listReleases";
-import { getActivity } from "./models/github.get-proyectActivity";
-import { PrismaClient } from "@prisma/client";
-
-const db = new PrismaClient();
+import { db } from "../db.server";
+import { getReleasesList } from "./github.get-listReleases";
+import { getActivity } from "./github.get-proyectActivity";
 
 // export async function searchLastUpdateProjects() {
 
@@ -15,24 +13,24 @@ const db = new PrismaClient();
 // } I will use it later jeje
 
 export async function getGitHubActivity() {
-  const projectsBoards = await db.$queryRaw<
-    { id: string; name: string; url: string }[]
-  >`
-        SELECT p."id", p."name", r.url from "Projects" p
-        RIGHT JOIN "Repos" r on p."id" = r."projectId"
-        WHERE p."isArchived" = FALSE and r."url" is not null
-    `;
+  const projectsBoards = await db
+    .selectFrom("Projects as p")
+    .innerJoin("Repos as r", "p.id", "r.projectId")
+    .select(["p.id", "p.name", "r.url"])
+    .where("p.isArchived", "=", false)
+    .where("r.url", "is not", null)
+    .execute();
 
   projectsBoards.map(
     async (board) =>
       await getActivity(board.url, board.id).catch((e) => {
-        throw e;
+        console.log("error", board.url, e.status);
       })
   );
   projectsBoards.map(
     async (board) =>
       await getReleasesList(board.url, board.id).catch((e) => {
-        throw e;
+        console.log("error", board.url, e.status);
       })
   );
 }
