@@ -19,7 +19,7 @@ interface InputSelectProps {
   helperText?: string;
   disabled?: boolean;
   onChange?: (e: SelectValue) => void;
-  style?: any;
+  style?: React.CSSProperties;
 }
 
 export const RegularSelect = ({
