@@ -181,7 +181,7 @@ export default function GitHubInfo() {
     },
   };
 
-  const handleSubmit = async (event: SelectChangeEvent<any>) => {
+  const handleSubmit = async (event: SelectChangeEvent<number>) => {
     const body = {
       week: event.target.value,
     };

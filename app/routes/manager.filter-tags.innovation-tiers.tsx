@@ -147,7 +147,7 @@ export const action: ActionFunction = async ({ request }) => {
         invariant(benefits, "Invalid innovation tier benefits");
         invariant(requisites, "Invalid innovation tier requisites");
         invariant(goals, "Invalid innovation tier goals");
-        await updateInnovationTier({ id, name, benefits, requisites, goals });
+        await updateInnovationTier({ name, benefits, requisites, goals });
         return json({ error: "" }, { status: 200 });
 
       default: {
