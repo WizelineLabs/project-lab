@@ -15,6 +15,7 @@ import {
   MenuItem,
   Paper,
   Select,
+  SelectChangeEvent,
   Stack,
   Typography,
 } from "@mui/material";
@@ -149,11 +150,11 @@ export default function GitHubInfo() {
 
   const dataChart = {
     labels: activityChartData.map(
-      (activity: { typeEvent: any }) => activity.typeEvent
+      (activity: { typeEvent: string }) => activity.typeEvent
     ),
     datasets: [
       {
-        data: activityChartData.map((activity: { count: any }) =>
+        data: activityChartData.map((activity: { count: number }) =>
           Number(activity.count)
         ),
         backgroundColor: "#3B72A4",
@@ -201,7 +202,7 @@ export default function GitHubInfo() {
     },
   };
 
-  const handleSubmit = async (event: any) => {
+  const handleSubmit = async (event: SelectChangeEvent<any>) => {
     const body = {
       week: event.target.value,
     };
