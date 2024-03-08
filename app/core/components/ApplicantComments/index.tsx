@@ -11,7 +11,6 @@ import {
   Paper,
   IconButton,
 } from "@mui/material";
-import type { internsComments as CommentType, Profiles } from "@prisma/client";
 import { Form, useNavigation } from "@remix-run/react";
 import { withZod } from "@remix-validated-form/with-zod";
 import Markdown from "marked-react";
@@ -22,11 +21,9 @@ import { zfd } from "zod-form-data";
 import type { getCommentsApplicant } from "~/models/applicantComment.server";
 import { validateNavigationRedirect } from "~/utils";
 
+type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 type CommentsArrayType = Awaited<ReturnType<typeof getCommentsApplicant>>;
-type CommentItemType = CommentType & {
-  author?: Profiles;
-  children?: CommentType[];
-};
+type CommentItemType = Optional<CommentsArrayType[number], "children">;
 
 export const validator = withZod(
   zfd.formData({
@@ -104,10 +101,10 @@ function CommentItem({
     <Paper sx={{ padding: 2, marginY: 2 }}>
       <Grid container spacing={2} alignItems="center">
         <Grid item>
-          <Avatar alt={"alt"} src={comment.author?.avatarUrl ?? ""}></Avatar>
+          <Avatar alt={"alt"} src={comment.authorAvatarUrl ?? ""}></Avatar>
         </Grid>
         <Grid justifyContent="left" item xs zeroMinWidth>
-          <Typography variant="body1">{`${comment.author?.preferredName} ${comment.author?.lastName}`}</Typography>
+          <Typography variant="body1">{`${comment.authorPreferredName} ${comment.authorLastName}`}</Typography>
           <Typography variant="body2">
             {comment.updatedAt.toLocaleString()}
           </Typography>

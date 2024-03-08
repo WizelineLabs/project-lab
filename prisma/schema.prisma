@@ -390,116 +390,115 @@ model RelatedProjects {
 }
 
 model internsComments {
-  id          String      @id @default(uuid())
+  id          String            @id @default(uuid())
   body        String
   authorId    String
   applicantId Int
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @default(now())
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @default(now())
   parentId    String?
-  author      Profiles    @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  author      Profiles          @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   parent      internsComments?  @relation("ParentComment", fields: [parentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  applicant   Applicant   @relation(fields: [applicantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  applicant   Applicant         @relation(fields: [applicantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   children    internsComments[] @relation("ParentComment")
 }
 
 model Applicant {
-  id                     Int       @id @default(autoincrement())
-  createdAt              DateTime  @default(now())
-  email                  String    @unique
-  personalEmail          String
-  fullName               String
-  nationality            String
-  country                String
-  dayOfBirth             DateTime
-  homeAddress            String
-  phone                  String
-  universityEmail        String?
-  emergencyContactName   String?
-  emergencyContactPhone  String?
-  emergencyRelationship  String?
-  gender                 String
-  englishLevel           String
-  universityId           String?
-  university             Universities? @relation(fields: [universityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  universityPointOfContactId  String?
-  universityPointOfContact    UniversityPointsOfContact? @relation(fields: [universityPointOfContactId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  major                  String
-  semester               String
-  graduationDate         DateTime
-  interest               String
-  experience             String
-  cvLink                 String
-  interestedRoles        String?
-  preferredTools         String?
-  startDate              DateTime
-  endDate                DateTime
-  hoursPerWeek           Int
-  howDidYouHearAboutUs   String
-  participatedAtWizeline Boolean
-  wizelinePrograms       String?
-  status                 String    @default("DRAFT")
-  mentorId               String?
-  comments               String?
-  appliedProjects        String?
-  appliedProjectsId      String?
-  generalComments        internsComments[]
-  projectId              String?
-  avatarApplicant        String?
-  mentor                 Profiles? @relation(fields: [mentorId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-  project                Projects? @relation(fields: [projectId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-
+  id                         Int                        @id @default(autoincrement())
+  createdAt                  DateTime                   @default(now())
+  email                      String                     @unique
+  personalEmail              String
+  fullName                   String
+  nationality                String
+  country                    String
+  dayOfBirth                 DateTime
+  homeAddress                String
+  phone                      String
+  universityEmail            String?
+  emergencyContactName       String?
+  emergencyContactPhone      String?
+  emergencyRelationship      String?
+  gender                     String
+  englishLevel               String
+  universityId               String?
+  university                 Universities?              @relation(fields: [universityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  universityPointOfContactId String?
+  universityPointOfContact   UniversityPointsOfContact? @relation(fields: [universityPointOfContactId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  major                      String
+  semester                   String
+  graduationDate             DateTime
+  interest                   String
+  experience                 String
+  cvLink                     String
+  interestedRoles            String?
+  preferredTools             String?
+  startDate                  DateTime
+  endDate                    DateTime
+  hoursPerWeek               Int
+  howDidYouHearAboutUs       String
+  participatedAtWizeline     Boolean
+  wizelinePrograms           String?
+  status                     String                     @default("DRAFT")
+  mentorId                   String?
+  comments                   String?
+  appliedProjects            String?
+  appliedProjectsId          String?
+  generalComments            internsComments[]
+  projectId                  String?
+  avatarApplicant            String?
+  mentor                     Profiles?                  @relation(fields: [mentorId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  project                    Projects?                  @relation(fields: [projectId], references: [id], onDelete: SetNull, onUpdate: Cascade)
 
   @@index([status], map: "applicant_status_idx")
 }
 
-model Experience{
-  id            Int       @id @default(autoincrement())
-  comentario    String  
-  profileId     String?
-  profile       Profiles? @relation(fields: [profileId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+model Experience {
+  id         Int       @id @default(autoincrement())
+  comentario String
+  profileId  String?
+  profile    Profiles? @relation(fields: [profileId], references: [id], onDelete: SetNull, onUpdate: Cascade)
 }
 
 model GitHubActivity {
-  id            String  @id
-  typeEvent     String
-  created_at    DateTime
-  author        String
-  avatar_url    String
-  projectId     String?
-  project       Projects? @relation(fields: [projectId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  id         String    @id
+  typeEvent  String
+  created_at DateTime
+  author     String
+  avatar_url String
+  projectId  String?
+  project    Projects? @relation(fields: [projectId], references: [id], onDelete: SetNull, onUpdate: Cascade)
 }
 
 model GitHubReleases {
-  id            String  @id
-  body          String
-  name          String
-  tagName       String
-  author        String
-  prerealease   Boolean
-  created_at    DateTime
-  projectId     String?
-  link          String
-  project       Projects? @relation(fields: [projectId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  id          String    @id
+  body        String
+  name        String
+  tagName     String
+  author      String
+  prerealease Boolean
+  created_at  DateTime
+  projectId   String?
+  link        String
+  project     Projects? @relation(fields: [projectId], references: [id], onDelete: SetNull, onUpdate: Cascade)
 }
 
 model Universities {
-  id                String   @id @default(cuid())
-  name              String   @unique
-  active            Boolean  @default(true)
-  pointsOfContact   UniversityPointsOfContact[]
-  applicants        Applicant[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id              String                      @id @default(cuid())
+  name            String                      @unique
+  active          Boolean                     @default(true)
+  pointsOfContact UniversityPointsOfContact[]
+  applicants      Applicant[]
+  createdAt       DateTime                    @default(now())
+  updatedAt       DateTime                    @updatedAt
 }
 
 model UniversityPointsOfContact {
-  id            String      @id @default(cuid())
-  fullName      String
-  active        Boolean       @default(true)
-  university    Universities?  @relation(fields: [universityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  universityId  String?
-  applicants    Applicant[]
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id           String        @id @default(cuid())
+  fullName     String
+  active       Boolean       @default(true)
+  university   Universities? @relation(fields: [universityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  universityId String?
+  applicants   Applicant[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 }

@@ -78,8 +78,8 @@ module.exports = {
       ],
       rules: {
         "import/no-named-as-default": 0,
-        "@typescript-eslint/no-explicit-any": "warn"
-      }
+        "@typescript-eslint/no-explicit-any": "warn",
+      },
     },
 
     // Markdown
@@ -115,7 +115,7 @@ module.exports = {
         "jest/no-standalone-expect": "off",
         "testing-library/no-node-access": "warn",
         "testing-library/no-container": "warn",
-      }
+      },
     },
 
     // Cypress
