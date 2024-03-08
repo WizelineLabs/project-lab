@@ -18,37 +18,13 @@ import TerminalIcon from "@mui/icons-material/Terminal";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
 import WorkspacesIcon from "@mui/icons-material/Workspaces";
 import { Button, Stack } from "@mui/material";
-import { useLoaderData } from "@remix-run/react";
-import type { LoaderFunction } from "@remix-run/server-runtime";
 import { useState } from "react";
-import ExperienceArea from "~/core/components/ExperienceComments";
 import HomeInfo from "~/core/components/HomeInfo";
-import { getExperience } from "~/models/experience.server";
 import { useOptionalUser } from "~/utils";
-
-export const loader: LoaderFunction = async () => {
-  const info = await getExperience();
-
-  return {
-    info,
-  };
-};
-
-interface experienceInfo {
-  comentario: string | null;
-  id: number;
-  profile: { avatarUrl: string | null } | null;
-}
 
 export default function Index() {
   const [menu, setMenu] = useState(false);
   const user = useOptionalUser();
-
-  const { info } = useLoaderData<typeof loader>();
-
-  const shuffledInfo = info ? [...info].sort(() => Math.random() - 0.5) : [];
-
-  const justFour = shuffledInfo.slice(0, 4);
 
   const handleMenu = () => {
     setMenu(!menu);
@@ -138,21 +114,6 @@ export default function Index() {
           alt="Background fo the homepage"
           style={{ width: "100%" }}
         />
-        <PageContainerTitle>Our personal experience</PageContainerTitle>
-        <Stack direction={{ xs: "column", sm: "row" }}>
-          {!info ? <p>No experience</p> : null}
-          {info ? (
-            <>
-              {justFour.map((experience: experienceInfo) => (
-                <ExperienceArea
-                  key={experience.id}
-                  imag={experience.profile?.avatarUrl || ""}
-                  text={experience.comentario || ""}
-                />
-              ))}
-            </>
-          ) : null}
-        </Stack>
       </HomePageContainer>
       <MiddleHomePageContainer>
         <PageContainerTitle style={{ textAlign: "right" }}>
