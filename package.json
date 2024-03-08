@@ -39,7 +39,7 @@
     "@google-cloud/bigquery": "^6.0.3",
     "@material-table/core": "^6.3.2",
     "@material-table/exporters": "^1.2.19",
-    "@mui/icons-material": "^5.8.4",
+    "@mui/icons-material": "^5.15.10",
     "@mui/material": "^5.8.3",
     "@mui/x-data-grid": "^5.17.26",
     "@prisma/client": "^5.4.2",
