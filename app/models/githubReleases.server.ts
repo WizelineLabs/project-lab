@@ -32,6 +32,7 @@ export async function saveRelease(
 export async function getReleasesListData(projectId: string) {
   return await db
     .selectFrom("GitHubReleases")
+    .selectAll()
     .where("projectId", "=", projectId)
     .orderBy("created_at", "desc")
     .execute();

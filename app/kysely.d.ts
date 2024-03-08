@@ -121,7 +121,7 @@ export interface GitHubActivity {
   avatar_url: string;
   created_at: Timestamp;
   id: string;
-  projectId: string | null;
+  projectId: string;
   typeEvent: string;
 }
 
@@ -151,7 +151,7 @@ export interface GitHubReleases {
   link: string;
   name: string;
   prerealease: boolean;
-  projectId: string | null;
+  projectId: string;
   tagName: string;
 }
 

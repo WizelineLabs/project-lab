@@ -1,11 +1,6 @@
 import { db } from "../db.server";
 import { sql } from "kysely";
 
-interface gitHubActivityChartType {
-  count: number;
-  typeEvent: string;
-}
-
 export async function saveActivity(
   id: string,
   typeEvent: string,
@@ -39,8 +34,11 @@ export async function getGitActivityData(projectId: string) {
 }
 
 export const getActivityStadistic = async (week: number, projectId: string) => {
-  return await sql<gitHubActivityChartType[]>`SELECT Count(*)::int, "typeEvent"
-  FROM "GitHubActivity"
-  WHERE date_part('week', "created_at")=${week} AND "projectId" = ${projectId}
-  GROUP BY "typeEvent"`.execute(db);
+  return await db
+    .selectFrom("GitHubActivity")
+    .select(({ fn }) => [fn.count<number>("id").as("count"), "typeEvent"])
+    .where("projectId", "=", projectId)
+    .where(sql`date_part('week', "created_at")`, "=", week)
+    .groupBy("typeEvent")
+    .execute();
 };
