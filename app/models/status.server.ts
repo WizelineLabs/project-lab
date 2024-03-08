@@ -1,4 +1,4 @@
-import { prisma } from "~/db.server";
+import { db } from "~/db.server";
 
 export type { ProjectStatus } from "@prisma/client";
 
@@ -8,49 +8,24 @@ interface updateProjectStatusType {
   stage?: "idea" | "ongoing project" | "none" | null;
 }
 
-interface ResponseError extends Error {
-  code?: string;
-}
-
-async function validateProjectStatus(name: string) {
-  const projectStatus = await prisma.projectStatus.findFirst({
-    where: { name },
-  });
-  if (!projectStatus) {
-    const error: ResponseError = new Error("Project Status not found in DB");
-    error.code = "NOT_FOUND";
-    throw error;
-  }
-  return;
-}
-
 export async function getProjectStatuses() {
-  const projectStatuses = await prisma.projectStatus.findMany({
-    orderBy: {
-      name: "asc",
-    },
-  });
-  return projectStatuses;
+  return await db
+    .selectFrom("ProjectStatus")
+    .selectAll()
+    .orderBy("name", "asc")
+    .execute();
 }
 
-export async function addProjectStatus({
-  name,
-  stage,
-}: {
-  name: string;
-  stage?: string;
-}) {
-  const data = {
-    name,
-    ...(stage ? { stage } : null),
-  };
-  const projectStatus = await prisma.projectStatus.create({ data });
-  return { projectStatus };
+export async function addProjectStatus(data: { name: string; stage?: string }) {
+  return await db
+    .insertInto("ProjectStatus")
+    .values(data)
+    .returningAll()
+    .execute();
 }
 
 export async function removeProjectStatus({ name }: { name: string }) {
-  await validateProjectStatus(name);
-  await prisma.projectStatus.deleteMany({ where: { name } });
+  await db.deleteFrom("ProjectStatus").where("name", "=", name).execute();
 }
 
 export async function updateProjectStatus({
@@ -58,7 +33,6 @@ export async function updateProjectStatus({
   name,
   stage,
 }: updateProjectStatusType) {
-  await validateProjectStatus(id);
   const data = {
     name,
     stage,
@@ -67,5 +41,9 @@ export async function updateProjectStatus({
   if (stage === "none") {
     data.stage = null;
   }
-  await prisma.projectStatus.update({ where: { name: id }, data });
+  await db
+    .updateTable("ProjectStatus")
+    .set(data)
+    .where("name", "=", id)
+    .execute();
 }
