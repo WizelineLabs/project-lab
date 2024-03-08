@@ -290,19 +290,17 @@ export default function Applicant() {
               appliedNameProjects.length > 0 &&
               appliedIdProjects ? (
                 <ul>
-                  {appliedNameProjects.map(
-                    (projectName: any, index: number) => {
-                      // Explicitly specify the type of index as number
-                      const projectId = appliedIdProjects[index];
-                      return (
-                        <li key={index}>
-                          <a href={`/projects/${projectId}`}>
-                            {projectName.trim()}
-                          </a>
-                        </li>
-                      );
-                    }
-                  )}
+                  {appliedNameProjects.map((projectName, index) => {
+                    // Explicitly specify the type of index as number
+                    const projectId = appliedIdProjects[index];
+                    return (
+                      <li key={index}>
+                        <a href={`/projects/${projectId}`}>
+                          {projectName.trim()}
+                        </a>
+                      </li>
+                    );
+                  })}
                 </ul>
               ) : null}
             </div>
