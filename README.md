@@ -121,6 +121,7 @@ If you pull code changes that affect the schema (a new migration), you will need
 ```sh
 npx prisma migrate deploy # run any pending migrations
 npx prisma generate # update your prisma client code with any changes to the schema
+npm run kysely-codegen # update your kysely client code with any changes to the schema
 ```
 
 To reset your database run
@@ -132,7 +133,7 @@ npx prisma migrate reset
 To add a new migration update the `prisma/schema.prisma` file with the new tables and columns. Then run:
 
 ```sh
-npx prisma migrate dev --name [DESCRIPTIVE_MIGRATION_FILE_NAME]
+npx prisma migrate dev --create-only
 ```
 
 **IMPORTANT**
@@ -154,6 +155,7 @@ Please, remove these lines and then run:
 ```sh
 npx prisma migrate deploy # run any pending migrations
 npx prisma generate # update your prisma client code with any changes to the schema
+npm run kysely-codegen # update your kysely client code with any changes to the schema
 ```
 
 ### Relevant code:
