@@ -34,7 +34,8 @@ export async function createApplicant(
   participatedAtWizeline: boolean,
   wizelinePrograms: string,
   comments: string,
-  avatarApplicant: string
+  avatarApplicant: string,
+  updatedAt: Date
 ) {
   return db
     .insertInto("Applicant")
@@ -71,6 +72,7 @@ export async function createApplicant(
       comments,
       avatarApplicant,
       universityPointOfContactId: pointOfContactId,
+      updatedAt,
     })
     .returning(["id", "fullName", "email", "startDate", "endDate"]);
 }

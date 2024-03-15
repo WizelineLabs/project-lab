@@ -95,9 +95,10 @@ model Profiles {
   projectsVersions       ProjectsVersions[]
   votes                  Vote[]
   githubUser             String?
-  applicants             Applicant[]
+  applicants             Applicant[]              @relation("Mentor")
   internsComments        internsComments[]
   experience             Experience[]
+  updatedApplicants      Applicant[]              @relation("UpdatedByProfile")
 
   // here "name" was changed for "map"
   @@index([email], map: "profiles_email_idx")
@@ -446,8 +447,11 @@ model Applicant {
   generalComments            internsComments[]
   projectId                  String?
   avatarApplicant            String?
-  mentor                     Profiles?                  @relation(fields: [mentorId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  mentor                     Profiles?                  @relation("Mentor", fields: [mentorId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   project                    Projects?                  @relation(fields: [projectId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  updatedBy                  String?
+  updatedAt                  DateTime                   @updatedAt
+  updatedByProfile           Profiles?                  @relation("UpdatedByProfile", fields: [updatedBy], references: [id], onDelete: SetNull, onUpdate: Cascade)
 
   @@index([status], map: "applicant_status_idx")
 }

@@ -3,6 +3,7 @@ import { isProjectTeamMember } from "./project.server";
 export type Roles =
   | "ADMIN"
   | "USER"
+  | "INTERN"
   | "APPLICANT"
   | "ANONYMOUS"
   | "project-team-member";
@@ -32,18 +33,7 @@ export function checkPermission(
   }
 
   if (resourceType == "applicant" && action == "edit.project") {
-    if (!resource.mentorId && role == "USER") {
-      return true;
-    }
-    if (resource.mentorId == principal) {
-      return true;
-    }
-    const projectDerivedRoles = getDerivedRoles(
-      principal,
-      "project",
-      resource.project
-    );
-    if (projectDerivedRoles.includes("project-team-member")) {
+    if (role == "USER") {
       return true;
     }
   }
