@@ -22,7 +22,6 @@ import {
   Alert,
   AlertTitle,
   TextField,
-  Button,
   Avatar,
   Link,
   Chip,
@@ -33,7 +32,7 @@ import {
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import type { LoaderFunction, ActionFunction } from "@remix-run/node";
-import { useLoaderData, useNavigation, useSubmit } from "@remix-run/react";
+import { useLoaderData, useSubmit } from "@remix-run/react";
 import { withZod } from "@remix-validated-form/with-zod";
 import { adminRoleName } from "app/constants";
 import Header from "app/core/layouts/Header";
@@ -43,7 +42,6 @@ import { ValidatedForm, useField, validationError } from "remix-validated-form";
 import invariant from "tiny-invariant";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
-import { createExperience } from "~/models/experience.server";
 import { requireProfile, requireUser } from "~/session.server";
 
 interface LoaderData {
@@ -123,16 +121,7 @@ export const action: ActionFunction = async ({ request }) => {
       status: 403,
     });
 
-  if (subaction === "CREATE_EXPERIENCE") {
-    const result = await validator.validate(form);
-    if (!result) {
-      throw new Response("Error", {
-        status: 400,
-      });
-    }
-    await createExperience(result?.data?.comentario as string, profile.id);
-    return redirect(`/profile/${email}`);
-  } else if (subaction === "UPDATE_GITHUB_USER") {
+  if (subaction === "UPDATE_GITHUB_USER") {
     const githubUserResult = await githubUserValidator.validate(form);
     if (githubUserResult?.error) {
       return validationError(githubUserResult.error);
@@ -151,7 +140,6 @@ export const ProfileInfo = () => {
   const { profileData, githubProjects, canEdit } = useLoaderData<LoaderData>();
   const theme = useTheme();
   const lessThanMd = useMediaQuery(theme.breakpoints.down("md"));
-  const navigation = useNavigation();
   const submit = useSubmit();
   const { error: githubUsererror, getInputProps } = useField("githubUser", {
     formId: "updateGithubUserForm",
@@ -351,7 +339,7 @@ export const ProfileInfo = () => {
               <Paper elevation={0} sx={{ padding: 2 }}>
                 <h2 style={{ marginTop: 0, paddingLeft: 20 }}>Projects</h2>
                 <Grid container sx={{ p: 2 }}>
-                  {profileData.projectMembers.map((projectMember: any) => (
+                  {profileData.projectMembers.map((projectMember) => (
                     <Grid item xs={12} key={projectMember.id}>
                       <Card
                         key={projectMember.id}
@@ -389,7 +377,7 @@ export const ProfileInfo = () => {
                               marginBottom: "0.5rem",
                             }}
                           >
-                            {projectMember.practicedSkills.map((skill: any) => (
+                            {projectMember.practicedSkills.map((skill) => (
                               <Chip
                                 label={skill.name}
                                 key={skill.id}
@@ -412,7 +400,7 @@ export const ProfileInfo = () => {
                   Github Active Projects
                 </h2>
                 <Grid container sx={{ p: 2 }}>
-                  {githubProjects.map((project: any) => (
+                  {githubProjects.map((project) => (
                     <Grid item xs={12} key={project.id}>
                       <Card
                         key={project.id}
@@ -444,46 +432,6 @@ export const ProfileInfo = () => {
                 </Grid>
               </Paper>
             ) : null}
-            <Grid sx={{ paddingTop: 2, paddingBottom: 2 }}>
-              <Paper elevation={0} sx={{ padding: 2 }}>
-                <h2 style={{ marginTop: 0, paddingLeft: 20 }}>Experience</h2>
-                <ValidatedForm
-                  validator={validator}
-                  defaultValues={{
-                    comentario: "",
-                  }}
-                  subaction="CREATE_EXPERIENCE"
-                  method="post"
-                >
-                  <TextField
-                    id="outlined-basic"
-                    label="Your Experience"
-                    variant="outlined"
-                    style={{ width: "100%" }}
-                    name={"comentario"}
-                    multiline
-                    rows={4}
-                  ></TextField>
-                  <Grid sx={{ display: "flex", justifyContent: "center" }}>
-                    <Button
-                      type="submit"
-                      className="contained"
-                      sx={{
-                        width: "220px",
-                        height: "50px",
-                        fontSize: "1em",
-                        marginTop: "15px",
-                      }}
-                      disabled={navigation.state !== "idle"}
-                    >
-                      {navigation.state !== "idle"
-                        ? "Saving experience..."
-                        : "Save experience"}
-                    </Button>
-                  </Grid>
-                </ValidatedForm>
-              </Paper>
-            </Grid>
           </Grid>
         </Grid>
       </Container>

@@ -2,12 +2,9 @@
 import { cleanUrlRepo } from "../utils";
 import { saveActivity } from "./githubactivity.server";
 import { Octokit } from "@octokit/core";
-import { PrismaClient } from "@prisma/client";
 import { env } from "process";
 
 const octokit = new Octokit({ auth: env.GITHUB_KEY });
-
-const db = new PrismaClient();
 
 export const getActivity = async (repo: string, projectId: string) => {
   const owner = "wizeline";
@@ -50,8 +47,7 @@ export const getActivity = async (repo: string, projectId: string) => {
               activity.created_at as string,
               activity.actor.display_login as string,
               activity.actor.avatar_url as string,
-              projectId,
-              db
+              projectId
             );
             return;
           }

@@ -5,7 +5,7 @@ interface SecondaryHeaderProps {
 }
 
 export const HomePageContainer = styled.div`
-  width: 100vw;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -14,7 +14,7 @@ export const HomePageContainer = styled.div`
 `;
 
 export const MiddleHomePageContainer = styled.div`
-  width: 100vw;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -117,9 +117,9 @@ export const HomeTitle = styled.button`
 
 export const PageContainerTitle = styled.h1`
   color: black;
-  width: 100%;
+  width: 95%;
   textalign: left;
-  padding: 30px;
+  padding: 30px 5px;
   font-size: 50px;
   margin: 0;
 `;

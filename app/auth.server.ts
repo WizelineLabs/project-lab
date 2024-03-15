@@ -30,6 +30,7 @@ const verifyCallback: StrategyVerifyCallback<
     const userProfile = await getProfileByEmail(email);
     if (userProfile?.githubUser === "" || userProfile?.githubUser === null) {
       const { data } = await getUserInfo(email);
+      // TODO: fix error when data might be null. But also simplify logic in this function
       if (data.total_count > 0) {
         const gitHubUser = data.items[0].login;
         userProfile.githubUser = gitHubUser;
@@ -92,6 +93,7 @@ const verifyCallback: StrategyVerifyCallback<
     ) {
       const { data: userInfo } = await getUserInfo(email);
 
+      // TODO: fix error when data might be null. But also simplify logic in this function
       if (userInfo.total_count !== 0) {
         const { data: repos } = await getUserRepos(userInfo.items[0].login);
 

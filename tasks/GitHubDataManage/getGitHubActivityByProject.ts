@@ -1,4 +1,4 @@
-import { getGitHubActivity } from "../../app/githubUpdates.server";
+import { getGitHubActivity } from "../../app/models/githubUpdates.server";
 
 async function task() {
   console.info(`Loading configuration`);

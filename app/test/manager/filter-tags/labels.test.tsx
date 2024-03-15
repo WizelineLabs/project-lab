@@ -55,11 +55,7 @@ describe("Labels test", () => {
   });
 
   test("Path loader", async () => {
-    const request = new Request(
-      "http://localhost:3000/manager/filter-tags/labels"
-    );
-
-    const response = await loader({ request, params: {}, context: {} });
+    const response = await loader();
 
     expect(response).toBeInstanceOf(Response);
   });

@@ -1,12 +1,9 @@
 import { cleanUrlRepo } from "../utils";
 import { saveRelease } from "./githubReleases.server";
 import { Octokit } from "@octokit/core";
-import { PrismaClient } from "@prisma/client";
 import { env } from "process";
 
 const octokit = new Octokit({ auth: env.GITHUB_KEY });
-
-const db = new PrismaClient();
 
 export const getReleasesList = async (repo: string, projectId: string) => {
   const owner = "wizeline";
@@ -51,8 +48,7 @@ export const getReleasesList = async (repo: string, projectId: string) => {
             data.prerelease,
             data.published_at,
             projectId,
-            data.html_url,
-            db
+            data.html_url
           );
           return;
         }

@@ -15,13 +15,13 @@ import {
   MenuItem,
   Paper,
   Select,
+  SelectChangeEvent,
   Stack,
   Typography,
 } from "@mui/material";
-import type { Repos } from "@prisma/client";
 import { json } from "@remix-run/node";
 import { useLoaderData, useSubmit } from "@remix-run/react";
-import type { LoaderFunction } from "@remix-run/server-runtime";
+import type { LoaderFunctionArgs } from "@remix-run/server-runtime";
 import { withZod } from "@remix-validated-form/with-zod";
 import {
   Chart as ChartJS,
@@ -57,31 +57,6 @@ ChartJS.register(
   Legend
 );
 
-interface releaseList {
-  id: string;
-  body: string;
-  name: string;
-  tag_name: string;
-  author: { login: string };
-  prerelease: boolean;
-  published_at: string;
-  link: string;
-}
-
-interface LoaderData {
-  project: Awaited<ReturnType<typeof getProject>>;
-  projectId: string;
-  activityData: Awaited<ReturnType<typeof getGitActivityData>>;
-  activityChartData: Awaited<ReturnType<typeof getActivityStadistic>>;
-  weekParams: number;
-  realeasesList: Awaited<ReturnType<typeof getReleasesListData>>;
-}
-
-interface gitHubActivityChartType {
-  count: number;
-  typeEvent: string;
-}
-
 export const validator = withZod(
   zfd.formData({
     body: z.string().min(1),
@@ -90,7 +65,7 @@ export const validator = withZod(
   })
 );
 
-export const loader: LoaderFunction = async ({ request, params }) => {
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   invariant(params.projectId, "projectId not found");
   const url = new URL(request.url);
   let weekParams = 0;
@@ -104,10 +79,12 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const realeasesList = await getReleasesListData(projectId);
 
   const activityData = await getGitActivityData(projectId);
-  const activityChartData: gitHubActivityChartType[] =
-    await getActivityStadistic(weekParams ? weekParams : week, projectId);
+  const activityChartData = await getActivityStadistic(
+    weekParams ? weekParams : week,
+    projectId
+  );
 
-  return json<LoaderData>({
+  return json({
     project,
     projectId,
     activityData,
@@ -117,7 +94,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   });
 };
 
-const cleanURL = (repoInfo: Repos[]): string => {
+const cleanURL = (repoInfo: { url: string }[]): string => {
   if (repoInfo[0] && repoInfo[0].url !== "") {
     return repoInfo[0].url.substring(repoInfo[0].url.lastIndexOf("/") + 1);
   } else {
@@ -152,11 +129,11 @@ export default function GitHubInfo() {
 
   const dataChart = {
     labels: activityChartData.map(
-      (activity: { typeEvent: any }) => activity.typeEvent
+      (activity: { typeEvent: string }) => activity.typeEvent
     ),
     datasets: [
       {
-        data: activityChartData.map((activity: { count: any }) =>
+        data: activityChartData.map((activity: { count: number }) =>
           Number(activity.count)
         ),
         backgroundColor: "#3B72A4",
@@ -204,7 +181,7 @@ export default function GitHubInfo() {
     },
   };
 
-  const handleSubmit = async (event: any) => {
+  const handleSubmit = async (event: SelectChangeEvent<number>) => {
     const body = {
       week: event.target.value,
     };
@@ -246,7 +223,7 @@ export default function GitHubInfo() {
               <Typography color="text.primary">Project Releases</Typography>
             </Grid>
             <Grid container sx={{ padding: 2, width: 1 }}>
-              {realeasesList.map((release: releaseList) => (
+              {realeasesList.map((release) => (
                 <Accordion key={release.id} sx={{ width: "50%" }}>
                   <AccordionSummary
                     expandIcon={<ExpandMoreIcon />}

@@ -1,54 +1,33 @@
-import { prisma } from "~/db.server";
+import { v4 as uuid } from "uuid";
+import { db } from "~/db.server";
 
 export type { Labels } from "@prisma/client";
 
-interface ResponseError extends Error {
-  code?: string;
-}
-
-async function validateLabel(id: string) {
-  const innovationTier = await prisma.labels.findFirst({
-    where: { id },
-  });
-  if (!innovationTier) {
-    const error: ResponseError = new Error("Label not found in DB");
-    error.code = "NOT_FOUND";
-    throw error;
-  }
-  return;
-}
-
 export async function getLabels() {
-  const labels = await prisma.labels.findMany({
-    select: { id: true, name: true },
-    orderBy: {
-      name: "asc",
-    },
-  });
-  return labels;
+  return db.selectFrom("Labels").selectAll().orderBy("name", "asc").execute();
 }
 
 export async function searchLabels(searchTerm: string) {
-  const labels = await prisma.labels.findMany({
-    where: { name: { contains: searchTerm, mode: "insensitive" } },
-    orderBy: {
-      name: "asc",
-    },
-  });
-  return labels;
+  return db
+    .selectFrom("Labels")
+    .selectAll()
+    .where("name", "ilike", `%${searchTerm}%`)
+    .orderBy("name", "asc")
+    .execute();
 }
 
-export async function addLabel(input: { name: string }) {
-  const label = await prisma.labels.create({ data: input });
-  return { label };
+export async function addLabel(name: string) {
+  return db
+    .insertInto("Labels")
+    .values({ id: uuid(), name })
+    .returningAll()
+    .execute();
 }
 
 export async function removeLabel({ id }: { id: string }) {
-  await validateLabel(id);
-  await prisma.labels.deleteMany({ where: { id } });
+  await db.deleteFrom("Labels").where("id", "=", id).execute();
 }
 
 export async function updateLabel({ id, name }: { id: string; name: string }) {
-  await validateLabel(id);
-  await prisma.labels.update({ where: { id }, data: { name } });
+  await db.updateTable("Labels").set({ name }).where("id", "=", id).execute();
 }

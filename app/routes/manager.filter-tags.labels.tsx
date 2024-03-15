@@ -17,7 +17,7 @@ import {
   TableSortLabel,
 } from "@mui/material";
 import Button from "@mui/material/Button";
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   useFetcher,
@@ -61,25 +61,21 @@ interface LabelRecord {
   name: string;
 }
 
-interface LoaderData {
-  labels: Awaited<ReturnType<typeof getLabels>>;
-}
-
-export const loader: LoaderFunction = async () => {
+export const loader = async () => {
   const labels = await getLabels();
-  return json<LoaderData>({
+  return json({
     labels,
   });
 };
 
-export const action: ActionFunction = async ({ request }) => {
+export const action = async ({ request }: ActionFunctionArgs) => {
   const result = await validator.validate(await request.formData());
   const id = result.data?.id;
   const name = result.data?.name as string;
   if (result.error != undefined) return validationError(result.error);
 
   if (request.method == "POST") {
-    const response = await addLabel({ name });
+    const response = await addLabel(name);
     return json(response, { status: 201 });
   }
 
@@ -102,7 +98,7 @@ export const action: ActionFunction = async ({ request }) => {
 
 function LabelsDataGrid() {
   const fetcher = useFetcher();
-  const { labels } = useLoaderData() as LoaderData;
+  const { labels } = useLoaderData<typeof loader>();
   const createButtonText = "Create New Label";
   const [rows, setRows] = useState<LabelRecord[]>([]);
 

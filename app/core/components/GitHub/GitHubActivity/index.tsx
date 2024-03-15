@@ -12,10 +12,10 @@ import {
 interface gitHubActivitySchema {
   id: string;
   typeEvent: string;
-  created_at: Date;
+  created_at: string;
   author: string;
   avatar_url: string;
-  projectId: string | null;
+  projectId: string;
 }
 
 export default function GitHubActivity({

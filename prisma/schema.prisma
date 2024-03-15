@@ -464,26 +464,26 @@ model Experience {
 }
 
 model GitHubActivity {
-  id         String    @id
+  id         String   @id
   typeEvent  String
   created_at DateTime
   author     String
   avatar_url String
-  projectId  String?
-  project    Projects? @relation(fields: [projectId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  projectId  String
+  project    Projects @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model GitHubReleases {
-  id          String    @id
+  id          String   @id
   body        String
   name        String
   tagName     String
   author      String
   prerealease Boolean
   created_at  DateTime
-  projectId   String?
+  projectId   String
   link        String
-  project     Projects? @relation(fields: [projectId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  project     Projects @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Universities {
