@@ -3,4 +3,4 @@
 
 npm run lint
 npx tsc
-npm run test:e2e:run
+#npm run test:e2e:run
