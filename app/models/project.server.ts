@@ -1,7 +1,10 @@
 import { Prisma } from "@prisma/client";
+import { Transaction } from "kysely";
 import { jsonArrayFrom } from "kysely/helpers/postgres";
-import { defaultStatus, contributorPath } from "~/constants";
+import { v4 as uuid } from "uuid";
+import { defaultStatus } from "~/constants";
 import { db, joinCondition, prisma } from "~/db.server";
+import { DB } from "~/kysely";
 
 interface SearchProjectsInput {
   profileId: string;
@@ -19,6 +22,21 @@ interface SearchProjectsInput {
   skip: number;
   take: number;
   orderBy: { field: string; order: string };
+}
+
+interface ProjectInputForm {
+  name: string;
+  slackChannel?: string;
+  description: string;
+  valueStatement?: string;
+  helpWanted: boolean;
+  ownerId?: string;
+  status?: string;
+  tierName?: string;
+  repoUrls?: { url: string }[];
+  skills?: { id: string }[];
+  disciplines?: { id: string }[];
+  labels?: { id: string }[];
 }
 
 interface SearchProjectsOutput {
@@ -184,78 +202,90 @@ export async function getProject({ id }: { id: string }) {
   return { ...project, relatedProjects };
 }
 
-export async function createProject(input: any, profileId: string) {
-  const defaultTier = await prisma.innovationTiers.findFirst({
-    select: { name: true },
-    where: { defaultRow: true },
-  });
-
-  const { ...formInput } = input;
-
-  const project = await prisma.projects.create({
-    data: {
-      ...formInput,
-      owner: { connect: { id: profileId } },
-      projectStatus: {
-        connect: { name: input.projectStatus?.name || defaultStatus },
-      },
-      skills: {
-        connect: input.skills,
-      },
-      disciplines: {
-        connect: input.disciplines,
-      },
-      labels: {
-        connect: input.labels,
-      },
-      repoUrls: {
-        create: input.repoUrls,
-      },
-      innovationTiers: {
-        connect: { name: input.innovationTiers?.name || defaultTier?.name },
-      },
-    },
-  });
-
-  for (let i = 0; i < contributorPath?.length; i++) {
-    const data = {
-      name: contributorPath[i]?.name || "Failed",
-      criteria: contributorPath[i]?.criteria || "Failed",
-      mission: contributorPath[i]?.mission || "Failed",
-    };
-    const tasks = contributorPath[i]?.tasks || [];
-    const position = i + 1;
-    const projectTasks: any = [];
-
-    for (const task of tasks) {
-      projectTasks.push({
-        description: task?.name,
-        position: task?.position,
-      });
-    }
-
-    await prisma.projectStages.create({
-      data: {
-        ...data,
-        project: { connect: { id: project.id } },
-        position: position,
-        projectTasks: {
-          create: projectTasks,
-        },
-      },
-    });
+async function insertProjectRelations(
+  trx: Transaction<DB>,
+  id: string,
+  data: {
+    repoUrls?: { url: string }[];
+    skills?: { id: string }[];
+    disciplines?: { id: string }[];
+    labels?: { id: string }[];
   }
+) {
+  const repoValues = data.repoUrls
+    ? data.repoUrls.map((item) => ({ ...item, projectId: id }))
+    : [];
+  await trx.insertInto("Repos").values(repoValues).execute();
+  const projectSkills = data.skills
+    ? data.skills.map((item) => ({ A: id, B: item.id }))
+    : []; // A = projectId, B = skillId
+  await trx.insertInto("_ProjectsToSkills").values(projectSkills).execute();
+  const projectDisciplines = data.disciplines
+    ? data.disciplines.map((item) => ({ A: item.id, B: id }))
+    : []; // B = projectId, A = disciplineId
+  await trx
+    .insertInto("_DisciplinesToProjects")
+    .values(projectDisciplines)
+    .execute();
+  const projectLabels = data.labels
+    ? data.labels.map((item) => ({ A: item.id, B: id }))
+    : []; // B = projectId, A = labelId
+  await trx.insertInto("_LabelsToProjects").values(projectLabels).execute();
+}
 
-  await prisma.projectMembers.create({
-    data: {
-      project: { connect: { id: project.id } },
-      profile: {
-        connect: { id: profileId },
-      },
-      role: { connect: { name: "Owner" } },
-    },
+export async function createProject(
+  input: ProjectInputForm,
+  profileId: string
+) {
+  const defaultTier = await db
+    .selectFrom("InnovationTiers")
+    .select("name")
+    .where("defaultRow", "=", true)
+    .executeTakeFirstOrThrow();
+
+  const newProject = await db.transaction().execute(async (trx) => {
+    const { repoUrls, skills, disciplines, labels, ...rest } = input;
+    const newProject = await trx
+      .insertInto("Projects")
+      .values({
+        ...rest,
+        status: input.status ?? defaultStatus,
+        tierName: input.tierName ?? defaultTier.name,
+        ownerId: profileId,
+        id: uuid(),
+      })
+      .returning("id")
+      .executeTakeFirstOrThrow();
+    await insertProjectRelations(trx, newProject.id, {
+      repoUrls,
+      skills,
+      disciplines,
+      labels,
+    });
+
+    const newProjectMember = await trx
+      .insertInto("ProjectMembers")
+      .values({
+        id: uuid(),
+        projectId: newProject.id,
+        profileId,
+      })
+      .returning("id")
+      .executeTakeFirstOrThrow();
+    const ownerDiscipline = await trx
+      .selectFrom("Disciplines")
+      .select("id")
+      .where("name", "=", "Owner")
+      .executeTakeFirstOrThrow();
+    await trx
+      .insertInto("_DisciplinesToProjectMembers")
+      .values({ A: ownerDiscipline.id, B: newProjectMember.id })
+      .execute();
+
+    return newProject;
   });
-  return project;
+
+  return await getProject({ id: newProject.id });
 }
 
 export type ProjectComplete = Awaited<ReturnType<typeof getProject>>;
@@ -396,76 +426,31 @@ export async function joinProject(
   return projectMember;
 }
 
-export async function updateProjects(
-  id: string,
-  data: {
-    name: string;
-    slackChannel?: string;
-    description: string;
-    valueStatement?: string;
-    helpWanted: boolean;
-    owner?: { id: string };
-    repoUrls?: { url: string }[];
-    projectStatus?: { name: string };
-    skills?: { id: string }[];
-    disciplines?: { id: string }[];
-    labels?: { id: string }[];
-    innovationTiers?: { name: string };
-  }
-) {
-  // Unlink repos before linking again
-  await prisma.repos.deleteMany({ where: { projectId: id } });
+export async function updateProjects(id: string, data: ProjectInputForm) {
+  await db.transaction().execute(async (trx) => {
+    await trx.deleteFrom("Repos").where("projectId", "=", id).execute();
+    await trx.deleteFrom("_ProjectsToSkills").where("A", "=", id).execute();
+    await trx
+      .deleteFrom("_DisciplinesToProjects")
+      .where("B", "=", id)
+      .execute();
+    await trx.deleteFrom("_LabelsToProjects").where("B", "=", id).execute();
 
-  // Delete from Form values because We already updated the project members.
-  const project = await prisma.projects.update({
-    where: { id },
-    data: {
-      ...data,
-      updatedAt: new Date(),
-      projectStatus: { connect: { name: data.projectStatus?.name } },
-      innovationTiers: { connect: { name: data.innovationTiers?.name } },
-      owner: { connect: { id: data.owner?.id } },
-      skills: {
-        set: data.skills,
-      },
-      disciplines: {
-        set: data.disciplines,
-      },
-      labels: {
-        set: data.labels,
-      },
-      repoUrls: {
-        create: data.repoUrls,
-      },
-    },
-    include: {
-      projectStatus: true,
-      skills: true,
-      disciplines: true,
-      labels: true,
-      repoUrls: true,
-      owner: true,
-      stages: {
-        include: {
-          projectTasks: true,
-        },
-      },
-      projectMembers: {
-        include: {
-          profile: {
-            select: { preferredName: true, lastName: true, email: true },
-          },
-          role: true,
-          contributorPath: true,
-          practicedSkills: true,
-        },
-      },
-      votes: { where: { profileId: id } },
-      innovationTiers: true,
-    },
+    await insertProjectRelations(trx, id, data);
+    delete data.repoUrls;
+    delete data.skills;
+    delete data.disciplines;
+    delete data.labels;
+
+    // Delete from Form values because We already updated the project members.
+    await trx
+      .updateTable("Projects as p")
+      .where("p.id", "=", id)
+      .set({ ...data })
+      .execute();
   });
 
-  return project;
+  return getProject({ id });
 }
 
 // update several projects from manager tab
