@@ -58,6 +58,7 @@ import {
   getProjects,
   getProjectResources,
   updateProjectResources,
+  getProjectTeamMembers,
 } from "~/models/project.server";
 import { getDistinctResources } from "~/models/resource.server";
 import {
@@ -90,10 +91,12 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
   const user = await requireUser(request);
   const profile = await requireProfile(request);
+  const projectMembers = await getProjectTeamMembers(project.id);
   const isTeamMember = isProjectTeamMember(profile.id, project);
   const projectsList = await getProjects({});
-  const membership = getProjectTeamMember(profile.id, project);
+  const membership = getProjectTeamMember(profile.id, projectMembers);
   const profileId = profile.id;
+  const isVote = await checkUserVote(project.id, profileId);
   const canEditProject = checkPermission(
     profileId,
     user.role as Roles,
@@ -110,10 +113,12 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   return typedjson({
     canEditProject,
     isTeamMember,
+    isVote,
     membership,
     profile,
     project,
     projectsList,
+    projectMembers,
     profileId,
     projectId: params.projectId,
     comments,
@@ -211,10 +216,11 @@ export default function ProjectDetailsPage() {
   const {
     canEditProject,
     isTeamMember,
-    profile,
+    isVote,
     membership,
     project,
     projectsList,
+    projectMembers,
     profileId,
     projectId,
     comments,
@@ -256,10 +262,6 @@ export default function ProjectDetailsPage() {
       setShowMembershipModal(false);
     }
   }, [navigation]);
-
-  const voteCount = project.votes?.filter(
-    (vote) => vote.profileId === profile.id
-  ).length;
 
   return (
     <>
@@ -317,7 +319,7 @@ export default function ProjectDetailsPage() {
                 <div className="itemHeadName">Owner:</div>
               </Grid>
               <Grid item>
-                <div className="itemHeadValue">{`${project.owner?.preferredName} ${project.owner?.lastName}`}</div>
+                <div className="itemHeadValue">{`${project.preferredName} ${project.lastName}`}</div>
               </Grid>
             </Grid>
             <Grid
@@ -474,16 +476,14 @@ export default function ProjectDetailsPage() {
                 title="Description"
                 action={
                   <Box sx={{ float: "right" }}>
-                    <Button variant="outlined">{project?.votes?.length}</Button>
+                    <Button variant="outlined">{project?.votesCount}</Button>
                     &nbsp;
                     <Button
                       variant="contained"
                       onClick={() => handleVote(projectId)}
-                      endIcon={
-                        voteCount ? <ThumbDownSharp /> : <ThumbUpSharp />
-                      }
+                      endIcon={isVote ? <ThumbDownSharp /> : <ThumbUpSharp />}
                     >
-                      {voteCount ? "Unlike" : "Like"}
+                      {isVote ? "Unlike" : "Like"}
                     </Button>
                   </Box>
                 }
@@ -615,6 +615,7 @@ export default function ProjectDetailsPage() {
       <Container sx={{ marginBottom: 2 }}>
         <ContributorPathReport
           project={project}
+          projectMembers={projectMembers}
           canEditProject={canEditProject}
         />
       </Container>
@@ -642,6 +643,7 @@ export default function ProjectDetailsPage() {
           member={membership}
           open={showMembershipModal}
           project={project}
+          projectMembers={projectMembers}
         />
       ) : null}
     </>

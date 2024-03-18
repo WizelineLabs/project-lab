@@ -28,9 +28,9 @@ export const validator = withZod(
       description: zfd.text(z.string().min(1)),
       valueStatement: zfd.text(z.string().optional()),
       helpWanted: zfd.checkbox(),
-      projectStatus: z.object({ name: z.string() }).optional(),
-      innovationTiers: z.object({ name: z.string() }).optional(),
-      owner: z.object({ id: z.string() }).optional(),
+      status: z.string().optional(),
+      tierName: z.string().optional(),
+      ownerId: z.string().optional(),
       disciplines: z
         .array(
           z.object({
@@ -120,6 +120,7 @@ const NewProjectPage = () => {
         >
           <GoBack title="Back to main page" href="/projects" />
           <ValidatedForm
+            id="create-project-form"
             validator={validator}
             defaultValues={{
               name: "",

@@ -1,4 +1,4 @@
-import { prisma } from "../db.server";
+import { db, prisma } from "../db.server";
 import { getUserByUsername, getUserRepos } from "./github.get-getUserInfo";
 import type {
   User,
@@ -8,6 +8,7 @@ import type {
   PrismaClient,
 } from "@prisma/client";
 import { Prisma } from "@prisma/client";
+import { sql } from "kysely";
 
 interface UserProfile extends Profiles {
   role: string;
@@ -523,42 +524,50 @@ const convertCountResult = (countResult: any[], countField: string) => {
 
 export async function searchProfiles(
   searchTerm: string,
-  project: string | null = null
+  project: string | null = null,
+  profileId: string | null = null
 ) {
-  const select = Prisma.sql`
-    SELECT "Profiles".id, "preferredName" || ' ' || "lastName" || ' <' || "email" || '>' as name
-    FROM "Profiles"
-  `;
-  const orderBy = Prisma.sql`
-    ORDER BY "preferredName", "lastName"
-    LIMIT 50;
-  `;
-  // where condition
-  let where = Prisma.sql``;
-  if (searchTerm && searchTerm !== "") {
-    const prefixSearch = `%${searchTerm}%`;
-    where = Prisma.sql`WHERE "searchCol" like lower(unaccent(${prefixSearch}))`;
-  }
+  let query = db
+    .selectFrom("Profiles as p")
+    .select(({ ref }) => [
+      sql<string>`concat(${ref("p.preferredName")}, ' ', ${ref(
+        "p.lastName"
+      )}, ' <', ${ref("p.email")}, '>')`.as("name"),
+      "p.id",
+    ])
+    .orderBy(["p.preferredName", "p.lastName"])
+    .limit(50);
 
-  //project condition
-  let projectJoin = Prisma.sql``;
-  let projectWhere = Prisma.sql``;
   if (project) {
-    projectJoin = Prisma.sql`INNER JOIN "ProjectMembers" pm ON "Profiles".id = pm."profileId"`;
-    projectWhere = Prisma.sql`WHERE pm."projectId" = ${project}`;
-    if (searchTerm && searchTerm !== "") {
-      projectWhere = Prisma.sql`AND pm."projectId" = ${project}`;
-    }
+    query = query.whereRef("p.id", "in", (qb) =>
+      qb
+        .selectFrom("ProjectMembers as pm")
+        .select("pm.profileId")
+        .where("pm.projectId", "=", project)
+    );
   }
 
-  // final query
-  const result = await prisma.$queryRaw`
-    ${select}
-    ${projectJoin}
-    ${where}
-    ${projectWhere}
-    ${orderBy}
-  `;
+  // where condition
+  if (searchTerm && searchTerm !== "") {
+    query = query.where("searchCol", "ilike", `%${searchTerm}%`);
+  }
+
+  const result = await query.execute();
+
+  if (profileId) {
+    const currentProfile = await db
+      .selectFrom("Profiles as p")
+      // select columns same as above
+      .select(({ ref }) => [
+        sql<string>`concat(${ref("p.preferredName")}, ' ', ${ref(
+          "p.lastName"
+        )}, ' <', ${ref("p.email")}, '>')`.as("name"),
+        "p.id",
+      ])
+      .where("id", "=", profileId)
+      .executeTakeFirstOrThrow();
+    result.unshift(currentProfile);
+  }
 
   return result;
 }
