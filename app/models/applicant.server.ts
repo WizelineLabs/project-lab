@@ -155,8 +155,12 @@ export async function getApplicantByEmail(email: string) {
       "m.preferredName as mentorPreferredName",
       "m.lastName as mentorLastName",
     ])
-    .where("email", "=", email)
-    .executeTakeFirstOrThrow();
+    .where("a.email", "=", email)
+    .executeTakeFirst();
+
+  if (!applicant) {
+    return null;
+  }
 
   const projectMembers = await db
     .selectFrom("ProjectMembers")
