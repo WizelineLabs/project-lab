@@ -36,7 +36,7 @@ export async function createApplicant(
   comments: string,
   avatarApplicant: string
 ) {
-  return db
+  const query = db
     .insertInto("Applicant")
     .values({
       email,
@@ -73,6 +73,7 @@ export async function createApplicant(
       universityPointOfContactId: pointOfContactId,
     })
     .returning(["id", "fullName", "email", "startDate", "endDate"]);
+  return await query.execute();
 }
 
 export async function addAppliedProject(
