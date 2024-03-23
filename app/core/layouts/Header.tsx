@@ -48,6 +48,34 @@ const Header = ({ existApplicant }: IProps) => {
     await submit(null, { method: "post", action: "/logout" });
   };
 
+  const optionsNotApplicant: MenuItemArgs[] = [
+    {
+      to: "/",
+      text: "Home",
+    },
+    {
+      onClick: async () => {
+        submit(null, { method: "post", action: "/logout" });
+      },
+      to: "/",
+      text: "Sign out",
+      "data-testid": "sign-out-button",
+    },
+    ...(currentUser?.role === "ADMIN" || currentUser?.role === "USER"
+      ? [
+          {
+            onClick: handleClickProfile,
+            to: "/",
+            text: "Profile",
+          },
+        ]
+      : []),
+    {
+      to: "/login/linkedin",
+      text: "Application Form",
+    },
+  ];
+
   const options: MenuItemArgs[] = [
     ...(currentUser?.role === "ADMIN" || currentUser?.role === "USER"
       ? [
@@ -144,17 +172,9 @@ const Header = ({ existApplicant }: IProps) => {
               location.pathname.includes("/internshipProjects") &&
                 currentUser &&
                 !existApplicant ? (
-                <Button
-                  className="contained"
-                  sx={{
-                    width: "200px",
-                    height: "40px",
-                    fontSize: "1em",
-                  }}
-                  onClick={handleLogout}
-                >
-                  Home
-                </Button>
+                <DropDownButton options={optionsNotApplicant}>
+                  {"Hello Guest"}
+                </DropDownButton>
               ) : (
                 <Button
                   className="contained"
