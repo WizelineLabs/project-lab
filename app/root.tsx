@@ -18,7 +18,7 @@ import {
   isRouteErrorResponse,
   useRouteError,
 } from "@remix-run/react";
-import { useMemo } from "react";
+import { useMemo,useState, useEffect } from "react";
 
 export const loader: LoaderFunction = async ({ request }) => {
   return { user: await getUser(request) };
@@ -31,6 +31,12 @@ interface IDocumentProps {
 
 export default function App() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
 
   const theme = useMemo(
     () => createTheme({ prefersDarkMode }),
@@ -40,7 +46,7 @@ export default function App() {
   return (
     <ThemeProvider theme={theme}>
       <Document>
-        <Outlet />
+        {isClient ? <Outlet /> : null}
       </Document>
     </ThemeProvider>
   );
