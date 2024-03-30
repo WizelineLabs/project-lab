@@ -212,25 +212,33 @@ async function insertProjectRelations(
     labels?: { id: string }[];
   }
 ) {
-  const repoValues = data.repoUrls
-    ? data.repoUrls.map((item) => ({ ...item, projectId: id }))
-    : [];
-  await trx.insertInto("Repos").values(repoValues).execute();
-  const projectSkills = data.skills
-    ? data.skills.map((item) => ({ A: id, B: item.id }))
-    : []; // A = projectId, B = skillId
-  await trx.insertInto("_ProjectsToSkills").values(projectSkills).execute();
-  const projectDisciplines = data.disciplines
-    ? data.disciplines.map((item) => ({ A: item.id, B: id }))
-    : []; // B = projectId, A = disciplineId
-  await trx
-    .insertInto("_DisciplinesToProjects")
-    .values(projectDisciplines)
-    .execute();
-  const projectLabels = data.labels
-    ? data.labels.map((item) => ({ A: item.id, B: id }))
-    : []; // B = projectId, A = labelId
-  await trx.insertInto("_LabelsToProjects").values(projectLabels).execute();
+  if (data.repoUrls) {
+    const repoValues = data.repoUrls
+      ? data.repoUrls.map((item) => ({ ...item, projectId: id }))
+      : [];
+    await trx.insertInto("Repos").values(repoValues).execute();
+  }
+  if (data.skills) {
+    const projectSkills = data.skills
+      ? data.skills.map((item) => ({ A: id, B: item.id }))
+      : []; // A = projectId, B = skillId
+    await trx.insertInto("_ProjectsToSkills").values(projectSkills).execute();
+  }
+  if (data.disciplines) {
+    const projectDisciplines = data.disciplines
+      ? data.disciplines.map((item) => ({ A: item.id, B: id }))
+      : []; // B = projectId, A = disciplineId
+    await trx
+      .insertInto("_DisciplinesToProjects")
+      .values(projectDisciplines)
+      .execute();
+  }
+  if (data.labels) {
+    const projectLabels = data.labels
+      ? data.labels.map((item) => ({ A: item.id, B: id }))
+      : []; // B = projectId, A = labelId
+    await trx.insertInto("_LabelsToProjects").values(projectLabels).execute();
+  }
 }
 
 export async function createProject(
