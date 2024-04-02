@@ -5,7 +5,7 @@ export type { ProjectStatus } from "@prisma/client";
 interface updateProjectStatusType {
   id: string;
   name: string;
-  stage?: "idea" | "ongoing project" | "none" | null;
+  stage?: string | null;
 }
 
 export async function getProjectStatuses() {
