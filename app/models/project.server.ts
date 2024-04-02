@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import { Transaction } from "kysely";
+import { FilterObject, Transaction } from "kysely";
 import { jsonArrayFrom } from "kysely/helpers/postgres";
 import { v4 as uuid } from "uuid";
 import { defaultStatus } from "~/constants";
@@ -194,9 +194,9 @@ export async function getProject({ id }: { id: string }) {
 
   const relatedProjects = await db
     .selectFrom("Projects as p")
-    .innerJoin("RelatedProjects as rp", "rp.projectAId", "p.id")
+    .innerJoin("RelatedProjects as rp", "rp.projectBId", "p.id")
     .select(["p.id", "p.name"])
-    .where("rp.projectBId", "=", id)
+    .where("rp.projectAId", "=", id)
     .execute();
 
   return { ...project, relatedProjects };
@@ -299,16 +299,12 @@ export async function createProject(
 export type ProjectComplete = Awaited<ReturnType<typeof getProject>>;
 export type ProjectMembers = Awaited<ReturnType<typeof getProjectTeamMembers>>;
 
-export async function getProjects(where: ProjectWhereInput) {
-  try {
-    const projects = await prisma.projects.findMany({
-      where,
-      select: { id: true, name: true },
-    });
-    return projects;
-  } catch (e) {
-    throw new Error(JSON.stringify(e));
-  }
+export async function getProjects(where: FilterObject<DB, "Projects"> = {}) {
+  return db
+    .selectFrom("Projects")
+    .select(["id", "name"])
+    .where((eb) => eb.and(where))
+    .execute();
 }
 
 export const validateIsTeamMember = (
@@ -483,53 +479,17 @@ export async function updateRelatedProjects({
   id: string;
   data: RelatedProjectInput;
 }) {
-  return await prisma.$transaction(async (tx) => {
-    // Create related Projects
-    const createResponse = [];
-    let response;
-    for (const relatedProject of data.relatedProjects) {
-      const relationExist = await tx.relatedProjects.count({
-        where: {
-          OR: [
-            {
-              projectAId: relatedProject.id,
-              projectBId: id,
-            },
-            {
-              projectAId: id,
-              projectBId: relatedProject.id,
-            },
-          ],
-        },
-      });
-
-      if (relationExist === 0) {
-        response = await tx.relatedProjects.create({
-          data: {
-            projectAId: id,
-            projectBId: relatedProject.id,
-          },
-        });
-        if (!response) {
-          throw new Error(
-            `Error when creating relation for: ${relatedProject.id}`
-          );
-        }
-        createResponse.push(response);
-      }
-    }
-
-    const relatedProjectsIds = data.relatedProjects.map((e) => e.id);
-    // Delete related projects
-    const deleteResponse = await tx.relatedProjects.deleteMany({
-      where: {
-        OR: [
-          { projectAId: id, projectBId: { notIn: relatedProjectsIds } },
-          { projectAId: { notIn: relatedProjectsIds }, projectBId: id },
-        ],
-      },
-    });
-    return { createResponse, deleteResponse };
+  db.transaction().execute(async (trx) => {
+    await trx
+      .deleteFrom("RelatedProjects")
+      .where("projectAId", "=", id)
+      .execute();
+    const relatedValues = data.relatedProjects.map((relatedProject) => ({
+      projectAId: id,
+      projectBId: relatedProject.id,
+    }));
+    console.log("update related", id, relatedValues);
+    await trx.insertInto("RelatedProjects").values(relatedValues).execute();
   });
 }
 
@@ -971,10 +931,10 @@ export async function getProjectsByRole(roleId: string) {
     SELECT DISTINCT ON (p."id") p."id", p."name", p."createdAt", p."description", p."searchSkills"
     FROM "Projects" p
     INNER JOIN (
-      SELECT 
-        pmv."profileId", 
-        pmv."role", 
-        pmv."projectId", 
+      SELECT
+        pmv."profileId",
+        pmv."role",
+        pmv."projectId",
         ROW_NUMBER() OVER (PARTITION BY pmv."profileId" ORDER BY pmv."updatedAt" DESC) AS row_num
       FROM "ProjectMembersVersions" pmv
     ) AS latest_pmv
