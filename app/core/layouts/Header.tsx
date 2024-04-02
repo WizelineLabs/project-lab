@@ -48,8 +48,9 @@ const Header = ({ existApplicant }: IProps) => {
     await submit(null, { method: "post", action: "/logout" });
   };
 
+  console.log("currentUser",currentUser)
   const options: MenuItemArgs[] = [
-    ...(currentUser?.role === "ADMIN" || currentUser?.role === "USER"
+    ...(currentUser?.role === "ADMIN" || currentUser?.role === "USER" || currentUser?.role === "APPLICANT"
       ? [
           {
             onClick: handleClickProfile,
