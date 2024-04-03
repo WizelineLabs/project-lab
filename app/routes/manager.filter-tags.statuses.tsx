@@ -67,7 +67,7 @@ export const validator = withZod(
   zfd.formData({
     id: z.string().optional(),
     name: z.string().min(1, { message: "Name is required" }),
-    stage: z.object({ name: z.string().optional() }).optional(),
+    stage: z.string().optional(),
   })
 );
 
@@ -107,7 +107,7 @@ export const action: ActionFunction = async ({ request }) => {
   const result = await validator.validate(await request.formData());
   const id = result.data?.id as string;
   const name = result.data?.name as string;
-  let stage;
+  const stage = result.data?.stage as string;
   let response;
   if (result.error != undefined) return validationError(result.error);
   const action = request.method;
@@ -115,7 +115,6 @@ export const action: ActionFunction = async ({ request }) => {
   try {
     switch (action) {
       case "POST":
-        stage = result.data?.stage?.name;
         invariant(name, "Invalid project status name");
         response = await addProjectStatus({ name, stage });
         return json(response, { status: 201 });
@@ -126,12 +125,7 @@ export const action: ActionFunction = async ({ request }) => {
         return json({ error: "" }, { status: 200 });
 
       case "PUT":
-        stage = result.data?.stage?.name as
-          | "idea"
-          | "ongoing project"
-          | "none"
-          | null;
-        invariant(name, "Invalid project status name");
+        invariant(stage, "Project status name is required");
         await updateProjectStatus({ id, name, stage });
         return json({ error: "" }, { status: 200 });
 

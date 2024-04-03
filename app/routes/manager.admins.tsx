@@ -69,17 +69,11 @@ export const action: ActionFunction = async ({ request }) => {
     const email = formData.get("email") as string;
     invariant(email, "Invalid email address");
     response = await addAdminUser({ email });
-    if (response.error) {
-      return json({ error: response.error }, { status: 404 });
-    }
     return json(response, { status: 201 });
   } else if (action === "DELETE") {
     const id = formData.get("id") as string;
     invariant(id, "User Id is required");
     response = await removeAdminUser({ id });
-    if (response.error) {
-      return json({ error: response.error }, { status: 400 });
-    }
     return json(response, { status: 200 });
   } else {
     throw new Error("Something went wrong");

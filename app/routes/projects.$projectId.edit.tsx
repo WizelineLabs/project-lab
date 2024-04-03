@@ -152,13 +152,13 @@ export default function EditProjectPage() {
             validator={validator}
             defaultValues={{
               name: project.name,
-              projectStatus: project.projectStatus || undefined,
-              innovationTiers: project.innovationTiers || undefined,
+              status: project.status || "",
+              tierName: project.tierName || "",
               description: project.description || "",
               valueStatement: project.valueStatement || "",
               helpWanted: project.helpWanted,
               disciplines: project.disciplines,
-              owner: project.owner || undefined,
+              ownerId: project.ownerId || "",
               target: project.target || "",
               repoUrls: project.repoUrls || [],
               slackChannel: project.slackChannel || "",

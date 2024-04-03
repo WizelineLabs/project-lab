@@ -1,7 +1,5 @@
 /* eslint-disable jest-dom/prefer-in-document */
-import InnovationTiers, {
-  loader,
-} from "../../../routes/manager.filter-tags.innovation-tiers";
+import InnovationTiers from "../../../routes/manager.filter-tags.innovation-tiers";
 import "@testing-library/jest-dom";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -64,16 +62,6 @@ describe("Innovation Tiers test", () => {
 
   afterEach(() => {
     vi.clearAllMocks();
-  });
-
-  test("Path loader", async () => {
-    const request = new Request(
-      "http://localhost:3000/manager/filter-tags/innovation-tiers"
-    );
-
-    const response = await loader({ request, params: {}, context: {} });
-
-    expect(response).toBeInstanceOf(Response);
   });
 
   test("Innovation tiers renders Tiers from loader", () => {

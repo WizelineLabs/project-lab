@@ -11,7 +11,7 @@ import {
   Button,
 } from "@mui/material";
 import { Prisma } from "@prisma/client";
-import type { ActionFunction, LoaderFunction } from "@remix-run/node";
+import type { ActionFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { SubmitOptions } from "@remix-run/react";
 import { useNavigation, useLoaderData, useFetcher } from "@remix-run/react";
@@ -88,11 +88,8 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (!isAdmin) {
     const profile = await requireProfile(request);
     const currentProject = await getProject({ id: projectId });
-    const {
-      projectMembers: currentMembers = [],
-      ownerId: currentOwnerId = null,
-    } = currentProject;
-    isProjectMemberOrOwner(profile.id, currentMembers, currentOwnerId);
+    const currentMembers = await getProjectTeamMembers(projectId);
+    isProjectMemberOrOwner(profile.id, currentMembers, currentProject.ownerId);
   }
 
   const result = await validator.validate(await request.formData());
@@ -115,11 +112,12 @@ export const action: ActionFunction = async ({ request, params }) => {
   }
 };
 
-export const loader: LoaderFunction = async ({ request, params }) => {
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   invariant(params.projectId, "projectId could not be found");
   const projectId = params.projectId;
   const profile = await requireProfile(request);
   const projectMembers = await getProjectTeamMembers(projectId);
+  console.log(projectMembers);
   return json({ profile, projectMembers, projectId });
 };
 
@@ -239,7 +237,7 @@ const EditMembersPage = () => {
                           value={item.defaultValue.profileId}
                         />
                         <Chip
-                          label={`${item.defaultValue.profile?.preferredName} ${item.defaultValue.profile?.lastName}`}
+                          label={`${item.defaultValue.preferredName} ${item.defaultValue.lastName}`}
                           onDelete={() => {
                             if (item.defaultValue.profileId !== profile.id) {
                               remove(i);

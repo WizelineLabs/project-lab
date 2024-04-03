@@ -1,6 +1,5 @@
 import { ProjectForm } from "../core/components/ProjectForm";
 import { Container, Paper } from "@mui/material";
-import { Prisma } from "@prisma/client";
 import { redirect } from "@remix-run/node";
 import type { ActionFunction } from "@remix-run/node";
 import { withZod } from "@remix-validated-form/with-zod";
@@ -28,9 +27,9 @@ export const validator = withZod(
       description: zfd.text(z.string().min(1)),
       valueStatement: zfd.text(z.string().optional()),
       helpWanted: zfd.checkbox(),
-      projectStatus: z.object({ name: z.string() }).optional(),
-      innovationTiers: z.object({ name: z.string() }).optional(),
-      owner: z.object({ id: z.string() }).optional(),
+      status: z.string().optional(),
+      tierName: z.string().optional(),
+      ownerId: z.string().optional(),
       disciplines: z
         .array(
           z.object({
@@ -81,24 +80,14 @@ export const action: ActionFunction = async ({ request }) => {
   try {
     const project = await createProject(result.data, profile.id);
     return redirect(`/projects/${project.id}`);
-  } catch (e) {
-    if (
-      e instanceof Prisma.PrismaClientKnownRequestError &&
-      Array.isArray(e.meta?.target)
-    ) {
-      if (e.meta?.target.includes("name")) {
-        return validationError({
-          fieldErrors: {
-            name: "Project name already exists",
-          },
-        });
-      } else {
-        return validationError({
-          fieldErrors: {
-            [e.meta?.target[0]]: "Invalid value",
-          },
-        });
-      }
+  } catch (e: any) {
+    console.log("error", e);
+    if (e.constraint && e.constraint == "Projects_name_key") {
+      return validationError({
+        fieldErrors: {
+          name: "Project name already exists",
+        },
+      });
     }
     throw e;
   }
@@ -120,6 +109,7 @@ const NewProjectPage = () => {
         >
           <GoBack title="Back to main page" href="/projects" />
           <ValidatedForm
+            id="create-project-form"
             validator={validator}
             defaultValues={{
               name: "",

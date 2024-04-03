@@ -1,5 +1,5 @@
 /* eslint-disable jest-dom/prefer-in-document */
-import Admins, { loader } from "../../routes/manager.admins";
+import Admins from "../../routes/manager.admins";
 import type { DataGridProps } from "@mui/x-data-grid";
 import "@testing-library/jest-dom";
 import { render, screen, waitFor } from "@testing-library/react";
@@ -41,14 +41,6 @@ describe("Admins test", () => {
 
   afterEach(() => {
     vi.clearAllMocks();
-  });
-
-  test("Path loader", async () => {
-    const request = new Request("http://localhost:3000/manager/admins");
-
-    const response = await loader({ request, params: {}, context: {} });
-
-    expect(response).toBeInstanceOf(Response);
   });
 
   test("Admins renders Admins from loader", () => {

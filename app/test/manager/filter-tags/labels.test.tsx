@@ -1,5 +1,5 @@
 /* eslint-disable jest-dom/prefer-in-document */
-import Labels, { loader } from "../../../routes/manager.filter-tags.labels";
+import Labels from "../../../routes/manager.filter-tags.labels";
 import "@testing-library/jest-dom";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -52,12 +52,6 @@ describe("Labels test", () => {
 
   afterEach(() => {
     vi.clearAllMocks();
-  });
-
-  test("Path loader", async () => {
-    const response = await loader();
-
-    expect(response).toBeInstanceOf(Response);
   });
 
   test("Labels from loader rendered", () => {

@@ -71,23 +71,19 @@ export function ProjectForm({
       ) : null}
 
       {projectformType !== "create" ? (
-        <InputSelect
-          valuesList={statuses || []}
-          name="projectStatus"
-          label="Status"
-        />
+        <InputSelect valuesList={statuses || []} name="status" label="Status" />
       ) : null}
 
       {projectformType !== "create" ? (
         <InputSelect
           valuesList={tiers || []}
-          name="innovationTiers"
+          name="tierName"
           label="Innovation Tier"
         />
       ) : null}
 
       {projectformType !== "create" ? (
-        <ProjectOwnerField name="owner" label="Owner" />
+        <ProjectOwnerField name="ownerId" label="Owner" />
       ) : null}
 
       <Collapse in={displayFields}>

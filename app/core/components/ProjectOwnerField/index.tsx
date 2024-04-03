@@ -11,9 +11,7 @@ import { useControlField, useField } from "remix-validated-form";
 
 interface ProfileValue {
   id: string;
-  name?: string;
-  preferredName?: string;
-  lastName?: string;
+  name: string;
 }
 
 interface ProfilesSelectProps {
@@ -34,35 +32,39 @@ export const ProjectOwnerField = ({
 }: ProfilesSelectProps) => {
   const fetcher = useFetcher<ProfileValue[]>();
   const { error } = useField(name);
-  const [value, setValue] = useControlField<ProfileValue>(name);
-  const searchValues = (value: string) => {
-    fetcher.submit({ q: value }, fetcherOptions);
+  const [value, setValue] = useControlField<string>(name);
+  const searchValues = (searchTerm: string) => {
+    if (!searchTerm.includes("<")) {
+      fetcher.submit({ q: searchTerm, profileId: value }, fetcherOptions);
+    }
   };
   const searchValuesDebounced = debounce(searchValues, 500);
 
   useEffect(() => {
     if (fetcher.state === "idle" && fetcher.data == null) {
-      fetcher.submit({}, fetcherOptions);
+      fetcher.submit({ profileId: value }, fetcherOptions);
     }
-  }, [fetcher]);
+  }, [fetcher, value]);
+
+  const autocompleteValue = fetcher.data?.find((v) => v.id === value) || {
+    id: value,
+    name: value,
+  };
 
   return (
     <>
-      <input type="hidden" name={`${name}.id`} value={value?.id} />
+      <input type="hidden" name={name} value={value} />
       <Autocomplete
         options={fetcher.data ?? []}
-        value={value}
-        isOptionEqualToValue={(option, value) => option.name === value.name}
-        getOptionLabel={(option) =>
-          option.name || `${option.preferredName} ${option.lastName}`
-        }
+        value={autocompleteValue}
+        loading={fetcher.state !== "idle"}
+        filterOptions={(x) => x}
+        isOptionEqualToValue={(option, value) => option.id === value.id}
+        getOptionLabel={(option) => option.name}
         onInputChange={(_, value) => searchValuesDebounced(value)}
         onChange={(_e, newValue) => {
-          if (newValue) {
-            setValue(newValue);
-          }
+          setValue(newValue?.id ?? "");
         }}
-        filterSelectedOptions
         renderInput={(params) => (
           <TextField
             {...params}
@@ -73,7 +75,7 @@ export const ProjectOwnerField = ({
               ...params.InputProps,
               endAdornment: (
                 <>
-                  {fetcher.state === "submitting" ? (
+                  {fetcher.state !== "idle" ? (
                     <CircularProgress color="inherit" size={20} />
                   ) : null}
                   {params.InputProps.endAdornment}
