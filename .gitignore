@@ -4,7 +4,7 @@ coverage
 /build
 /public/build
 .env
-
+Credentials.json
 /cypress/screenshots
 /cypress/videos
 /prisma/data.db

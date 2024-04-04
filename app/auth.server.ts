@@ -46,6 +46,7 @@ const verifyCallback: StrategyVerifyCallback<
     const isAllowedDomain = allowedDomains.some((domain) =>
       email.endsWith(domain)
     );
+    const isIntern = email.endsWith("@in.wizeline.com");
 
     if (!userProfile && isAllowedDomain) {
       const lakeProfile = await findProfileData(email);
@@ -119,12 +120,7 @@ const verifyCallback: StrategyVerifyCallback<
       }
     }
     // Get the user data from your DB or API using the tokens and profile
-    let role;
-    if (isAllowedDomain) {
-      role = "USER";
-    } else {
-      role = "APPLICANT";
-    }
+    const role = isIntern ? "INTERN" : isAllowedDomain ? "USER" : "APPLICANT";
     return findOrCreate({
       email: profile.emails[0].value,
       name: profile.displayName || "Unnamed",

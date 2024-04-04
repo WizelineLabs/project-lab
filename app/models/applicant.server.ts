@@ -71,6 +71,7 @@ export async function createApplicant(
       comments,
       avatarApplicant,
       universityPointOfContactId: pointOfContactId,
+      updatedAt: new Date(),
     })
     .returning(["id", "fullName", "email", "startDate", "endDate"]);
 }
