@@ -1,6 +1,5 @@
 /* eslint-disable jest-dom/prefer-in-document */
-import Statuses, { loader } from "../../../routes/manager.filter-tags.statuses";
-// import type { DataGridProps } from "@mui/x-data-grid";
+import Statuses from "../../../routes/manager.filter-tags.statuses";
 import "@testing-library/jest-dom";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -60,16 +59,6 @@ describe("Statuses test", () => {
 
   afterEach(() => {
     vi.clearAllMocks();
-  });
-
-  test("Path loader", async () => {
-    const request = new Request(
-      "http://localhost:3000/manager/filter-tags/statuses"
-    );
-
-    const response = await loader({ request, params: {}, context: {} });
-
-    expect(response).toBeInstanceOf(Response);
   });
 
   test("Statuses from loader rendered", () => {

@@ -5,19 +5,19 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import type { SelectChangeEvent } from "@mui/material/Select";
-import type { ProjectMembers } from "@prisma/client";
 import { withZod } from "@remix-validated-form/with-zod";
 import { useState } from "react";
 import { ValidatedForm } from "remix-validated-form";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
-import type { ProjectComplete } from "~/models/project.server";
+import type { ProjectComplete, ProjectMembers } from "~/models/project.server";
 
 interface IProps {
   close: () => void;
-  member: ProjectMembers;
+  member: ProjectMembers[number];
   open: boolean;
   project: ProjectComplete;
+  projectMembers: ProjectMembers;
 }
 
 export const validator = withZod(
@@ -27,7 +27,13 @@ export const validator = withZod(
   })
 );
 
-const MembershipStatusModal = ({ close, member, open, project }: IProps) => {
+const MembershipStatusModal = ({
+  close,
+  member,
+  open,
+  project,
+  projectMembers,
+}: IProps) => {
   const [disableBtn, setDisableBtn] = useState(
     member.profileId === project.ownerId
   );
@@ -61,7 +67,7 @@ const MembershipStatusModal = ({ close, member, open, project }: IProps) => {
               style={{ width: "100%" }}
               value={newOwner}
             >
-              {project.projectMembers
+              {projectMembers
                 ?.filter(
                   (member) =>
                     member.profileId !== project.ownerId &&
@@ -70,8 +76,7 @@ const MembershipStatusModal = ({ close, member, open, project }: IProps) => {
                 .map((member, index) => {
                   return (
                     <MenuItem key={index} value={member.profileId}>
-                      {member.profile.preferredName} {member.profile.lastName} (
-                      {member.profile.email})
+                      {member.preferredName} {member.lastName} ({member.email})
                     </MenuItem>
                   );
                 })}

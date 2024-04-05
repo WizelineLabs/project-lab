@@ -27,20 +27,20 @@ export const InputSelect = ({
   disabled,
 }: InputSelectProps) => {
   const { error } = useField(name);
-  const [value, setValue] = useControlField<SelectValue>(name);
+  const [value, setValue] = useControlField<string>(name);
   return (
     <FormControl fullWidth id={name} size="small" error={!!error}>
-      <input type="hidden" name={`${name}.name`} value={value?.name} />
+      <input type="hidden" name={name} value={value} />
       <InputLabel id={name}>{label}</InputLabel>
       <Select
         label={label}
-        value={value?.name || ""}
+        value={value}
         error={!!error}
         onChange={(event) => {
           const newValue = valuesList.find(
             (item) => item.name === event.target.value
           );
-          if (newValue) setValue(newValue);
+          if (newValue) setValue(newValue.name);
         }}
         disabled={disabled}
       >
