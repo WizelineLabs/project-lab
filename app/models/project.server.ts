@@ -334,59 +334,111 @@ export async function updateMembers(
     active: boolean;
   }[]
 ) {
-  const previousMembers = await prisma.projectMembers.findMany({
-    where: { projectId },
-    select: { id: true, profileId: true },
+  const previousMembers = await db
+    .selectFrom("ProjectMembers")
+    .select(["id", "profileId"])
+    .where("projectId", "=", projectId)
+    .execute();
+
+  const activeMembers: string[] = [];
+
+  await db.transaction().execute(async (trx) => {
+    // Loop Project Members
+    for (const projectMember of projectMembers) {
+      // Create only the members that don't exist in this project
+      const member = previousMembers.find(
+        (element) => element.profileId == projectMember.profileId
+      );
+      if (member !== undefined) {
+        activeMembers.push(projectMember.profileId);
+        // Just disconnects ALL related practicedSkills and roles, so it can UPDATE just the new selected ones after...
+        await trx
+          .deleteFrom("_ProjectMembersToSkills")
+          .where("A", "=", member.id)
+          .execute();
+        await trx
+          .deleteFrom("_DisciplinesToProjectMembers")
+          .where("B", "=", member.id)
+          .execute();
+        // Makes all the actual updates to the projectMember
+        await trx
+          .updateTable("ProjectMembers")
+          .set({
+            hoursPerWeek: projectMember.hoursPerWeek,
+            active: projectMember.active,
+            updatedAt: new Date(),
+          })
+          .where("id", "=", member.id)
+          .execute();
+        await addSkillsForMember(projectMember.practicedSkills, member.id, trx);
+        await addRolesForMember(projectMember.role, member.id, trx);
+      } else {
+        const newMember = await trx
+          .insertInto("ProjectMembers")
+          .values({
+            id: uuid(),
+            projectId,
+            profileId: projectMember.profileId,
+            hoursPerWeek: projectMember.hoursPerWeek,
+            active: projectMember.active,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          })
+          .returning("id")
+          .executeTakeFirstOrThrow();
+        await addSkillsForMember(
+          projectMember.practicedSkills,
+          newMember.id,
+          trx
+        );
+        await addRolesForMember(projectMember.role, newMember.id, trx);
+      }
+    }
+
+    // Delete previous members who are no longer in activeMembers array of ids
+    for (const member of previousMembers) {
+      if (!activeMembers.includes(member.profileId)) {
+        await trx
+          .deleteFrom("ProjectMembers")
+          .where("id", "=", member.id)
+          .execute();
+      }
+    }
   });
+}
 
-  const activeMembers: any = [];
+async function addSkillsForMember(
+  skills: { id: string }[] | undefined,
+  id: string,
+  trx: Transaction<DB>
+) {
+  if (!skills) return;
+  await trx
+    .insertInto("_ProjectMembersToSkills")
+    .values(
+      skills.map((skill) => ({
+        A: id,
+        B: skill.id,
+      }))
+    )
+    .execute();
+}
 
-  // Loop Project Members
-  for (const projectMember of projectMembers) {
-    // Create only the members that don't exist in this project
-    const previousMember = previousMembers.find(
-      (element) => element.profileId == projectMember.profileId
-    );
-    if (previousMember !== undefined) {
-      activeMembers.push(projectMember.profileId);
-      // Just disconnects ALL related practicedSkills and roles, so it can UPDATE just the new selected ones after...
-      await prisma.$queryRaw`DELETE FROM "_ProjectMembersToSkills" WHERE "A" = ${previousMember.id}`;
-      await prisma.$queryRaw`DELETE FROM "_DisciplinesToProjectMembers" WHERE "B" = ${previousMember.id}`;
-      // Makes all the actual updates to the projectMember
-      await prisma.projectMembers.update({
-        where: { id: previousMember.id },
-        data: {
-          hoursPerWeek: projectMember.hoursPerWeek,
-          role: { connect: projectMember.role },
-          active: projectMember.active,
-          practicedSkills: { connect: projectMember.practicedSkills },
-          updatedAt: new Date(),
-        },
-        include: {
-          practicedSkills: true,
-        },
-      });
-    } else {
-      await prisma.projectMembers.create({
-        data: {
-          project: { connect: { id: projectId } },
-          profile: { connect: { id: projectMember.profileId } },
-          hoursPerWeek: projectMember.hoursPerWeek,
-          role: { connect: projectMember.role },
-          practicedSkills: { connect: projectMember.practicedSkills },
-        },
-      });
-    }
-  }
-
-  // Delete previous members who are no longer in activeMembers array of ids
-  for (const previousMember of previousMembers) {
-    if (!activeMembers.includes(previousMember.profileId)) {
-      await prisma.projectMembers.deleteMany({
-        where: { profileId: previousMember.profileId, projectId },
-      });
-    }
-  }
+async function addRolesForMember(
+  roles: { id: string }[] | undefined,
+  id: string,
+  trx: Transaction<DB>
+) {
+  if (!roles) return;
+  await trx
+    .insertInto("_DisciplinesToProjectMembers")
+    .values(
+      roles.map((role) => ({
+        A: role.id,
+        B: id,
+      }))
+    )
+    .execute();
 }
 
 export async function updateMembership(
@@ -488,7 +540,6 @@ export async function updateRelatedProjects({
       projectAId: id,
       projectBId: relatedProject.id,
     }));
-    console.log("update related", id, relatedValues);
     await trx.insertInto("RelatedProjects").values(relatedValues).execute();
   });
 }

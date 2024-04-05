@@ -117,7 +117,6 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const projectId = params.projectId;
   const profile = await requireProfile(request);
   const projectMembers = await getProjectTeamMembers(projectId);
-  console.log(projectMembers);
   return json({ profile, projectMembers, projectId });
 };
 
@@ -184,7 +183,7 @@ const EditMembersPage = () => {
                       hoursPerWeek: "",
                       practicedSkills: [],
                       role: [],
-                      profile: { preferredName: details?.option.name },
+                      preferredName: details?.option.name,
                       active: true,
                     });
                   }
@@ -237,7 +236,9 @@ const EditMembersPage = () => {
                           value={item.defaultValue.profileId}
                         />
                         <Chip
-                          label={`${item.defaultValue.preferredName} ${item.defaultValue.lastName}`}
+                          label={`${item.defaultValue.preferredName ?? ""} ${
+                            item.defaultValue.lastName ?? ""
+                          }`}
                           onDelete={() => {
                             if (item.defaultValue.profileId !== profile.id) {
                               remove(i);
