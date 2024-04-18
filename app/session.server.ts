@@ -78,10 +78,9 @@ export async function requireUser(request: Request) {
 
 export async function requireProfile(request: Request) {
   const userId = await requireUserId(request);
-
   const profile = await getProfileByUserId(userId);
-  if (profile) return profile;
-
+  const employeeStatus = profile?.employeeStatus;
+  if (profile && employeeStatus !== "Terminated") return profile;
   throw await logout(request);
 }
 
