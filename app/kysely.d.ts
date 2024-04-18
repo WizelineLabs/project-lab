@@ -81,7 +81,7 @@ export interface Applicant {
   universityEmail: string | null;
   universityId: string | null;
   universityPointOfContactId: string | null;
-  updatedAt: Timestamp;
+  updatedAt: Timestamp | null;
   updatedBy: string | null;
   wizelinePrograms: string | null;
 }

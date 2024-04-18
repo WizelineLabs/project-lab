@@ -143,7 +143,7 @@ model ProjectMembers {
   role            Disciplines[]
   practicedSkills Skills[]
 
-  //also here "name" was changed for "map" 
+  //also here "name" was changed for "map"
   @@unique([projectId, profileId], name: "project_members_project_id_profile_id_key")
   @@index([profileId], map: "project_members_profile_id_idx")
   @@index([projectId], map: "project_members_project_id_idx")
@@ -162,7 +162,7 @@ model ProjectMembersVersions {
   profile         Profiles @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   project         Projects @relation(fields: [projectId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  //also here the map for name change 
+  //also here the map for name change
   @@index([projectId, profileId], map: "project_members_v_project_id_profile_id_key")
   @@index([profileId], map: "project_members_v_profile_id_idx")
   @@index([projectId], map: "project_members_v_project_id_idx")
