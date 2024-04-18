@@ -450,7 +450,7 @@ model Applicant {
   mentor                     Profiles?                  @relation("Mentor", fields: [mentorId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   project                    Projects?                  @relation(fields: [projectId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   updatedBy                  String?
-  updatedAt                  DateTime                   @updatedAt
+  updatedAt                  DateTime?                  @updatedAt
   updatedByProfile           Profiles?                  @relation("UpdatedByProfile", fields: [updatedBy], references: [id], onDelete: SetNull, onUpdate: Cascade)
 
   @@index([status], map: "applicant_status_idx")

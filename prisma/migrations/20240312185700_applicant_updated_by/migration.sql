@@ -5,7 +5,7 @@
 
 */
 -- AlterTable
-ALTER TABLE "Applicant" ADD COLUMN     "updatedAt" TIMESTAMP(3) NOT NULL,
+ALTER TABLE "Applicant" ADD COLUMN     "updatedAt" TIMESTAMP(3),
 ADD COLUMN     "updatedBy" TEXT;
 
 -- AddForeignKey
