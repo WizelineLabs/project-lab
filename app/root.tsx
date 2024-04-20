@@ -1,13 +1,15 @@
 import ClientStyleContext from "./core/ClientStyleContext";
 import { getUser } from "./session.server";
-import StylesheetUrl from "./styles/style.css";
+import stylesheet from "./styles/style.css";
 import { createTheme } from "./theme";
+// or cloudflare/deno
 import { ThemeProvider, withEmotionCache } from "@emotion/react";
 import {
   unstable_useEnhancedEffect as useEnhancedEffect,
   CssBaseline,
 } from "@mui/material";
-import type { LoaderFunction } from "@remix-run/node";
+import { cssBundleHref } from "@remix-run/css-bundle";
+import type { LinksFunction , LoaderFunction } from "@remix-run/node";
 import {
   Links,
   LiveReload,
@@ -17,6 +19,11 @@ import {
   ScrollRestoration,
 } from "@remix-run/react";
 import React from "react";
+
+export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: stylesheet },
+  ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
+];
 
 export const loader: LoaderFunction = async ({ request }) => {
   return { user: await getUser(request) };
@@ -74,7 +81,6 @@ const Document = withEmotionCache(
             href="https://fonts.gstatic.com"
             crossOrigin=""
           />
-          <link rel="stylesheet" href={StylesheetUrl} />
           <link
             rel="stylesheet"
             href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
