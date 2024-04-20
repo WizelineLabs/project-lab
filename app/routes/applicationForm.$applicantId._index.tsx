@@ -25,7 +25,7 @@ import { zfd } from "zod-form-data";
 import SelectField from "~/core/components/FormFields/SelectField";
 import LabeledTextField from "~/core/components/LabeledTextField";
 import RegularSelect from "~/core/components/RegularSelect";
-import { geActivetUniversities } from "~/models/university.server";
+import { getActiveUniversities } from "~/models/university.server";
 import { requireProfile } from "~/session.server";
 
 export const validator = withZod(
@@ -133,7 +133,7 @@ interface UserProfile {
 }
 
 interface LoaderData {
-  universities: Awaited<ReturnType<typeof geActivetUniversities>>;
+  universities: Awaited<ReturnType<typeof getActiveUniversities>>;
   profile: UserProfile;
 }
 
@@ -148,7 +148,7 @@ const profileFetcherOptions: SubmitOptions = {
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const universities = await geActivetUniversities();
+  const universities = await getActiveUniversities();
   const profile = await requireProfile(request);
 
   return json<LoaderData>({

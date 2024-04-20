@@ -53,11 +53,7 @@ export const validator = withZod(
   z.object({
     id: z.string().optional(),
     fullName: z.string().min(1, { message: "Name is required" }),
-    university: z
-      .object({
-        name: z.string().min(1),
-      })
-      .required(),
+    university: z.string().min(1),
     active: z.string().optional(),
   })
 );
@@ -65,16 +61,7 @@ export const validator = withZod(
 interface PointOfContact {
   id: string;
   fullName: string;
-  university: {
-    name: string;
-  } | null;
-  active: boolean;
-}
-
-interface PointOfContactRecord {
-  id: string;
-  fullName: string;
-  university: string | null;
+  university: string;
   active: boolean;
 }
 
@@ -97,22 +84,13 @@ export const action: ActionFunction = async ({ request }) => {
   const id = result.data?.id;
   const name = result.data?.fullName as string;
   const active = (result.data?.active as string) == "on";
-  const university = result.data?.university as { id: string; name: string };
+  const university = result.data!.university;
   if (result.error != undefined) return validationError(result.error);
 
   if (request.method == "POST") {
     const response = await addPointOfContact({
       fullName: name,
-      university: {
-        connectOrCreate: {
-          create: {
-            name: university?.name ?? "",
-          },
-          where: {
-            name: university?.name,
-          },
-        },
-      },
+      university,
     });
     return json(response, { status: 201 });
   }
@@ -122,7 +100,7 @@ export const action: ActionFunction = async ({ request }) => {
       await updatePointOfContact({
         id,
         fullName: name,
-        university: university.name,
+        university: university,
         active,
       });
       return redirect("./");
@@ -135,14 +113,14 @@ export const action: ActionFunction = async ({ request }) => {
 function PointOfContactDataGrid() {
   const { pointsOfContact, universities } = useLoaderData() as LoaderData;
   const createButtonText = "Add New Point of Contact";
-  const [rows, setRows] = useState<PointOfContactRecord[]>([]);
+  const [rows, setRows] = useState<PointOfContact[]>([]);
 
   useEffect(() => {
     setRows(
       pointsOfContact.map((item: PointOfContact) => ({
         id: item.id,
         fullName: item.fullName,
-        university: item.university ? item.university.name : null,
+        university: item.university,
         active: item.active,
       }))
     );
@@ -172,7 +150,7 @@ function PointOfContactDataGrid() {
   const handleModifyClick = (
     id: string,
     name: string,
-    university: any,
+    university: string,
     active: boolean
   ) => {
     setSelectedRowID(() => id);
@@ -183,7 +161,7 @@ function PointOfContactDataGrid() {
   };
 
   interface HeadUniversitiesData {
-    id: keyof PointOfContactRecord;
+    id: keyof PointOfContact;
     label: string;
     numeric: boolean;
     align: "left" | "right" | "inherit" | "center" | "justify" | undefined;
@@ -325,7 +303,7 @@ function PointOfContactDataGrid() {
           defaultValues={{
             fullName: selectedName,
             active: selectedActive ? "on" : "",
-            university: { name: selectedUniversity },
+            university: selectedUniversity,
           }}
         >
           <Stack spacing={2}>
