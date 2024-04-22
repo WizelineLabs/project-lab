@@ -13,3 +13,18 @@ Credentials.json
 /app/styles/tailwind.css
 
 **/.DS_Store
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
