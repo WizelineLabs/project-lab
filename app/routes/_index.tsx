@@ -168,9 +168,7 @@ export default function Index() {
       </MiddleHomePageContainer>
       <HomePageContainer>
         <Stack alignItems="center" spacing={2} sx={{ margin: "20px" }}>
-          <PageContainerTitle style={{ textAlign: "center" }}>
-            Join us
-          </PageContainerTitle>
+          <h2 style={{ textAlign: "center" }}>Join us</h2>
           {!user ? (
             <>
               <Button
