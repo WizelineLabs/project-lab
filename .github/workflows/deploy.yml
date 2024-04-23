@@ -123,6 +123,8 @@ jobs:
       - name: create admin user
         run: echo "ADMIN_COOKIE=$(npx ts-node --require tsconfig-paths/register ./cypress/support/create-user.ts 'test@example.com' ADMIN)" >> $GITHUB_ENV
 
+      - name: Install Playwright
+        run: npx playwright install --with-deps
       - name: Run Playwright tests
         run: npx playwright test
       - uses: actions/upload-artifact@v4
