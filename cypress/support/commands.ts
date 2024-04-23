@@ -51,9 +51,7 @@ function login({
   cy.exec(
     `npx ts-node --require tsconfig-paths/register ./cypress/support/create-user.ts "${email}"`
   ).then(({ stdout }) => {
-    const cookieValue = stdout
-      .replace(/.*<cookie>(?<cookieValue>.*)<\/cookie>.*/s, "$<cookieValue>")
-      .trim();
+    const cookieValue = stdout.trim();
     cy.setCookie("__session", cookieValue);
   });
   return cy.get("@user");

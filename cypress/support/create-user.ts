@@ -12,7 +12,7 @@ import { createUserSession } from "~/session.server";
 
 installGlobals();
 
-async function createAndLogin(email: string) {
+async function createAndLogin(email: string, role = "USER") {
   if (!email) {
     throw new Error("email required for login");
   }
@@ -23,7 +23,7 @@ async function createAndLogin(email: string) {
   const user = await findOrCreate({
     name: email.replace("@example.com", ""),
     email,
-    role: "USER",
+    role,
   });
   // a profile is also needed on labs
   await createProfile({
@@ -48,13 +48,7 @@ async function createAndLogin(email: string) {
   const parsedCookie = parse(cookieValue);
   // we log it like this so our cypress command can parse it out and set it as
   // the cookie value.
-  console.log(
-    `
-<cookie>
-  ${parsedCookie.__session}
-</cookie>
-  `.trim()
-  );
+  console.log(parsedCookie.__session);
 }
 
-createAndLogin(process.argv[2]);
+createAndLogin(process.argv[2], process.argv[3] || "USER");
