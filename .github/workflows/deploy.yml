@@ -5,7 +5,8 @@ on:
       - main
     tags:
       - "*"
-  pull_request: {}
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -134,11 +135,24 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
+  sonarqube:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Disabling shallow clone is recommended for improving relevancy of reporting
+          fetch-depth: 0
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST }}
+
   deploy:
     name: 🚀 Deploy
     runs-on: ubuntu-latest
     environment: dev
-    needs: [lint, typecheck, vitest]
+    needs: [lint, typecheck, vitest, sonarqube]
     # only build/deploy main branch on pushes
     if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' }}
 
@@ -259,7 +273,7 @@ jobs:
     name: 🚀 Deploy Prod
     runs-on: ubuntu-latest
     environment: prod
-    needs: [lint, typecheck, vitest]
+    needs: [lint, typecheck, vitest, sonarqube, playwright]
     # only build/deploy prod on new version tags (v1.0.0)
     if: startsWith(github.ref, 'refs/tags/v')
 
