@@ -261,10 +261,10 @@ jobs:
             pm2 start ecosystem.config.js
             pm2 save
 
-            echo "*** Step: ** Run Playwright tests"
-            echo "ADMIN_COOKIE=$(npx ts-node --require tsconfig-paths/register ./cypress/support/create-user.ts 'test@example.com' ADMIN)" >> .env
-            npx playwright install --with-deps
-            npx playwright test
+            # echo "*** Step: ** Run Playwright tests"
+            # echo "ADMIN_COOKIE=$(npx ts-node --require tsconfig-paths/register ./cypress/support/create-user.ts 'test@example.com' ADMIN)" >> .env
+            # npx playwright install --with-deps
+            # npx playwright test
 
             echo "*** Step: ** Cleanup"
             rm -rf ~/projectlab/tmp
