@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main
-      - dev
     tags:
       - "*"
   pull_request: {}
@@ -139,7 +138,7 @@ jobs:
     environment: dev
     needs: [lint, typecheck, vitest]
     # only build/deploy main branch on pushes
-    if: ${{ (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') && github.event_name == 'push' }}
+    if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' }}
 
     env:
       NODE_ENV: production
