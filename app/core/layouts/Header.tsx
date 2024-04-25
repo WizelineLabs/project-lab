@@ -9,6 +9,7 @@ import { useOptionalUser } from "~/utils";
 interface IProps {
   title: string;
   existApplicant?: boolean;
+  applicantId?: string;
 }
 export interface MenuItemArgs {
   text: string;
@@ -27,10 +28,12 @@ const StyledHeaderButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-const Header = ({ existApplicant }: IProps) => {
+
+const Header = ({ existApplicant, applicantId }: IProps) => {
   const currentUser = useOptionalUser();
   const submit = useSubmit();
   const location = useLocation();
+
 
   const handleClickProfile = async () => {
     if (currentUser) {
@@ -42,6 +45,13 @@ const Header = ({ existApplicant }: IProps) => {
     } else {
       return;
     }
+  };
+
+  const handleClickProfileApplicant = async () => {
+    submit(null, {
+      method: "get",
+      action: `/applicants/${applicantId}`,
+    });
   };
 
   const handleLogout = async () => {
@@ -58,6 +68,15 @@ const Header = ({ existApplicant }: IProps) => {
           },
         ]
       : []),
+    ...(currentUser?.role === "APPLICANT"
+      ? [
+          {
+            onClick: handleClickProfileApplicant,
+            to: "/",
+            text: "Profile",
+          },
+        ]
+    :[]),
     {
       to: "/",
       text: "Home",
@@ -79,6 +98,7 @@ const Header = ({ existApplicant }: IProps) => {
           },
         ]
       : []),
+    
   ];
 
   let linkTo = "/internshipProjects";

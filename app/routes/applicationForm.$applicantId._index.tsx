@@ -9,6 +9,7 @@ import {
   Typography,
   TextField,
   debounce,
+  Paper,
 } from "@mui/material";
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
@@ -18,7 +19,7 @@ import {
   useFetcher,
 } from "@remix-run/react";
 import { withZod } from "@remix-validated-form/with-zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ValidatedForm } from "remix-validated-form";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
@@ -27,6 +28,8 @@ import LabeledTextField from "~/core/components/LabeledTextField";
 import RegularSelect from "~/core/components/RegularSelect";
 import { getActiveUniversities } from "~/models/university.server";
 import { requireProfile } from "~/session.server";
+import { getApplicantByEmail } from "~/models/applicant.server";
+import Header from "../../app/core/layouts/Header"
 
 export const validator = withZod(
   zfd.formData({
@@ -135,6 +138,7 @@ interface UserProfile {
 interface LoaderData {
   universities: Awaited<ReturnType<typeof getActiveUniversities>>;
   profile: UserProfile;
+  applicantByEmail: Awaited<ReturnType<typeof getApplicantByEmail>>;
 }
 
 interface UniversityValue {
@@ -150,15 +154,17 @@ const profileFetcherOptions: SubmitOptions = {
 export const loader: LoaderFunction = async ({ request }) => {
   const universities = await getActiveUniversities();
   const profile = await requireProfile(request);
+  const applicantByEmail = await getApplicantByEmail(profile.email);
 
   return json<LoaderData>({
     universities,
     profile,
+    applicantByEmail,
   });
 };
 
 export default function FormPage() {
-  const { universities, profile } = useLoaderData() as LoaderData;
+  const { universities, profile, applicantByEmail } = useLoaderData() as LoaderData;
 
   const [selectedUniversity, setSelectedUniversity] =
     useState<UniversityValue | null>({
@@ -188,376 +194,414 @@ export default function FormPage() {
   const searchContactsDebounced = debounce(searchContacts, 50);
 
   const [startDate, setStartDate] = useState(getCurrentDate());
+  const [editMode, setEditMode] = useState(false)
 
+  const editForm = () => {
+    if (profile.email === applicantByEmail?.email) {
+      setEditMode(true)
+    }
+  }
+
+  useEffect(() => {
+    editForm()
+  })
+  
   return (
     <Container>
-      <img src="/HeaderImage.png" alt="Wizeline" style={{ width: "100%" }} />
-      <Typography component="div" variant="h2">
-        Application Form
-      </Typography>
-      <Typography component="div" variant="body1">
-        Wizeline&rsquo;s Innovation Experience Program is a 3-6 month program
-        designed to help students transition from the theoretical to the
-        practical and step into technical specialties. In this program,
-        participants will immerse in innovation projects with Wizeline industry
-        experts, where they can make an impact and begin a successful career in
-        technology.
-      </Typography>
-      <ValidatedForm
-        validator={validator}
-        action="./createapplicant"
-        method="post"
-      >
-        <Grid container spacing={10}>
-          <Grid item xs={6}>
-            <LabeledTextField
-              label="Personal email"
-              placeholder="Personal email"
-              name="personalEmail"
-              fullWidth
-              type="email"
-              style={{ marginBottom: "20px" }}
-              defaultValue={profile.email}
-            />
-            <SelectField
-              name="gender"
-              label="I identify as:"
-              options={["Male", "Female", "Non-binary", "Prefer not to say"]}
-              style={{ width: "100%", marginBottom: "20px" }}
-            />
-            <LabeledTextField
-              label="Full Name"
-              placeholder="Full Name"
-              name="fullName"
-              fullWidth
-              type="text"
-              style={{ marginBottom: "20px" }}
-              defaultValue={profile.name}
-            />
-            <LabeledTextField
-              label="Nationality"
-              placeholder="Full Name"
-              name="nationality"
-              fullWidth
-              type="text"
-              style={{ marginBottom: "20px" }}
-            />
-            <SelectField
-              name="country"
-              label="Country of residence:"
-              options={[
-                "Canada",
-                "Colombia",
-                "Mexico",
-                "Spain",
-                "United States",
-                "Vietnam",
-              ]}
-              style={{ width: "100%", marginBottom: "20px" }}
-            />
-            <LabeledTextField
-              name="dayOfBirth"
-              label="Date of birth"
-              fullWidth
-              type="date"
-              style={{ marginBottom: "20px" }}
-            />
-            <LabeledTextField
-              label="Home adress"
-              placeholder="Home adress"
-              name="homeAddress"
-              fullWidth
-              type="text"
-              style={{ marginBottom: "20px" }}
-            />
-            <LabeledTextField
-              label="Phone number"
-              placeholder="Phone number"
-              name="phone"
-              fullWidth
-              type="text"
-              style={{ marginBottom: "20px" }}
-            />
-            <Typography
-              component="div"
-              variant="body2"
-              style={{ marginBottom: "20px" }}
-            >
-              If your university is not listed here, please contact us at
-              internships@wizeline.com to work it out.
-            </Typography>
+      <Header title="Applicants"/>
+      <Paper sx={{ p: 2 }}>
+        <img src="/HeaderImage.png" alt="Wizeline" style={{ width: "100%" }} />
+        <Typography component="div" variant="h2">
+          Application Form
+        </Typography>
+        <Typography component="div" variant="body1" style={{ marginBottom: "25px", textAlign:"justify" }}>
+          Wizeline&rsquo;s Innovation Experience Program is a 3-6 month program
+          designed to help students transition from the theoretical to the
+          practical and step into technical specialties. In this program,
+          participants will immerse in innovation projects with Wizeline industry
+          experts, where they can make an impact and begin a successful career in
+          technology.
+        </Typography>
+        <ValidatedForm
+          validator={validator}
+          action="./createapplicant"
+          method="post"
+        >
+          <Grid container spacing={10}>
+            <Grid item xs={6}>
+              <LabeledTextField
+                label="Personal email"
+                placeholder="Personal email"
+                name="personalEmail"
+                fullWidth
+                type="email"
+                style={{ marginBottom: "20px" }}
+                defaultValue={profile?.email}
+              />
+              <SelectField
+                name="gender"
+                label="I identify as:"
+                options={["Male", "Female", "Non-binary", "Prefer not to say"]}
+                style={{ width: "100%", marginBottom: "20px" }}
+                value={editMode ?  applicantByEmail?.gender : ''}
+              />
+              <LabeledTextField
+                label="Full Name"
+                placeholder="Full Name"
+                name="fullName"
+                fullWidth
+                type="text"
+                style={{ marginBottom: "20px" }}
+                defaultValue={profile.name}
+              />
+              <LabeledTextField
+                label="Nationality"
+                placeholder="Full Name"
+                name="nationality"
+                fullWidth
+                type="text"
+                style={{ marginBottom: "20px" }}
+                defaultValue={editMode ? applicantByEmail?.nationality : ''}
+              />
+              <SelectField
+                name="country"
+                label="Country of residence:"
+                options={[
+                  "Canada",
+                  "Colombia",
+                  "Mexico",
+                  "Spain",
+                  "United States",
+                  "Vietnam",
+                ]}
+                style={{ width: "100%", marginBottom: "20px" }}
+                value={editMode ?  applicantByEmail?.country : ''}
+              />
+              <LabeledTextField
+                name="dayOfBirth"
+                label="Date of birth"
+                fullWidth
+                type="date"
+                style={{ marginBottom: "20px" }}
+                
+              />
+              <LabeledTextField
+                label="Home adress"
+                placeholder="Home adress"
+                name="homeAddress"
+                fullWidth
+                type="text"
+                style={{ marginBottom: "20px" }}
+                defaultValue={editMode ? applicantByEmail?.homeAddress : ''}
+              />
+              <LabeledTextField
+                label="Phone number"
+                placeholder="Phone number"
+                name="phone"
+                fullWidth
+                type="text"
+                style={{ marginBottom: "20px" }}
+                defaultValue={editMode ? applicantByEmail?.phone : ''}
+              />
+              <Typography
+                component="div"
+                variant="body2"
+                style={{ marginBottom: "20px" }}
+              >
+                If your university is not listed here, please contact us at
+                internships@wizeline.com to work it out.
+              </Typography>
 
-            <RegularSelect
-              valuesList={universities}
-              name="university"
-              label="University or organization you belong to"
-              onChange={handleSelectUniversity}
-              style={{ width: "100%", marginBottom: "20px" }}
-            />
+              <RegularSelect
+                valuesList={universities}
+                name="university"
+                label="University or organization you belong to"
+                onChange={handleSelectUniversity}
+                style={{ width: "100%", marginBottom: "20px" }}
+              
+              />
 
-            <input
-              type="hidden"
-              name="universityContactId"
-              value={selectedContact?.id}
-            />
-            <Autocomplete
-              multiple={false}
-              style={{ width: "100%", marginBottom: "20px" }}
-              options={contactFetcher.data ?? []}
-              value={selectedContact?.id ? selectedContact : null}
-              isOptionEqualToValue={(option, value) => option.id === value.id}
-              id="contact"
-              getOptionLabel={(option) => option.name}
-              onInputChange={(_, value) => searchContactsDebounced(value)}
-              renderTags={() => null}
-              onChange={(
-                event,
-                value: { id: string; name: string } | null,
-                reason: AutocompleteChangeReason
-              ) =>
-                reason === "clear"
-                  ? setSelectedContact({ id: "", name: "" })
-                  : setSelectedContact(value)
-              }
-              filterSelectedOptions
-              renderInput={(params) => (
-                <TextField
-                  name="universityContact"
-                  label="Select a university point of contact"
-                  {...params}
-                  placeholder="Select a university point of contact..."
-                  value={selectedContact?.name}
-                />
-              )}
-            />
+              <input
+                type="hidden"
+                name="universityContactId"
+                value={selectedContact?.id}
+              />
+              <Autocomplete
+                multiple={false}
+                style={{ width: "100%", marginBottom: "20px" }}
+                options={contactFetcher.data ?? []}
+                value={selectedContact?.id ? selectedContact : null}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                id="contact"
+                getOptionLabel={(option) => option.name}
+                onInputChange={(_, value) => searchContactsDebounced(value)}
+                renderTags={() => null}
+                onChange={(
+                  event,
+                  value: { id: string; name: string } | null,
+                  reason: AutocompleteChangeReason
+                ) =>
+                  reason === "clear"
+                    ? setSelectedContact({ id: "", name: "" })
+                    : setSelectedContact(value)
+                }
+                filterSelectedOptions
+                renderInput={(params) => (
+                  <TextField
+                    name="universityContact"
+                    label="Select a university point of contact"
+                    {...params}
+                    placeholder="Select a university point of contact..."
+                    value={selectedContact?.name}
+                  />
+                )}
+              />
 
-            <LabeledTextField
-              label="Organization or University Email"
-              placeholder="Organization or University Email"
-              name="universityEmail"
-              fullWidth
-              type="email"
-              style={{ marginBottom: "20px" }}
-            />
-            <LabeledTextField
-              label="Name of contact in case of emergency"
-              placeholder="Name of contact in case of emergency"
-              name="emergencyContactName"
-              fullWidth
-              type="text"
-              style={{ marginBottom: "20px" }}
-            />
-            <SelectField
-              name="emergencyRelationship"
-              label="Relationship"
-              options={[
-                "Brother",
-                "Daughter",
-                "Father",
-                "Friend",
-                "Husband",
-                "Mother",
-                "Partner",
-                "Sister",
-                "Son",
-                "Wife",
-              ]}
-              style={{ width: "100%", marginBottom: "20px" }}
-            />
-            <LabeledTextField
-              label="Emergency phone number"
-              placeholder="Name of contact in case of emergency"
-              name="emergencyContactPhone"
-              fullWidth
-              type="text"
-              style={{ marginBottom: "20px" }}
-            />
-            <LabeledTextField
-              label="Professional Experience"
-              placeholder="Professional Experience"
-              name="experience"
-              fullWidth
-              type="text"
-              multiline
-              rows={2}
-              style={{ marginBottom: "20px" }}
-            />
+              <LabeledTextField
+                label="Organization or University Email"
+                placeholder="Organization or University Email"
+                name="universityEmail"
+                fullWidth
+                type="email"
+                style={{ marginBottom: "20px" }}
+                defaultValue={editMode ? (applicantByEmail?.universityEmail ?? '') : ''}
+              />
+              <LabeledTextField
+                label="Name of contact in case of emergency"
+                placeholder="Name of contact in case of emergency"
+                name="emergencyContactName"
+                fullWidth
+                type="text"
+                style={{ marginBottom: "20px" }}
+                defaultValue={editMode ? (applicantByEmail?.emergencyContactName ?? '') : ''}
+              />
+              <SelectField
+                name="emergencyRelationship"
+                label="Relationship"
+                options={[
+                  "Brother",
+                  "Daughter",
+                  "Father",
+                  "Friend",
+                  "Husband",
+                  "Mother",
+                  "Partner",
+                  "Sister",
+                  "Son",
+                  "Wife",
+                ]}
+                style={{ width: "100%", marginBottom: "20px" }}
+                value={editMode ?  (applicantByEmail?.emergencyRelationship ?? '') : ''}
+              />
+              <LabeledTextField
+                label="Emergency phone number"
+                placeholder="Name of contact in case of emergency"
+                name="emergencyContactPhone"
+                fullWidth
+                type="text"
+                style={{ marginBottom: "20px" }}
+                defaultValue={editMode ? (applicantByEmail?.emergencyContactPhone ?? '') : ''}
+              />
+              <LabeledTextField
+                label="Professional Experience"
+                placeholder="Professional Experience"
+                name="experience"
+                fullWidth
+                type="text"
+                multiline
+                rows={2}
+                style={{ marginBottom: "20px" }}
+                defaultValue={editMode ? applicantByEmail?.experience  : ''}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <SelectField
+                name="englishLevel"
+                label="English Level"
+                options={[
+                  "English Basic User (A1, A2)",
+                  "Intermediate (B1)",
+                  "Upper intermediate (B2)",
+                  "Proficient (C1,C2)",
+                ]}
+                style={{ width: "100%", marginBottom: "20px" }}
+                value={editMode ? applicantByEmail?.englishLevel : ''}
+              />
+              <LabeledTextField
+                label="Degree and field you are studying"
+                placeholder="Degree and field you are studying"
+                name="major"
+                fullWidth
+                type="text"
+                style={{ marginBottom: "20px" }}
+                defaultValue={editMode ? applicantByEmail?.major  : ''}
+              />
+              <LabeledTextField
+                label="Semester or period you will be studying while this program runs"
+                placeholder="Degree and field you are studying"
+                name="semester"
+                fullWidth
+                type="text"
+                style={{ marginBottom: "20px" }}
+                defaultValue={editMode ? applicantByEmail?.semester  : ''}
+              />
+              <LabeledTextField
+                label="Graduation date"
+                name="graduationDate"
+                fullWidth
+                type="date"
+                style={{ marginBottom: "20px" }}
+              />
+              <LabeledTextField
+                label="Describe why you are interested in applying for a program at Wizeline"
+                placeholder="Describe why you are interested in applying for a program at Wizeline"
+                name="interest"
+                fullWidth
+                type="text"
+                multiline
+                rows={2}
+                style={{ marginBottom: "20px" }}
+                defaultValue={editMode ? applicantByEmail?.interest  : ''}
+              />
+              <LabeledTextField
+                label="Link to your CV or LinkedIn profile"
+                placeholder="Link to your CV or LinkedIn profile"
+                name="cvLink"
+                fullWidth
+                type="text"
+                style={{ marginBottom: "20px" }}
+                defaultValue={editMode ? applicantByEmail?.cvLink  : ''}
+              />
+              <SelectField
+                name="interestedRoles"
+                label="Roles im more interested in growing"
+                options={[
+                  "Software Development",
+                  "Data Engineering",
+                  "Mobile Development",
+                  "QA Engineering",
+                  "Site Reliability Engineering (DevOps)",
+                  "UX Design",
+                  "Visual Design",
+                  "Project Management",
+                ]}
+                style={{ width: "100%", marginBottom: "20px" }}
+                value={editMode ? (applicantByEmail?.interestedRoles ?? '') : ''}
+              />
+              <LabeledTextField
+                label="Preferred tools, programs, frameworks, programming languages or libraries"
+                placeholder="Preferred tools, programs, frameworks, programming languages or libraries"
+                name="preferredTools"
+                fullWidth
+                type="text"
+                multiline
+                rows={2}
+                style={{ marginBottom: "20px" }}
+                defaultValue={editMode ? (applicantByEmail?.preferredTools ?? '')  : ''}
+              />
+              <LabeledTextField
+                label="Preferred start date"
+                name="startDate"
+                fullWidth
+                type="date"
+                style={{ marginBottom: "20px" }}
+                inputProps={{
+                  min: getCurrentDate(),
+                }}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setStartDate(e.target.value)
+                }
+              />
+              <LabeledTextField
+                label="Preferred end date"
+                name="endDate"
+                fullWidth
+                type="date"
+                style={{ marginBottom: "20px" }}
+                inputProps={{
+                  min: startDate,
+                }}
+                disabled={startDate === getCurrentDate()}
+              />
+              <LabeledTextField
+                label="How many hours a week could you provide"
+                placeholder="How many hours a week could you provide"
+                name="hoursPerWeek"
+                fullWidth
+                type="number"
+                style={{ marginBottom: "20px" }}
+                defaultValue={editMode ? (applicantByEmail?.hoursPerWeek !== undefined && applicantByEmail?.hoursPerWeek !== null ? applicantByEmail?.hoursPerWeek.toString() : '') : ''}
+              />
+              <SelectField
+                name="howDidYouHearAboutUs"
+                label="How did you hear about this program"
+                options={[
+                  "Friend recommendation",
+                  "Teacher recommendation",
+                  "University media",
+                  "University talk",
+                ]}
+                style={{ width: "100%", marginBottom: "20px" }}
+                value={editMode ? applicantByEmail?.howDidYouHearAboutUs : ''}
+              />
+              <SelectField
+                name="participatedAtWizeline"
+                label="Have you participated in any program at Wizeline before?"
+                options={["Yes", "No"]}
+                style={{ width: "100%", marginBottom: "20px" }}
+                value={editMode ? (applicantByEmail?.participatedAtWizeline ? 'true' : 'false') : ''}
+              />
+              <SelectField
+                name="wizelinePrograms"
+                label="Wich Wizeline program"
+                options={[
+                  "Socio Formador 2023",
+                  "Socio Formador 2022",
+                  "Wizeline Experience Program (Intership)",
+                  "Wizeline Academy Bootcamp or Course",
+                  "Does not apply",
+                ]}
+                style={{ width: "100%", marginBottom: "20px" }}
+                value={editMode ? (applicantByEmail?.wizelinePrograms ?? '') : ''}
+              />
+              <LabeledTextField
+                label="Any additional comments?"
+                placeholder="Any additional comments?"
+                name="comments"
+                fullWidth
+                multiline
+                rows={2}
+                style={{ marginBottom: "20px" }}
+                defaultValue={editMode ? (applicantByEmail?.comments ?? '')  : ''}
+              />
+              <FormControlLabel
+                control={<Checkbox name="confirmRegistration" required />}
+                label="I agree to finish the program and devote time to improving my skillset by confirming my registration."
+                style={{ marginBottom: "20px" }}
+              />
+              <FormControlLabel
+                control={<Checkbox name="acceptPrivacy" required />}
+                label={
+                  <span>
+                    I have read, understand, and accept Wizeline&apos;s{" "}
+                    <a href="https://www.wizeline.com/privacy-policy/">
+                      privacy notice
+                    </a>
+                  </span>
+                }
+                style={{ marginBottom: "20px" }}
+              />
+              <Button
+                type="submit"
+                id="Form-Button"
+                style={{ marginBottom: "20px" }}
+              >
+                Submit
+              </Button>
+            </Grid>
           </Grid>
-          <Grid item xs={6}>
-            <SelectField
-              name="englishLevel"
-              label="English Level"
-              options={[
-                "English Basic User (A1, A2)",
-                "Intermediate (B1)",
-                "Upper intermediate (B2)",
-                "Proficient (C1,C2)",
-              ]}
-              style={{ width: "100%", marginBottom: "20px" }}
-            />
-            <LabeledTextField
-              label="Degree and field you are studying"
-              placeholder="Degree and field you are studying"
-              name="major"
-              fullWidth
-              type="text"
-              style={{ marginBottom: "20px" }}
-            />
-            <LabeledTextField
-              label="Semester or period you will be studying while this program runs"
-              placeholder="Degree and field you are studying"
-              name="semester"
-              fullWidth
-              type="text"
-              style={{ marginBottom: "20px" }}
-            />
-            <LabeledTextField
-              label="Graduation date"
-              name="graduationDate"
-              fullWidth
-              type="date"
-              style={{ marginBottom: "20px" }}
-            />
-            <LabeledTextField
-              label="Describe why you are interested in applying for a program at Wizeline"
-              placeholder="Describe why you are interested in applying for a program at Wizeline"
-              name="interest"
-              fullWidth
-              type="text"
-              multiline
-              rows={2}
-              style={{ marginBottom: "20px" }}
-            />
-            <LabeledTextField
-              label="Link to your CV or LinkedIn profile"
-              placeholder="Link to your CV or LinkedIn profile"
-              name="cvLink"
-              fullWidth
-              type="text"
-              style={{ marginBottom: "20px" }}
-            />
-            <SelectField
-              name="interestedRoles"
-              label="Roles im more interested in growing"
-              options={[
-                "Software Development",
-                "Data Engineering",
-                "Mobile Development",
-                "QA Engineering",
-                "Site Reliability Engineering (DevOps)",
-                "UX Design",
-                "Visual Design",
-                "Project Management",
-              ]}
-              style={{ width: "100%", marginBottom: "20px" }}
-            />
-            <LabeledTextField
-              label="Preferred tools, programs, frameworks, programming languages or libraries"
-              placeholder="Preferred tools, programs, frameworks, programming languages or libraries"
-              name="preferredTools"
-              fullWidth
-              type="text"
-              multiline
-              rows={2}
-              style={{ marginBottom: "20px" }}
-            />
-            <LabeledTextField
-              label="Preferred start date"
-              name="startDate"
-              fullWidth
-              type="date"
-              style={{ marginBottom: "20px" }}
-              inputProps={{
-                min: getCurrentDate(),
-              }}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setStartDate(e.target.value)
-              }
-            />
-            <LabeledTextField
-              label="Preferred end date"
-              name="endDate"
-              fullWidth
-              type="date"
-              style={{ marginBottom: "20px" }}
-              inputProps={{
-                min: startDate,
-              }}
-              disabled={startDate === getCurrentDate()}
-            />
-            <LabeledTextField
-              label="How many hours a week could you provide"
-              placeholder="How many hours a week could you provide"
-              name="hoursPerWeek"
-              fullWidth
-              type="number"
-              style={{ marginBottom: "20px" }}
-            />
-            <SelectField
-              name="howDidYouHearAboutUs"
-              label="How did you hear about this program"
-              options={[
-                "Friend recommendation",
-                "Teacher recommendation",
-                "University media",
-                "University talk",
-              ]}
-              style={{ width: "100%", marginBottom: "20px" }}
-            />
-            <SelectField
-              name="participatedAtWizeline"
-              label="Have you participated in any program at Wizeline before?"
-              options={["Yes", "No"]}
-              style={{ width: "100%", marginBottom: "20px" }}
-            />
-            <SelectField
-              name="wizelinePrograms"
-              label="Wich Wizeline program"
-              options={[
-                "Socio Formador 2023",
-                "Socio Formador 2022",
-                "Wizeline Experience Program (Intership)",
-                "Wizeline Academy Bootcamp or Course",
-                "Does not apply",
-              ]}
-              style={{ width: "100%", marginBottom: "20px" }}
-            />
-            <LabeledTextField
-              label="Any additional comments?"
-              placeholder="Any additional comments?"
-              name="comments"
-              fullWidth
-              multiline
-              rows={2}
-              style={{ marginBottom: "20px" }}
-            />
-            <FormControlLabel
-              control={<Checkbox name="confirmRegistration" required />}
-              label="I agree to finish the program and devote time to improving my skillset by confirming my registration."
-              style={{ marginBottom: "20px" }}
-            />
-            <FormControlLabel
-              control={<Checkbox name="acceptPrivacy" required />}
-              label={
-                <span>
-                  I have read, understand, and accept Wizeline&apos;s{" "}
-                  <a href="https://www.wizeline.com/privacy-policy/">
-                    privacy notice
-                  </a>
-                </span>
-              }
-              style={{ marginBottom: "20px" }}
-            />
-            <Button
-              type="submit"
-              id="Form-Button"
-              style={{ marginBottom: "20px" }}
-            >
-              Submit
-            </Button>
-          </Grid>
-        </Grid>
-      </ValidatedForm>
+        </ValidatedForm>
+      </Paper>
     </Container>
   );
 }

@@ -21,6 +21,7 @@ import {
   type SubmitOptions,
   useFetcher,
   useNavigation,
+  useSubmit
 } from "@remix-run/react";
 import { withZod } from "@remix-validated-form/with-zod";
 import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
@@ -132,6 +133,7 @@ export default function Applicant() {
   const [projectSelected, setProjectSelected] = useState<ProjectValue | null>();
 
   const navigation = useNavigation();
+  const submit = useSubmit();
 
   useEffect(() => {
     const isActionRedirect = validateNavigationRedirect(navigation);
@@ -188,6 +190,13 @@ export default function Applicant() {
     searchProfiles("", "");
   };
 
+  const editApplicant = () => {
+      submit(null, {
+      method: "get",
+      action: `/applicationForm/${applicantId}`,
+    });
+  }
+
   return (
     <>
       <Header title="Applicants" />
@@ -218,7 +227,15 @@ export default function Applicant() {
                 >
                   <EditSharp />
                 </IconButton>
-              ) : null}
+                ) : (
+                  <IconButton
+                    aria-label="Edit"
+                    onClick={() => editApplicant()}
+                  >
+                    <EditSharp />
+                  </IconButton>
+                  )
+                }
               <Stack direction="column" spacing={1}>
                 <Paper>
                   <Typography
