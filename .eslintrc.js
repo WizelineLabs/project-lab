@@ -118,14 +118,6 @@ module.exports = {
       },
     },
 
-    // Cypress
-    {
-      files: ["cypress/**/*.ts"],
-      plugins: ["cypress"],
-      extends: ["plugin:cypress/recommended", "prettier"],
-      rules: { "@typescript-eslint/no-namespace": "off" },
-    },
-
     // Node
     {
       files: [".eslintrc.js", "mocks/**/*.js"],

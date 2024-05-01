@@ -9,7 +9,7 @@ Based on the [The Remix Indie Stack](https://remix.run/stacks).
 - [GitHub Actions](https://github.com/features/actions) for deploy on merge to production and staging environments
 - Auth0 Authentication with [cookie-based sessions](https://remix.run/docs/en/v1/api/remix#createcookiesessionstorage)
 - Database ORM with [Prisma](https://prisma.io)
-- End-to-end testing with [Cypress](https://cypress.io)
+- End-to-end testing with [Playwright](https://playwright.dev)
 - Local third party request mocking with [MSW](https://mswjs.io)
 - Unit testing with [Vitest](https://vitest.dev) and [Testing Library](https://testing-library.com)
 - Code formatting with [Prettier](https://prettier.io)

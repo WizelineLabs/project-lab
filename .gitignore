@@ -5,8 +5,6 @@ coverage
 /public/build
 .env
 Credentials.json
-/cypress/screenshots
-/cypress/videos
 /prisma/data.db
 /prisma/data.db-journal
 
@@ -15,16 +13,8 @@ Credentials.json
 **/.DS_Store
 
 # Playwright
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
-/test-results/
-/playwright-report/
-/blob-report/
+/playwright/test-results/
+/playwirght/playwright-report/
+/playwright/blob-report/
 /playwright/.cache/
 /playwright/.auth
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
