@@ -33,7 +33,6 @@ test("test", async ({ page }) => {
 
   await page.getByRole("button", { name: "New Proposal" }).click();
   await page.getByPlaceholder("Name", { exact: true }).fill(testProject.name);
-  await page.getByPlaceholder("Problem statement").click();
   await page
     .getByPlaceholder("Problem statement")
     .fill(testProject.description);
