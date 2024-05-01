@@ -122,7 +122,7 @@ jobs:
         run: npx prisma migrate reset --force
 
       - name: create admin user
-        run: echo "ADMIN_COOKIE=$(npx ts-node --require tsconfig-paths/register ./cypress/support/create-user.ts 'test@example.com' ADMIN)" >> $GITHUB_ENV
+        run: echo "ADMIN_COOKIE=$(npx ts-node --require tsconfig-paths/register ./tasks/create-user.ts 'test@example.com' ADMIN)" >> $GITHUB_ENV
 
       - name: Install Playwright
         run: npx playwright install --with-deps
@@ -262,7 +262,7 @@ jobs:
             pm2 save
 
             # echo "*** Step: ** Run Playwright tests"
-            # echo "ADMIN_COOKIE=$(npx ts-node --require tsconfig-paths/register ./cypress/support/create-user.ts 'test@example.com' ADMIN)" >> .env
+            # echo "ADMIN_COOKIE=$(npx ts-node --require tsconfig-paths/register ./tasks/create-user.ts 'test@example.com' ADMIN)" >> .env
             # npx playwright install --with-deps
             # npx playwright test
 
