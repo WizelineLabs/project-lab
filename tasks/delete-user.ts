@@ -17,6 +17,7 @@ async function deleteUser(email: string) {
 
   await db.deleteFrom("User").where("email", "=", email).execute();
   await db.deleteFrom("Profiles").where("email", "=", email).execute();
+  await db.destroy();
 }
 
 deleteUser(process.argv[2]);
