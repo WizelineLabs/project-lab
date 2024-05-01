@@ -8,8 +8,7 @@ import {
   unstable_useEnhancedEffect as useEnhancedEffect,
   CssBaseline,
 } from "@mui/material";
-import { cssBundleHref } from "@remix-run/css-bundle";
-import type { LinksFunction , LoaderFunction } from "@remix-run/node";
+import type { LinksFunction, LoaderFunction } from "@remix-run/node";
 import {
   Links,
   LiveReload,
@@ -22,7 +21,6 @@ import React from "react";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
-  ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
 ];
 
 export const loader: LoaderFunction = async ({ request }) => {
