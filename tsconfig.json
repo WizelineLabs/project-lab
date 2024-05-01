@@ -1,5 +1,5 @@
 {
-  "exclude": ["./sst.config.ts"],
+  "exclude": ["./playwright", "./sst.config.ts"],
   "include": ["remix.env.d.ts", "**/*.ts", "**/*.tsx"],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2020"],
