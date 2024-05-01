@@ -118,16 +118,12 @@ export default function EditProjectPage() {
     useTypedLoaderData<typeof loader>();
 
   const [open, setOpen] = useState(false);
-  const [isButtonDisabled, setisButtonDisabled] = useState(true);
 
   const handleClickOpen = () => {
     setOpen(true);
-
-    setTimeout(() => setisButtonDisabled(false), 5000);
   };
 
   const handleClose = () => {
-    setisButtonDisabled(true);
     setOpen(false);
   };
 
@@ -194,12 +190,7 @@ export default function EditProjectPage() {
             <Button variant="contained" onClick={handleClose}>
               Cancel
             </Button>
-            <Button
-              variant="contained"
-              disabled={isButtonDisabled}
-              color="warning"
-              type="submit"
-            >
+            <Button variant="contained" color="warning" type="submit">
               Yes, delete it
             </Button>
           </DialogActions>

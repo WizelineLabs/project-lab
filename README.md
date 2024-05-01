@@ -9,7 +9,7 @@ Based on the [The Remix Indie Stack](https://remix.run/stacks).
 - [GitHub Actions](https://github.com/features/actions) for deploy on merge to production and staging environments
 - Auth0 Authentication with [cookie-based sessions](https://remix.run/docs/en/v1/api/remix#createcookiesessionstorage)
 - Database ORM with [Prisma](https://prisma.io)
-- End-to-end testing with [Cypress](https://cypress.io)
+- End-to-end testing with [Playwright](https://playwright.dev)
 - Local third party request mocking with [MSW](https://mswjs.io)
 - Unit testing with [Vitest](https://vitest.dev) and [Testing Library](https://testing-library.com)
 - Code formatting with [Prettier](https://prettier.io)
@@ -235,30 +235,31 @@ We use GitHub Actions for continuous integration and deployment. Anything that g
 
 ## Testing
 
-### Cypress
+### Playwright
 
-We use Cypress for our End-to-End tests in this project. You'll find those in the `cypress` directory. As you make changes, add to an existing file or create a new file in the `cypress/e2e` directory to test your changes.
+We use Playwright for our End-to-End tests in this project. You'll find those in the `playwright` directory. As you make changes, add to an existing file or create a new file in the `playwright/tests` directory to test your changes.
 
-We use [`@testing-library/cypress`](https://testing-library.com/cypress) for selecting elements on the page semantically.
+Inside the playwright directory, you can run several commands:
 
-To run these tests in development, run `npm run test:e2e:dev` which will start the dev server for the app as well as the Cypress client. Make sure the database is running in docker as described above.
+```sh
+npx playwright test
+# Runs the end-to-end tests.
 
-We have a utility for testing authenticated features without having to go through the login flow:
+npx playwright test --ui
+# Starts the interactive UI mode.
 
-```ts
-cy.login();
-// you are now logged in as a new user
+npx playwright test --project=chromium
+# Runs the tests only on Desktop Chrome.
+
+npx playwright test example
+# Runs the tests in a specific file.
+
+npx playwright test --debug
+# Runs the tests in debug mode.
+
+npx playwright codegen
+# Auto generate tests with Codegen.
 ```
-
-We also have a utility to auto-delete the user at the end of your test. Just make sure to add this in each test file:
-
-```ts
-afterEach(() => {
-  cy.cleanupUser();
-});
-```
-
-That way, we can keep your local db clean and keep your tests isolated from one another.
 
 ### Vitest
 

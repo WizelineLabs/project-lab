@@ -10,10 +10,6 @@ export default defineConfig({
     globals: true,
     environment: "happy-dom",
     setupFiles: ["./test/setup-test-env.ts"],
-    exclude: [
-      ...defaultExclude,
-      "./playwright/*",
-      "./playwright-tests-examples/*",
-    ],
+    exclude: [...defaultExclude, "./playwright/tests/*"],
   },
 });
