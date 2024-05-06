@@ -10,7 +10,7 @@ async function getMappedProfiles(): Promise<Prisma.ProfilesCreateInput[]> {
       email: lakeProfile.contact__email,
       firstName: lakeProfile.contact__first_name,
       preferredName:
-        lakeProfile.contact__preferred_name || lakeProfile.contact__first_name,
+      lakeProfile.contact__preferred_name || lakeProfile.contact__first_name,
       lastName: lakeProfile.contact__last_name,
       department: lakeProfile.contact__department,
       jobLevelTier: lakeProfile.contact__wizeos__level,
@@ -21,6 +21,7 @@ async function getMappedProfiles(): Promise<Prisma.ProfilesCreateInput[]> {
       employeeStatus: lakeProfile.contact__employee_status,
       benchStatus: lakeProfile.contact__status,
       businessUnit: lakeProfile.contact__business_unit,
+      isBillable: lakeProfile.contact__is_billable,
     };
   });
   return mappedProfiles;

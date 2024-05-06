@@ -58,6 +58,7 @@ model Profiles {
   jobLevelTitle          String?
   department             String?
   businessUnit           String?
+  isBillable             Boolean                  @default(true)
   // - null
   // - Horizontal
   // - Innovation
