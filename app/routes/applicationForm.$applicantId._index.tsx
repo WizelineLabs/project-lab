@@ -196,19 +196,19 @@ export default function FormPage() {
   const [startDate, setStartDate] = useState(getCurrentDate());
   const [editMode, setEditMode] = useState(false)
 
-  const editForm = () => {
+  const editForm = async() => {
     if (profile.email === applicantByEmail?.email) {
       setEditMode(true)
     }
   }
 
-  useEffect(() => {
-    editForm()
+  useEffect( () => {
+   editForm()
   })
-  
+
   return (
     <Container>
-      <Header title="Applicants"/>
+      <Header title="Applicants" applicantId={applicantByEmail?.id.toString()} />
       <Paper sx={{ p: 2 }}>
         <img src="/HeaderImage.png" alt="Wizeline" style={{ width: "100%" }} />
         <Typography component="div" variant="h2">
@@ -226,6 +226,12 @@ export default function FormPage() {
           validator={validator}
           action="./createapplicant"
           method="post"
+          defaultValues={{
+            //TODO: add the selects info to edit the form 
+       
+            gender: editMode ? applicantByEmail?.gender : ""
+            
+          }}
         >
           <Grid container spacing={10}>
             <Grid item xs={6}>
@@ -243,7 +249,7 @@ export default function FormPage() {
                 label="I identify as:"
                 options={["Male", "Female", "Non-binary", "Prefer not to say"]}
                 style={{ width: "100%", marginBottom: "20px" }}
-                value={editMode ?  applicantByEmail?.gender : ''}
+               
               />
               <LabeledTextField
                 label="Full Name"
@@ -275,7 +281,7 @@ export default function FormPage() {
                   "Vietnam",
                 ]}
                 style={{ width: "100%", marginBottom: "20px" }}
-                value={editMode ?  applicantByEmail?.country : ''}
+                // value={editMode ?  applicantByEmail?.country : ''}
               />
               <LabeledTextField
                 name="dayOfBirth"
@@ -391,7 +397,7 @@ export default function FormPage() {
                   "Wife",
                 ]}
                 style={{ width: "100%", marginBottom: "20px" }}
-                value={editMode ?  (applicantByEmail?.emergencyRelationship ?? '') : ''}
+                // value={editMode ?  (applicantByEmail?.emergencyRelationship ?? '') : ''}
               />
               <LabeledTextField
                 label="Emergency phone number"
@@ -425,7 +431,7 @@ export default function FormPage() {
                   "Proficient (C1,C2)",
                 ]}
                 style={{ width: "100%", marginBottom: "20px" }}
-                value={editMode ? applicantByEmail?.englishLevel : ''}
+                // value={editMode ? applicantByEmail?.englishLevel : ''}
               />
               <LabeledTextField
                 label="Degree and field you are studying"
@@ -486,7 +492,7 @@ export default function FormPage() {
                   "Project Management",
                 ]}
                 style={{ width: "100%", marginBottom: "20px" }}
-                value={editMode ? (applicantByEmail?.interestedRoles ?? '') : ''}
+                // value={editMode ? (applicantByEmail?.interestedRoles ?? '') : ''}
               />
               <LabeledTextField
                 label="Preferred tools, programs, frameworks, programming languages or libraries"
@@ -542,14 +548,14 @@ export default function FormPage() {
                   "University talk",
                 ]}
                 style={{ width: "100%", marginBottom: "20px" }}
-                value={editMode ? applicantByEmail?.howDidYouHearAboutUs : ''}
+                // value={editMode ? applicantByEmail?.howDidYouHearAboutUs : ''}
               />
               <SelectField
                 name="participatedAtWizeline"
                 label="Have you participated in any program at Wizeline before?"
                 options={["Yes", "No"]}
                 style={{ width: "100%", marginBottom: "20px" }}
-                value={editMode ? (applicantByEmail?.participatedAtWizeline ? 'true' : 'false') : ''}
+                // value={editMode ? (applicantByEmail?.participatedAtWizeline ? 'true' : 'false') : ''}
               />
               <SelectField
                 name="wizelinePrograms"
@@ -562,7 +568,7 @@ export default function FormPage() {
                   "Does not apply",
                 ]}
                 style={{ width: "100%", marginBottom: "20px" }}
-                value={editMode ? (applicantByEmail?.wizelinePrograms ?? '') : ''}
+                // value={editMode ? (applicantByEmail?.wizelinePrograms ?? '') : ''}
               />
               <LabeledTextField
                 label="Any additional comments?"

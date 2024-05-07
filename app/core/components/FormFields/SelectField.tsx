@@ -3,14 +3,13 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import type { SelectChangeEvent } from "@mui/material/Select";
 import Select from "@mui/material/Select";
-import React, { useEffect } from "react";
+import React from "react";
 import { useField, useControlField } from "remix-validated-form";
 
 interface SelectFieldProps {
   name: string;
   label: string;
   options: string[];
-  value?: string;
   onChange?: (
     event?: SelectChangeEvent<string>,
     child?: React.ReactNode
@@ -28,7 +27,6 @@ const SelectField: React.FC<SelectFieldProps> = ({
   options,
   style,
   onChange,
-  value,
 }) => {
   const { error } = useField(name);
   const [selectedValue, setSelectedValue] = useControlField<string>(name);
@@ -36,12 +34,6 @@ const SelectField: React.FC<SelectFieldProps> = ({
   const handleChange = (event: SelectChangeEvent<string>) => {
     setSelectedValue(event.target.value);
   };
-
-  useEffect(() => {
-    if (value !== undefined) {
-      setSelectedValue(value);
-    }
-  },[value, setSelectedValue])
 
   return (
     <div>

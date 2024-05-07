@@ -9,7 +9,7 @@ import { useOptionalUser } from "~/utils";
 interface IProps {
   title: string;
   existApplicant?: boolean;
-  applicantId?: string;
+  applicantId?: string | number;
 }
 export interface MenuItemArgs {
   text: string;
