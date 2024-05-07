@@ -13,7 +13,6 @@ import {
   Paper,
   useMediaQuery,
   useTheme,
-  Pagination,
 } from "@mui/material";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -22,13 +21,16 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import type { LoaderFunction } from "@remix-run/node";
 import { useLoaderData, useSearchParams } from "@remix-run/react";
-import ProposalCard from "app/core/components/ProposalCard";
 import { SortInput } from "app/core/components/SortInput";
 import Header from "app/core/layouts/Header";
-import * as React from "react";
+import "instantsearch.css/themes/satellite.css";
 import { useState } from "react";
+import { InstantSearch, SearchBox, Pagination } from "react-instantsearch-dom";
+import TypesenseInstantsearchAdapter from "typesense-instantsearch-adapter";
 import { ongoingStage, ideaStage } from "~/constants";
 import FilterAccordion from "~/core/components/FilterAccordion";
+import CustomHitsInstantSearch from "~/core/components/HitsInstantSearch/ProjectHits";
+import TableHits from "~/core/components/HitsInstantSearch/TableHits";
 import Link from "~/core/components/Link";
 import MembershipModal from "~/core/components/MembershipModal/index";
 import NavAppBar from "~/core/components/NavAppBar";
@@ -147,12 +149,34 @@ export const loader: LoaderFunction = async ({ request }) => {
   );
 };
 
+export const TYPESENSE_SERVER_CONFIG = {
+  apiKey: "123",
+  nodes: [
+    {
+      host: "localhost",
+      port: 8108,
+      protocol: "http",
+    },
+  ],
+  connectionTimeoutSeconds: 3,
+  numRetries: 8,
+};
+export const typesenseAdapter = new TypesenseInstantsearchAdapter({
+  server: TYPESENSE_SERVER_CONFIG,
+  additionalSearchParameters: {
+    query_by: "name,description",
+    numTypos: "3",
+    typoTokensThreshold: 1,
+  },
+});
+
+export const searchClient = typesenseAdapter.searchClient;
+
 export default function Projects() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const {
     data: {
-      projects,
       statusFacets,
       skillFacets,
       disciplineFacets,
@@ -208,22 +232,10 @@ export default function Projects() {
     ideas: ideasFilter,
   };
 
-  const handlePaginationChange = (
-    event: React.ChangeEvent<unknown>,
-    value: number
-  ) => {
-    searchParams.set("page", String(value - 1));
-    setSearchParams(searchParams);
-  };
-
   const setSortQuery = ({ field, order }: { field: string; order: string }) => {
     searchParams.set("field", field);
     searchParams.set("order", order);
     setSearchParams(searchParams);
-  };
-
-  const initials = (preferredName: string, lastName: string) => {
-    return preferredName.substring(0, 1) + lastName.substring(0, 1);
   };
 
   const deleteFilterUrl = (filter: string, value: string | null) => {
@@ -262,13 +274,20 @@ export default function Projects() {
     membershipCookie = getCookie("checkMembership");
   }
 
+  const [searchValue, setSearchValue] = useState("");
+
   return (
     <>
-      <Header title="Projects" />
+      <Header title="projects" onSearch={setSearchValue} />
       {/*
         Disable Gutters based on:
         https://stackoverflow.com/questions/70038913/materialui-show-and-hide-the-containers-gutters-based-on-breakpoints
       */}
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/instantsearch.css@8.1.0/themes/reset.css"
+      />
       <NavAppBar title="Projects" />
       <Container>
         <Grid container spacing={2} alignItems="flex-start">
@@ -460,39 +479,15 @@ export default function Projects() {
                 </Button>
               </div>
               {viewOption === "card" ? (
-                <Grid
-                  container
-                  spacing={2}
-                  sx={{ paddingTop: 2, paddingBottom: 2 }}
-                >
-                  {projects.map((item, i) => {
-                    return (
-                      <Grid item xs={12} sm={6} lg={4} key={i}>
-                        <ProposalCard
-                          id={item.id}
-                          title={item.name}
-                          picture={item.avatarUrl}
-                          initials={initials(item.preferredName, item.lastName)}
-                          date={new Intl.DateTimeFormat([], {
-                            year: "numeric",
-                            month: "long",
-                            day: "2-digit",
-                          }).format(new Date(item.createdAt))}
-                          description={item.description}
-                          status={item.status}
-                          color={item.color}
-                          votesCount={Number(item.votesCount)}
-                          skills={item.searchSkills
-                            .trim()
-                            .split(",")
-                            .map((skill) => ({ name: skill }))}
-                          tierName={item.tierName}
-                          projectMembers={Number(item.projectMembers)}
-                        />
-                      </Grid>
-                    );
-                  })}
-                </Grid>
+                <InstantSearch indexName="projects" searchClient={searchClient}>
+                  <div hidden style={{ listStyle: "none" }}>
+                    <SearchBox defaultRefinement={searchValue} />
+                  </div>
+                  <Grid container spacing={2}>
+                    <CustomHitsInstantSearch />
+                  </Grid>
+                  <Pagination />
+                </InstantSearch>
               ) : (
                 <Table size="small">
                   <TableHead>
@@ -516,59 +511,19 @@ export default function Projects() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {projects.map((item, i) => (
-                      <TableRow key={i}>
-                        <TableCell>
-                          <a
-                            href={`/projects/${item.id}`}
-                            style={{ color: "inherit", textDecoration: "none" }}
-                          >
-                            {item.name}
-                          </a>
-                        </TableCell>
-                        <TableCell>
-                          <Chip
-                            component="a"
-                            href={`/projects?tier=${item.tierName}`}
-                            clickable
-                            rel="noreferrer"
-                            label={item.tierName}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <a
-                            href={`/projects/${item.id}`}
-                            style={{ color: "inherit", textDecoration: "none" }}
-                          >
-                            {item.status}
-                          </a>
-                        </TableCell>
-                        <TableCell>{item.projectMembers}</TableCell>
-                        <TableCell>{item.votesCount}</TableCell>
-                        <TableCell>
-                          <a
-                            href={`/projects/${item.id}`}
-                            style={{ color: "inherit", textDecoration: "none" }}
-                          >
-                            {item.searchSkills}
-                          </a>
-                        </TableCell>
-                        <TableCell>{item.resourcesCount}</TableCell>
-                      </TableRow>
-                    ))}
+                    <InstantSearch
+                      indexName="projects"
+                      searchClient={searchClient}
+                    >
+                      <div hidden style={{ listStyle: "none" }}>
+                        <SearchBox defaultRefinement={searchValue} />
+                      </div>
+                      <TableHits />
+                      <Pagination />
+                    </InstantSearch>
                   </TableBody>
                 </Table>
               )}
-              <Pagination
-                count={
-                  count % ITEMS_PER_PAGE === 0
-                    ? count / ITEMS_PER_PAGE
-                    : Math.trunc(count / ITEMS_PER_PAGE) + 1
-                }
-                shape="rounded"
-                sx={{ pt: "15px" }}
-                onChange={handlePaginationChange}
-              />
             </Paper>
           </Grid>
         </Grid>

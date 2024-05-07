@@ -119,7 +119,7 @@ export async function getAppliedProjectsByEmail(email: string) {
 }
 
 export async function searchApplicants() {
-  return await db
+  const applicants = await db
     .selectFrom("Applicant as a")
     .innerJoin("Universities as u", "a.universityId", "u.id")
     .leftJoin(
@@ -135,6 +135,11 @@ export async function searchApplicants() {
       new Date(Date.now() - 60 * 60 * 24 * 30 * 3 /** months **/ * 1000)
     )
     .execute();
+
+  return applicants.map((applicant) => ({
+    ...applicant,
+    updatedAt: applicant.updatedAt || new Date(), // Valor por defecto en caso de null
+  }));
 }
 
 export async function getApplicantByEmail(email: string) {

@@ -4,17 +4,20 @@ import Search from "../components/Search";
 import AddIcon from "@mui/icons-material/Add";
 import { Button, Container, Grid, Paper, styled } from "@mui/material";
 import { useLocation, useSubmit } from "@remix-run/react";
+import React from "react";
 import { useOptionalUser } from "~/utils";
 
-interface IProps {
-  title: string;
-  existApplicant?: boolean;
-}
 export interface MenuItemArgs {
   text: string;
   "data-testid"?: string;
   onClick?: () => void;
   to: string;
+}
+
+interface HeaderProps {
+  onSearch?: React.Dispatch<React.SetStateAction<string>>;
+  existApplicant?: boolean;
+  title?: string;
 }
 
 const StyledHeaderButton = styled(Button)(({ theme }) => ({
@@ -27,7 +30,7 @@ const StyledHeaderButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-const Header = ({ existApplicant }: IProps) => {
+const Header = ({ existApplicant, onSearch }: HeaderProps) => {
   const currentUser = useOptionalUser();
   const submit = useSubmit();
   const location = useLocation();
@@ -137,9 +140,12 @@ const Header = ({ existApplicant }: IProps) => {
               location.pathname.includes("/internshipProjects") &&
                 currentUser &&
                 existApplicant ? (
-                <DropDownButton options={options}>
-                  {currentUser?.email}
-                </DropDownButton>
+                <>
+                  {onSearch !== undefined ? <Search onSearch={onSearch} /> : null}
+                  <DropDownButton options={options}>
+                    {currentUser?.email}
+                  </DropDownButton>
+                </>
               ) : // Logic for /intershipProjects if form is not answered
               location.pathname.includes("/internshipProjects") &&
                 currentUser &&
@@ -156,23 +162,29 @@ const Header = ({ existApplicant }: IProps) => {
                   Home
                 </Button>
               ) : (
-                <Button
-                  className="contained"
-                  sx={{
-                    width: "200px",
-                    height: "40px",
-                    fontSize: "1em",
-                  }}
-                  onClick={handleLogout}
-                >
-                  Home
-                </Button>
+                <>
+                  <Grid item sx={{ marginRight: 2 }}>
+                    {onSearch !== undefined ? <Search onSearch={onSearch} /> : null}
+
+                    <Button
+                      className="contained"
+                      sx={{
+                        width: "200px",
+                        height: "40px",
+                        fontSize: "1em",
+                      }}
+                      onClick={handleLogout}
+                    >
+                      Home
+                    </Button>
+                  </Grid>
+                </>
               )}
             </Grid>
             {showProposal ? (
               <Grid item sx={{ marginRight: 2 }}>
-                <Search />
                 &nbsp;
+                {onSearch !== undefined ? <Search onSearch={onSearch} /> : null}
                 <Link to="/projects/create" className="no_decoration">
                   <Button
                     variant="contained"

@@ -1,33 +1,24 @@
 import SearchIcon from "@mui/icons-material/Search";
 import { InputAdornment, TextField } from "@mui/material";
-import { useNavigate, useSearchParams } from "@remix-run/react";
 import { useState } from "react";
 
-export const Search = () => {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const searchQuery =
-    searchParams.get("q") !== "myProposals" && searchParams.get("q")
-      ? searchParams.get("q")
-      : "";
-  const [searchValue, setSearchValue] = useState(searchQuery);
-  const projectsSearch = "/projects";
-  const handleEnterKeyPress = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === "Enter") {
-      navigate(`${projectsSearch}?q=${searchValue}`);
-    }
+const Search = ({ onSearch }: { onSearch: (value: string) => void }) => {
+  const [searchValue, setSearchValue] = useState("");
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target;
+    setSearchValue(value);
+    onSearch(value);
   };
 
   return (
     <TextField
       label="Search Project Name"
-      value={searchValue}
-      onChange={(e) => setSearchValue(e.target.value)}
       size="small"
+      placeholder="Search in header..."
+      value={searchValue}
+      onChange={handleSearchChange}
       sx={{ width: "200px" }}
-      onKeyPress={(e) => {
-        handleEnterKeyPress(e);
-      }}
       InputProps={{
         startAdornment: (
           <InputAdornment position="start">
