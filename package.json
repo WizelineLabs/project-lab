@@ -20,6 +20,7 @@
     "get-gitprojects-activity": "ts-node --project ./ts-node.tsconfig.json ./tasks/GitHubDataManage/getGitHubActivityByProject.ts",
     "prepare": "husky install",
     "kysely-codegen": "kysely-codegen --out-file app/kysely.d.ts",
+    "startypesense": "node typesense/startTypesenseServer.js",
     "populate": "node typesense/populateTypesenseIndex.js"
   },
   "eslintIgnore": [
