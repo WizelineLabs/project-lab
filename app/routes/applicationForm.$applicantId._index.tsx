@@ -1,3 +1,4 @@
+import Header from "../../app/core/layouts/Header";
 import {
   Autocomplete,
   Button,
@@ -19,17 +20,16 @@ import {
   useFetcher,
 } from "@remix-run/react";
 import { withZod } from "@remix-validated-form/with-zod";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ValidatedForm } from "remix-validated-form";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 import SelectField from "~/core/components/FormFields/SelectField";
 import LabeledTextField from "~/core/components/LabeledTextField";
 import RegularSelect from "~/core/components/RegularSelect";
+import { getApplicantByEmail } from "~/models/applicant.server";
 import { getActiveUniversities } from "~/models/university.server";
 import { requireProfile } from "~/session.server";
-import { getApplicantByEmail } from "~/models/applicant.server";
-import Header from "../../app/core/layouts/Header"
 
 export const validator = withZod(
   zfd.formData({
@@ -164,7 +164,8 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export default function FormPage() {
-  const { universities, profile, applicantByEmail } = useLoaderData() as LoaderData;
+  const { universities, profile, applicantByEmail } =
+    useLoaderData() as LoaderData;
 
   const [selectedUniversity, setSelectedUniversity] =
     useState<UniversityValue | null>({
@@ -194,43 +195,79 @@ export default function FormPage() {
   const searchContactsDebounced = debounce(searchContacts, 50);
 
   const [startDate, setStartDate] = useState(getCurrentDate());
-  const [editMode, setEditMode] = useState(false)
-
-  const editForm = async() => {
-    if (profile.email === applicantByEmail?.email) {
-      setEditMode(true)
-    }
-  }
-
-  useEffect( () => {
-   editForm()
-  })
 
   return (
     <Container>
-      <Header title="Applicants" applicantId={applicantByEmail?.id.toString()} />
+      <Header
+        title="Applicants"
+        applicantId={applicantByEmail?.id.toString()}
+      />
       <Paper sx={{ p: 2 }}>
         <img src="/HeaderImage.png" alt="Wizeline" style={{ width: "100%" }} />
         <Typography component="div" variant="h2">
           Application Form
         </Typography>
-        <Typography component="div" variant="body1" style={{ marginBottom: "25px", textAlign:"justify" }}>
+        <Typography
+          component="div"
+          variant="body1"
+          style={{ marginBottom: "25px", textAlign: "justify" }}
+        >
           Wizeline&rsquo;s Innovation Experience Program is a 3-6 month program
           designed to help students transition from the theoretical to the
           practical and step into technical specialties. In this program,
-          participants will immerse in innovation projects with Wizeline industry
-          experts, where they can make an impact and begin a successful career in
-          technology.
+          participants will immerse in innovation projects with Wizeline
+          industry experts, where they can make an impact and begin a successful
+          career in technology.
         </Typography>
         <ValidatedForm
           validator={validator}
-          action="./createapplicant"
+          //action="./createapplicant"
+          //TODO: Maybe this is not the correct approach
+           action={applicantByEmail?.email ? "./editApplicant" : "./createapplicant"}
           method="post"
           defaultValues={{
-            //TODO: add the selects info to edit the form 
-       
-            gender: editMode ? applicantByEmail?.gender : ""
-            
+            personalEmail: profile.email,
+            fullName: applicantByEmail?.fullName
+              ? applicantByEmail?.fullName
+              : profile.name,
+            nationality: applicantByEmail?.nationality ? applicantByEmail.nationality : "",
+            dayOfBirth: applicantByEmail?.dayOfBirth ? new Date(applicantByEmail.dayOfBirth).toISOString().split('T')[0] : '',
+            gender: applicantByEmail?.gender ? applicantByEmail?.gender : "",
+            country: applicantByEmail?.country ? applicantByEmail.country : "",
+            homeAddress: applicantByEmail?.homeAddress ? applicantByEmail?.homeAddress : "",
+            phone: applicantByEmail?.phone ? applicantByEmail?.phone : "",
+            university: applicantByEmail?.universityName
+              ? { id: applicantByEmail?.universityId ?? '', name: applicantByEmail?.universityName }
+              : { id: '', name: '' },
+            universityContactId: applicantByEmail?.universityPointOfContactId ? applicantByEmail?.universityPointOfContactId : "",
+            universityEmail: applicantByEmail?.universityEmail ? applicantByEmail?.universityEmail : "",
+            emergencyContactName: applicantByEmail?.emergencyContactName ? applicantByEmail?.emergencyContactName : "",
+            emergencyRelationship: applicantByEmail?.emergencyRelationship ? applicantByEmail?.emergencyRelationship : "",
+            emergencyContactPhone: applicantByEmail?.emergencyContactPhone ? applicantByEmail?.emergencyContactPhone : "",
+            experience: applicantByEmail?.experience ? applicantByEmail?.experience : "",
+            englishLevel: applicantByEmail?.englishLevel ? applicantByEmail?.englishLevel : "",
+            major: applicantByEmail?.major ? applicantByEmail?.major : "",
+            graduationDate: applicantByEmail?.graduationDate ? new Date(applicantByEmail.graduationDate).toISOString().split('T')[0] : '',
+            semester: applicantByEmail?.semester ? applicantByEmail?.semester : "",
+            interest: applicantByEmail?.interest ? applicantByEmail?.interest : "",
+            cvLink: applicantByEmail?.cvLink ? applicantByEmail?.cvLink : "",
+            interestedRoles: applicantByEmail?.interestedRoles ? applicantByEmail?.interestedRoles : "",
+            preferredTools: applicantByEmail?.preferredTools ? applicantByEmail?.preferredTools : "",
+            startDate: applicantByEmail?.startDate ? new Date(applicantByEmail.startDate).toISOString().split('T')[0] : '',
+            endDate: applicantByEmail?.endDate ? new Date(applicantByEmail.endDate).toISOString().split('T')[0] : '',
+            hoursPerWeek: applicantByEmail?.hoursPerWeek
+              ? applicantByEmail?.hoursPerWeek !== undefined && applicantByEmail?.hoursPerWeek !== null
+                ? applicantByEmail?.hoursPerWeek.toString()
+                : ""
+              : "",
+            howDidYouHearAboutUs: applicantByEmail?.howDidYouHearAboutUs ? applicantByEmail?.howDidYouHearAboutUs : "",
+            participatedAtWizeline : applicantByEmail?.participatedAtWizeline !== undefined
+                ? applicantByEmail.participatedAtWizeline
+                  ? 'Yes'
+                  : 'No'
+                : '',
+            wizelinePrograms: applicantByEmail?.wizelinePrograms ? applicantByEmail?.wizelinePrograms : "",
+            comments: applicantByEmail?.comments ? applicantByEmail?.comments : "",   
           }}
         >
           <Grid container spacing={10}>
@@ -242,14 +279,12 @@ export default function FormPage() {
                 fullWidth
                 type="email"
                 style={{ marginBottom: "20px" }}
-                defaultValue={profile?.email}
               />
               <SelectField
                 name="gender"
                 label="I identify as:"
                 options={["Male", "Female", "Non-binary", "Prefer not to say"]}
                 style={{ width: "100%", marginBottom: "20px" }}
-               
               />
               <LabeledTextField
                 label="Full Name"
@@ -258,7 +293,6 @@ export default function FormPage() {
                 fullWidth
                 type="text"
                 style={{ marginBottom: "20px" }}
-                defaultValue={profile.name}
               />
               <LabeledTextField
                 label="Nationality"
@@ -267,7 +301,6 @@ export default function FormPage() {
                 fullWidth
                 type="text"
                 style={{ marginBottom: "20px" }}
-                defaultValue={editMode ? applicantByEmail?.nationality : ''}
               />
               <SelectField
                 name="country"
@@ -281,15 +314,13 @@ export default function FormPage() {
                   "Vietnam",
                 ]}
                 style={{ width: "100%", marginBottom: "20px" }}
-                // value={editMode ?  applicantByEmail?.country : ''}
               />
               <LabeledTextField
-                name="dayOfBirth"
                 label="Date of birth"
+                name="dayOfBirth"
                 fullWidth
                 type="date"
                 style={{ marginBottom: "20px" }}
-                
               />
               <LabeledTextField
                 label="Home adress"
@@ -298,7 +329,6 @@ export default function FormPage() {
                 fullWidth
                 type="text"
                 style={{ marginBottom: "20px" }}
-                defaultValue={editMode ? applicantByEmail?.homeAddress : ''}
               />
               <LabeledTextField
                 label="Phone number"
@@ -307,7 +337,6 @@ export default function FormPage() {
                 fullWidth
                 type="text"
                 style={{ marginBottom: "20px" }}
-                defaultValue={editMode ? applicantByEmail?.phone : ''}
               />
               <Typography
                 component="div"
@@ -324,7 +353,6 @@ export default function FormPage() {
                 label="University or organization you belong to"
                 onChange={handleSelectUniversity}
                 style={{ width: "100%", marginBottom: "20px" }}
-              
               />
 
               <input
@@ -370,7 +398,6 @@ export default function FormPage() {
                 fullWidth
                 type="email"
                 style={{ marginBottom: "20px" }}
-                defaultValue={editMode ? (applicantByEmail?.universityEmail ?? '') : ''}
               />
               <LabeledTextField
                 label="Name of contact in case of emergency"
@@ -379,7 +406,6 @@ export default function FormPage() {
                 fullWidth
                 type="text"
                 style={{ marginBottom: "20px" }}
-                defaultValue={editMode ? (applicantByEmail?.emergencyContactName ?? '') : ''}
               />
               <SelectField
                 name="emergencyRelationship"
@@ -397,7 +423,6 @@ export default function FormPage() {
                   "Wife",
                 ]}
                 style={{ width: "100%", marginBottom: "20px" }}
-                // value={editMode ?  (applicantByEmail?.emergencyRelationship ?? '') : ''}
               />
               <LabeledTextField
                 label="Emergency phone number"
@@ -406,7 +431,6 @@ export default function FormPage() {
                 fullWidth
                 type="text"
                 style={{ marginBottom: "20px" }}
-                defaultValue={editMode ? (applicantByEmail?.emergencyContactPhone ?? '') : ''}
               />
               <LabeledTextField
                 label="Professional Experience"
@@ -417,7 +441,6 @@ export default function FormPage() {
                 multiline
                 rows={2}
                 style={{ marginBottom: "20px" }}
-                defaultValue={editMode ? applicantByEmail?.experience  : ''}
               />
             </Grid>
             <Grid item xs={6}>
@@ -431,7 +454,6 @@ export default function FormPage() {
                   "Proficient (C1,C2)",
                 ]}
                 style={{ width: "100%", marginBottom: "20px" }}
-                // value={editMode ? applicantByEmail?.englishLevel : ''}
               />
               <LabeledTextField
                 label="Degree and field you are studying"
@@ -440,7 +462,6 @@ export default function FormPage() {
                 fullWidth
                 type="text"
                 style={{ marginBottom: "20px" }}
-                defaultValue={editMode ? applicantByEmail?.major  : ''}
               />
               <LabeledTextField
                 label="Semester or period you will be studying while this program runs"
@@ -449,7 +470,6 @@ export default function FormPage() {
                 fullWidth
                 type="text"
                 style={{ marginBottom: "20px" }}
-                defaultValue={editMode ? applicantByEmail?.semester  : ''}
               />
               <LabeledTextField
                 label="Graduation date"
@@ -467,7 +487,6 @@ export default function FormPage() {
                 multiline
                 rows={2}
                 style={{ marginBottom: "20px" }}
-                defaultValue={editMode ? applicantByEmail?.interest  : ''}
               />
               <LabeledTextField
                 label="Link to your CV or LinkedIn profile"
@@ -476,7 +495,6 @@ export default function FormPage() {
                 fullWidth
                 type="text"
                 style={{ marginBottom: "20px" }}
-                defaultValue={editMode ? applicantByEmail?.cvLink  : ''}
               />
               <SelectField
                 name="interestedRoles"
@@ -492,7 +510,6 @@ export default function FormPage() {
                   "Project Management",
                 ]}
                 style={{ width: "100%", marginBottom: "20px" }}
-                // value={editMode ? (applicantByEmail?.interestedRoles ?? '') : ''}
               />
               <LabeledTextField
                 label="Preferred tools, programs, frameworks, programming languages or libraries"
@@ -503,7 +520,6 @@ export default function FormPage() {
                 multiline
                 rows={2}
                 style={{ marginBottom: "20px" }}
-                defaultValue={editMode ? (applicantByEmail?.preferredTools ?? '')  : ''}
               />
               <LabeledTextField
                 label="Preferred start date"
@@ -536,7 +552,6 @@ export default function FormPage() {
                 fullWidth
                 type="number"
                 style={{ marginBottom: "20px" }}
-                defaultValue={editMode ? (applicantByEmail?.hoursPerWeek !== undefined && applicantByEmail?.hoursPerWeek !== null ? applicantByEmail?.hoursPerWeek.toString() : '') : ''}
               />
               <SelectField
                 name="howDidYouHearAboutUs"
@@ -548,14 +563,12 @@ export default function FormPage() {
                   "University talk",
                 ]}
                 style={{ width: "100%", marginBottom: "20px" }}
-                // value={editMode ? applicantByEmail?.howDidYouHearAboutUs : ''}
               />
               <SelectField
                 name="participatedAtWizeline"
                 label="Have you participated in any program at Wizeline before?"
-                options={["Yes", "No"]}
+                options={['Yes', 'No']}
                 style={{ width: "100%", marginBottom: "20px" }}
-                // value={editMode ? (applicantByEmail?.participatedAtWizeline ? 'true' : 'false') : ''}
               />
               <SelectField
                 name="wizelinePrograms"
@@ -568,7 +581,6 @@ export default function FormPage() {
                   "Does not apply",
                 ]}
                 style={{ width: "100%", marginBottom: "20px" }}
-                // value={editMode ? (applicantByEmail?.wizelinePrograms ?? '') : ''}
               />
               <LabeledTextField
                 label="Any additional comments?"
@@ -578,7 +590,6 @@ export default function FormPage() {
                 multiline
                 rows={2}
                 style={{ marginBottom: "20px" }}
-                defaultValue={editMode ? (applicantByEmail?.comments ?? '')  : ''}
               />
               <FormControlLabel
                 control={<Checkbox name="confirmRegistration" required />}
