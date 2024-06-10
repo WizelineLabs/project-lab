@@ -93,6 +93,7 @@ const FILTERS = [
   "businessUnit",
   "benchStatus",
   "skill",
+  "isBillable",
 ];
 
 interface LoaderData {
@@ -109,7 +110,10 @@ export const loader: LoaderFunction = async ({ request }) => {
   const benchStatus = url.searchParams.getAll("benchStatus");
   const employeeStatus = url.searchParams.getAll("employeeStatus");
   const skill = url.searchParams.getAll("skill");
-
+  
+  const isBillable = url.searchParams.get("isBillable") === null ?
+    undefined :
+    url.searchParams.get("isBillable") === "true";
   const data = await searchProfilesFull({
     searchTerm,
     page,
@@ -118,6 +122,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     benchStatus,
     employeeStatus,
     skill,
+    isBillable,
     itemsPerPage: ITEMS_PER_PAGE,
   });
 
@@ -147,6 +152,7 @@ const Profiles = () => {
       benchStatuses,
       employeeStatuses,
       skills,
+      isBillables,
     },
   } = useLoaderData() as unknown as LoaderData;
   const theme = useTheme();
@@ -267,6 +273,13 @@ const Profiles = () => {
                   items={benchStatuses}
                 />
               ) : null}
+              {isBillables.length > 0 ?(
+                <FilterAccordion
+                  title="Is Billable"
+                  filter="isBillable"
+                  items={isBillables}
+                />  
+              ) : null}
               <FilterAccordion title="Skill" filter="skill" items={skills} />
             </Paper>
           </Grid>
@@ -364,6 +377,9 @@ const Profiles = () => {
                       <TableCell>
                         <Typography sx={{ fontWeight: "bold" }}>
                           {item.employeeStatus}
+                        </Typography>
+                        <Typography sx={{ fontWeight: "bold" }}>
+                          {item.isBillable}
                         </Typography>
                         {item.projectMembers.length > 0 ? (
                           <>

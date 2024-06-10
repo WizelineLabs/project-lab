@@ -147,6 +147,18 @@ async function seed() {
     },
   });
   await db.profiles.upsert({
+    where: { email: "ramiro.cardona@in.wizeline.com" },
+    update: {},
+    create: {
+      email: "ramiro.cardona@in.wizeline.com",
+      firstName: "Ramiro",
+      preferredName: "Ramiro",
+      lastName: "Cardona",
+      department: "Engineering",
+      isBillable: false,
+    },
+  });
+  await db.profiles.upsert({
     where: { email: "fernanda.vargas@wizeline.com" },
     update: {},
     create: {
