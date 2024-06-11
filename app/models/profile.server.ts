@@ -8,7 +8,7 @@ import type {
   PrismaClient,
 } from "@prisma/client";
 import { Prisma } from "@prisma/client";
-import { OrderByNode, sql } from "kysely";
+import { sql } from "kysely";
 
 interface UserProfile extends Profiles {
   role: string;

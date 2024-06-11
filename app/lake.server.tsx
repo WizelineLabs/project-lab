@@ -42,7 +42,7 @@ export async function getActiveProfiles() {
   const query = `SELECT contact__wizeos_profile_id, contact__employee_number, contact__email,
     contact__first_name, contact__preferred_name, contact__last_name,
     contact__photo__url,
-    contact__is_billable,
+    contact__isBillable,
     contact__location, contact__country,
     contact__status, contact__department, contact__business_unit,
     contact__employee_status,

@@ -5,6 +5,7 @@ import type { PrismaClient, Prisma } from "@prisma/client";
 async function getMappedProfiles(): Promise<Prisma.ProfilesCreateInput[]> {
   const activeProfiles = await getActiveProfiles();
   const mappedProfiles = activeProfiles.map((lakeProfile) => {
+    const isBillable = lakeProfile.contact__is_billable === "Billable";
     return {
       id: String(lakeProfile.contact__employee_number),
       email: lakeProfile.contact__email,
@@ -21,7 +22,7 @@ async function getMappedProfiles(): Promise<Prisma.ProfilesCreateInput[]> {
       employeeStatus: lakeProfile.contact__employee_status,
       benchStatus: lakeProfile.contact__status,
       businessUnit: lakeProfile.contact__business_unit,
-      isBillable: lakeProfile.contact__is_billable,
+      isBillable: isBillable,
     };
   });
   return mappedProfiles;
