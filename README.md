@@ -18,6 +18,8 @@ Based on the [The Remix Indie Stack](https://remix.run/stacks).
 
 ## Requirements
 
+### Local Postgres Engine
+
 First you should install postgres **14** on your computer. For MacOS an easy method is to use [Postgres.app](https://postgresapp.com/downloads.html). If you have an M1 chip, the lastest version has support for it without Rossetta. As documented in their [page](https://postgresapp.com/documentation/cli-tools.html), you can add postgresql tools to your path using:
 
 ```
@@ -37,6 +39,21 @@ Then open the SQL Shell and write this commands for creating a DB:
 
 ```
 CREATE DATABASE projectlabR;
+```
+
+### Docker Postgres
+
+If you want to run a Docker container only for Postgress DB you can run the followinfg command. Please make sure you read their [docs](https://hub.docker.com/_/postgres/) to adjust to your needs.
+
+```bash
+# pull docker image
+docker pull postgres
+# -v will map volume locally to preserve data
+# folder is on .gitignore
+# postgres is the default user
+docker run --name projectlab -e POSTGRES_PASSWORD=Admin12345 -e POSTGRES_DB=projectlabR -p 5432:5432 -v ./postgres-db:/var/lib/postgresql/ -d postgres
+# to start the container if you need it just run
+docker container start projectlab
 ```
 
 ## Getting Started
@@ -92,16 +109,16 @@ nvm use [NODE VERSION TO USE]
 
 ## Development
 
-- Install dependencies
+- Install dependencies (ci used to make a [clean install](https://docs.npmjs.com/cli/v10/commands/npm-ci))
 
   ```sh
-  npm install
+  npm ci
   ```
 
 - Initial database setup:
 
   ```sh
-  npx prisma migrate reset
+  npm run db:reset
   ```
 
 - Start dev server:
@@ -119,15 +136,15 @@ The database seed script creates a new user with some data you can use to get st
 If you pull code changes that affect the schema (a new migration), you will need to run:
 
 ```sh
-npx prisma migrate deploy # run any pending migrations
-npx prisma generate # update your prisma client code with any changes to the schema
+npm run db:deploy # run any pending migrations
+npm run db:generate # update your prisma client code with any changes to the schema
 npm run kysely-codegen # update your kysely client code with any changes to the schema
 ```
 
 To reset your database run
 
 ```sh
-npx prisma migrate reset
+npm run db:reset
 ```
 
 To add a new migration update the `prisma/schema.prisma` file with the new tables and columns. Then run:
@@ -153,8 +170,8 @@ CREATE INDEX "profiles_search_col_idx" ON "Profiles" USING GIN ("searchCol" gin_
 Please, remove these lines and then run:
 
 ```sh
-npx prisma migrate deploy # run any pending migrations
-npx prisma generate # update your prisma client code with any changes to the schema
+npm run db:deploy # run any pending migrations
+npm run db:generate # update your prisma client code with any changes to the schema
 npm run kysely-codegen # update your kysely client code with any changes to the schema
 ```
 

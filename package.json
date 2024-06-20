@@ -5,6 +5,10 @@
   "scripts": {
     "build": "run-s build:*",
     "build:remix": "remix build",
+    "db:deploy": "prisma migrate deploy",
+    "db:migrate": "prisma migrate",
+    "db:generate": "prisma generate",
+    "db:reset": "prisma migrate reset",
     "dev": "run-p dev:*",
     "dev:remix": "cross-env NODE_ENV=development binode --require ./mocks -- @remix-run/dev:remix dev",
     "format": "prettier --write .",
