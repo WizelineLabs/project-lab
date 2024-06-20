@@ -220,6 +220,7 @@ export interface Profiles {
   firstName: string;
   githubUser: string | null;
   id: string;
+  isBillable: Generated<boolean>;
   jobLevelTier: string | null;
   jobLevelTitle: string | null;
   jobTitleId: string | null;

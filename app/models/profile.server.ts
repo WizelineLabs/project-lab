@@ -95,6 +95,7 @@ export async function updateProfile(
     jobLevelTitle: data.jobLevelTitle,
     department: data.department,
     businessUnit: data.businessUnit,
+    isBillable: data.isBillable,
     location: data.location,
     country: data.country,
     employeeStatus: data.employeeStatus,
@@ -277,6 +278,7 @@ interface SearchProfilesFullInput {
   benchStatus?: string[];
   employeeStatus?: string[];
   skill?: string[];
+  isBillable?: boolean;
   itemsPerPage: number;
 }
 
@@ -294,6 +296,7 @@ export async function searchProfilesFull({
   benchStatus = [],
   employeeStatus = [],
   skill = [],
+  isBillable,
   itemsPerPage = 50,
 }: SearchProfilesFullInput) {
   if (page < 1) page = 1;
@@ -304,6 +307,7 @@ export async function searchProfilesFull({
   };
 
   if (department.length > 0) {
+    console.log("Hello world! "+department);
     where = {
       ...where,
       department: { in: department },
@@ -348,6 +352,14 @@ export async function searchProfilesFull({
     };
   }
 
+  if (isBillable != undefined) {
+    where = {
+      ...where,
+      isBillable:  isBillable,  
+      
+    };
+  }
+
   // Get ids
   const profileIds = await prisma.profiles.findMany({
     select: {
@@ -355,6 +367,8 @@ export async function searchProfilesFull({
     },
     where,
   });
+
+  
 
   const ids = profileIds.map((id) => id.id);
   const count = ids.length;
@@ -377,6 +391,7 @@ export async function searchProfilesFull({
       preferredName: true,
       benchStatus: true,
       businessUnit: true,
+      isBillable: true,
       employeeStatus: true,
       githubUser: true,
       projectMembers: {
@@ -502,6 +517,20 @@ export async function searchProfilesFull({
     }
   });
 
+  const isBillables = await prisma.profiles.groupBy({
+    by : ["isBillable"],
+    where:{
+      id: {
+        in: ids,
+      },
+    },
+    orderBy: {
+      isBillable: "asc",
+    },
+    _count: {
+      isBillable: true
+    },
+  });
   return {
     profiles,
     count,
@@ -510,6 +539,7 @@ export async function searchProfilesFull({
     employeeStatuses: convertCountResult(employeeStatuses, "employeeStatus"),
     benchStatuses: convertCountResult(benchStatuses, "benchStatus"),
     skills,
+    isBillables: convertBooleanToString(isBillables),
   };
 }
 
@@ -521,6 +551,15 @@ const convertCountResult = (countResult: any[], countField: string) => {
     };
   });
 };
+
+const convertBooleanToString = (countResult : any[]) => {
+  return countResult.map(item => ({
+    name: item.isBillable.toString(),
+    count: item._count.isBillable
+  }));
+};
+
+
 
 export async function searchProfiles(
   searchTerm: string,
