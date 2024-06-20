@@ -1,4 +1,3 @@
-import ProposalCard from "../core/components/ProposalCard";
 import Header from "../core/layouts/Header";
 import EmailIcon from "@mui/icons-material/EmailRounded";
 import FaceIcon from "@mui/icons-material/Face5";
@@ -15,7 +14,6 @@ import {
   ListItem,
   ListItemAvatar,
   ListItemText,
-  Pagination,
   Paper,
 } from "@mui/material";
 import Table from "@mui/material/Table";
@@ -25,17 +23,48 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import { useLoaderData, useSearchParams } from "@remix-run/react";
 import type { LoaderFunction } from "@remix-run/server-runtime";
+import { useState } from "react";
+import {
+  InstantSearch,
+  SearchBox,
+  Pagination,
+  Configure,
+} from "react-instantsearch-dom";
+import TypesenseInstantsearchAdapter from "typesense-instantsearch-adapter";
 import { mentorDiscipline } from "~/constants";
+import HitApplicants from "~/core/components/HitsInstantSearch/ProjectApplicantHits";
+import TableHitsApplicant from "~/core/components/HitsInstantSearch/TableHitsApplicant";
 import { existApplicant, getApplicantByEmail } from "~/models/applicant.server";
 import { searchDisciplineByName } from "~/models/discipline.server";
 import { getProjectsByRole } from "~/models/project.server";
 import { requireProfile } from "~/session.server";
 
-const ITEMS_PER_PAGE = 10;
-
 function getTitle() {
   return "All Projects";
 }
+
+export const TYPESENSE_SERVER_CONFIG = {
+  apiKey: "123",
+  nodes: [
+    {
+      host: "localhost",
+      port: 8108,
+      protocol: "http",
+    },
+  ],
+  connectionTimeoutSeconds: 3,
+  numRetries: 8,
+};
+export const typesenseAdapter = new TypesenseInstantsearchAdapter({
+  server: TYPESENSE_SERVER_CONFIG,
+  additionalSearchParameters: {
+    query_by: "name,description",
+    numTypos: "3",
+    typoTokensThreshold: 1,
+  },
+});
+
+export const searchClient = typesenseAdapter.searchClient;
 
 export const loader: LoaderFunction = async ({ request }) => {
   try {
@@ -67,19 +96,10 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export default function ViewProjects() {
-  const { projects, count, existApplicant, applicant } =
-    useLoaderData<typeof loader>();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { count, existApplicant, applicant } = useLoaderData<typeof loader>();
+  const [searchParams] = useSearchParams();
 
   const viewOption = searchParams.get("view") || "card";
-
-  const handlePaginationChange = (
-    event: React.ChangeEvent<unknown>,
-    value: number
-  ) => {
-    searchParams.set("page", String(value - 1));
-    setSearchParams(searchParams);
-  };
 
   const replaceFilterUrl = (filter: string, value: string) => {
     const newParams = new URLSearchParams(searchParams.toString());
@@ -87,9 +107,14 @@ export default function ViewProjects() {
     return `?${newParams.toString()}`;
   };
 
+  const [searchValue, setSearchValue] = useState("");
   return (
     <>
-      <Header title="Internship Projects" existApplicant={existApplicant} />
+      <Header
+        title="Projects"
+        onSearch={setSearchValue}
+        existApplicant={existApplicant}
+      />
 
       {existApplicant ? (
         <Grid item xs={12} md={9}>
@@ -183,33 +208,16 @@ export default function ViewProjects() {
             <ViewListIcon />
           </IconButton>
           {viewOption === "card" ? (
-            <Grid
-              container
-              spacing={2}
-              sx={{ paddingTop: 2, paddingBottom: 2 }}
-            >
-              {projects.map((item: any, i: number) => (
-                <Grid item xs={12} sm={6} lg={4} key={i}>
-                  <ProposalCard
-                    id={item.id}
-                    title={item.name}
-                    date={new Intl.DateTimeFormat([], {
-                      year: "numeric",
-                      month: "long",
-                      day: "2-digit",
-                    }).format(new Date(item.createdAt))}
-                    description={item.description}
-                    status={item.status}
-                    color={item.color}
-                    votesCount={Number(item.votesCount)}
-                    skills={item.searchSkills
-                      .trim()
-                      .split(",")
-                      .map((skill: string) => ({ name: skill }))}
-                  />
-                </Grid>
-              ))}
-            </Grid>
+            <InstantSearch indexName="projects" searchClient={searchClient}>
+              <Configure filters={`latest_pmw:true`} />
+              <div hidden>
+                <SearchBox defaultRefinement={searchValue} />
+              </div>
+              <Grid container spacing={3}>
+                <HitApplicants />
+              </Grid>
+              <Pagination />
+            </InstantSearch>
           ) : (
             <Table size="small">
               <TableHead>
@@ -219,39 +227,17 @@ export default function ViewProjects() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {projects.map((item: any, i: number) => (
-                  <TableRow key={i}>
-                    <TableCell>
-                      <a
-                        href={`/internshipProjects/${item.id}`}
-                        style={{ color: "inherit", textDecoration: "none" }}
-                      >
-                        {item.name}
-                      </a>
-                    </TableCell>
-                    <TableCell>
-                      <a
-                        href={`/internshipProjects/${item.id}`}
-                        style={{ color: "inherit", textDecoration: "none" }}
-                      >
-                        {item.searchSkills}
-                      </a>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                <InstantSearch indexName="projects" searchClient={searchClient}>
+                  <Configure filters={`latest_pmw:true`} />
+                  <div hidden>
+                    <SearchBox defaultRefinement={searchValue} />
+                  </div>
+                  <TableHitsApplicant />
+                  <Pagination />
+                </InstantSearch>
               </TableBody>
             </Table>
           )}
-          <Pagination
-            count={
-              count % ITEMS_PER_PAGE === 0
-                ? count / ITEMS_PER_PAGE
-                : Math.trunc(count / ITEMS_PER_PAGE) + 1
-            }
-            shape="rounded"
-            sx={{ pt: "15px" }}
-            onChange={handlePaginationChange}
-          />
         </Paper>
       </Grid>
     </>

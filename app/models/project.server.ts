@@ -4,6 +4,12 @@ import { jsonArrayFrom } from "kysely/helpers/postgres";
 import { v4 as uuid } from "uuid";
 import { defaultStatus } from "~/constants";
 import { db, joinCondition, prisma } from "~/db.server";
+import {
+  addProjectToTypesense,
+  updateProjectToTypesense,
+  deleteProjectToTypesense,
+  getProjectByIdTypesense,
+} from "~/instantSearch.server";
 import { DB } from "~/kysely";
 
 interface SearchProjectsInput {
@@ -293,6 +299,7 @@ export async function createProject(
     return newProject;
   });
 
+  addProjectToTypesense(await getProject({ id: newProject.id }));
   return await getProject({ id: newProject.id });
 }
 
@@ -339,6 +346,8 @@ export async function updateMembers(
     .select(["id", "profileId"])
     .where("projectId", "=", projectId)
     .execute();
+
+  // updateProjectToTypesense(projectId, await getProjectByIdTypesense(projectId));
 
   const activeMembers: string[] = [];
 
@@ -393,6 +402,18 @@ export async function updateMembers(
         );
         await addRolesForMember(projectMember.role, newMember.id, trx);
       }
+    }
+
+    for (const projectMember of projectMembers) {
+      projectMember.role?.forEach(async (role) => {
+        if (role.id === "5df5fb9a-c7m9-4ef0-8825-d83b77d22221") {
+          const project = await getProjectByIdTypesense(projectId);
+          if (project) {
+            project.latest_pmw = true;
+            updateProjectToTypesense(projectId, project);
+          }
+        }
+      });
     }
 
     // Delete previous members who are no longer in activeMembers array of ids
@@ -506,6 +527,7 @@ export async function updateProjects(id: string, data: ProjectInputForm) {
       .execute();
   });
 
+  updateProjectToTypesense(id, await getProject({ id }));
   return getProject({ id });
 }
 
@@ -932,6 +954,7 @@ export async function searchProjects({
 
 export async function deleteProject(projectId: string, isAdmin: boolean) {
   if (isAdmin) {
+    deleteProjectToTypesense(projectId);
     await prisma.projects.delete({ where: { id: projectId } });
   }
   return true;
