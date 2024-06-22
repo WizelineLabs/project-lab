@@ -21,7 +21,7 @@ import {
   type SubmitOptions,
   useFetcher,
   useNavigation,
-  useSubmit
+  useSubmit,
 } from "@remix-run/react";
 import { withZod } from "@remix-validated-form/with-zod";
 import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
@@ -226,15 +226,11 @@ export default function Applicant() {
                 >
                   <EditSharp />
                 </IconButton>
-                ) : (
-                  <IconButton
-                    aria-label="Edit"
-                    onClick={() => editApplicant()}
-                  >
-                    <EditSharp />
-                  </IconButton>
-                  )
-                }
+              ) : (
+                <IconButton aria-label="Edit" onClick={() => editApplicant()}>
+                  <EditSharp />
+                </IconButton>
+              )}
               <Stack direction="column" spacing={1}>
                 <Paper>
                   <Typography

@@ -209,51 +209,102 @@ export default function FormPage() {
           validator={validator}
           //action="./createapplicant"
           //TODO: Maybe this is not the correct approach
-           action={applicantByEmail?.email ? "./editApplicant" : "./createapplicant"}
+          action={
+            applicantByEmail?.email ? "./editApplicant" : "./createapplicant"
+          }
           method="post"
           defaultValues={{
             personalEmail: profile.email,
             fullName: applicantByEmail?.fullName
               ? applicantByEmail?.fullName
               : profile.name,
-            nationality: applicantByEmail?.nationality ? applicantByEmail.nationality : "",
-            dayOfBirth: applicantByEmail?.dayOfBirth ? new Date(applicantByEmail.dayOfBirth).toISOString().split('T')[0] : '',
+            nationality: applicantByEmail?.nationality
+              ? applicantByEmail.nationality
+              : "",
+            dayOfBirth: applicantByEmail?.dayOfBirth
+              ? new Date(applicantByEmail.dayOfBirth)
+                  .toISOString()
+                  .split("T")[0]
+              : "",
             gender: applicantByEmail?.gender ? applicantByEmail?.gender : "",
             country: applicantByEmail?.country ? applicantByEmail.country : "",
-            homeAddress: applicantByEmail?.homeAddress ? applicantByEmail?.homeAddress : "",
+            homeAddress: applicantByEmail?.homeAddress
+              ? applicantByEmail?.homeAddress
+              : "",
             phone: applicantByEmail?.phone ? applicantByEmail?.phone : "",
             university: applicantByEmail?.universityName
-              ? { id: applicantByEmail?.universityId ?? '', name: applicantByEmail?.universityName }
-              : { id: '', name: '' },
-            universityContactId: applicantByEmail?.universityPointOfContactId ? applicantByEmail?.universityPointOfContactId : "",
-            universityEmail: applicantByEmail?.universityEmail ? applicantByEmail?.universityEmail : "",
-            emergencyContactName: applicantByEmail?.emergencyContactName ? applicantByEmail?.emergencyContactName : "",
-            emergencyRelationship: applicantByEmail?.emergencyRelationship ? applicantByEmail?.emergencyRelationship : "",
-            emergencyContactPhone: applicantByEmail?.emergencyContactPhone ? applicantByEmail?.emergencyContactPhone : "",
-            experience: applicantByEmail?.experience ? applicantByEmail?.experience : "",
-            englishLevel: applicantByEmail?.englishLevel ? applicantByEmail?.englishLevel : "",
+              ? {
+                  id: applicantByEmail?.universityId ?? "",
+                  name: applicantByEmail?.universityName,
+                }
+              : { id: "", name: "" },
+            universityContactId: applicantByEmail?.universityPointOfContactId
+              ? applicantByEmail?.universityPointOfContactId
+              : "",
+            universityEmail: applicantByEmail?.universityEmail
+              ? applicantByEmail?.universityEmail
+              : "",
+            emergencyContactName: applicantByEmail?.emergencyContactName
+              ? applicantByEmail?.emergencyContactName
+              : "",
+            emergencyRelationship: applicantByEmail?.emergencyRelationship
+              ? applicantByEmail?.emergencyRelationship
+              : "",
+            emergencyContactPhone: applicantByEmail?.emergencyContactPhone
+              ? applicantByEmail?.emergencyContactPhone
+              : "",
+            experience: applicantByEmail?.experience
+              ? applicantByEmail?.experience
+              : "",
+            englishLevel: applicantByEmail?.englishLevel
+              ? applicantByEmail?.englishLevel
+              : "",
             major: applicantByEmail?.major ? applicantByEmail?.major : "",
-            graduationDate: applicantByEmail?.graduationDate ? new Date(applicantByEmail.graduationDate).toISOString().split('T')[0] : '',
-            semester: applicantByEmail?.semester ? applicantByEmail?.semester : "",
-            interest: applicantByEmail?.interest ? applicantByEmail?.interest : "",
+            graduationDate: applicantByEmail?.graduationDate
+              ? new Date(applicantByEmail.graduationDate)
+                  .toISOString()
+                  .split("T")[0]
+              : "",
+            semester: applicantByEmail?.semester
+              ? applicantByEmail?.semester
+              : "",
+            interest: applicantByEmail?.interest
+              ? applicantByEmail?.interest
+              : "",
             cvLink: applicantByEmail?.cvLink ? applicantByEmail?.cvLink : "",
-            interestedRoles: applicantByEmail?.interestedRoles ? applicantByEmail?.interestedRoles : "",
-            preferredTools: applicantByEmail?.preferredTools ? applicantByEmail?.preferredTools : "",
-            startDate: applicantByEmail?.startDate ? new Date(applicantByEmail.startDate).toISOString().split('T')[0] : '',
-            endDate: applicantByEmail?.endDate ? new Date(applicantByEmail.endDate).toISOString().split('T')[0] : '',
+            interestedRoles: applicantByEmail?.interestedRoles
+              ? applicantByEmail?.interestedRoles
+              : "",
+            preferredTools: applicantByEmail?.preferredTools
+              ? applicantByEmail?.preferredTools
+              : "",
+            startDate: applicantByEmail?.startDate
+              ? new Date(applicantByEmail.startDate).toISOString().split("T")[0]
+              : "",
+            endDate: applicantByEmail?.endDate
+              ? new Date(applicantByEmail.endDate).toISOString().split("T")[0]
+              : "",
             hoursPerWeek: applicantByEmail?.hoursPerWeek
-              ? applicantByEmail?.hoursPerWeek !== undefined && applicantByEmail?.hoursPerWeek !== null
+              ? applicantByEmail?.hoursPerWeek !== undefined &&
+                applicantByEmail?.hoursPerWeek !== null
                 ? applicantByEmail?.hoursPerWeek.toString()
                 : ""
               : "",
-            howDidYouHearAboutUs: applicantByEmail?.howDidYouHearAboutUs ? applicantByEmail?.howDidYouHearAboutUs : "",
-            participatedAtWizeline : applicantByEmail?.participatedAtWizeline !== undefined
+            howDidYouHearAboutUs: applicantByEmail?.howDidYouHearAboutUs
+              ? applicantByEmail?.howDidYouHearAboutUs
+              : "",
+            participatedAtWizeline:
+              applicantByEmail?.participatedAtWizeline !== undefined
                 ? applicantByEmail.participatedAtWizeline
-                  ? 'Yes'
-                  : 'No'
-                : '',
-            wizelinePrograms: applicantByEmail?.wizelinePrograms ? applicantByEmail?.wizelinePrograms : "",
-            comments: applicantByEmail?.comments ? applicantByEmail?.comments : "",   
+                  ? "Yes"
+                  : "No"
+                : "",
+            wizelinePrograms: applicantByEmail?.wizelinePrograms
+              ? applicantByEmail?.wizelinePrograms
+              : "",
+            comments: applicantByEmail?.comments
+              ? applicantByEmail?.comments
+              : "",
           }}
         >
           <Grid container spacing={10}>
@@ -553,7 +604,7 @@ export default function FormPage() {
               <SelectField
                 name="participatedAtWizeline"
                 label="Have you participated in any program at Wizeline before?"
-                options={['Yes', 'No']}
+                options={["Yes", "No"]}
                 style={{ width: "100%", marginBottom: "20px" }}
               />
               <SelectField
