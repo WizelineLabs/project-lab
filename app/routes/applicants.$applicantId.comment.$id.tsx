@@ -6,9 +6,8 @@ import { deleteComment, updateComment } from "~/models/applicantComment.server";
 import { getSession } from "~/session.server";
 
 export const action: ActionFunction = async ({ request, params }) => {
-  invariant(params.applicantId, "projectId could not be found");
+  invariant(params.applicantId, "applicant could not be found");
   invariant(params.id, "comment id could not be found");
-  const applicantId = params.applicantId;
   const id = params.id;
 
   try {
@@ -27,5 +26,5 @@ export const action: ActionFunction = async ({ request, params }) => {
     const session = await getSession(request);
     session.flash("warning", "Error while updating comment");
   }
-  return redirect(`/applicants/${applicantId}`);
+  return redirect(`/applicants/${params.applicantId}`);
 };

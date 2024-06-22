@@ -38,7 +38,7 @@ import ModalBox from "~/core/components/ModalBox";
 import RegularSelect from "~/core/components/RegularSelect";
 import WhatsAppLink from "~/core/components/WhatsAppLink";
 import Header from "~/core/layouts/Header";
-import { getApplicantById } from "~/models/applicant.server";
+import { getApplicantByEmail } from "~/models/applicant.server";
 import { getCommentsApplicant } from "~/models/applicantComment.server";
 import { checkPermission } from "~/models/authorization.server";
 import type { Roles } from "~/models/authorization.server";
@@ -88,12 +88,11 @@ export const validator = withZod(
 );
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
-  invariant(params.applicantId, "projectId not found");
+  invariant(params.applicantId, "applicant not found");
 
   const projects = await getProjectsList();
-  const applicantId = params.applicantId;
-  const comments = await getCommentsApplicant(parseInt(applicantId as string));
-  const applicant = await getApplicantById(params.applicantId);
+  const applicant = await getApplicantByEmail(params.applicantId);
+  const comments = await getCommentsApplicant(applicant.id);
   if (!applicant) {
     throw new Response("Not Found", { status: 404 });
   }
@@ -114,7 +113,7 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
     applicant,
     projects,
     canEditProject,
-    applicantId,
+    applicantId: applicant.id,
     profileId,
     comments,
   });
@@ -191,11 +190,11 @@ export default function Applicant() {
   };
 
   const editApplicant = () => {
-      submit(null, {
+    submit(null, {
       method: "get",
-      action: `/applicationForm/${applicantId}`,
+      action: `/applicationForm/${applicant.email}`,
     });
-  }
+  };
 
   return (
     <>

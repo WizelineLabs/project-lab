@@ -82,7 +82,7 @@ function CommentItem({
   profileId,
 }: {
   comment: CommentItemType;
-  applicantId: string;
+  applicantId: number;
   profileId: string;
 }) {
   const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);

@@ -130,17 +130,6 @@ function getCurrentDate(): string {
   return `${year}-${month}-${day}`;
 }
 
-interface UserProfile {
-  email: string;
-  name: string;
-}
-
-interface LoaderData {
-  universities: Awaited<ReturnType<typeof getActiveUniversities>>;
-  profile: UserProfile;
-  applicantByEmail: Awaited<ReturnType<typeof getApplicantByEmail>>;
-}
-
 interface UniversityValue {
   id: string;
   name: string;
@@ -156,7 +145,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   const profile = await requireProfile(request);
   const applicantByEmail = await getApplicantByEmail(profile.email);
 
-  return json<LoaderData>({
+  return json({
     universities,
     profile,
     applicantByEmail,
@@ -165,7 +154,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export default function FormPage() {
   const { universities, profile, applicantByEmail } =
-    useLoaderData() as LoaderData;
+    useLoaderData<typeof loader>();
 
   const [selectedUniversity, setSelectedUniversity] =
     useState<UniversityValue | null>({

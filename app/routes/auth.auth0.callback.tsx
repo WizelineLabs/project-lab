@@ -4,7 +4,6 @@ import { existApplicant } from "~/models/applicant.server";
 import {
   createUserSession,
   getUserRole,
-  requireProfile,
   returnToCookie,
 } from "~/session.server";
 
@@ -23,14 +22,12 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   if (userRole === "ADMIN" || userRole === "USER") {
     roleRedirect = "/projects";
   } else if (userRole === "APPLICANT") {
-    const profile = await requireProfile(request);
-    const checkExistApplicant = await existApplicant(profile.email);
-
+    const checkExistApplicant = await existApplicant(user.email);
     //Check if the user has already answered the "aplicationform".
     if (checkExistApplicant) {
       roleRedirect = "/internshipProjects";
     } else {
-      roleRedirect = `/applicationForm/${profile.id}`;
+      roleRedirect = `/applicationForm/${user.email}`;
     }
   } else {
     roleRedirect = `/login/${params.connection}`;
