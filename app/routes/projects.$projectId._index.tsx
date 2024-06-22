@@ -265,7 +265,7 @@ export default function ProjectDetailsPage() {
 
   return (
     <>
-      <Header title={project.name || ""} />
+      <Header />
 
       <Container sx={{ marginBottom: 2 }}>
         <Paper

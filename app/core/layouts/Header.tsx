@@ -6,11 +6,6 @@ import { Button, Container, Grid, Paper, styled } from "@mui/material";
 import { useLocation, useSubmit } from "@remix-run/react";
 import { useOptionalUser } from "~/utils";
 
-interface IProps {
-  title: string;
-  existApplicant?: boolean;
-  applicantId?: string | number;
-}
 export interface MenuItemArgs {
   text: string;
   "data-testid"?: string;
@@ -28,42 +23,20 @@ const StyledHeaderButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-
-const Header = ({ existApplicant, applicantId }: IProps) => {
+const Header = () => {
   const currentUser = useOptionalUser();
   const submit = useSubmit();
   const location = useLocation();
 
-
-  const handleClickProfile = async () => {
-    if (currentUser) {
-      const { email } = currentUser;
-      submit(null, {
-        method: "get",
-        action: `/profile/${encodeURIComponent(email)}`,
-      });
-    } else {
-      return;
-    }
-  };
-
-  const handleClickProfileApplicant = async () => {
-    submit(null, {
-      method: "get",
-      action: `/applicants/${applicantId}`,
-    });
-  };
-
   const handleLogout = async () => {
-    await submit(null, { method: "post", action: "/logout" });
+    submit(null, { method: "post", action: "/logout" });
   };
 
   const options: MenuItemArgs[] = [
     ...(currentUser?.role === "ADMIN" || currentUser?.role === "USER"
       ? [
           {
-            onClick: handleClickProfile,
-            to: "/",
+            to: `/profile/${encodeURIComponent(currentUser.email)}`,
             text: "Profile",
           },
         ]
@@ -71,12 +44,11 @@ const Header = ({ existApplicant, applicantId }: IProps) => {
     ...(currentUser?.role === "APPLICANT"
       ? [
           {
-            onClick: handleClickProfileApplicant,
-            to: "/",
+            to: `/applicants/${encodeURIComponent(currentUser.email)}`,
             text: "Profile",
           },
         ]
-    :[]),
+      : []),
     {
       to: "/",
       text: "Home",
@@ -98,7 +70,6 @@ const Header = ({ existApplicant, applicantId }: IProps) => {
           },
         ]
       : []),
-    
   ];
 
   let linkTo = "/internshipProjects";
@@ -156,14 +127,14 @@ const Header = ({ existApplicant, applicantId }: IProps) => {
               ) : // Logic for /intershipProjects if form is answered
               location.pathname.includes("/internshipProjects") &&
                 currentUser &&
-                existApplicant ? (
+                currentUser.role == "APPLICANT" ? (
                 <DropDownButton options={options}>
                   {currentUser?.email}
                 </DropDownButton>
               ) : // Logic for /intershipProjects if form is not answered
               location.pathname.includes("/internshipProjects") &&
                 currentUser &&
-                !existApplicant ? (
+                currentUser.role != "APPLICANT" ? (
                 <Button
                   className="contained"
                   sx={{

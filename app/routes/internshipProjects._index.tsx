@@ -89,11 +89,7 @@ export default function ViewProjects() {
 
   return (
     <>
-      <Header
-        title="Internship Projects"
-        existApplicant={existApplicant}
-        applicantId={applicant.id}
-      />
+      <Header />
 
       {existApplicant ? (
         <Grid item xs={12} md={9}>

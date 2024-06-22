@@ -141,7 +141,7 @@ const EditMembersPage = () => {
 
   return (
     <>
-      <Header title="Project Members" />
+      <Header />
       <Container>
         <Paper
           elevation={0}

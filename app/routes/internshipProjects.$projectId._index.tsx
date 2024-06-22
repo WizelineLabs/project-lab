@@ -82,7 +82,7 @@ export default function ProjectDetail() {
 
   return (
     <>
-      <Header title={projects.name || ""} existApplicant={existApplicant} />
+      <Header />
 
       <Container sx={{ marginBottom: 2 }}>
         <Paper

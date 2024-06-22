@@ -39,7 +39,7 @@ export default function AplicantComments({
   profileId,
 }: {
   comments: CommentsArrayType;
-  applicantId: string;
+  applicantId: number;
   profileId: string;
 }) {
   return (

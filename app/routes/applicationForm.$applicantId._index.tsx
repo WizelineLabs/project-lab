@@ -198,10 +198,7 @@ export default function FormPage() {
 
   return (
     <Container>
-      <Header
-        title="Applicants"
-        applicantId={applicantByEmail?.id.toString()}
-      />
+      <Header />
       <Paper sx={{ p: 2 }}>
         <img src="/HeaderImage.png" alt="Wizeline" style={{ width: "100%" }} />
         <Typography component="div" variant="h2">

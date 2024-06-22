@@ -136,7 +136,7 @@ export default function Projects() {
 
   return (
     <>
-      <Header title="Applicants" />
+      <Header />
       <NavAppBar title="Internship Applicants" />
       <Container>
         <Paper sx={{ p: 2 }}>

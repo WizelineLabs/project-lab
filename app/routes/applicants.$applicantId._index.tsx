@@ -199,7 +199,7 @@ export default function Applicant() {
 
   return (
     <>
-      <Header title="Applicants" applicantId={applicantId} />
+      <Header />
       <Container>
         <Paper sx={{ p: 2 }}>
           <Grid container spacing={2}>

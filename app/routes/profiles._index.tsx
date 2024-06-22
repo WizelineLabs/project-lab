@@ -190,7 +190,7 @@ const Profiles = () => {
 
   return (
     <>
-      <Header title="Profiles" />
+      <Header />
       <NavAppBar title="Profiles" />
       <Container>
         <Grid container spacing={2} alignItems="flex-start">
