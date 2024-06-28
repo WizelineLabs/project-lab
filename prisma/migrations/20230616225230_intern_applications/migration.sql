@@ -53,5 +53,7 @@ CREATE UNIQUE INDEX "Applicant_email_key" ON "Applicant"("email");
 -- CreateIndex
 CREATE INDEX "applicant_status_idx" ON "Applicant"("status");
 
+update "Profiles" set "preferredName" = "firstName" where "preferredName" is null;
+
 -- AlterTable
 ALTER TABLE "Profiles" ALTER COLUMN "preferredName" SET NOT NULL;
