@@ -42,8 +42,9 @@ import { getApplicantByEmail } from "~/models/applicant.server";
 import { getCommentsApplicant } from "~/models/applicantComment.server";
 import { checkPermission } from "~/models/authorization.server";
 import type { Roles } from "~/models/authorization.server";
+import { getProfileByUserId } from "~/models/profile.server";
 import { getProjectsList } from "~/models/project.server";
-import { requireProfile, requireUser } from "~/session.server";
+import { requireUser } from "~/session.server";
 import { validateNavigationRedirect } from "~/utils";
 
 export function links() {
@@ -97,12 +98,11 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
     throw new Response("Not Found", { status: 404 });
   }
 
-  const profile = await requireProfile(request);
-  const profileId = profile.id;
-
   const user = await requireUser(request);
+  const profile = await getProfileByUserId(user.id);
+
   const canEditProject = checkPermission(
-    profile.id,
+    profile?.id,
     user.role as Roles,
     "edit.project",
     "applicant",
@@ -114,7 +114,7 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
     projects,
     canEditProject,
     applicantId: applicant.id,
-    profileId,
+    profileId: profile?.id,
     comments,
   });
 };

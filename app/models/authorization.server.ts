@@ -13,12 +13,15 @@ type Actions = "create" | "view" | "edit" | "delete" | "edit.project";
 type Resources = "applicant" | "project";
 
 export function checkPermission(
-  principal: string | number,
+  principal: string | number | undefined,
   role: Roles,
   action: Actions,
   resourceType: Resources,
   resource: any
 ) {
+  if (principal === undefined) {
+    return false;
+  }
   const derivedRoles = getDerivedRoles(principal, resourceType, resource);
   if (role == "ADMIN") {
     return true;

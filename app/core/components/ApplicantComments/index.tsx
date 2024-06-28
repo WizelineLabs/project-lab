@@ -40,7 +40,7 @@ export default function AplicantComments({
 }: {
   comments: CommentsArrayType;
   applicantId: number;
-  profileId: string;
+  profileId: string | undefined;
 }) {
   return (
     <Box sx={{ marginTop: 2, marginBottom: 2 }}>
@@ -83,7 +83,7 @@ function CommentItem({
 }: {
   comment: CommentItemType;
   applicantId: number;
-  profileId: string;
+  profileId: string | undefined;
 }) {
   const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
   const [openEditComment, setOpenEditComment] = useState<boolean>(false);

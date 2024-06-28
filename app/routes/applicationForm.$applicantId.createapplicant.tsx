@@ -2,7 +2,7 @@ import { validator } from "./applicationForm.$applicantId._index";
 import type { ActionFunction } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
 import { createApplicant } from "~/models/applicant.server";
-import { requireProfile } from "~/session.server";
+import { requireUser } from "~/session.server";
 
 const parseDate = (dateString: string): Date => {
   const [year, month, day] = dateString.split("-");
@@ -11,9 +11,9 @@ const parseDate = (dateString: string): Date => {
 
 export const action: ActionFunction = async ({ request }) => {
   const result = await validator.validate(await request.formData());
-  const profile = await requireProfile(request);
+  const user = await requireUser(request);
 
-  const email = profile?.email;
+  const email = user?.email;
   const personalEmail =
     (result?.data?.personalEmail as string) ?? "DefaultPersonalEmailValue";
   const fullName = (result?.data?.fullName as string) ?? "DefaultFullNameValue";
@@ -71,7 +71,7 @@ export const action: ActionFunction = async ({ request }) => {
     (result?.data?.wizelinePrograms as string) ??
     "DefaultWizelineProgramsValue";
   const comments = (result?.data?.comments as string) ?? "DefaultCommentsValue";
-  const avatarApplicant = profile?.avatarUrl as string;
+  const avatarApplicant = user?.avatarUrl as string;
 
   if (!result) {
     throw new Response("Error", {

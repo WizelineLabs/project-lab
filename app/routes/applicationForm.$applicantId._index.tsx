@@ -209,6 +209,7 @@ export default function FormPage() {
           career in technology.
         </Typography>
         <ValidatedForm
+          name="applicantForm"
           validator={validator}
           //action="./createapplicant"
           //TODO: Maybe this is not the correct approach
@@ -583,7 +584,6 @@ export default function FormPage() {
                 inputProps={{
                   min: startDate,
                 }}
-                disabled={startDate === getCurrentDate()}
               />
               <LabeledTextField
                 label="How many hours a week could you provide"
