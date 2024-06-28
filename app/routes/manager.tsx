@@ -47,7 +47,7 @@ export default function ManagerPage() {
 
   return (
     <div>
-      <Header title="Manager" />
+      <Header />
       <Container>
         <NavBarTabsStyles>
           <EditPanelsStyles>

@@ -96,7 +96,7 @@ export const action: ActionFunction = async ({ request }) => {
 const NewProjectPage = () => {
   return (
     <>
-      <Header title="Create your proposal" />
+      <Header />
       <Container>
         <Paper elevation={0} sx={{ paddingLeft: 2, paddingRight: 2 }}>
           <h1>Create your proposal</h1>

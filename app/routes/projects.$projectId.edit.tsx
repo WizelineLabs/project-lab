@@ -129,7 +129,7 @@ export default function EditProjectPage() {
 
   return (
     <>
-      <Header title={"Edit " + project.name} />
+      <Header />
 
       <Container>
         <Paper elevation={0} sx={{ paddingLeft: 2, paddingRight: 2 }}>

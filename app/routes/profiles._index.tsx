@@ -110,10 +110,11 @@ export const loader: LoaderFunction = async ({ request }) => {
   const benchStatus = url.searchParams.getAll("benchStatus");
   const employeeStatus = url.searchParams.getAll("employeeStatus");
   const skill = url.searchParams.getAll("skill");
-  
-  const isBillable = url.searchParams.get("isBillable") === null ?
-    undefined :
-    url.searchParams.get("isBillable") === "true";
+
+  const isBillable =
+    url.searchParams.get("isBillable") === null
+      ? undefined
+      : url.searchParams.get("isBillable") === "true";
   const data = await searchProfilesFull({
     searchTerm,
     page,
@@ -190,7 +191,7 @@ const Profiles = () => {
 
   return (
     <>
-      <Header title="Profiles" />
+      <Header />
       <NavAppBar title="Profiles" />
       <Container>
         <Grid container spacing={2} alignItems="flex-start">
@@ -273,12 +274,12 @@ const Profiles = () => {
                   items={benchStatuses}
                 />
               ) : null}
-              {isBillables.length > 0 ?(
+              {isBillables.length > 0 ? (
                 <FilterAccordion
                   title="Is Billable"
                   filter="isBillable"
                   items={isBillables}
-                />  
+                />
               ) : null}
               <FilterAccordion title="Skill" filter="skill" items={skills} />
             </Paper>

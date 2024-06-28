@@ -21,6 +21,7 @@ import {
   type SubmitOptions,
   useFetcher,
   useNavigation,
+  useSubmit,
 } from "@remix-run/react";
 import { withZod } from "@remix-validated-form/with-zod";
 import MarkdownStyles from "@uiw/react-markdown-preview/markdown.css";
@@ -37,7 +38,7 @@ import ModalBox from "~/core/components/ModalBox";
 import RegularSelect from "~/core/components/RegularSelect";
 import WhatsAppLink from "~/core/components/WhatsAppLink";
 import Header from "~/core/layouts/Header";
-import { getApplicantById } from "~/models/applicant.server";
+import { getApplicantByEmail } from "~/models/applicant.server";
 import { getCommentsApplicant } from "~/models/applicantComment.server";
 import { checkPermission } from "~/models/authorization.server";
 import type { Roles } from "~/models/authorization.server";
@@ -87,12 +88,11 @@ export const validator = withZod(
 );
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
-  invariant(params.applicantId, "projectId not found");
+  invariant(params.applicantId, "applicant not found");
 
   const projects = await getProjectsList();
-  const applicantId = params.applicantId;
-  const comments = await getCommentsApplicant(parseInt(applicantId as string));
-  const applicant = await getApplicantById(params.applicantId);
+  const applicant = await getApplicantByEmail(params.applicantId);
+  const comments = await getCommentsApplicant(applicant.id);
   if (!applicant) {
     throw new Response("Not Found", { status: 404 });
   }
@@ -113,7 +113,7 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
     applicant,
     projects,
     canEditProject,
-    applicantId,
+    applicantId: applicant.id,
     profileId,
     comments,
   });
@@ -132,6 +132,7 @@ export default function Applicant() {
   const [projectSelected, setProjectSelected] = useState<ProjectValue | null>();
 
   const navigation = useNavigation();
+  const submit = useSubmit();
 
   useEffect(() => {
     const isActionRedirect = validateNavigationRedirect(navigation);
@@ -188,9 +189,16 @@ export default function Applicant() {
     searchProfiles("", "");
   };
 
+  const editApplicant = () => {
+    submit(null, {
+      method: "get",
+      action: `/applicationForm/${applicant.email}`,
+    });
+  };
+
   return (
     <>
-      <Header title="Applicants" />
+      <Header />
       <Container>
         <Paper sx={{ p: 2 }}>
           <Grid container spacing={2}>
@@ -218,7 +226,11 @@ export default function Applicant() {
                 >
                   <EditSharp />
                 </IconButton>
-              ) : null}
+              ) : (
+                <IconButton aria-label="Edit" onClick={() => editApplicant()}>
+                  <EditSharp />
+                </IconButton>
+              )}
               <Stack direction="column" spacing={1}>
                 <Paper>
                   <Typography

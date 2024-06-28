@@ -195,7 +195,7 @@ export default function GitHubInfo() {
 
   return (
     <>
-      <Header title="" />
+      <Header />
       <Container sx={{ marginBottom: 2 }}>
         <Paper
           sx={{

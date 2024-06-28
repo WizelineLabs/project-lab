@@ -137,6 +137,14 @@ export async function searchApplicants() {
     .execute();
 }
 
+export async function getApplicantIdByEmail(email: string) {
+  return await db
+    .selectFrom("Applicant as a")
+    .select("id")
+    .where("a.email", "=", email)
+    .executeTakeFirstOrThrow();
+}
+
 export async function getApplicantByEmail(email: string) {
   const applicant = await db
     .selectFrom("Applicant as a")
@@ -158,11 +166,7 @@ export async function getApplicantByEmail(email: string) {
       "m.lastName as mentorLastName",
     ])
     .where("a.email", "=", email)
-    .executeTakeFirst();
-
-  if (!applicant) {
-    return null;
-  }
+    .executeTakeFirstOrThrow();
 
   const projectMembers = await db
     .selectFrom("ProjectMembers")

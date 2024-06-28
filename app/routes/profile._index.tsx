@@ -66,7 +66,7 @@ export const ProfileInfo = () => {
   ) {
     return (
       <>
-        <Header title="Projects" />
+        <Header />
         <Container>
           <Grid container spacing={2} alignItems="flex-start">
             <Grid item xs={12} md={12}>
@@ -89,7 +89,7 @@ export const ProfileInfo = () => {
     const githubProjectsLink = githubProjects;
     return (
       <>
-        <Header title="Projects" />
+        <Header />
         <Container>
           <Grid container spacing={2} alignItems="flex-start">
             <Grid

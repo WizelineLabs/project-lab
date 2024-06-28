@@ -1,18 +1,18 @@
 /* eslint-disable no-console */
 import type { ActionFunction } from "@remix-run/server-runtime";
 import { redirect } from "remix-typedjson";
-import { editApplicant, getApplicantById } from "~/models/applicant.server";
-import { validator } from "~/routes/applicants.$applicantId._index";
-import { requireProfile, requireUser } from "~/session.server";
 import invariant from "tiny-invariant";
+import { editApplicant, getApplicantByEmail } from "~/models/applicant.server";
 import { checkPermission } from "~/models/authorization.server";
 import type { Roles } from "~/models/authorization.server";
+import { validator } from "~/routes/applicants.$applicantId._index";
+import { requireProfile, requireUser } from "~/session.server";
 
 export const action: ActionFunction = async ({ params, request }) => {
   const profile = await requireProfile(request);
   const user = await requireUser(request);
   invariant(params.applicantId, "applicantId could not be found");
-  const applicant = await getApplicantById(params.applicantId);
+  const applicant = await getApplicantByEmail(params.applicantId);
   if (!applicant) {
     throw new Response("Not Found", { status: 404 });
   }
@@ -27,8 +27,6 @@ export const action: ActionFunction = async ({ params, request }) => {
     throw new Response("Unauthorized", { status: 401 });
   }
 
-
-
   const result = await validator.validate(await request.formData());
   const applicantId = parseInt(result.data?.applicantId as string);
   const status = result.data?.status;
@@ -41,5 +39,7 @@ export const action: ActionFunction = async ({ params, request }) => {
     },
     applicantId
   );
-  return redirect(`/applicants/${response.id}?status=${response.status}`);
+  return redirect(
+    `/applicants/${params.applicantId}?status=${response.status}`
+  );
 };

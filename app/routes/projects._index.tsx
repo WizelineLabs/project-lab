@@ -264,7 +264,7 @@ export default function Projects() {
 
   return (
     <>
-      <Header title="Projects" />
+      <Header />
       {/*
         Disable Gutters based on:
         https://stackoverflow.com/questions/70038913/materialui-show-and-hide-the-containers-gutters-based-on-breakpoints

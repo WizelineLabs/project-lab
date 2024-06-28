@@ -39,7 +39,7 @@ export default function AplicantComments({
   profileId,
 }: {
   comments: CommentsArrayType;
-  applicantId: string;
+  applicantId: number;
   profileId: string;
 }) {
   return (
@@ -82,7 +82,7 @@ function CommentItem({
   profileId,
 }: {
   comment: CommentItemType;
-  applicantId: string;
+  applicantId: number;
   profileId: string;
 }) {
   const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
