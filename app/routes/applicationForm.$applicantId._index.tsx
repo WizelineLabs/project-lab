@@ -27,9 +27,9 @@ import { zfd } from "zod-form-data";
 import SelectField from "~/core/components/FormFields/SelectField";
 import LabeledTextField from "~/core/components/LabeledTextField";
 import RegularSelect from "~/core/components/RegularSelect";
-import { getApplicantByEmail } from "~/models/applicant.server";
+import { existApplicant, getApplicantByEmail } from "~/models/applicant.server";
 import { getActiveUniversities } from "~/models/university.server";
-import { requireProfile } from "~/session.server";
+import { requireUser } from "~/session.server";
 
 export const validator = withZod(
   zfd.formData({
@@ -142,18 +142,21 @@ const profileFetcherOptions: SubmitOptions = {
 
 export const loader: LoaderFunction = async ({ request }) => {
   const universities = await getActiveUniversities();
-  const profile = await requireProfile(request);
-  const applicantByEmail = await getApplicantByEmail(profile.email);
+  const user = await requireUser(request);
+  const applicantExists = await existApplicant(user.email);
+  const applicantByEmail = applicantExists
+    ? await getApplicantByEmail(user.email)
+    : null;
 
   return json({
     universities,
-    profile,
+    user,
     applicantByEmail,
   });
 };
 
 export default function FormPage() {
-  const { universities, profile, applicantByEmail } =
+  const { universities, user, applicantByEmail } =
     useLoaderData<typeof loader>();
 
   const [selectedUniversity, setSelectedUniversity] =
@@ -214,10 +217,10 @@ export default function FormPage() {
           }
           method="post"
           defaultValues={{
-            personalEmail: profile.email,
+            personalEmail: user.email,
             fullName: applicantByEmail?.fullName
               ? applicantByEmail?.fullName
-              : profile.name,
+              : user.name,
             nationality: applicantByEmail?.nationality
               ? applicantByEmail.nationality
               : "",
