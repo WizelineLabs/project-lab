@@ -1,11 +1,8 @@
 import { findProfileData } from "./lake.server";
-import { getUserInfo, getUserRepos } from "./models/github.get-getUserInfo";
+import { getUserInfo } from "./models/github.get-getUserInfo";
 import {
   createProfile,
   getProfileByEmail,
-  getGitHubProfileByEmail,
-  createGitHubProfile,
-  createGitHubProject,
   updateProfile,
 } from "./models/profile.server";
 import { Authenticator, type StrategyVerifyCallback } from "remix-auth";
@@ -28,6 +25,8 @@ const verifyCallback: StrategyVerifyCallback<
     // search profile in our DB or get from data lake
     const email = profile.emails[0].value;
     const userProfile = await getProfileByEmail(email);
+
+    // TODO: maybe move this to another process (auth.auth0.callback? or cron?)
     if (userProfile?.githubUser === "" || userProfile?.githubUser === null) {
       const { data } = await getUserInfo(email);
       // TODO: fix error when data might be null. But also simplify logic in this function
@@ -85,41 +84,6 @@ const verifyCallback: StrategyVerifyCallback<
       });
     }
 
-    const userGitHubProfile = await getGitHubProfileByEmail(email);
-    if (
-      userGitHubProfile === null ||
-      userGitHubProfile?.email === "" ||
-      userGitHubProfile?.email === null ||
-      userGitHubProfile?.email === undefined
-    ) {
-      const { data: userInfo } = await getUserInfo(email);
-
-      // TODO: fix error when data might be null. But also simplify logic in this function
-      if (userInfo.total_count !== 0) {
-        const { data: repos } = await getUserRepos(userInfo.items[0].login);
-
-        const userProfile = await getProfileByEmail(email);
-        await createGitHubProfile(
-          email,
-          userInfo.items[0].login,
-          userInfo.items[0].avatar_url,
-          userInfo.items[0].repos_url,
-          userProfile?.firstName ?? "Default Name",
-          userProfile?.lastName ?? "Default LastName"
-        );
-
-        for (const repo of repos) {
-          const date = new Date(repo.updated_at);
-          const formattedDate = date.toLocaleString();
-          const name = repo.name ? repo.name : "No name available";
-          const description = repo.description
-            ? repo.description
-            : "No description available";
-
-          await createGitHubProject(email, name, description, formattedDate);
-        }
-      }
-    }
     // Get the user data from your DB or API using the tokens and profile
     const role = isIntern ? "INTERN" : isAllowedDomain ? "USER" : "APPLICANT";
     return findOrCreate({
