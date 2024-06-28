@@ -68,20 +68,6 @@ const verifyCallback: StrategyVerifyCallback<
         businessUnit: lakeProfile.contact__business_unit,
         benchStatus: lakeProfile.contact__status,
       });
-    } else if (!userProfile && !isAllowedDomain) {
-      const email = profile?.emails ? profile.emails[0].value : null;
-      const firstName = profile?.name?.givenName || "Unnamed";
-      const preferredName = profile?.name?.givenName as string;
-      const lastName = profile?.name?.familyName as string;
-      const avatarUrl = profile?.photos ? profile.photos[0].value : null;
-
-      createProfile({
-        email: email !== null ? email : "",
-        firstName,
-        preferredName,
-        lastName,
-        avatarUrl,
-      });
     }
 
     // Get the user data from your DB or API using the tokens and profile
