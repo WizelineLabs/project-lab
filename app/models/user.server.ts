@@ -1,5 +1,6 @@
 import type { User } from "@prisma/client";
-import { prisma } from "~/db.server";
+import { v4 as uuid } from "uuid";
+import { prisma, db } from "~/db.server";
 
 export type { User } from "@prisma/client";
 
@@ -12,16 +13,29 @@ export async function getUserByEmail(email: User["email"]) {
 }
 
 export async function findOrCreate(create: {
-  email: User["email"];
-  name: User["name"];
-  role: User["role"];
+  email: string;
+  name: string;
+  role: string;
+  avatarUrl?: string;
 }) {
-  const update = { ...create, role: undefined };
-  return prisma.user.upsert({
-    where: { email: create.email },
-    create,
-    update,
-  });
+  const user = await db
+    .selectFrom("User")
+    .selectAll()
+    .where("email", "=", create.email)
+    .executeTakeFirst();
+  if (!user) {
+    return db
+      .insertInto("User")
+      .values({
+        ...create,
+        id: uuid(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .returningAll()
+      .executeTakeFirstOrThrow();
+  }
+  return user;
 }
 
 export async function deleteUserByEmail(email: User["email"]) {
