@@ -18,7 +18,7 @@ const dialect = new PostgresDialect({
 // to communicate with your database.
 export const db = new Kysely<DB>({
   dialect,
-  log: ["error", "query"],
+  log: process.env.KYSELY_DEBUG ? ["error", "query"] : [],
 });
 
 // Hard-code a unique key, so we can look up the client when this module gets re-imported
