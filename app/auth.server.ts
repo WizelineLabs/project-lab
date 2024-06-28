@@ -57,6 +57,7 @@ const verifyCallback: StrategyVerifyCallback<
         preferredName:
           lakeProfile.contact__preferred_name ||
           lakeProfile.contact__first_name,
+        isBillable: lakeProfile.contact__isbillable === "Billable",
         lastName: lakeProfile.contact__last_name,
         department: lakeProfile.contact__department,
         jobLevelTier: lakeProfile.contact__wizeos__level,
@@ -128,7 +129,7 @@ const verifyCallback: StrategyVerifyCallback<
     });
   } catch (e) {
     // eslint-disable-next-line no-console
-    console.log(e);
+    console.log("exception", e);
     throw e;
   }
 };
