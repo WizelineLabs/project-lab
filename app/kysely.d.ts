@@ -370,6 +370,7 @@ export interface UniversityPointsOfContact {
 }
 
 export interface User {
+  avatarUrl: string | null;
   createdAt: Generated<Timestamp>;
   email: string;
   id: string;

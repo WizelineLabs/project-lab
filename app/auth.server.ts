@@ -126,6 +126,7 @@ const verifyCallback: StrategyVerifyCallback<
       email: profile.emails[0].value,
       name: profile.displayName || "Unnamed",
       role: role,
+      avatarUrl: profile?.photos ? profile.photos[0].value : undefined,
     });
   } catch (e) {
     // eslint-disable-next-line no-console
