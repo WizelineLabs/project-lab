@@ -129,11 +129,6 @@ export async function searchApplicants() {
     )
     .selectAll("a")
     .select(["u.name as universityName", "poc.fullName as pocName"])
-    .where(
-      "startDate",
-      ">=",
-      new Date(Date.now() - 60 * 60 * 24 * 30 * 3 /** months **/ * 1000)
-    )
     .execute();
 }
 
