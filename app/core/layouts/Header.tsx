@@ -32,8 +32,9 @@ const Header = () => {
     submit(null, { method: "post", action: "/logout" });
   };
 
+  console.log("currentUser",currentUser)
   const options: MenuItemArgs[] = [
-    ...(currentUser?.role === "ADMIN" || currentUser?.role === "USER"
+    ...(currentUser?.role === "ADMIN" || currentUser?.role === "USER" || currentUser?.role === "APPLICANT"
       ? [
           {
             to: `/profile/${encodeURIComponent(currentUser.email)}`,
